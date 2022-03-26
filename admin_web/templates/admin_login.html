@@ -1,0 +1,29 @@
+
+{% include "includes/header.html" %}
+
+<body>
+
+    <span style="width: 250px;
+                 height: 300px;
+                 position: absolute;
+                 top:0;
+                 bottom: 0;
+                 left: 0;
+                 right: 0;
+                 margin: auto;
+                 text-align:center;">
+
+        <br>Thousand Suns Saga
+        <br><br>—
+        <br><br>ADMIN AUTHENTIFICATION
+        <br><br>
+
+        <form method="post"  role="form" action="/admin_login/#">
+            {% csrf_token %}
+            <br><br><input type="text" name="username" placeholder="Utilisateur">
+            <br><br><input type="password" name="password" placeholder="Mot de passe">
+            <br><br><input type="submit" value="login" />
+        </form>
+    </span>
+
+</body>

@@ -1,0 +1,208 @@
+
+{% load static %}
+
+{% include "includes/header.html" %}
+
+{% include "includes/menu.html" %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Serveurs</h1>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+
+        <!------------------------------------------------------------------------------------------------------------>
+        <!-- DESCRIPTION -->
+
+       <div class="card collapsed-card">
+        <div class="card-header">
+          <h3 class="card-title">Description status serveurs</h3>
+
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-0">
+            <br><span style="margin-left: 80px;">open : users can create an account and play</span>
+            <br><span style="margin-left: 80px;">close : users can play but not create new accounts</span>
+            <br><span style="margin-left: 80px;">test : only superuser can create an account</span>
+            <br><span style="margin-left: 80px;">stop : the server is fixed in time at the end of the game, no new account or any order,</span>
+            <br><span style="margin-left: 80px;">dead : everything shut down</span>
+            <br><br>
+        </div>
+       </div>
+
+      <!------------------------------------------------------------------------------------------------------------>
+      <!-- ACTIVE SERVERS -->
+
+      <div class="card" style="margin-top: 40px;">
+        <div class="card-header">
+          <h3 class="card-title">Serveurs de jeu</h3>
+
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+              <i class="fas fa-minus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-striped projects">
+              <thead>
+                  <tr>
+                      <th style="width: 1%">
+                          #
+                      </th>
+                      <th>
+                          Nom du serveur
+                      </th>
+
+                      <th style="width: 125px;" class="text-center">
+                          Status
+                      </th>
+                      <th style="width: 125px;" class="text-center">
+                          Visibilité
+                      </th>
+                      <th>
+                          Dates
+                      </th>
+                      <th>
+                          Joueurs
+                      </th>
+                       <th style="width: 145px;" class="text-center">
+                          Multicompte
+                       </th>
+                  </tr>
+              </thead>
+              <tbody>
+                 {% for server in servers_details  %}
+
+                  <tr>
+                      <td>
+                          <span style="font-size: 1.3em;">#</span>
+                      </td>
+                      <!-- Nom du serveur -->
+                      <td>
+                          <span style="font-size: 2em;">
+                              {{server.server_name}}
+                          </span>
+                      </td>
+
+                      <!-- Status -->
+                      <td>
+                        <form action="/admin_servers_states_edit/" method="GET" id="{{server.server_name}}_status">
+                            <input type="hidden" id="server_name" name="server_name" value="{{server.server_name}}">
+                            <input type="hidden" id="type" name="type" value="status">
+                            <select class="custom-select" style="max-width:100px;"
+                                    name="value" id="value"
+                                    onchange="this.form.submit()" form="{{server.server_name}}_status">
+                              <option {% if server.status == 'open' %} selected="selected" {% endif %} value="open">open</option>
+                              <option {% if server.status == 'close' %} selected="selected" {% endif %} value="close">close</option>
+                              <option {% if server.status == 'test' %} selected="selected" {% endif %} value="test">test</option>
+                              <option {% if server.status == 'stop' %} selected="selected" {% endif %} value="stop">stop</option>
+                              <option {% if server.status == 'dead' %} selected="selected" {% endif %} value="dead">dead</option>
+                            </select>
+                        </form>
+                      </td>
+
+                      <!-- Visibilité -->
+                      <td>
+                        <form action="/admin_servers_states_edit/" method="GET" id="{{server.server_name}}_visibility">
+                            <input type="hidden" id="server_name" name="server_name" value="{{server.server_name}}">
+                            <input type="hidden" id="type" name="type" value="admin_only_visibility">
+                            <select class="custom-select" style="max-width:100px;"
+                                    name="value" id="value"
+                                    onchange="this.form.submit()" form="{{server.server_name}}_visibility">
+                              <option {% if server.admin_only_visibility %} selected="selected" {% endif %} value="true">admin</option>
+                              <option {% if not server.admin_only_visibility %} selected="selected" {% endif %} value="false">tous</option>
+                            </select>
+                        </form>
+                      </td>
+
+                      <!-- Dates -->
+                      <td>
+                          <small>
+                              Création : {{server.creation_date|date:'d/m/Y H:m'}}
+                              <br/>
+                              Ouverture : {{server.opening_date|date:'d/m/Y H:m'}}
+                              <br/>
+                              Fermeture : {{server.end_date|date:'d/m/Y H:m'}}
+                          </small>
+                      </td>
+
+                      <!-- Joueurs -->
+                      <td>
+                          <small>
+                              Joueurs actifs : {{server.active_players|length}}
+                              <br/>
+                              Joueurs morts : {{server.previous_players|length}}
+                          </small>
+                      </td>
+
+                                            <!-- Multicomptes -->
+                      <td>
+                        <form action="/admin_servers_states_edit/" method="GET" id="{{server.server_name}}_allow_multiaccounts">
+                            <input type="hidden" id="server_name" name="server_name" value="{{server.server_name}}">
+                            <input type="hidden" id="type" name="type" value="allow_multiaccounts">
+                            <select class="custom-select" style="max-width:100px;"
+                                    name="value" id="value"
+                                    onchange="this.form.submit()" form="{{server.server_name}}_allow_multiaccounts">
+                              <option {% if server.allow_multiaccounts %} selected="selected" {% endif %} value="true">autorisé</option>
+                              <option {% if not server.allow_multiaccounts %} selected="selected" {% endif %} value="false">interdit</option>
+                            </select>
+                        </form>
+                      </td>
+
+                  </tr>
+
+                 {% endfor %}
+
+                  </tr>
+              </tbody>
+          </table>
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+  </aside>
+  <!-- /.control-sidebar -->
+</div>
+<!-- ./wrapper -->
+
+
+<!-- REQUIRED SCRIPTS -->
+
+<!-- jQuery -->
+<script type="text/javascript" src="{% static "libraries/jquery/jquery.min.js" %}" ></script>
+<!-- Bootstrap -->
+<script type="text/javascript" src="{% static "libraries/bootstrap/js/bootstrap.bundle.min.js" %}" ></script>
+<!-- AdminLTE -->
+<script type="text/javascript" src="{% static "dist/js/adminlte.js" %}" ></script>
+
+<!-- AdminLTE for demo purposes -->
+<script type="text/javascript" src="{% static "dist/js/demo.js" %}" ></script>
+</body>
+</html>
+
+

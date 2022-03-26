@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+
+    {% load static %}
+    {% load i18n %}
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TSS ADMIN</title>
+
+
+    <!-- ADMINLTE 3 -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link rel="stylesheet" href="{% static "libraries/fontawesome-free/css/all.min.css" %}" >
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" href="{% static "dist/css/adminlte.min.css" %}" >
+
+
+    <!-- BOKEH -->
+    <!--
+    <link href="http://cdn.pydata.org/bokeh/release/bokeh-2.4.1.min.css" rel="stylesheet" type="text/css">
+    <link href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-2.4.1.min.css" rel="stylesheet" type="text/css">
+    -->
+
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.1.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.4.1.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.4.1.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-api-2.4.1.min.js"></script>
+    {{ script | safe }}
+
+</head>
