@@ -1,6 +1,6 @@
 
-
-<li class="nav-item menu-open">
+<li class="nav-item
+    {% if request.GET.server_name_selected == server_name %} menu-open{% endif %}">
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-hdd"></i>
         <p>
@@ -8,7 +8,8 @@
             <i class="right fas fa-angle-left"></i>
         </p>
     </a>
-    <ul class="nav nav-treeview">
+    <ul class="nav nav-treeview"
+        {% if request.GET.server_name_selected != server_name %} style="display:none" {% endif %}>
 
 
         <li class="nav-item">
