@@ -58,7 +58,7 @@ MIDDLEWARE = [
 
 ]
 
-ROOT_URLCONF = 'Thousand Suns Saga.urls'
+ROOT_URLCONF = 'django_tss.urls'
 
 TEMPLATES = [
     {
@@ -71,13 +71,13 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'Thousand Suns Saga.context_processors.servers_details'
+                'django_tss.context_processors.servers_details'
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'Thousand Suns Saga.wsgi.application'
+WSGI_APPLICATION = 'django_tss.wsgi.application'
 
 
 # Database
@@ -151,5 +151,5 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.database.models.BigAutoField'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

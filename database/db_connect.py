@@ -2,7 +2,7 @@
 import sys
 import pymongo
 
-from django.settings import DATABASES
+from django_tss.settings import DATABASES
 
 
 clients = {}

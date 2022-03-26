@@ -1,6 +1,6 @@
 
 from database.db_connect import clients
-from django.settings import DATABASES
+from django_tss.settings import DATABASES
 
 client = clients['TSS_main_server']
 
