@@ -1,0 +1,116 @@
+
+{% load static %}
+
+{% include "includes/header.html" %}
+
+{% include "includes/menu.html" %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Serveurs</h1>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- Main content -->
+    <section class="content">
+
+        <!------------------------------------------------------------------------------------------------------------>
+        <!-- CREATE USER -->
+
+       <div class="card collapsed-card">
+        <div class="card-header">
+          <h3 class="card-title">Création d'un nouveau compte user</h3>
+
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body p-0">
+            <form  id="create_user" action="/create_user/" method="GET">
+                {% csrf_token %}
+
+                <div class="card-body" style="max-width: 300px">
+
+                  <div class="form-group"><input name="username" id="username" class="form-control" placeholder="Nom du compte" autocomplete="off"></div>
+
+                  <div class="form-group"><input name="email" id="email" class="form-control" placeholder="Adresse Email" autocomplete="off"></div>
+
+                  <div class="form-group"><input name="password" id="password" class="form-control" placeholder="Mot de passe" autocomplete="off"></div>
+
+                </div>
+
+                <div class="card-footer">
+                  <button type="submit" class="btn btn-primary">Créer le compte</button>
+                </div>
+
+                {% include "includes/form_submit_to_json_api.js" with form="create_user" %}
+            </form>
+
+        </div>
+       </div>
+
+      <!------------------------------------------------------------------------------------------------------------>
+      <!-- USERS ACCOUNTS -->
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Comptes Utilisateurs</h3>
+          </div>
+          <!-- /.card-header -->
+          <div class="card-body">
+            <table id="DataTable" class="table table-bordered table-striped">
+              <thead>
+                  <tr>
+                    {% for column_name in user_accounts.0.keys %}
+                        <th>{{column_name}}</th>
+                    {% endfor %}
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for user_account in user_accounts %}
+                      <tr>
+                          {% for var in user_account.values %}
+                                <td>{{var}}</td>
+                          {% endfor %}
+                      </tr>
+                  {% endfor %}
+              </tbody>
+              <tfoot>
+                  <tr>
+                    {% for column_name in user_accounts.0.keys %}
+                        <th>{{column_name}}</th>
+                    {% endfor %}
+                  </tr>
+              </tfoot>
+            </table>
+          </div>
+          <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+    </section>
+    <!-- /.content -->
+  </div>
+
+
+<script>
+  $(function () {
+    var table = $("#DataTable").DataTable({
+      "responsive": true,
+      "lengthChange": true,
+      "autoWidth": false,
+      "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+      "columnDefs":[{ targets: [0,2,4,6,7,9,10,14,15,16], visible: false }],
+    }).buttons().container().appendTo('#DataTable_wrapper .col-md-6:eq(0)');
+  });
+</script>
+</body>
+</html>

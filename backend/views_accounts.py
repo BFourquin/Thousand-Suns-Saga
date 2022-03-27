@@ -18,33 +18,35 @@ def request_params(request):
 def create_user(request):
 
     params = request_params(request)
+    print(params)
 
     # ##### USERNAME ######
     if not 'username' in params:
-        return JsonResponse({"error": "Aucun nom d'utilisateur spécifié."}, status=422)
+        return JsonResponse({"message": "Aucun nom d'utilisateur spécifié."}, status=422)
     print(params['username'], user_name_exist(params['username']), get_user_by_name(params['username']))
     if user_name_exist(params['username']):
-        return JsonResponse({"error": "Ce nom de compte est déjà pris."}, status=422)
+        return JsonResponse({"message": "Ce nom de compte est déjà pris."}, status=422)
     if not 5 < len(params['username']) < 25:
-        return JsonResponse({"error": "Votre pseudo doit faire entre 5 et 25 caractères."}, status=422)
+        return JsonResponse({"message": "Votre pseudo doit faire entre 5 et 25 caractères."}, status=422)
 
     # ##### EMAIL ######
     if not 'email' in params:
-        return JsonResponse({"error": "Aucun email spécifié."}, status=422)
+        return JsonResponse({"message": "Aucun email spécifié."}, status=422)
     try:
         validate_email(params['email'])  # Only check if it's an email format, not if it really exist
     except:
-        return JsonResponse({"error": "Adresse email non valide."}, status=422)
+        return JsonResponse({"message": "Adresse email non valide."}, status=422)
     if user_mail_already_used(params['email']):
-        return JsonResponse({"error": "Un compte est déjà lié à cette adresse mail."}, status=422)
+        return JsonResponse({"message": "Un compte est déjà lié à cette adresse mail."}, status=422)
 
     # ##### PASSWORD ######
     if not 'password' in params:
-        return JsonResponse({"error": "Aucun mot de passe spécifié."}, status=422)
+        return JsonResponse({"message": "Aucun mot de passe spécifié."}, status=422)
 
-    user = create_user_and_user_extend(params['username'], params['mail'], params['password'])
+    user = create_user_and_user_extend(params['username'], params['email'], params['password'])
     print(user)
-    return JsonResponse({"response": "Compte créé."}, status=200)
+    print('done')
+    return JsonResponse({"message": "Compte créé."}, status=200)
 
 
 def get_user(request):

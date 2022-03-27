@@ -10,7 +10,9 @@
     <title>TSS ADMIN</title>
 
 
+
     <!-- ADMINLTE 3 -->
+
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <link rel="stylesheet" href="{% static "libraries/fontawesome-free/css/all.min.css" %}" >
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
@@ -29,4 +31,32 @@
     <script src="https://cdn.bokeh.org/bokeh/release/bokeh-api-2.4.1.min.js"></script>
     {{ script | safe }}
 
+
+    <!-- JS SCRIPTS -->
+
+    <script type="text/javascript" src="{% static "libraries/jquery/jquery.min.js" %}" ></script> <!-- jQuery -->
+    <script type="text/javascript" src="{% static "libraries/bootstrap/js/bootstrap.bundle.min.js" %}" ></script> <!-- Bootstrap -->
+    <script type="text/javascript" src="{% static "dist/js/adminlte.js" %}" ></script> <!-- AdminLTE -->
+    <!--<script type="text/javascript" src="{% static "dist/js/demo.js" %}" ></script> --> <!-- AdminLTE for demo purposes -->
+
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="{% static "libraries/datatables-bs4/css/dataTables.bootstrap4.min.css" %}" >
+    <link rel="stylesheet" href="{% static "libraries/datatables-responsive/css/responsive.bootstrap4.min.css" %}" >
+    <link rel="stylesheet" href="{% static "libraries/datatables-buttons/css/buttons.bootstrap4.min.css" %}" >
+    <script src="{% static "libraries/datatables/jquery.dataTables.min.js" %}" ></script>
+    <script src="{% static "libraries/datatables-bs4/js/dataTables.bootstrap4.min.js" %}" ></script>
+    <script src="{% static "libraries/datatables-responsive/js/dataTables.responsive.min.js" %}" ></script>
+    <script src="{% static "libraries/datatables-responsive/js/responsive.bootstrap4.min.js" %}" ></script>
+    <script src="{% static "libraries/datatables-buttons/js/dataTables.buttons.min.js" %}" ></script>
+    <script src="{% static "libraries/datatables-buttons/js/buttons.bootstrap4.min.js" %}" ></script>
+    <script src="{% static "libraries/jszip/jszip.min.js" %}" ></script>
+    <script src="{% static "libraries/pdfmake/pdfmake.min.js" %}" ></script>
+    <script src="{% static "libraries/pdfmake/vfs_fonts.js" %}" ></script>
+    <script src="{% static "libraries/datatables-buttons/js/buttons.html5.min.js" %}" ></script>
+    <script src="{% static "libraries/datatables-buttons/js/buttons.print.min.js" %}" ></script>
+    <script src="{% static "libraries/datatables-buttons/js/buttons.colVis.min.js" %}" ></script>
+
+
 </head>
+

@@ -10,7 +10,7 @@ from bokeh.embed import components
 
 
 from backend import utils
-from data import server_details
+from data import server_details, user
 
 
 def admin_login(request):
@@ -52,7 +52,18 @@ def admin_main_dashboard(request):
         return render(request, 'admin_login.html')
     return render(request, 'admin_main_dashboard.html')
 
+
 ########################################################################################################################
+# GENERAL ADMINISTRATION PAGES
+########################################################################################################################
+
+# ACCOUNTS
+@staff_member_required
+def admin_user_accounts(request):
+    return render(request, 'admin_user_accounts.html', {'user_accounts': user.get_all_users(strify=True)})
+
+
+# ##########################################################
 # SERVERS STATES
 
 @staff_member_required
@@ -68,3 +79,8 @@ def admin_servers_states_edit(request):
         params['value'] = False
     server_details.change_server_param(params['server_name'], params['type'], params['value'])
     return redirect(admin_servers_states)
+
+
+########################################################################################################################
+# SERVER SPECIFIC ADMINISTRATION
+########################################################################################################################

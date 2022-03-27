@@ -23,6 +23,8 @@ def create_user_and_user_extend(username, mail, password):
                       'status': 'active',
                       'accounts': {},
                       'dead_accounts': {},
+                      'banned_until': None,
+                      'banned_reason': None,
                       }
 
     db_extend.insert_one(extended_table)
@@ -31,6 +33,8 @@ def create_user_and_user_extend(username, mail, password):
 def add_user_extended(user):
     # Concatenate the auth_user_extended entry with the Django default auth_user
     if user is not None:
+        print(user)
+        print(db_extend.find_one({'_id': user['_id']}))
         return user | db_extend.find_one({'_id': user['_id']})
     return None
 
@@ -55,6 +59,20 @@ def user_mail_already_used(mail):
     return bool(db_user.find_one({'email': mail}))
 
 
-
 def extend_user_table():
     ...
+
+
+def get_all_users(strify=False):
+
+    users = []
+
+    for user in list(db_user.find({})):
+        user = add_user_extended(user)
+
+        if strify:
+            ...
+
+        users.append(user)
+
+    return users
