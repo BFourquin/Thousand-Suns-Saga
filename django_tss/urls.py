@@ -47,6 +47,7 @@ urlpatterns = [
 
 
     path('admin_user_accounts/', views_admin.admin_user_accounts, name='admin_user_accounts'),
+    path('admin_user_details/', views_admin.admin_user_details, name='admin_user_details'),
 
     path('admin_servers_states/', views_admin.admin_servers_states, name='admin_servers_states'),
         path('admin_servers_states_edit/', views_admin.admin_servers_states_edit, name='admin_servers_states_edit'),

@@ -63,12 +63,21 @@ def admin_user_accounts(request):
     return render(request, 'admin_user_accounts.html', {'user_accounts': user.get_all_users(strify=True)})
 
 
+@staff_member_required
+def admin_user_details(request):
+    id = utils.request_params(request)['id']
+    user_account = user.get_user_by_id(id)
+    user_account['objectid'] = user_account['_id']
+    return render(request, 'admin_user_details.html', {'user': user_account})
+
+
 # ##########################################################
 # SERVERS STATES
 
 @staff_member_required
 def admin_servers_states(request):
     return render(request, 'admin_servers_states.html', {'servers_details': server_details.get_all_servers_details()})
+
 
 @staff_member_required
 def admin_servers_states_edit(request):

@@ -39,7 +39,13 @@ def add_user_extended(user):
     return None
 
 
-def get_user_by_id(_id):
+def get_user_by_id(id):
+    user = db_user.find_one({'id': int(id)})
+    user = add_user_extended(user)
+    return user
+
+
+def get_user_by_object_id(_id):
     user = db_user.find_one({'_id': ObjectId(_id)})
     user = add_user_extended(user)
     return user
@@ -69,10 +75,8 @@ def get_all_users(strify=False):
 
     for user in list(db_user.find({})):
         user = add_user_extended(user)
-
         if strify:
-            ...
-
+            ...  # TODO improve text displayed in admin ?
         users.append(user)
 
     return users

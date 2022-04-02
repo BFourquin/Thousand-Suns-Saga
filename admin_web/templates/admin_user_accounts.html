@@ -67,7 +67,7 @@
           </div>
           <!-- /.card-header -->
           <div class="card-body">
-            <table id="DataTable" class="table table-bordered table-striped">
+            <table id="DataTable" class="table table-bordered table-hover">
               <thead>
                   <tr>
                     {% for column_name in user_accounts.0.keys %}
@@ -77,7 +77,7 @@
               </thead>
               <tbody>
                   {% for user_account in user_accounts %}
-                      <tr>
+                      <tr data-href="/admin_user_details/?id={{user_account.id}}">
                           {% for var in user_account.values %}
                                 <td>{{var}}</td>
                           {% endfor %}
@@ -111,6 +111,12 @@
       "columnDefs":[{ targets: [0,2,4,6,7,9,10,14,15,16], visible: false }],
     }).buttons().container().appendTo('#DataTable_wrapper .col-md-6:eq(0)');
   });
+
+  // Redirect to user account page on row click
+  $('tr[data-href]').on("click", function() {
+    document.location = $(this).data('href');
+    });
+
 </script>
 </body>
 </html>

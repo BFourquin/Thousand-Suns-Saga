@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.validators import validate_email
 
 
-from data.user import user_name_exist, create_user_and_user_extend, get_user_by_name, get_user_by_id, user_mail_already_used
+from data.user import user_name_exist, create_user_and_user_extend, get_user_by_name, get_user_by_object_id, user_mail_already_used
 
 
 def request_params(request):
@@ -55,7 +55,7 @@ def get_user(request):
     user = None
 
     if 'id' in params:
-        user = get_user_by_id(params['id'])
+        user = get_user_by_object_id(params['id'])
     if 'username' in params:
         user = get_user_by_name(params['username'])
 
