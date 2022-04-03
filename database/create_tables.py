@@ -24,6 +24,6 @@ for db_name in clients:
     if db_name == 'TSS_main_server':
         continue
 
-    for table_name in ('player', 'player_starting_values', 'city', 'building', 'modifier', 'technology',
+    for table_name in ('commandant', 'starting_values', 'city', 'building', 'modifier', 'technology',
                        'ship_component', 'ship_design', 'fleet', 'faction', 'planet', 'system', 'sector'):
         create_table(db_name, table_name)

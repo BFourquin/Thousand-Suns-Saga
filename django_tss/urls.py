@@ -18,7 +18,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
-from backend import views, views_accounts, views_public, views_admin
+from backend import views, views_api_user, views_public, views_admin
 
 urlpatterns = [
 
@@ -27,8 +27,8 @@ urlpatterns = [
     ####################################################################################################################
 
     # USERS
-    path('create_user/', views_accounts.create_user),
-    path('get_user/', views_accounts.get_user),
+    path('create_user/', views_api_user.create_user),
+    path('get_user/', views_api_user.get_user),
 
 
     ####################################################################################################################

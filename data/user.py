@@ -65,10 +65,6 @@ def user_mail_already_used(mail):
     return bool(db_user.find_one({'email': mail}))
 
 
-def extend_user_table():
-    ...
-
-
 def get_all_users(strify=False):
 
     users = []

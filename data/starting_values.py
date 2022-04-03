@@ -5,7 +5,7 @@ from database.db_connect import clients
 def create_starting_values(user, server, pseudo):
 
     client = clients['TSS_'+server]
-    db = client['player_starting_values']
+    db = client['starting_values']
 
     # Remove previous values
     db.delete_many({})
@@ -28,5 +28,5 @@ def create_starting_values(user, server, pseudo):
 
 def get_starting_values(server):
     client = clients['TSS_' + server]
-    db = client['player_starting_values']
+    db = client['starting_values']
     return db.find_one()

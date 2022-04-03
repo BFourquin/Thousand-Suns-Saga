@@ -9,15 +9,15 @@ from bokeh.plotting import figure
 from bokeh.embed import components
 
 
-from backend import utils
+from backend.utils import request_params, parameters_presents
 from data import server_details, user
 
 
 def admin_login(request):
 
-    params = utils.request_params(request)
+    params = request_params(request)
 
-    if utils.parameters_presents(('username', 'password'), params):
+    if parameters_presents(('username', 'password'), params):
 
         username = params['username']
         password = params['password']
@@ -65,7 +65,7 @@ def admin_user_accounts(request):
 
 @staff_member_required
 def admin_user_details(request):
-    id = utils.request_params(request)['id']
+    id = request_params(request)['id']
     user_account = user.get_user_by_id(id)
     user_account['objectid'] = user_account['_id']
     return render(request, 'admin_user_details.html', {'user': user_account})
@@ -81,7 +81,7 @@ def admin_servers_states(request):
 
 @staff_member_required
 def admin_servers_states_edit(request):
-    params = utils.request_params(request)
+    params = request_params(request)
     if params['value'] == 'true':
         params['value'] = True
     if params['value'] == 'false':

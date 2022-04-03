@@ -5,20 +5,13 @@ from django.contrib.auth.decorators import login_required
 from django.core.validators import validate_email
 
 
+from utils import request_params
 from data.user import user_name_exist, create_user_and_user_extend, get_user_by_name, get_user_by_object_id, user_mail_already_used
 
 
-def request_params(request):
-    # return parameters passed by both GET and POST methods
-    params = request.POST.copy()
-    params.update(request.GET)
-    return params
-
-
-def create_user(request):
+def create_commandant(request):
 
     params = request_params(request)
-    print(params)
 
     # ##### USERNAME ######
     if not 'username' in params:
@@ -44,12 +37,10 @@ def create_user(request):
         return JsonResponse({"message": "Aucun mot de passe spécifié."}, status=422)
 
     user = create_user_and_user_extend(params['username'], params['email'], params['password'])
-    print(user)
-    print('done')
     return JsonResponse({"message": "Compte créé."}, status=200)
 
 
-def get_user(request):
+def get_commandant(request):
 
     params = request_params(request)
     user = None

@@ -53,8 +53,8 @@ def create_server(server_name, status='test', admin_only_visibility=True):
                       'creation_date': datetime.datetime.today(),
                       'opening_date': datetime.datetime.now(),
                       'end_date': None,
-                      'active_players': [],
-                      'previous_players': [],
+                      'active_commandants': [],
+                      'previous_commandants': [],
                       'allow_multiaccounts': False,
                       }
 

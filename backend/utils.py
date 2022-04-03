@@ -1,4 +1,5 @@
 
+
 def request_params(request):
     # return parameters passed by both GET and POST methods
     params = request.POST.copy()
