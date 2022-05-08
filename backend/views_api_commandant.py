@@ -5,38 +5,29 @@ from django.contrib.auth.decorators import login_required
 from django.core.validators import validate_email
 
 
-from utils import request_params
+from backend.utils import request_params
 from data.user import user_name_exist, create_user_and_user_extend, get_user_by_name, get_user_by_object_id, user_mail_already_used
 
 
 def create_commandant(request):
 
     params = request_params(request)
+    print(params)
 
     # ##### USERNAME ######
     if not 'username' in params:
         return JsonResponse({"message": "Aucun nom d'utilisateur spécifié."}, status=422)
     print(params['username'], user_name_exist(params['username']), get_user_by_name(params['username']))
+
     if user_name_exist(params['username']):
-        return JsonResponse({"message": "Ce nom de compte est déjà pris."}, status=422)
+        return JsonResponse({"message": "Ce nom de commandant est déjà pris."}, status=422)
+
     if not 5 < len(params['username']) < 25:
         return JsonResponse({"message": "Votre pseudo doit faire entre 5 et 25 caractères."}, status=422)
 
-    # ##### EMAIL ######
-    if not 'email' in params:
-        return JsonResponse({"message": "Aucun email spécifié."}, status=422)
-    try:
-        validate_email(params['email'])  # Only check if it's an email format, not if it really exist
-    except:
-        return JsonResponse({"message": "Adresse email non valide."}, status=422)
-    if user_mail_already_used(params['email']):
-        return JsonResponse({"message": "Un compte est déjà lié à cette adresse mail."}, status=422)
 
-    # ##### PASSWORD ######
-    if not 'password' in params:
-        return JsonResponse({"message": "Aucun mot de passe spécifié."}, status=422)
 
-    user = create_user_and_user_extend(params['username'], params['email'], params['password'])
+
     return JsonResponse({"message": "Compte créé."}, status=200)
 
 
