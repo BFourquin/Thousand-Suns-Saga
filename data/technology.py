@@ -1,12 +1,7 @@
 
 
-technologies = {
+from database.db_connect import clients
 
-
-
-
-
-}
 
 tech_types = ['general theory',
               'social', 'biology', 'electronic', 'energy'
@@ -28,3 +23,10 @@ def tech(internal_name, name, tech_type, description, tech_level, modifiers, pri
             'end_event': None,
             'end_event_probability': None,
             }
+
+
+def get_all_technologies(server_name):
+    client = clients['TSS_'+server_name]
+    db = client['technology']
+
+    return db.find({})

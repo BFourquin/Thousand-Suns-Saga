@@ -10,7 +10,7 @@ from bokeh.embed import components
 
 
 from backend.utils import request_params, parameters_presents
-from data import server_details, user
+from data import server_details, user, technology
 
 
 def admin_login(request):
@@ -22,7 +22,6 @@ def admin_login(request):
         username = params['username']
         password = params['password']
         user = authenticate(username=username, password=password)
-        print(user)
         if user is not None and user.is_superuser and user.is_active:
             login(request, user)
             return redirect('admin_main_dashboard')
@@ -93,3 +92,14 @@ def admin_servers_states_edit(request):
 ########################################################################################################################
 # SERVER SPECIFIC ADMINISTRATION
 ########################################################################################################################
+
+
+@staff_member_required
+def admin_technology(request):
+    params = request_params(request)
+    if not 'server_name_selected' in params:
+        return redirect(admin_servers_states)
+
+    techs = list(technology.get_all_technologies(params['server_name_selected']))
+    print(techs)
+    return render(request, 'admin_technology.html', {'technologies': techs})

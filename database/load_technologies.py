@@ -10,7 +10,6 @@ def load_technologies(excel_tech_path, sheet_tech_name, server_name, delete_actu
     if delete_actual_techs:
         db.remove({})
 
-
     with open(excel_tech_path, 'rb') as f:
         xldb = xl.readxl(f, ws='Techs')
 
@@ -25,6 +24,7 @@ def load_technologies(excel_tech_path, sheet_tech_name, server_name, delete_actu
                 # Header line
                 if row[0] == 'internal_name':
                     titles = row
+                    continue
 
                 tech = {}
                 for i in range(len(titles)):

@@ -58,6 +58,7 @@ urlpatterns = [
     path('admin_servers_states/', views_admin.admin_servers_states, name='admin_servers_states'),
         path('admin_servers_states_edit/', views_admin.admin_servers_states_edit, name='admin_servers_states_edit'),
 
+    path('admin_technology/', views_admin.admin_technology, name='admin_technology'),
 
 
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

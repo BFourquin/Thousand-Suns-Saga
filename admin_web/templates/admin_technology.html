@@ -1,0 +1,79 @@
+
+{% load static %}
+
+{% include "includes/header.html" %}
+
+{% include "includes/menu.html" %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Technologies — Serveur {{request.GET.server_name_selected}}</h1>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Technologies</h3>
+          </div>
+          <!-- /.card-header -->
+          <div class="card-body">
+            <table id="DataTable" class="table table-bordered table-hover">
+              <thead>
+                  <tr>
+                    {% for column_name in technologies.0.keys %}
+                        <th>{{column_name}}</th>
+                    {% endfor %}
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for tech in technologies %}
+                      <tr>
+                          {% for var in tech.values %}
+                            <td>{{var}}</td>
+                          {% endfor %}
+
+                      </tr>
+                  {% endfor %}
+              </tbody>
+              <tfoot>
+                  <tr>
+                    {% for column_name in technologies.0.keys %}
+                        <th>{{column_name}}</th>
+                    {% endfor %}
+                  </tr>
+              </tfoot>
+            </table>
+          </div>
+          <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+    </section>
+    <!-- /.content -->
+  </div>
+
+
+<script>
+  $(function () {
+    var table = $("#DataTable").DataTable({
+      "responsive": true,
+      "lengthChange": true,
+      "pageLength": 50,
+      "autoWidth": false,
+      "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+      "columnDefs":[{ targets: [0,1,3,4,5,6,8,9,10,11,12,13,14,15], visible: false }],
+    }).buttons().container().appendTo('#DataTable_wrapper .col-md-6:eq(0)');
+  });
+
+</script>
+</body>
+</html>

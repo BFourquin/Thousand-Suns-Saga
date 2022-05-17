@@ -12,11 +12,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1>Serveurs</h1>
+            <h1>Comptes utilisateurs globaux</h1>
           </div>
         </div>
       </div><!-- /.container-fluid -->
     </section>
+
     <!-- Main content -->
     <section class="content">
 
@@ -59,7 +60,7 @@
        </div>
 
       <!------------------------------------------------------------------------------------------------------------>
-      <!-- USERS ACCOUNTS -->
+    <!-- USERS ACCOUNTS -->
 
         <div class="card">
           <div class="card-header">
@@ -110,6 +111,7 @@
     var table = $("#DataTable").DataTable({
       "responsive": true,
       "lengthChange": true,
+      "pageLength": 50,
       "autoWidth": false,
       "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
       "columnDefs":[{ targets: [0,2,4,6,7,9,10,14,15,16], visible: false }],
