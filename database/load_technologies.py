@@ -28,7 +28,7 @@ def load_technologies(excel_tech_path, sheet_tech_name, server_name, delete_actu
 
                 tech = {}
                 for i in range(len(titles)):
-                    tech[titles[i]] = row[i] if row[i] else None
+                    tech[titles[i]] = row[i] if row[i] != '' else None
 
                 print(row)
                 db.insert_one(tech)
