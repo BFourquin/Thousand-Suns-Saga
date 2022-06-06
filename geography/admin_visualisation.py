@@ -4,7 +4,7 @@ os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 import random
 
-from data import map_generator, sector
+from data import map_generator, sectors
 
 
 def display_sector():
@@ -61,28 +61,29 @@ def display_sectors(server='Alpha'):
     color_corner = (5, 5, 5)
     color_empty = (10, 10, 10)
 
-    # Define the background colour
-    # using RGB color coding.
-    background_colour = (0, 0, 0)
-
     # Define the dimensions of
     # screen object(width,height)
     screen = pygame.display.set_mode((w * mg_params['nb_sectors_axe_x'], w * mg_params['nb_sectors_axe_y']))
 
     # Fill the background colour to the screen
-    screen.fill(background_colour)
-
+    screen.fill((0, 0, 0))
 
     for y in range(mg_params['nb_sectors_axe_y']):
         for x in range(mg_params['nb_sectors_axe_x']):
 
-            selected_sector = sector.get_sector(server, y, x)
+            selected_sector = sectors.get_sector(server, y, x)
 
             color = eval('color_'+selected_sector['sector_type'])
             pygame.draw.rect(screen, color, pygame.Rect(w*x, w*y, w, w))
 
+            """
+            # Random generation
             for _ in range(selected_sector['nb_systems']//10):
                 screen.set_at((random.randint(w*x,w*x+w), random.randint(w*y,w*y+w)), (200,200,200))
+            """
+
+            for sy, sx in selected_sector['systems_coordinates']:
+                screen.set_at((w*x + (sx*w)//100, y*w + (sy*w)//100), (200,200,200))
 
     # Update the display using flip
     pygame.display.flip()

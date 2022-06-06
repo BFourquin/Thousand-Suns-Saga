@@ -75,4 +75,4 @@ if __name__ == '__main__':
 
     load_map_generator_parameters(server_name, excel_path)
 
-    mg_sector.generate_sectors(server_name)
+    mg_sectors.generate_sectors(server_name)

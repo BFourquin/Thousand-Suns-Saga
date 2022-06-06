@@ -1,9 +1,9 @@
 
 import random
 
-from data import map_generator, sector
+from data import map_generator, sectors
 from backend.utils import seed_convertor, probability_picker
-from geography.map_generator import mg_systems
+from geography import mg_systems
 
 
 def generate_sector_basic_values(pos_y, pos_x, seed):
@@ -44,7 +44,7 @@ def generate_sectors(server):
         for x in range(mg_params['nb_sectors_axe_x']):
             sector_seed = seed_convertor((mg_params['seed'], 6), (y, 3), (x, 3))
             new_sector = generate_sector_basic_values(pos_y=y, pos_x=x, seed=sector_seed)
-            sector.create_sector(server, new_sector)
+            sectors.create_sector(server, new_sector)
 
     ####################################################################################################################
     # Second pass : borders and corners sectors
@@ -62,9 +62,9 @@ def generate_sectors(server):
                                           (mg_params['nb_sectors_axe_y']-1, mg_params['nb_sectors_axe_x']-1))
                     sector_type = 'corner' if (y, x) in corner_coordinates else 'border'
 
-                    border_sector = sector.get_sector(server, y, x)
+                    border_sector = sectors.get_sector(server, y, x)
                     border_sector['sector_type'] = sector_type
-                    sector.create_sector(server, border_sector)
+                    sectors.create_sector(server, border_sector)
 
     ####################################################################################################################
     # Third pass : native sectors
@@ -91,7 +91,7 @@ def generate_sectors(server):
         else:
             tested_coordinates.append((y, x))
 
-        selected_sector = sector.get_sector(server, y, x)
+        selected_sector = sectors.get_sector(server, y, x)
 
         # Rules of placement (border of the map, adjacency to another native sector)
 
@@ -101,20 +101,20 @@ def generate_sectors(server):
         invalid_placement = False
 
         if mg_params['prevent_natives_sectors_direct_neighbors']:
-            for neighbour_sector in sector.get_direct_neighbours_sectors(server, y, x):
+            for neighbour_sector in sectors.get_direct_neighbours_sectors(server, y, x):
                 if neighbour_sector['sector_type'] == 'native':
                     invalid_placement = True
                     break
 
         if mg_params['prevent_natives_sectors_diagonal_neighbors']:
-            for neighbour_sector in sector.get_diagonal_neighbours_sectors(server, y, x):
+            for neighbour_sector in sectors.get_diagonal_neighbours_sectors(server, y, x):
                 if neighbour_sector['sector_type'] == 'native':
                     invalid_placement = True
                     break
 
         if not invalid_placement:
             selected_sector['sector_type'] = 'native'
-            sector.create_sector(server, selected_sector)
+            sectors.create_sector(server, selected_sector)
             native_sectors_to_place -= 1
 
     ####################################################################################################################
@@ -127,14 +127,14 @@ def generate_sectors(server):
     for y in range(mg_params['nb_sectors_axe_y']):
         for x in range(mg_params['nb_sectors_axe_x']):
 
-            selected_sector = sector.get_sector(server, y, x)
+            selected_sector = sectors.get_sector(server, y, x)
 
             if selected_sector['sector_type'] is None:
 
                 sector_type = probability_picker(sector_type_probabilities, random.random())
 
                 selected_sector['sector_type'] = sector_type
-                sector.create_sector(server, selected_sector)
+                sectors.create_sector(server, selected_sector)
 
     ####################################################################################################################
     # Fourth pass : attribute sector values
@@ -145,7 +145,7 @@ def generate_sectors(server):
     for y in range(mg_params['nb_sectors_axe_y']):
         for x in range(mg_params['nb_sectors_axe_x']):
 
-            selected_sector = sector.get_sector(server, y, x)
+            selected_sector = sectors.get_sector(server, y, x)
             for sector_type_params in mg_sector_params:
                 if sector_type_params['sector_type'] == selected_sector['sector_type']:
                     params = sector_type_params
@@ -153,7 +153,7 @@ def generate_sectors(server):
 
             selected_sector['nb_systems'] = random.randint(params['min_systems'], params['max_systems'])
             selected_sector['nb_natives_start'] = random.randint(params['min_natives_start'], params['max_natives_start'])
-            sector.create_sector(server, selected_sector)
+            sectors.create_sector(server, selected_sector)
 
             total_systems += selected_sector['nb_systems']
             total_players_possible += selected_sector['nb_natives_start']
@@ -167,7 +167,7 @@ def generate_sectors(server):
 
     for y in range(mg_params['nb_sectors_axe_y']):
         for x in range(mg_params['nb_sectors_axe_x']):
-
+            mg_systems.generate_systems(server, sectors.get_sector(server, y, x))
 
 
     ####################################################################################################################
@@ -175,7 +175,7 @@ def generate_sectors(server):
 
     for y in range(mg_params['nb_sectors_axe_y']):
         for x in range(mg_params['nb_sectors_axe_x']):
-            print(str(sector.get_sector(server, y, x)['sector_type'])[:6], ' '*(6-len(str(sector.get_sector(server, y, x)['sector_type']))), end=' | ')
+            print(str(sectors.get_sector(server, y, x)['sector_type'])[:6], ' '*(6-len(str(sectors.get_sector(server, y, x)['sector_type']))), end=' | ')
         print()
 
     from geography import admin_visualisation
