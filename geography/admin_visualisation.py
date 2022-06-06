@@ -1,11 +1,5 @@
 
 
-def generate_sector(pos_y, pos_x, seed, sector_types, sector_probabilities):
-
-    display_sector()
-
-
-
 def display_sector():
     # import the pygame module
     import pygame

@@ -39,6 +39,6 @@ random.seed(random.random())
 for _ in range(200):
     total[str(probability_picker(nb_stars, _))] += 1
 
-print(total)
+#print(total)
 
 
