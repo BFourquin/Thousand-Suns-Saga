@@ -7,7 +7,7 @@ from data import starting_values as sv
 def get_sector(server, y, x):
 
     client = clients['TSS_'+server]
-    db = client['sector']
+    db = client['sectors']
 
     return db.find_one({"pos_y": y, "pos_x": x})
 
@@ -37,7 +37,7 @@ def get_diagonal_neighbours_sectors(server, y, x):
 def create_sector(server, sector):
 
     client = clients['TSS_'+server]
-    db = client['sector']
+    db = client['sectors']
 
     # Will remove previous entry if one exist
     previous_sector = get_sector(server, sector["pos_y"], sector["pos_x"])

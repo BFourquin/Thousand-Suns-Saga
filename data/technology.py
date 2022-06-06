@@ -27,6 +27,6 @@ def tech(internal_name, name, tech_type, description, tech_level, modifiers, pri
 
 def get_all_technologies(server_name):
     client = clients['TSS_'+server_name]
-    db = client['technology']
+    db = client['technologies']
 
     return db.find({})

@@ -1,4 +1,6 @@
-# import the pygame module
+
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 import random
 
@@ -41,7 +43,6 @@ def display_sector():
 #display_sector()
 
 
-
 def display_sectors(server='Alpha'):
 
     # Server generation parameters
@@ -50,12 +51,12 @@ def display_sectors(server='Alpha'):
 
     w = 100  # width per sector
 
-    # Sectors colors
+    # Sector colors
     color_standard = (30, 30, 30)
     color_native = (20, 20, 50)
     color_wilderness = (20, 50, 20)
-    color_void_centered = (30, 30, 30)
-    color_cluster = (30, 30, 30)
+    color_void_centered = (20, 20, 10)
+    color_cluster = (30, 10, 10)
     color_border = (10, 10, 10)
     color_corner = (5, 5, 5)
     color_empty = (10, 10, 10)

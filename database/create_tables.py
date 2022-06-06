@@ -25,7 +25,7 @@ if __name__ == '__main__':
         if db_name == 'TSS_main_server':
             continue
 
-        for table_name in ('commandant', 'starting_values', 'city', 'building', 'modifier', 'technology',
-                           'ship_component', 'ship_design', 'fleet', 'faction', 'planet', 'system', 'sector',
-                           'map_generator', 'mg_sector', 'mg_system', 'mg_planet'):
+        for table_name in ('commandants', 'starting_values', 'cities', 'buildings', 'modifiers', 'technologies',
+                           'ship_components', 'ship_designs', 'fleets', 'factions', 'planets', 'systems', 'sectors',
+                           'map_generator', 'mg_sectors', 'mg_systems', 'mg_planets'):
             create_table(db_name, table_name)

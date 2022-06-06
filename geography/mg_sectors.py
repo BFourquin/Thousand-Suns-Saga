@@ -3,6 +3,7 @@ import random
 
 from data import map_generator, sector
 from backend.utils import seed_convertor, probability_picker
+from geography.map_generator import mg_systems
 
 
 def generate_sector_basic_values(pos_y, pos_x, seed):
@@ -11,9 +12,10 @@ def generate_sector_basic_values(pos_y, pos_x, seed):
         "pos_y": pos_y,
         "pos_x": pos_x,
         "seed": seed,
-        "sector_type": None
+        "sector_type": None,
+        "nb_systems": None,
+        "nb_natives_start": None,
     }
-
     return new_sector
 
 
@@ -21,7 +23,7 @@ def generate_sectors(server):
 
     # Server generation parameters
     mg_params = map_generator.get_map_generator_parameters(server, mg_type='global')
-    mg_sector_params = map_generator.get_map_generator_parameters(server, mg_type='sector')
+    mg_sector_params = map_generator.get_map_generator_parameters(server, mg_type='sectors')
 
     if str(mg_params['seed'])[0] == '0':
         raise ValueError("The first digit of a seed can't be a 0")
@@ -32,7 +34,7 @@ def generate_sectors(server):
 
     # TODO REMOVE, testing only
     from database.db_connect import clients
-    clients['TSS_'+server]['sector'].remove({})
+    clients['TSS_'+server]['sectors'].remove({})
     # REMOVE
 
     ####################################################################################################################
@@ -158,6 +160,15 @@ def generate_sectors(server):
 
     print('TOTAL PLAYER STARTING POSITIONS :', total_players_possible)
     print('TOTAL SOLAR SYSTEMS :', total_systems)
+
+
+    ####################################################################################################################
+    # Fifth pass : generate systems
+
+    for y in range(mg_params['nb_sectors_axe_y']):
+        for x in range(mg_params['nb_sectors_axe_x']):
+
+
 
     ####################################################################################################################
     # Visualisation

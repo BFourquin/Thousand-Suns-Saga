@@ -2,7 +2,7 @@
 import random
 
 from data import map_generator
-from geography import mg_sector, solar, planet
+from geography import mg_sectors, solar, planet
 from backend.utils import seed_convertor
 
 
@@ -64,7 +64,7 @@ def load_map_generator_parameters(server_name, excel_path):
     # store the params into DB to be able to generate servers with different params all on the same webserver
     # as the thousands "uninteresting" solar systems aren't saved into DB but regenerated every time a player need it
     map_generator.set_map_generator_parameters(server_name, map_generator_config)
-    map_generator.set_map_generator_parameters(server_name, mg_sector_config, mg_type='sector')
+    map_generator.set_map_generator_parameters(server_name, mg_sector_config, mg_type='sectors')
 
 
 
