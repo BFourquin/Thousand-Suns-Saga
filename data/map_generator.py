@@ -28,6 +28,3 @@ def set_map_generator_parameters(server, map_generator_params, mg_type=None):
 
     for param in map_generator_params:
         db.insert_one(param)
-
-
-# ###### EXCEL #########################################################################################################

@@ -167,3 +167,5 @@ def generate_sectors(server):
             print(str(sector.get_sector(server, y, x)['sector_type'])[:6], ' '*(6-len(str(sector.get_sector(server, y, x)['sector_type']))), end=' | ')
         print()
 
+    from geography import admin_visualisation
+    admin_visualisation.display_sectors()
