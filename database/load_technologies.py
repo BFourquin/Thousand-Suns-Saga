@@ -11,7 +11,7 @@ def load_technologies(excel_tech_path, sheet_tech_name, server_name, delete_actu
         db.remove({})
 
     with open(excel_tech_path, 'rb') as f:
-        xldb = xl.readxl(f, ws='Techs')
+        xldb = xl.readxl(f, ws=sheet_tech_name)
 
         for row in xldb.ws(ws=sheet_tech_name).rows:
 
@@ -34,8 +34,9 @@ def load_technologies(excel_tech_path, sheet_tech_name, server_name, delete_actu
                 db.insert_one(tech)
 
 
-load_technologies(excel_tech_path='C:\\Users\\Benoit\\Desktop\\Thousand Suns Saga\\TSS.xlsx',
-                  sheet_tech_name='Techs',
+if __name__ == '__main__':
+    load_technologies(excel_tech_path='C:\\Users\\Benoit\\Desktop\\Thousand Suns Saga\\TSS.xlsx',
+                      sheet_tech_name='Techs',
 
-                  server_name='Alpha',
-                  delete_actual_techs=True)
+                      server_name='Alpha',
+                      delete_actual_techs=True)

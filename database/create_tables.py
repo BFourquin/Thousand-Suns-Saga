@@ -13,17 +13,19 @@ def create_table(db_name, table_name):
         print('[' + db_name + '] ERROR : ' + str(e))
 
 
-# MAIN SERVER
-create_table('TSS_main_server', 'auth_user_extended')
-create_table('TSS_main_server', 'server_details')
+if __name__ == '__main__':
 
+    # MAIN SERVER
+    create_table('TSS_main_server', 'auth_user_extended')
+    create_table('TSS_main_server', 'server_details')
 
-# GAME SERVERS
-for db_name in clients:
+    # GAME SERVERS
+    for db_name in clients:
 
-    if db_name == 'TSS_main_server':
-        continue
+        if db_name == 'TSS_main_server':
+            continue
 
-    for table_name in ('commandant', 'starting_values', 'city', 'building', 'modifier', 'technology',
-                       'ship_component', 'ship_design', 'fleet', 'faction', 'planet', 'system', 'sector'):
-        create_table(db_name, table_name)
+        for table_name in ('commandant', 'starting_values', 'city', 'building', 'modifier', 'technology',
+                           'ship_component', 'ship_design', 'fleet', 'faction', 'planet', 'system', 'sector',
+                           'map_generator', 'mg_sector', 'mg_system', 'mg_planet'):
+            create_table(db_name, table_name)

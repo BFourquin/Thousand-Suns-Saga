@@ -33,8 +33,8 @@ def create_user_and_user_extend(username, mail, password):
 def add_user_extended(user):
     # Concatenate the auth_user_extended entry with the Django default auth_user
     if user is not None:
-        print(user)
-        print(db_extend.find_one({'_id': user['_id']}))
+        #print(user)
+        #print(db_extend.find_one({'_id': user['_id']}))
         return user | db_extend.find_one({'_id': user['_id']})
     return None
 
