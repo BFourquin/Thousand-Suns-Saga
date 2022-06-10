@@ -67,11 +67,19 @@ def load_map_generator_parameters(server_name, excel_path):
     map_generator.set_map_generator_parameters(server_name, mg_sector_config, mg_type='sectors')
 
 
+def remove_past_generation(server):
+    from database.db_connect import clients
+
+    for category in ('sectors', 'systems'):
+        clients['TSS_'+server][category].delete_many({})
+
 
 if __name__ == '__main__':
 
     excel_path = 'C:\\Users\\Benoit\\Desktop\\Thousand Suns Saga\\TSS.xlsx'
     server_name = 'Alpha'
+
+    remove_past_generation(server_name)
 
     load_map_generator_parameters(server_name, excel_path)
 

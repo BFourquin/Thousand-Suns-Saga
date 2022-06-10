@@ -24,7 +24,7 @@ def set_map_generator_parameters(server, map_generator_params, mg_type=None):
     else:
         db = client['mg_' + mg_type]
 
-    db.remove({})
+    db.delete_many({})
 
     for param in map_generator_params:
         db.insert_one(param)

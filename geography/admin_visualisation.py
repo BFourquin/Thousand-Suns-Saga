@@ -74,7 +74,7 @@ def display_sectors(server='Alpha'):
             selected_sector = sectors.get_sector(server, y, x)
 
             color = eval('color_'+selected_sector['sector_type'])
-            pygame.draw.rect(screen, color, pygame.Rect(w*x, w*y, w, w))
+            #pygame.draw.rect(screen, color, pygame.Rect(w*x, w*y, w, w))
 
             """
             # Random generation
@@ -83,7 +83,8 @@ def display_sectors(server='Alpha'):
             """
 
             for sy, sx in selected_sector['systems_coordinates']:
-                screen.set_at((w*x + (sx*w)//100, y*w + (sy*w)//100), (200,200,200))
+                star_color = random.randint(70,240)
+                screen.set_at((w*x + (sx*w)//100, y*w + (sy*w)//100), (star_color, star_color, star_color))
 
     # Update the display using flip
     pygame.display.flip()

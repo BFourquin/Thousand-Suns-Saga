@@ -32,11 +32,6 @@ def generate_sectors(server):
     # SEED USAGE
     # generator seed + sector x and y position + system x and y position + position in the solar system
 
-    # TODO REMOVE, testing only
-    from database.db_connect import clients
-    clients['TSS_'+server]['sectors'].remove({})
-    # REMOVE
-
     ####################################################################################################################
     # First pass : attribute sectors default values
 
@@ -161,7 +156,6 @@ def generate_sectors(server):
     print('TOTAL PLAYER STARTING POSITIONS :', total_players_possible)
     print('TOTAL SOLAR SYSTEMS :', total_systems)
 
-
     ####################################################################################################################
     # Fifth pass : generate systems
 
@@ -169,14 +163,13 @@ def generate_sectors(server):
         for x in range(mg_params['nb_sectors_axe_x']):
             mg_systems.generate_systems(server, sectors.get_sector(server, y, x))
 
-
     ####################################################################################################################
     # Visualisation
 
-    for y in range(mg_params['nb_sectors_axe_y']):
-        for x in range(mg_params['nb_sectors_axe_x']):
-            print(str(sectors.get_sector(server, y, x)['sector_type'])[:6], ' '*(6-len(str(sectors.get_sector(server, y, x)['sector_type']))), end=' | ')
-        print()
+    #for y in range(mg_params['nb_sectors_axe_y']):
+    #    for x in range(mg_params['nb_sectors_axe_x']):
+    #        print(str(sectors.get_sector(server, y, x)['sector_type'])[:6], ' '*(6-len(str(sectors.get_sector(server, y, x)['sector_type']))), end=' | ')
+    #    print()
 
     from geography import admin_visualisation
     admin_visualisation.display_sectors()
