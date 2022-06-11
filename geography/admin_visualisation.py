@@ -43,7 +43,7 @@ def display_sector():
 #display_sector()
 
 
-def display_sectors(server='Alpha'):
+def display_sectors(server, display_sector_types=True):
 
     # Server generation parameters
     mg_params = map_generator.get_map_generator_parameters(server, mg_type='global')
@@ -74,7 +74,8 @@ def display_sectors(server='Alpha'):
             selected_sector = sectors.get_sector(server, y, x)
 
             color = eval('color_'+selected_sector['sector_type'])
-            #pygame.draw.rect(screen, color, pygame.Rect(w*x, w*y, w, w))
+            if display_sector_types:
+                pygame.draw.rect(screen, color, pygame.Rect(w*x, w*y, w, w))
 
             """
             # Random generation
@@ -104,4 +105,4 @@ def display_sectors(server='Alpha'):
 
 
 if __name__ == '__main__':
-    display_sectors()
+    display_sectors('Alpha', display_sector_types=False)

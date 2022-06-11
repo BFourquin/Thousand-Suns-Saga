@@ -9,6 +9,7 @@ from geography import mg_systems
 def generate_sector_basic_values(pos_y, pos_x, seed):
 
     new_sector = {
+        "_id": seed,
         "pos_y": pos_y,
         "pos_x": pos_x,
         "seed": seed,
@@ -39,7 +40,7 @@ def generate_sectors(server):
         for x in range(mg_params['nb_sectors_axe_x']):
             sector_seed = seed_convertor((mg_params['seed'], 6), (y, 3), (x, 3))
             new_sector = generate_sector_basic_values(pos_y=y, pos_x=x, seed=sector_seed)
-            sectors.create_sector(server, new_sector)
+            sectors.set_sector(server, new_sector)
 
     ####################################################################################################################
     # Second pass : borders and corners sectors
@@ -59,7 +60,7 @@ def generate_sectors(server):
 
                     border_sector = sectors.get_sector(server, y, x)
                     border_sector['sector_type'] = sector_type
-                    sectors.create_sector(server, border_sector)
+                    sectors.set_sector(server, border_sector)
 
     ####################################################################################################################
     # Third pass : native sectors
@@ -109,7 +110,7 @@ def generate_sectors(server):
 
         if not invalid_placement:
             selected_sector['sector_type'] = 'native'
-            sectors.create_sector(server, selected_sector)
+            sectors.set_sector(server, selected_sector)
             native_sectors_to_place -= 1
 
     ####################################################################################################################
@@ -129,7 +130,7 @@ def generate_sectors(server):
                 sector_type = probability_picker(sector_type_probabilities, random.random())
 
                 selected_sector['sector_type'] = sector_type
-                sectors.create_sector(server, selected_sector)
+                sectors.set_sector(server, selected_sector)
 
     ####################################################################################################################
     # Fourth pass : attribute sector values
@@ -148,7 +149,7 @@ def generate_sectors(server):
 
             selected_sector['nb_systems'] = random.randint(params['min_systems'], params['max_systems'])
             selected_sector['nb_natives_start'] = random.randint(params['min_natives_start'], params['max_natives_start'])
-            sectors.create_sector(server, selected_sector)
+            sectors.set_sector(server, selected_sector)
 
             total_systems += selected_sector['nb_systems']
             total_players_possible += selected_sector['nb_natives_start']
@@ -172,4 +173,4 @@ def generate_sectors(server):
     #    print()
 
     from geography import admin_visualisation
-    admin_visualisation.display_sectors()
+    admin_visualisation.display_sectors(server, display_sector_types=False)

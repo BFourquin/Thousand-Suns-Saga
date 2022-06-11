@@ -34,7 +34,7 @@ def get_diagonal_neighbours_sectors(server, y, x):
     return neighbours_sectors
 
 
-def create_sector(server, sector):
+def set_sector(server, sector):
 
     client = clients['TSS_'+server]
     db = client['sectors']

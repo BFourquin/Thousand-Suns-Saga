@@ -6,12 +6,14 @@ from data import map_generator, sectors
 from backend.utils import seed_convertor, probability_picker
 
 
-def generate_system_basic_values(pos_y, pos_x, seed):
+def generate_system_basic_values(pos_y, pos_x, sector_id, seed):
 
     new_system = {
+        "_id": seed,
         "pos_y": pos_y,
         "pos_x": pos_x,
         "seed": seed,
+        "sector_id": sector_id,
         "system_type": None,
     }
     return new_system
@@ -61,10 +63,12 @@ def generate_systems(server, sector):
 
     # Server generation parameters
     mg_params = map_generator.get_map_generator_parameters(server, mg_type='global')
-    mg_sector_params = map_generator.get_map_generator_parameters(server, mg_type='sectors')
+    for s in map_generator.get_map_generator_parameters(server, mg_type='sectors'):
+        if s['sector_type'] == sector['sector_type']:
+            mg_sector_params = s
+            break
 
-    # SEED USAGE
-    # generator seed + sector x and y position + system x and y position + position in the solar system
+    # Random seed from sector
     random.seed(int(sector['seed']))
 
     print('Generating systems for sector ', sector['pos_y'], '_', sector['pos_x'], sep='')
@@ -78,8 +82,25 @@ def generate_systems(server, sector):
         y, x = generate_system_coordinates(sector, used_coordinates, mg_params)
         used_coordinates.append((y, x))
 
-        position = str(y) + '_' + str(x)
-        #system_seed = seed_convertor((sector['seed'], 12), (y, 3), (x, 3))
-
     sector['systems_coordinates'] = used_coordinates
-    sectors.create_sector(server, sector)
+    sectors.set_sector(server, sector)
+
+    ####################################################################################################################
+    # Second pass : forced system placement
+
+    native_systems = random.randint(mg_sector_params['min_natives_start'], mg_sector_params['max_natives_start'])
+
+    while native_systems:
+        y, x = used_coordinates[random.randint(0, len(used_coordinates))]
+
+        # TODO test is already generated
+
+        position = str(y) + '_' + str(x)
+
+        # SEED USAGE
+        # generator seed + sector y and x position + system y and x position
+        system_seed = seed_convertor((sector['seed'], 12), (y, 3), (x, 3))
+
+        generate_system_basic_values(y, x, sector['_id'], system_seed)
+
+        native_systems -= 1
