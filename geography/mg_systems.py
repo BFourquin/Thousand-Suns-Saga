@@ -2,11 +2,11 @@
 import random
 from math import sqrt
 
-from data import map_generator, sectors
+from data import map_generator, sectors, systems
 from backend.utils import seed_convertor, probability_picker
 
 
-def generate_system_basic_values(pos_y, pos_x, sector_id, seed):
+def generate_system_basic_values(pos_y, pos_x, sector_id, seed, system_type):
 
     new_system = {
         "_id": seed,
@@ -14,7 +14,7 @@ def generate_system_basic_values(pos_y, pos_x, sector_id, seed):
         "pos_x": pos_x,
         "seed": seed,
         "sector_id": sector_id,
-        "system_type": None,
+        "system_type": system_type,
     }
     return new_system
 
@@ -89,18 +89,20 @@ def generate_systems(server, sector):
     # Second pass : forced system placement
 
     native_systems = random.randint(mg_sector_params['min_natives_start'], mg_sector_params['max_natives_start'])
+    generated_systems_ids = []  # Will only contain the systems generated into DB
 
     while native_systems:
         y, x = used_coordinates[random.randint(0, len(used_coordinates))]
-
-        # TODO test is already generated
-
-        position = str(y) + '_' + str(x)
 
         # SEED USAGE
         # generator seed + sector y and x position + system y and x position
         system_seed = seed_convertor((sector['seed'], 12), (y, 3), (x, 3))
 
-        generate_system_basic_values(y, x, sector['_id'], system_seed)
+        # Do not write over already generated system
+        if system_seed not in generated_systems_ids:
 
-        native_systems -= 1
+            new_system = generate_system_basic_values(y, x, sector['_id'], system_seed, 'native')
+            systems.set_system(server, new_system)
+
+            generated_systems_ids.append(system_seed)
+            native_systems -= 1

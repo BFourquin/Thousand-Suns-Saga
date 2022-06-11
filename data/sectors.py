@@ -1,13 +1,30 @@
 
 from database.db_connect import clients
-from data import server_details
-from data import starting_values as sv
 
 
 def get_sector(server, y, x):
 
     client = clients['TSS_'+server]
     db = client['sectors']
+
+    """
+    # DB BENCHMARK BETWEEN XY and SEED RESEARCH
+
+    from datetime import datetime
+    from backend.utils import seed_convertor
+    from data import map_generator
+    
+    timer_1 = datetime.now()
+    db.find_one({"pos_y": y, "pos_x": x})
+    timer_1 = datetime.now() - timer_1
+
+    seed = seed_convertor((map_generator.get_map_generator_parameters(server, mg_type='global')['seed'], 6), (y, 3), (x, 3))
+    timer_2 = datetime.now()
+    db.find_one({"_id": seed})
+    timer_2 = datetime.now() - timer_2
+
+    #print('YX:', timer_1, '||| ID:', timer_2, '||| Diff:', timer_1 - timer_2)
+    """
 
     return db.find_one({"pos_y": y, "pos_x": x})
 
