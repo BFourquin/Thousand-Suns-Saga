@@ -47,7 +47,7 @@ def display_sectors(server, display_sector_types=True):
 
     # Server generation parameters
     mg_params = map_generator.get_map_generator_parameters(server, mg_type='global')
-    mg_sector_params = map_generator.get_map_generator_parameters(server, mg_type='sector')
+    #g_sector_params = map_generator.get_map_generator_parameters(server, mg_type='sector')
 
     w = 100  # width per sector
 

@@ -6,16 +6,25 @@ from database.db_connect import clients
 # ######################################################################################################################
 # Now that all systems and sectors ids are simply their seed, no need to keep those duplicates values stored in DB
 
+def info_from_seed(seed):
+    sector_id = seed[0:12]
+    pos_y = seed[12:15]
+    pos_x = seed[15:18]
+    return sector_id, pos_y, pos_x
+
+
 def remove_redundant_info(system):
     del system['seed']
     del system['sector_id']
+    del system['pos_y']
+    del system['pos_x']
     return system
 
 
 def recreate_redundant_info(system):
     print(system)
     system['seed'] = system['_id']
-    system['sector_id'] = system['seed'][0:12]
+    system['sector_id'], system['pos_y'], system['pos_x'] = info_from_seed(system['seed'])
     return system
 
 # ######################################################################################################################

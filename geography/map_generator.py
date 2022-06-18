@@ -24,14 +24,14 @@ def excel_importer(excel_map_generator_path, sheet_map_generator_name):
                     break
 
                 # Header
-                if col[0] in ('Map Generator Properties', 'sector_type'):
+                if col[0] in ('Map Generator Properties', 'sector_type', 'system_type', 'solar_type'):
                     titles = col
                     continue
 
                 conf = {}
                 for i in range(len(titles)):
 
-                    if titles[i] in (None, '', 'END_OF_FILE', 'Map Generator Properties'):
+                    if titles[i] in (None, '', 'END_OF_FILE', 'Map Generator Properties') or titles[i][0] == '#':
                         continue
 
                     if col[i] == '':
@@ -61,10 +61,22 @@ def load_map_generator_parameters(server_name, excel_path):
         excel_map_generator_path=excel_path,
         sheet_map_generator_name='MG_sectors')
 
+    # Sectors generator values
+    mg_system_types_config = excel_importer(
+        excel_map_generator_path=excel_path,
+        sheet_map_generator_name='MG_system_types')
+
+    # Sectors generator values
+    mg_systems_config = excel_importer(
+        excel_map_generator_path=excel_path,
+        sheet_map_generator_name='MG_systems')
+
     # store the params into DB to be able to generate servers with different params all on the same webserver
     # as the thousands "uninteresting" solar systems aren't saved into DB but regenerated every time a player need it
     map_generator.set_map_generator_parameters(server_name, map_generator_config)
     map_generator.set_map_generator_parameters(server_name, mg_sector_config, mg_type='sectors')
+    map_generator.set_map_generator_parameters(server_name, mg_system_types_config, mg_type='system_types')
+    map_generator.set_map_generator_parameters(server_name, mg_systems_config, mg_type='systems')
 
 
 def remove_past_generation(server):

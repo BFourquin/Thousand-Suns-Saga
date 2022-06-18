@@ -3,7 +3,7 @@ import random
 
 from data import map_generator, sectors
 from backend.utils import seed_convertor, probability_picker
-from geography import mg_systems
+from geography import mg_systems_placement
 
 
 def generate_sector_basic_values(pos_y, pos_x, seed):
@@ -162,7 +162,7 @@ def generate_sectors(server):
 
     for y in range(mg_params['nb_sectors_axe_y']):
         for x in range(mg_params['nb_sectors_axe_x']):
-            mg_systems.generate_systems(server, sectors.get_sector(server, y, x))
+            mg_systems_placement.generate_sector_systems(server, sectors.get_sector(server, y, x))
 
     ####################################################################################################################
     # Visualisation

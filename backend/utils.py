@@ -75,3 +75,19 @@ def seed_convertor(*seeds):
               'The first digit of the seed is a zero and will be lost when casted in an integer [', str_seed, ']')
 
     return str_seed
+
+
+def info_from_seed(seed):
+    """Get back infos from a seed"""
+    infos = {}
+    if len(seed) >= 6:
+        infos['server_seed'] = seed[0:6]
+    if len(seed) >= 12:
+        infos['sector_id'] = seed[0:12]
+    if len(seed) >= 15:
+        infos['pos_y'] = seed[12:15]
+    if len(seed) >= 18:
+        infos['pos_x'] = seed[15:18]
+    if len(seed) >= 20:
+        infos['pos_orbital'] = seed[18:20]
+    return infos

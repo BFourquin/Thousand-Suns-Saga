@@ -2,21 +2,10 @@
 import random
 from math import sqrt
 
+from backend import utils
 from data import map_generator, sectors, systems
+from geography import mg_system_composition
 from backend.utils import seed_convertor, probability_picker
-
-
-def generate_system_basic_values(pos_y, pos_x, sector_id, seed, system_type):
-
-    new_system = {
-        "_id": seed,
-        "pos_y": pos_y,
-        "pos_x": pos_x,
-        "seed": seed,
-        "sector_id": sector_id,
-        "system_type": system_type,
-    }
-    return new_system
 
 
 def generate_system_coordinates(sector, used_coordinates, mg_params):
@@ -59,14 +48,11 @@ def generate_system_coordinates(sector, used_coordinates, mg_params):
         return y, x
 
 
-def generate_systems(server, sector):
+def generate_sector_systems(server, sector):
 
     # Server generation parameters
     mg_params = map_generator.get_map_generator_parameters(server, mg_type='global')
-    for s in map_generator.get_map_generator_parameters(server, mg_type='sectors'):
-        if s['sector_type'] == sector['sector_type']:
-            mg_sector_params = s
-            break
+    mg_sector_params = map_generator.get_mp_params_sector_type(server, sector_type=sector['sector_type'])
 
     # Random seed from sector
     random.seed(int(sector['seed']))
@@ -88,10 +74,14 @@ def generate_systems(server, sector):
     ####################################################################################################################
     # Second pass : forced system placement
 
-    native_systems = random.randint(mg_sector_params['min_natives_start'], mg_sector_params['max_natives_start'])
-    generated_systems_ids = []  # Will only contain the systems generated into DB
+    systems_placed = {}  # {system_seed: system_type} Will only contain the systems generated into DB
 
-    while native_systems:
+    systems_types_to_place = {
+        'native': random.randint(mg_sector_params['min_natives_start'], mg_sector_params['max_natives_start'])
+    }
+
+    # While there is systems to place
+    while sum(systems_types_to_place.values()):
         y, x = used_coordinates[random.randint(0, len(used_coordinates))]
 
         # SEED USAGE
@@ -99,10 +89,26 @@ def generate_systems(server, sector):
         system_seed = seed_convertor((sector['seed'], 12), (y, 3), (x, 3))
 
         # Do not write over already generated system
-        if system_seed not in generated_systems_ids:
+        if system_seed not in systems_placed.keys():
 
-            new_system = generate_system_basic_values(y, x, sector['_id'], system_seed, 'native')
-            systems.set_system(server, new_system)
+            # Select a system type that still need to be placed
+            for system_type, remaining_to_place in systems_types_to_place.items():
+                if not remaining_to_place:
+                    continue
 
-            generated_systems_ids.append(system_seed)
-            native_systems -= 1
+                #new_system = generate_system_basic_values(y, x, sector['_id'], system_seed, system_type)
+                #systems.set_system(server, new_system)
+
+                print(y, x)
+                mg_system_composition.generate_system(server, system_seed, system_type)
+
+                systems_placed[system_seed] = system_type
+                systems_types_to_place[system_type] -= 1
+                break
+
+    ####################################################################################################################
+    # Third pass : generate the systems
+
+    #for system_seed, system_type in systems_placed.items():
+    #    mg_system_composition.generate_system(server, system_seed, system_type)
+
