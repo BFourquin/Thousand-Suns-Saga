@@ -14,15 +14,13 @@ def info_from_seed(seed):
 
 
 def remove_redundant_info(system):
-    del system['seed']
-    del system['sector_id']
-    del system['pos_y']
-    del system['pos_x']
+    for info in ('seed', 'sector_id', 'pos_y', 'pos_x'):
+        if info in system:
+            del system[info]
     return system
 
 
 def recreate_redundant_info(system):
-    print(system)
     system['seed'] = system['_id']
     system['sector_id'], system['pos_y'], system['pos_x'] = info_from_seed(system['seed'])
     return system
@@ -48,13 +46,21 @@ def get_system_by_position(server, sector_id, y, x):
     return system
 
 
+def get_all_systems(server):
+    client = clients['TSS_' + server]
+    db = client['systems']
+
+    system = list(db.find())
+    return system
+
+
 def set_system(server, system):
 
     client = clients['TSS_'+server]
     db = client['systems']
 
     # Will remove previous entry if one exist
-    previous_system = get_system_by_position(server, system["sector_id"], system["pos_y"], system["pos_x"])
+    previous_system = get_system_by_seed(server, system["_id"])
     if previous_system:
         db.delete_one(previous_system)
 

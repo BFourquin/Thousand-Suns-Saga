@@ -1,8 +1,10 @@
 
 import random
+from datetime import datetime
 
 from data import map_generator
 from geography import mg_sectors, solar, planet
+from statistics import stats_geography
 from backend.utils import seed_convertor
 
 
@@ -82,7 +84,7 @@ def load_map_generator_parameters(server_name, excel_path):
 def remove_past_generation(server):
     from database.db_connect import clients
 
-    for category in ('sectors', 'systems'):
+    for category in ('sectors', 'systems', 'planets'):
         clients['TSS_'+server][category].delete_many({})
 
 
@@ -96,3 +98,21 @@ if __name__ == '__main__':
     load_map_generator_parameters(server_name, excel_path)
 
     mg_sectors.generate_sectors(server_name)
+
+    print(stats_geography.statistics_systems_types_per_sector(server_name))
+    print(stats_geography.statistics_systems_types_global(server_name))
+
+
+    from mg_system_composition import generate_system
+    from data import systems
+
+    start = datetime.now()
+    generate_system(server_name, '100003000000094080')
+    end = datetime.now()
+    print(end-start)
+
+
+    start = datetime.now()
+    systems.get_system_by_seed(server_name, '100003000000094080')
+    end = datetime.now()
+    print(end-start)

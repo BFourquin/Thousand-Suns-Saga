@@ -12,7 +12,6 @@ def get_sector(server, y, x):
 def get_sector_by_seed(server, seed):
     client = clients['TSS_' + server]
     db = client['sectors']
-    print(seed)
     return db.find_one({"_id": seed})
 
 

@@ -33,7 +33,7 @@ def parameters_presents(params, request_params):
 def probability_picker(probabilities, random_number=random.random()):
 
     # If not between 0 and 1, use the number as a seed
-    if not 0 < random_number < 1:
+    if not 0 < float(random_number) < 1:
         random_number = random.random()
 
     # Check if all cumulated probabilities equal 1, 0.01 rounding error tolerance
