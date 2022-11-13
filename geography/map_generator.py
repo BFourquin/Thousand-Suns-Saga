@@ -103,6 +103,8 @@ if __name__ == '__main__':
     print(stats_geography.statistics_systems_types_global(server_name))
 
 
+# Speed comparison between system generation and querying in DB
+
     from mg_system_composition import generate_system
     from data import systems
 
@@ -110,7 +112,6 @@ if __name__ == '__main__':
     generate_system(server_name, '100003000000094080')
     end = datetime.now()
     print(end-start)
-
 
     start = datetime.now()
     systems.get_system_by_seed(server_name, '100003000000094080')

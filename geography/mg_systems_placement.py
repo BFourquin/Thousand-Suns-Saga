@@ -62,13 +62,13 @@ def generate_sector_systems(server, sector):
     ####################################################################################################################
     # First pass : systems coordinates
 
-    used_coordinates = []
-    for _ in range(sector['nb_systems']//2):  # TODO remove the division
+    systems_coordinates = []
+    for _ in range(sector['nb_systems']):
 
-        y, x = generate_system_coordinates(sector, used_coordinates, mg_params)
-        used_coordinates.append((y, x))
+        y, x = generate_system_coordinates(sector, systems_coordinates, mg_params)
+        systems_coordinates.append((y, x))
 
-    sector['systems_coordinates'] = used_coordinates
+    sector['systems_coordinates'] = systems_coordinates
     sectors.set_sector(server, sector)
 
     ####################################################################################################################
@@ -82,44 +82,42 @@ def generate_sector_systems(server, sector):
 
     # While there is systems to place
     while sum(systems_types_to_place.values()):
-        y, x = used_coordinates[random.randint(0, len(used_coordinates))]
+        y, x = systems_coordinates[random.randint(0, len(systems_coordinates))]
 
         # SEED USAGE
         # generator seed + sector y and x position + system y and x position
         system_seed = seed_convertor((sector['seed'], 12), (y, 3), (x, 3))
 
         # Do not write over already generated system
-        if system_seed not in systems_placed.keys():
+        if system_seed in systems_placed.keys():
+            continue
 
-            # Select a system type that still need to be placed
-            for system_type, remaining_to_place in systems_types_to_place.items():
-                if not remaining_to_place:
-                    continue
+        # Select a system type that still need to be placed
+        for system_type, remaining_to_place in systems_types_to_place.items():
+            if not remaining_to_place:
+                continue
 
-                #  print(y, x, system_type)
-                new_system = mg_system_composition.generate_system(server, system_seed, system_type)
-                systems.set_system(server, new_system)
-
-                systems_placed[system_seed] = system_type
-                systems_types_to_place[system_type] -= 1
-                break
-
-    ####################################################################################################################
-    # Optional pass : generate all the systems (if the dynamic generation on demand of systems is not used)
-
-    for y, x in used_coordinates:
-
-        # SEED USAGE
-        # generator seed + sector y and x position + system y and x position
-        system_seed = seed_convertor((sector['seed'], 12), (y, 3), (x, 3))
-
-        # Do not write over already generated system
-        if system_seed not in systems_placed.keys():
-            new_system = mg_system_composition.generate_system(server, system_seed)
+            #  print(y, x, system_type)
+            new_system = mg_system_composition.generate_system(server, system_seed, system_type)
             systems.set_system(server, new_system)
 
-    ####################################################################################################################
-    # Third pass : generate the systems
+            systems_placed[system_seed] = system_type
+            systems_types_to_place[system_type] -= 1
+            break
 
-    #for system_seed, system_type in systems_placed.items():
-    #    mg_system_composition.generate_system(server, system_seed)
+    ####################################################################################################################
+    # Generate all the remaining, random systems
+
+    for y, x in systems_coordinates:
+
+        # SEED USAGE
+        # generator seed + sector y and x position + system y and x position
+        system_seed = seed_convertor((sector['seed'], 12), (y, 3), (x, 3))
+
+        # Do not write over already generated system
+        if system_seed in systems_placed.keys():
+            continue
+
+        new_system = mg_system_composition.generate_system(server, system_seed)
+        systems.set_system(server, new_system)
+
