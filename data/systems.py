@@ -7,9 +7,9 @@ from database.db_connect import clients
 # Now that all systems and sectors ids are simply their seed, no need to keep those duplicates values stored in DB
 
 def info_from_seed(seed):
-    sector_id = seed[0:12]
-    pos_y = seed[12:15]
-    pos_x = seed[15:18]
+    sector_id = seed[0:10]
+    pos_y = seed[10:13]
+    pos_x = seed[13:16]
     return sector_id, pos_y, pos_x
 
 

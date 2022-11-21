@@ -28,7 +28,7 @@ def generate_system(server, seed, system_type=None):
 
     # Pick system type if not preselected
     if not system_type:
-        sector_type = sectors.get_sector_by_seed(server, seed[0:12])['sector_type']
+        sector_type = sectors.get_sector_by_seed(server, seed[0:10])['sector_type']
         system_type = random_pick_system_type(server, sector_type, seed)
 
     new_system = {
@@ -53,11 +53,11 @@ def generate_system(server, seed, system_type=None):
     star_type = probability_picker(solar_type_prob)
 
     seed = int(seed + '00')  # Coordinate seed : add two zeroes for the sun
-    mg_coordinate.create_coordinate(seed, coordinate_type='star', subtype=star_type)
+    mg_coordinate.create_coordinate(server, seed, coordinate_type='star', subtype=star_type)
 
 
-    import sys
-    sys.exit()
+    #import sys
+    #sys.exit()
 
 
 

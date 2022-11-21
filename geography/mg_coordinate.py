@@ -2,7 +2,7 @@
 from data import coordinates
 
 
-def create_coordinate(seed, coordinate_type, subtype):
+def create_coordinate(server, seed, coordinate_type, subtype):
 
     coordinate = {
         '_id': seed,
@@ -10,4 +10,4 @@ def create_coordinate(seed, coordinate_type, subtype):
         'subtype': subtype
     }
 
-    coordinates.set_coordinate(coordinate)
+    coordinates.set_coordinate(server, coordinate)

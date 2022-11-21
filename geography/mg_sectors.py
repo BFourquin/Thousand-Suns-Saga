@@ -38,7 +38,7 @@ def generate_sectors(server):
 
     for y in range(mg_params['nb_sectors_axe_y']):
         for x in range(mg_params['nb_sectors_axe_x']):
-            sector_seed = seed_convertor((mg_params['seed'], 6), (y, 3), (x, 3))
+            sector_seed = seed_convertor((mg_params['seed'], 4), (y, 3), (x, 3))
             new_sector = generate_sector_basic_values(pos_y=y, pos_x=x, seed=sector_seed)
             sectors.set_sector(server, new_sector)
 

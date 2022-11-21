@@ -86,7 +86,7 @@ def generate_sector_systems(server, sector):
 
         # SEED USAGE
         # generator seed + sector y and x position + system y and x position
-        system_seed = seed_convertor((sector['seed'], 12), (y, 3), (x, 3))
+        system_seed = seed_convertor((sector['seed'], 4), (y, 3), (x, 3))
 
         # Do not write over already generated system
         if system_seed in systems_placed.keys():
@@ -112,7 +112,7 @@ def generate_sector_systems(server, sector):
 
         # SEED USAGE
         # generator seed + sector y and x position + system y and x position
-        system_seed = seed_convertor((sector['seed'], 12), (y, 3), (x, 3))
+        system_seed = seed_convertor((sector['seed'], 10), (y, 3), (x, 3))
 
         # Do not write over already generated system
         if system_seed not in systems_placed.keys():

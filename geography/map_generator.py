@@ -1,4 +1,5 @@
 
+import os
 import random
 from datetime import datetime
 
@@ -90,7 +91,8 @@ def remove_past_generation(server):
 
 if __name__ == '__main__':
 
-    excel_path = 'C:\\Users\\Benoit\\Desktop\\Thousand Suns Saga\\TSS.xlsx'
+    project_path = os.path.dirname(__file__)
+    excel_path = os.path.abspath(project_path + '/../../TSS.xlsx')
     server_name = 'Alpha'
 
     remove_past_generation(server_name)
@@ -110,11 +112,11 @@ if __name__ == '__main__':
     from data import systems
 
     start = datetime.now()
-    generate_system(server_name, '100003000000094080')
+    generate_system(server_name, '1003000000094080')
     end = datetime.now()
     print(end-start)
 
     start = datetime.now()
-    systems.get_system_by_seed(server_name, '100003000000094080')
+    systems.get_system_by_seed(server_name, '1003000000094080')
     end = datetime.now()
     print(end-start)
