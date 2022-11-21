@@ -27,5 +27,6 @@ if __name__ == '__main__':
 
         for table_name in ('commandants', 'starting_values', 'cities', 'buildings', 'modifiers', 'technologies',
                            'ship_components', 'ship_designs', 'fleets', 'factions', 'coordinates', 'systems', 'sectors',
-                           'map_generator', 'mg_sectors', 'mg_systems_types',  'mg_systems', 'mg_suns', 'mg_planets'):
+                           'map_generator', 'mg_sectors', 'mg_systems_types',  'mg_systems', 'mg_suns', 'mg_planets',
+                           'statistics', 'mg_statistics'):
             create_table(db_name, table_name)

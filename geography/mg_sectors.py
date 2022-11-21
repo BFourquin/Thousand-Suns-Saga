@@ -1,7 +1,7 @@
 
 import random
 
-from data import map_generator, sectors
+from data import map_generator, sectors, mg_statistics
 from backend.utils import seed_convertor, probability_picker
 from geography import mg_systems_placement
 
@@ -171,6 +171,9 @@ def generate_sectors(server):
     #    for x in range(mg_params['nb_sectors_axe_x']):
     #        print(str(sectors.get_sector(server, y, x)['sector_type'])[:6], ' '*(6-len(str(sectors.get_sector(server, y, x)['sector_type']))), end=' | ')
     #    print()
+
+    # Apply statistics collected into the DB
+    mg_statistics.insert_mg_statistics_buffer_into_db(server)
 
     from geography import admin_visualisation
     admin_visualisation.display_sectors(server, display_sector_types=False)

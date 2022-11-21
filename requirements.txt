@@ -37,4 +37,5 @@ wcwidth==0.2.5
 Werkzeug==2.0.2
 
 corsheaders
+pygame
 pylightxl==1.59

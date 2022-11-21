@@ -40,6 +40,8 @@ def valid_commandant_creation(server, user, pseudo,
                 for commandant in client['commandant'].find_many({}):
                     if commandant['pseudo'].lower() == pseudo.lower():
                         return False, 'Un commandant porte déjà ce nom'
+            except:
+                ... # TODO
 
 
 
