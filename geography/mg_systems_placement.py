@@ -52,7 +52,7 @@ def generate_sector_systems(server, sector):
 
     # Server generation parameters
     mg_params = map_generator.get_map_generator_parameters(server, mg_type='global')
-    mg_sector_params = map_generator.get_mp_params_sector_type(server, sector_type=sector['sector_type'])
+    mg_sector_params = map_generator.get_mg_params_sector_type(server, sector_type=sector['sector_type'])
 
     # Random seed from sector
     random.seed(int(sector['seed']))
@@ -115,9 +115,8 @@ def generate_sector_systems(server, sector):
         system_seed = seed_convertor((sector['seed'], 12), (y, 3), (x, 3))
 
         # Do not write over already generated system
-        if system_seed in systems_placed.keys():
-            continue
+        if system_seed not in systems_placed.keys():
 
-        new_system = mg_system_composition.generate_system(server, system_seed)
-        systems.set_system(server, new_system)
+            new_system = mg_system_composition.generate_system(server, system_seed)
+            systems.set_system(server, new_system)
 

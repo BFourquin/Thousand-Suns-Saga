@@ -103,6 +103,7 @@ if __name__ == '__main__':
     print(stats_geography.statistics_systems_types_global(server_name))
 
 
+
 # Speed comparison between system generation and querying in DB
 
     from mg_system_composition import generate_system

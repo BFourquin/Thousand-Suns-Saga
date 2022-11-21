@@ -30,8 +30,15 @@ def get_map_generator_parameters(server, mg_type=None):
         return list(db.find({}))
 
 
-def get_mp_params_sector_type(server, sector_type):
+def get_mg_params_sector_type(server, sector_type):
 
     client = clients['TSS_'+server]
     db = client['mg_sectors']
     return db.find_one({'sector_type': sector_type})
+
+
+def get_mg_system_type(server, system_type):
+
+    client = clients['TSS_'+server]
+    db = client['mg_system_types']
+    return db.find_one({'system_type': system_type})
