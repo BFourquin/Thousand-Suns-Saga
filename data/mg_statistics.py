@@ -8,9 +8,11 @@ def get_mg_statistics(server, stats_type):
 
     client = clients['TSS_'+server]
     db = client['mg_statistics']
-    stats_entry = db.find_one({})
-    if stats_type in stats_entry:
-        return stats_entry[stats_type]
+    stats_entry = db.find_one({"stats_type": stats_type})
+
+    if stats_entry:
+        del stats_entry["stats_type"]
+        return stats_entry
 
 
 def set_mg_statistics(server, stats_type, stats):
@@ -18,12 +20,8 @@ def set_mg_statistics(server, stats_type, stats):
     client = clients['TSS_'+server]
     db = client['mg_statistics']
 
-    stats_entry = db.find_one({})
-    if stats_entry is None:
-        stats_entry = {}
-    stats_entry[stats_type] = stats
-
-    db.upsert_one({"stats_type": stats_type, "stats": stats})
+    db.delete_one({"stats_type": stats_type})
+    db.insert_one({"stats_type": stats_type, **stats})
 
 
 def insert_mg_statistics_buffer_into_db(server):
