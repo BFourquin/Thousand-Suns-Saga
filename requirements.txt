@@ -1,13 +1,13 @@
 argh
 asgiref
 atomicwrites
-attrs=
+attrs
 bokeh
 click
 colorama
 Django
 django-cors-headers
-django-filte
+django-filter
 djangorestframework
 djongo
 Flask
@@ -18,7 +18,7 @@ Markdown
 MarkupSafe
 more-itertools
 numpy
-packagin
+packaging
 pathtools
 Pillow
 pluggy
@@ -30,7 +30,7 @@ pytz
 PyYAML
 six
 sqlparse
-torna
+tornado
 typing_extensions
 watchdog
 wcwidth
