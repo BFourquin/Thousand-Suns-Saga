@@ -23,7 +23,7 @@ pathtools
 Pillow
 pluggy
 py
-pymongo
+pymongo==3.12.3
 pyparsing
 pytest
 pytz
@@ -38,3 +38,4 @@ Werkzeug
 
 pygame
 pylightxl
+matplotlib
