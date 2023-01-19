@@ -5,15 +5,35 @@ from datetime import datetime
 
 
 from database.load_technologies import load_technologies
-from geography import map_generator, mg_sectors, solar, planet
+from data import server_details
+from geography import map_generator, mg_sectors
 from statistics import stats_geography
-
 
 
 
 server_name = 'Alpha'
 excel_server_params = '..\\TSS.xlsx'
 
+server_status = 'test'
+admin_only_visibility = True
+
+
+""" SERVER STATUS
+open : users can create an account and play
+close : users can play but not create new accounts
+test : only superuser can create an account
+stop : the server is fixed in time at the end of the game, no new account or any order
+dead : everything shut down
+"""
+
+""" ADMIN ONLY VISIBILITY
+The game server will be displayed on the public site  
+"""
+
+
+# SERVER DETAILS
+
+server_details.create_server(server_name, status=server_status, admin_only_visibility=admin_only_visibility)
 
 # TECHNOLOGIES
 
