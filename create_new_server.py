@@ -1,8 +1,6 @@
+from database.load_technologies import load_technologies
 
-
-
-
-load_technologies(excel_tech_path='C:\\Users\\Benoit\\Desktop\\Thousand Suns Saga\\TSS.xlsx',
+load_technologies(excel_tech_path='..\\TSS.xlsx',
                   sheet_tech_name='Techs',
 
                   server_name='Alpha',

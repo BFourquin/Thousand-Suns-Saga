@@ -16,6 +16,10 @@ db_extend = client['auth_user_extended']
 
 def create_user_and_user_extend(username, mail, password):
     User.objects.create_user(username, mail, password)
+    create_user_extend(username)
+
+
+def create_user_extend(username):
     user = db_user.find_one({'username': username})
 
     extended_table = {'_id': user['_id'],
@@ -28,14 +32,20 @@ def create_user_and_user_extend(username, mail, password):
                       }
 
     db_extend.insert_one(extended_table)
+    return extended_table
 
 
 def add_user_extended(user):
     # Concatenate the auth_user_extended entry with the Django default auth_user
     if user is not None:
-        #print(user)
-        #print(db_extend.find_one({'_id': user['_id']}))
-        return user | db_extend.find_one({'_id': user['_id']})
+
+        extended_infos = db_extend.find_one({'_id': user['_id']})
+
+        # Create extended entry if not existent (happen to superuser created from a console)
+        if extended_infos is None:
+            extended_infos = create_user_extend(user['username'])
+
+        return user | extended_infos
     return None
 
 

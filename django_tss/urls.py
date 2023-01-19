@@ -22,6 +22,9 @@ from django.conf.urls.static import static
 from backend import views, views_public, views_admin
 from backend import views_api_user, views_api_commandant
 
+
+app_name = "admin"
+
 urlpatterns = [
 
     ####################################################################################################################
