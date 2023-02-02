@@ -3,7 +3,7 @@ import os
 import random
 from datetime import datetime
 
-
+from django_tss.settings import DATABASES
 from database.load_technologies import load_technologies
 from data import server_details
 from geography import map_generator, mg_sectors
@@ -11,7 +11,7 @@ from statistics import stats_geography
 
 
 
-server_name = 'Alpha'
+server_name = 'Alpha2'
 excel_server_params = '..\\TSS.xlsx'
 
 server_status = 'test'
@@ -29,6 +29,11 @@ dead : everything shut down
 """ ADMIN ONLY VISIBILITY
 The game server will be displayed on the public site  
 """
+
+
+if not server_name in DATABASES:
+    print("Before creating a new server, please declare the following line in django_tss.settings.DATABASES\n"
+          "'"+server_name+"': mongodb_settings('"+server_name+"'),")
 
 
 # SERVER DETAILS
