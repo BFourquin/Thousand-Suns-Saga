@@ -1,10 +1,10 @@
 
-from database.db_connect import clients
+from database.db_connect import databases
 
 
 def create_starting_values(user, server, pseudo):
 
-    client = clients['TSS_'+server]
+    client = databases['TSS_' + server]
     db = client['starting_values']
 
     # Remove previous values
@@ -27,6 +27,6 @@ def create_starting_values(user, server, pseudo):
 
 
 def get_starting_values(server):
-    client = clients['TSS_' + server]
+    client = databases['TSS_' + server]
     db = client['starting_values']
     return db.find_one()

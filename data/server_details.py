@@ -1,9 +1,9 @@
 
 import datetime
 
-from database.db_connect import clients
+from database.db_connect import databases
 
-client = clients['TSS_main_server']
+client = databases['TSS_main_server']
 db = client['server_details']
 
 
@@ -65,6 +65,9 @@ def change_server_param(server_name, param, param_value):
     db.update_one({'_id': get_server_details(server_name)['_id']},
                   {"$set": { param: param_value }})
 
+
+def delete_server_details(server_name):
+    return db.delete_one({'server_name': server_name})
 
 #create_server('test 2', status='stop', admin_only_visibility=True)
 #print(get_server_details('Alpha'))

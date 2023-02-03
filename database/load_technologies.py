@@ -1,11 +1,11 @@
 
 import pylightxl as xl
-from database.db_connect import clients
+from database.db_connect import databases
 
 
 def load_technologies(excel_tech_path, sheet_tech_name, server_name, delete_actual_techs):
 
-    client = clients['TSS_'+server_name]
+    client = databases['TSS_' + server_name]
     db = client['technologies']
     if delete_actual_techs:
         db.remove({})

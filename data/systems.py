@@ -1,6 +1,6 @@
 
 
-from database.db_connect import clients
+from database.db_connect import databases
 
 
 # ######################################################################################################################
@@ -29,7 +29,7 @@ def recreate_redundant_info(system):
 
 
 def get_system_by_seed(server, seed):
-    client = clients['TSS_' + server]
+    client = databases['TSS_' + server]
     db = client['systems']
 
     system = db.find_one({"_id": seed})
@@ -38,7 +38,7 @@ def get_system_by_seed(server, seed):
 
 
 def get_system_by_position(server, sector_id, y, x):
-    client = clients['TSS_' + server]
+    client = databases['TSS_' + server]
     db = client['systems']
 
     system = db.find_one({"sector_id": sector_id, "pos_y": y, "pos_x": x})
@@ -47,7 +47,7 @@ def get_system_by_position(server, sector_id, y, x):
 
 
 def get_all_systems(server):
-    client = clients['TSS_' + server]
+    client = databases['TSS_' + server]
     db = client['systems']
 
     system = list(db.find())
@@ -56,7 +56,7 @@ def get_all_systems(server):
 
 def set_system(server, system):
 
-    client = clients['TSS_'+server]
+    client = databases['TSS_' + server]
     db = client['systems']
 
     # Will remove previous entry if one exist

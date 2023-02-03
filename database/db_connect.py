@@ -4,8 +4,8 @@ import pymongo
 
 from django_tss.settings import DATABASES
 
-
 clients = {}
+databases = {}
 
 
 def db_connect(db_settings):
@@ -19,8 +19,8 @@ def db_connect(db_settings):
         print("Unable to connect to the database " + db_settings['NAME'])
         client = None
         sys.exit()
-    return db
+    return client, db
 
 
 for db_settings in DATABASES.values():
-    clients[db_settings['NAME']] = db_connect(db_settings)
+    clients[db_settings['NAME']], databases[db_settings['NAME']] = db_connect(db_settings)

@@ -1,13 +1,13 @@
 
-from database.db_connect import clients
+from database.db_connect import databases
 from django_tss.settings import DATABASES
 
-client = clients['TSS_main_server']
+client = databases['TSS_main_server']
 
 
 def create_table(db_name, table_name):
     try:
-        clients[db_name].create_collection(table_name)
+        databases[db_name].create_collection(table_name)
         print('[' + db_name + '] ' + table_name + ' créé.')
     except Exception as e:
         print('[' + db_name + '] ERROR : ' + str(e))
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     create_table('TSS_main_server', 'server_details')
 
     # GAME SERVERS
-    for db_name in clients:
+    for db_name in databases:
 
         if db_name == 'TSS_main_server':
             continue

@@ -1,17 +1,17 @@
 
-from database.db_connect import clients
+from database.db_connect import databases
 
 
 def get_coordinate(server, seed):
 
-    client = clients['TSS_'+server]
+    client = databases['TSS_' + server]
     db = client['coordinates']
     return db.find_one({"_id": seed})
 
 
 def set_coordinate(server, coordinate):
 
-    client = clients['TSS_'+server]
+    client = databases['TSS_' + server]
     db = client['coordinates']
 
     # Will remove previous entry if one exist

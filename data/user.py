@@ -3,9 +3,9 @@ from bson.objectid import ObjectId
 
 from django.contrib.auth.models import User
 
-from database.db_connect import clients
+from database.db_connect import databases
 
-client = clients['TSS_main_server']
+client = databases['TSS_main_server']
 db_user = client['auth_user']
 db_extend = client['auth_user_extended']
 

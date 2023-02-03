@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from database.db_connect import clients
+from database.db_connect import databases
 from data import server_details
 from data import starting_values as sv
 
@@ -13,7 +13,7 @@ from data import starting_values as sv
 def valid_commandant_creation(server, user, pseudo,
                               admin_override=False, game_wide_pseudo_restriction=True):
 
-    client = clients['TSS_'+server]
+    client = databases['TSS_' + server]
 
     # Server authorize new accounts
     if server['status'] != 'open' and not user['is_superuser']:
@@ -36,7 +36,7 @@ def valid_commandant_creation(server, user, pseudo,
     if game_wide_pseudo_restriction:
         for server_name in server_details.get_servers_names():
             try:
-                client = clients['TSS_'+server_name]
+                client = databases['TSS_' + server_name]
                 for commandant in client['commandant'].find_many({}):
                     if commandant['pseudo'].lower() == pseudo.lower():
                         return False, 'Un commandant porte déjà ce nom'
@@ -47,7 +47,7 @@ def valid_commandant_creation(server, user, pseudo,
 
 def create_commandant(server, user, pseudo):
 
-    client = clients['TSS_'+server]
+    client = databases['TSS_' + server]
     db = client['starting_values']
     starting_values = sv.get_starting_values(server)
 

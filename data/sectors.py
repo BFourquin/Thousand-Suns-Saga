@@ -1,16 +1,16 @@
 
-from database.db_connect import clients
+from database.db_connect import databases
 
 
 def get_sector(server, y, x):
 
-    client = clients['TSS_'+server]
+    client = databases['TSS_' + server]
     db = client['sectors']
     return db.find_one({"pos_y": y, "pos_x": x})
 
 
 def get_sector_by_seed(server, seed):
-    client = clients['TSS_' + server]
+    client = databases['TSS_' + server]
     db = client['sectors']
     return db.find_one({"_id": seed})
 
@@ -39,7 +39,7 @@ def get_diagonal_neighbours_sectors(server, y, x):
 
 def set_sector(server, sector):
 
-    client = clients['TSS_'+server]
+    client = databases['TSS_' + server]
     db = client['sectors']
 
     # Will remove previous entry if one exist

@@ -83,10 +83,10 @@ def load_map_generator_parameters(server_name, excel_path):
 
 
 def remove_past_generation(server):
-    from database.db_connect import clients
+    from database.db_connect import databases
 
     for category in ('sectors', 'systems', 'planets'):
-        clients['TSS_'+server][category].delete_many({})
+        databases['TSS_' + server][category].delete_many({})
 
 
 if __name__ == '__main__':

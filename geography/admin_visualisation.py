@@ -84,7 +84,7 @@ def display_sectors(server, display_sector_types=True):
             """
 
             for sy, sx in selected_sector['systems_coordinates']:
-                star_color = random.randint(70,240)
+                star_color = random.randint(70, 240)
                 screen.set_at((w*x + (sx*w)//100, y*w + (sy*w)//100), (star_color, star_color, star_color))
 
     # Update the display using flip
