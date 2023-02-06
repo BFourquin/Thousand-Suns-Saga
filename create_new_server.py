@@ -12,7 +12,7 @@ from statistics import stats_geography
 
 
 
-server_name = 'Alpha2'
+server_name = 'Alpha'
 excel_server_params = '..\\TSS.xlsx'
 
 server_status = 'test'
@@ -41,9 +41,9 @@ if server_name not in DATABASES:
 
 #
 if server_details.get_server_details(server_name):
-    print("/!\\ "+server_name+" already exist ! Do you want to remove the previous server ? (Y/n)\n")
+    print("/!\\ "+server_name+" already exist ! Do you want to remove the previous server ? (Y/n)")
     if input() in ('Y', 'y'):
-        clients['TSS_' + server_name].drop_database(server_name)
+        clients['TSS_' + server_name].drop_database('TSS_' + server_name)
         server_details.delete_server_details(server_name)
     else:
         print('Server creation canceled')
