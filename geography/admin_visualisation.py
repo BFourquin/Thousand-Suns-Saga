@@ -99,6 +99,25 @@ def display_sectors(server, display_sector_types=True):
         # for loop through the event queue
         for event in pygame.event.get():
 
+            # On Click : display sectors types
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for y in range(mg_params['nb_sectors_axe_y']):
+                    for x in range(mg_params['nb_sectors_axe_x']):
+                        selected_sector = sectors.get_sector(server, y, x)
+
+                        # Draw sector
+                        color = eval('color_' + selected_sector['sector_type'])
+                        pygame.draw.rect(screen, color, pygame.Rect(w * x, w * y, w, w))
+
+                        # Draw systems
+                        for sy, sx in selected_sector['systems_coordinates']:
+                            star_color = random.randint(70, 240)
+                            screen.set_at((w * x + (sx * w) // 100, y * w + (sy * w) // 100),
+                                          (star_color, star_color, star_color))
+
+                        # Update the display using flip
+                        pygame.display.flip()
+
             # Check for QUIT event
             if event.type == pygame.QUIT:
                 running = False
