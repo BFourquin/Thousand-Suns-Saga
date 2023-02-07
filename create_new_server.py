@@ -4,6 +4,7 @@ import random
 from datetime import datetime
 
 from django_tss.settings import DATABASES
+from database import create_tables
 from database.load_technologies import load_technologies
 from database.db_connect import clients
 from data import server_details, statistics
@@ -53,6 +54,7 @@ if server_details.get_server_details(server_name):
 
 # SERVER DETAILS
 
+create_tables.create_server_database('TSS_' + server_name)
 server_details.create_server(server_name, status=server_status, admin_only_visibility=admin_only_visibility)
 
 
