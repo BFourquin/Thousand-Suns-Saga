@@ -6,13 +6,13 @@ from datetime import datetime
 from django_tss.settings import DATABASES
 from database.load_technologies import load_technologies
 from database.db_connect import clients
-from data import server_details
+from data import server_details, statistics
 from geography import map_generator, mg_sectors
 from statistics import stats_geography
 
 
 
-server_name = 'Alpha'
+server_name = 'Alpha2'
 excel_server_params = '..\\TSS.xlsx'
 
 server_status = 'test'
@@ -72,6 +72,14 @@ map_generator.load_map_generator_parameters(server_name, excel_server_params)
 
 mg_sectors.generate_sectors(server_name)
 
-print(stats_geography.statistics_systems_types_per_sector(server_name))
-print(stats_geography.statistics_systems_types_global(server_name))
+# STATISTICS
+
+systems_types_per_sector = stats_geography.statistics_systems_types_per_sector(server_name)
+statistics.set_statistics_category(server_name, "mg_systems_types_per_sector", systems_types_per_sector)
+print(systems_types_per_sector)
+
+systems_types_global = stats_geography.statistics_systems_types_global(server_name)
+statistics.set_statistics_category(server_name, "mg_systems_types_global", systems_types_global)
+print(systems_types_global)
+
 

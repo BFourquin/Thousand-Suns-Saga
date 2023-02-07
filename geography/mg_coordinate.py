@@ -1,5 +1,5 @@
 
-from data import coordinates, mg_statistics
+from data import coordinates, statistics
 
 
 def create_coordinate(server, seed, coordinate_type, subtype):
@@ -14,10 +14,10 @@ def create_coordinate(server, seed, coordinate_type, subtype):
 
     # Statistics keeping
 
-    if 'coordinate_type' not in mg_statistics.mg_stats_buffer:
-        mg_statistics.mg_stats_buffer['coordinate_type'] = {}
+    if 'coordinate_type' not in statistics.mg_stats_buffer:
+        statistics.mg_stats_buffer['coordinate_type'] = {}
 
-    if coordinate_type  not in mg_statistics.mg_stats_buffer['coordinate_type']:
-        mg_statistics.mg_stats_buffer['coordinate_type'][coordinate_type] = 1
+    if coordinate_type  not in statistics.mg_stats_buffer['coordinate_type']:
+        statistics.mg_stats_buffer['coordinate_type'][coordinate_type] = 1
     else:
-        mg_statistics.mg_stats_buffer['coordinate_type'][coordinate_type] += 1
+        statistics.mg_stats_buffer['coordinate_type'][coordinate_type] += 1
