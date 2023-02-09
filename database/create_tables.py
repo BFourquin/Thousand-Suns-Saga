@@ -7,7 +7,7 @@ client = databases['TSS_main_server']
 
 server_tables_names = ('commandants', 'starting_values', 'cities', 'buildings', 'modifiers', 'technologies',
                        'ship_components', 'ship_designs', 'fleets', 'factions', 'coordinates', 'systems', 'sectors',
-                       'map_generator', 'mg_sectors', 'mg_systems_types',  'mg_systems', 'mg_suns', 'mg_planets',
+                       'map_generator', 'mg_sectors', 'mg_systems_types',  'mg_systems_compositions', 'mg_suns', 'mg_planets',
                        'statistics')
 
 
@@ -27,8 +27,8 @@ def create_server_database(db_name):
     # MAIN SERVER
 
     # in case it's the first time you deploy a server
-    create_table('TSS_main_server', 'auth_user_extended')
-    create_table('TSS_main_server', 'server_details')
+    create_table('TSS_main_server', 'auth_user_extended', printing=False)
+    create_table('TSS_main_server', 'server_details', printing=False)
 
     # GAME SERVERS
     for table_name in server_tables_names:
