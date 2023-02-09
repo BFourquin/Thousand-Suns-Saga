@@ -32,9 +32,9 @@ def generate_system(server, seed, system_type=None):
         system_type = random_pick_system_type(server, sector_type, seed)
 
     new_system = {
-        "_id": seed,
+        "_id": str(seed),
         "system_type": system_type,
-        "system_coordinates": [],
+        "system_coordinates": {},
     }  # Some values like pos_y, pos_x, sector_seed will be auto-added when querying db
 
     ####################################################################################################################
@@ -50,14 +50,61 @@ def generate_system(server, seed, system_type=None):
         if 'solar_type_probability_' in name and prob is not None:
             solar_type_prob[name.replace('solar_type_probability_', '')] = prob
 
-    star_type = probability_picker(solar_type_prob)
+    solar_seed = int(seed + '00')  # Coordinate seed : add two zeroes for the sun
 
-    seed = int(seed + '00')  # Coordinate seed : add two zeroes for the sun
-    mg_coordinate.create_coordinate(server, seed, coordinate_type='star', subtype=star_type)
+    star_type = probability_picker(solar_type_prob, random_number=solar_seed)
+    mg_coordinate.create_coordinate(server, solar_seed, coordinate_type='star', subtype=star_type)
+    new_system["system_coordinates"][str(solar_seed)] = star_type
+
+    # Following planets and asteroids depend on star type
+    planets_generator_probs = map_generator.get_mg_system_composition(server, star_type)
+    planet_seed = solar_seed+1  # Seed of the following planet to be generated
+
+    # ##### Telluric(s) #####
+
+    # Random picking of number of tellurics planets in the system
+
+    telluric_prob = {}
+    for name, prob in planets_generator_probs.items():
+        if 'prob_telluric_' in name and prob is not None:
+            telluric_prob[name.replace('prob_telluric_', '')] = prob
+
+    telluric_picker_seed = int(seed + '001')    # Coordinate seed : add two zeroes and a one for telluric picker
+                                                # (will not be the real seed of the generated planets, as using it would
+                                                # create determinism in following generations)
+    nb_tellurics = int(probability_picker(telluric_prob, random_number=telluric_picker_seed))
+
+    # Place the tellurics planets
+    # TODO planet type
+    for i in range(nb_tellurics):
+        mg_coordinate.create_coordinate(server, planet_seed, coordinate_type='telluric', subtype='telluric')
+        new_system["system_coordinates"][str(planet_seed)] = 'telluric'
+        planet_seed += 1
 
 
-    #import sys
-    #sys.exit()
+    # ##### Asteroid belt #####
+
+    # Random picking if asteroid belt
+
+    telluric_prob = {}
+    for name, prob in planets_generator_probs.items():
+        if 'prob_asteroid_belt' in name and prob is not None:
+            telluric_prob['prob_asteroid_belt'] = prob
+
+    asteroid_belt_picker_seed = int(seed + '002')   # Coordinate seed : add two zeroes and a two for asteroid belt picker
+                                                    # (will not be the real seed of the generated planets, as using it would
+                                                    # create determinism in following generations)
+    has_asteroid_belt = probability_picker(telluric_prob, random_number=asteroid_belt_picker_seed)
+    print(telluric_prob)
+
+    # Place the tellurics planets
+    # TODO planet type
+    for i in range(nb_tellurics):
+        mg_coordinate.create_coordinate(server, planet_seed, coordinate_type='telluric', subtype='telluric')
+        new_system["system_coordinates"][str(planet_seed)] = 'telluric'
+        planet_seed += 1
+
+
 
 
 

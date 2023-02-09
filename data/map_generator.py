@@ -42,3 +42,10 @@ def get_mg_system_type(server, system_type):
     client = databases['TSS_' + server]
     db = client['mg_systems_types']
     return db.find_one({'system_type': system_type})
+
+
+def get_mg_system_composition(server, solar_type):
+
+    client = databases['TSS_' + server]
+    db = client['mg_systems_compositions']
+    return db.find_one({'solar_type': solar_type})
