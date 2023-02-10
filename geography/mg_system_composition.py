@@ -5,7 +5,7 @@ from math import sqrt
 from backend import utils
 from data import map_generator, sectors, systems
 from geography import mg_coordinate
-from backend.utils import seed_convertor, probability_picker
+from backend.utils import seed_convertor, probability_picker, random_picker
 
 
 def random_pick_system_type(server, sector_type, system_seed):
@@ -94,14 +94,13 @@ def generate_system(server, seed, system_type=None):
     asteroid_belt_picker_seed = int(seed + '002')   # Coordinate seed : add two zeroes and a two for asteroid belt picker
                                                     # (will not be the real seed of the generated planets, as using it would
                                                     # create determinism in following generations)
-    has_asteroid_belt = probability_picker(telluric_prob, random_number=asteroid_belt_picker_seed)
-    print(telluric_prob)
+    has_asteroid_belt = random_picker(telluric_prob, random_number=asteroid_belt_picker_seed)
 
-    # Place the tellurics planets
-    # TODO planet type
-    for i in range(nb_tellurics):
-        mg_coordinate.create_coordinate(server, planet_seed, coordinate_type='telluric', subtype='telluric')
-        new_system["system_coordinates"][str(planet_seed)] = 'telluric'
+    # Place the asteroid belt
+    # TODO asteroid belt
+    if has_asteroid_belt:
+        mg_coordinate.create_coordinate(server, planet_seed, coordinate_type='asteroid_belt', subtype='asteroid_belt')
+        new_system["system_coordinates"][str(planet_seed)] = 'asteroid_belt'
         planet_seed += 1
 
 

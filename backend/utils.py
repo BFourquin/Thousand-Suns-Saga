@@ -31,9 +31,11 @@ def parameters_presents(params, request_params):
 
 
 def probability_picker(probabilities, random_number=random.random()):
+    # Return a random value based on multiple probabilities
 
     # If not between 0 and 1, use the number as a seed
     if not 0 < float(random_number) < 1:
+        random.seed(random_number)
         random_number = random.random()
 
     # Check if all cumulated probabilities equal 1, 0.01 rounding error tolerance
@@ -48,6 +50,23 @@ def probability_picker(probabilities, random_number=random.random()):
         cumulated_prob += value
         if random_number < cumulated_prob:
             return key
+
+
+def random_picker(probability, random_number=random.random()):
+    # Return a random boolean based on a single probability
+
+    # If not between 0 and 1, use the number as a seed
+    if not 0 < float(random_number) < 1:
+        random.seed(random_number)
+        random_number = random.random()
+
+    if isinstance(probability, float):
+        return random_number < probability
+
+    elif isinstance(probability, dict):
+        for key, value in probability.items():
+            return random_number < value
+
 
 
 def seed_convertor(*seeds):
