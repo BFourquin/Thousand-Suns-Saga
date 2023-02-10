@@ -131,16 +131,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/3.2/howto/static-files/
+
 STATIC_URL = 'http://127.0.0.1:8100/'  # '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATICFILES_DIRS =( os.path.join(STATIC_ROOT, 'css/'),
-                    os.path.join(STATIC_ROOT, 'javascript/'),
-                    os.path.join(STATIC_ROOT, 'images/'),
-                    os.path.join(STATIC_ROOT, 'dist/css/'),
-                    os.path.join(STATIC_ROOT, 'dist/javascript/'),
-                    os.path.join(STATIC_ROOT, 'dist/images/'),
-                    os.path.join(STATIC_ROOT, 'libraries/')
-                  )
 
 # Access-Control-Allow-Origin needed to get some ressources from the static server
 CORS_ALLOWED_ORIGINS = [
