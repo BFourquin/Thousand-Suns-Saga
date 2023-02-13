@@ -17,7 +17,7 @@ def create_coordinate(server, seed, coordinate_type, subtype):
     if 'coordinate_type' not in statistics.mg_stats_buffer:
         statistics.mg_stats_buffer['coordinate_type'] = {}
 
-    if coordinate_type  not in statistics.mg_stats_buffer['coordinate_type']:
+    if coordinate_type not in statistics.mg_stats_buffer['coordinate_type']:
         statistics.mg_stats_buffer['coordinate_type'][coordinate_type] = 1
     else:
         statistics.mg_stats_buffer['coordinate_type'][coordinate_type] += 1

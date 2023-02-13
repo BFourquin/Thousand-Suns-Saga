@@ -104,7 +104,69 @@ def generate_system(server, seed, system_type=None):
         planet_seed += 1
 
 
+    # ##### Planetoid(s) #####
+
+    # Random picking of number of planetoids in the system
+
+    planetoid_prob = {}
+    for name, prob in planets_generator_probs.items():
+        if 'prob_planetoid_' in name and prob is not None:
+            planetoid_prob[name.replace('prob_planetoid_', '')] = prob
+
+    planetoid_picker_seed = int(seed + '003')    # Coordinate seed : add two zeroes and a 3 for planetoid picker
+                                              # (will not be the real seed of the generated planets, as using it would
+                                              # create determinism in following generations)
+    nb_planetoids = int(probability_picker(planetoid_prob, random_number=planetoid_picker_seed))
+
+    # Place the planetoids
+    # TODO planetoid type
+    for i in range(nb_planetoids):
+        mg_coordinate.create_coordinate(server, planet_seed, coordinate_type='planetoid', subtype='planetoid')
+        new_system["system_coordinates"][str(planet_seed)] = 'planetoid'
+        planet_seed += 1
 
 
+    # ##### Jovian(s) #####
+
+    # Random picking of number of jovians planets in the system
+
+    jovian_prob = {}
+    for name, prob in planets_generator_probs.items():
+        if 'prob_jovian_' in name and prob is not None:
+            jovian_prob[name.replace('prob_jovian_', '')] = prob
+
+    jovian_picker_seed = int(seed + '004')    # Coordinate seed : add two zeroes and a 4 for jovian picker
+                                              # (will not be the real seed of the generated planets, as using it would
+                                              # create determinism in following generations)
+    nb_jovians = int(probability_picker(jovian_prob, random_number=jovian_picker_seed))
+
+    # Place the jovians planets
+    # TODO jovian type
+    for i in range(nb_jovians):
+        mg_coordinate.create_coordinate(server, planet_seed, coordinate_type='jovian', subtype='jovian')
+        new_system["system_coordinates"][str(planet_seed)] = 'jovian'
+        planet_seed += 1
+
+
+    # ##### Oort cloud #####
+
+    # Random picking if asteroid belt
+
+    oort_cloud_prob = {}
+    for name, prob in planets_generator_probs.items():
+        if 'prob_oort_cloud' in name and prob is not None:
+            oort_cloud_prob['prob_oort_cloud'] = prob
+
+    oort_cloud_picker_seed = int(seed + '002')   # Coordinate seed : add two zeroes and a two for asteroid belt picker
+                                                    # (will not be the real seed of the generated planets, as using it would
+                                                    # create determinism in following generations)
+    has_oort_cloud = random_picker(telluric_prob, random_number=oort_cloud_picker_seed)
+
+    # Place the asteroid belt
+    # TODO oort_cloud
+    if has_oort_cloud:
+        mg_coordinate.create_coordinate(server, planet_seed, coordinate_type='oort_cloud', subtype='oort_cloud')
+        new_system["system_coordinates"][str(planet_seed)] = 'oort_cloud'
+        planet_seed += 1
 
     return new_system
