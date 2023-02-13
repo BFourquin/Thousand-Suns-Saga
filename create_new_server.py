@@ -7,7 +7,7 @@ from django_tss.settings import DATABASES
 from database import create_tables
 from database.load_technologies import load_technologies
 from database.db_connect import clients
-from data import server_details, statistics
+from data import server_details, statistics, starting_values
 from geography import map_generator, mg_sectors
 from statistics import stats_geography
 
@@ -65,6 +65,9 @@ load_technologies(excel_tech_path=excel_server_params,
 
                   server_name=server_name,
                   delete_actual_techs=True)
+
+# NEW PLAYERS STARTING VALUES
+starting_values.create_starting_values(server_name)
 
 # GEOGRAPHY
 

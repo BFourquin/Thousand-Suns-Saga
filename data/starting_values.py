@@ -2,7 +2,7 @@
 from database.db_connect import databases
 
 
-def create_starting_values(user, server, pseudo):
+def create_starting_values(server):
 
     client = databases['TSS_' + server]
     db = client['starting_values']
@@ -11,7 +11,7 @@ def create_starting_values(user, server, pseudo):
     db.delete_many({})
 
     starting_values = {
-        'starting_planets': {},
+        'available_native_planets': [],
         'starting_resources': {},
         'starting_capital': {},
         'starting_territories': {},
@@ -23,10 +23,36 @@ def create_starting_values(user, server, pseudo):
     db.insert_one(starting_values)
 
 
-#create_starting_values(None, 'Alpha', None)
-
 
 def get_starting_values(server):
     client = databases['TSS_' + server]
     db = client['starting_values']
     return db.find_one()
+
+#create_starting_values(None, 'Alpha', None)
+
+
+# #### AVAILABLE NATIVE PLANETS #### #
+
+
+def get_available_native_planets(server):
+    client = databases['TSS_' + server]
+    db = client['starting_values']
+    return db.find_one()['available_native_planets']
+
+
+def add_available_native_planets(server, planet_seed):
+    client = databases['TSS_' + server]
+    db = client['starting_values']
+    planets_list = get_available_native_planets(server)
+    planets_list.append(planet_seed)
+    db.update_one({}, {"$set": {'available_native_planets': planets_list}})
+
+
+def remove_available_native_planets(server, planet_seed):
+    client = databases['TSS_' + server]
+    db = client['starting_values']
+    planets_list = db.find_one()['available_native_planets']
+    planets_list.remove(planet_seed)
+    db.update_one({}, {"$set": {'planets_list': planets_list}})
+

@@ -3,7 +3,7 @@ import random
 from math import sqrt
 
 from backend import utils
-from data import map_generator, sectors, systems
+from data import map_generator, sectors, systems, starting_values
 from geography import mg_coordinate
 from backend.utils import seed_convertor, probability_picker, random_picker
 
@@ -74,11 +74,21 @@ def generate_system(server, seed, system_type=None):
                                                 # create determinism in following generations)
     nb_tellurics = int(probability_picker(telluric_prob, random_number=telluric_picker_seed))
 
+    # Forced habitable planet placement
+    if system_type == 'native' or 'habitable' in system_type:
+        mg_coordinate.create_coordinate(server, planet_seed, coordinate_type='telluric', subtype=system_type)
+        new_system["system_coordinates"][str(planet_seed)] = 'telluric ' + system_type
+
+        if system_type == 'native':  # Add to list of available starting place for new players
+            starting_values.add_available_native_planets(server, planet_seed)
+        planet_seed += 1
+
+
     # Place the tellurics planets
     # TODO planet type
     for i in range(nb_tellurics):
-        mg_coordinate.create_coordinate(server, planet_seed, coordinate_type='telluric', subtype='telluric')
-        new_system["system_coordinates"][str(planet_seed)] = 'telluric'
+        mg_coordinate.create_coordinate(server, planet_seed, coordinate_type='telluric', subtype='standard')
+        new_system["system_coordinates"][str(planet_seed)] = 'telluric standard'
         planet_seed += 1
 
 
@@ -99,8 +109,8 @@ def generate_system(server, seed, system_type=None):
     # Place the asteroid belt
     # TODO asteroid belt
     if has_asteroid_belt:
-        mg_coordinate.create_coordinate(server, planet_seed, coordinate_type='asteroid_belt', subtype='asteroid_belt')
-        new_system["system_coordinates"][str(planet_seed)] = 'asteroid_belt'
+        mg_coordinate.create_coordinate(server, planet_seed, coordinate_type='asteroid_belt', subtype='standard')
+        new_system["system_coordinates"][str(planet_seed)] = 'asteroid_belt standard'
         planet_seed += 1
 
 
@@ -121,8 +131,8 @@ def generate_system(server, seed, system_type=None):
     # Place the planetoids
     # TODO planetoid type
     for i in range(nb_planetoids):
-        mg_coordinate.create_coordinate(server, planet_seed, coordinate_type='planetoid', subtype='planetoid')
-        new_system["system_coordinates"][str(planet_seed)] = 'planetoid'
+        mg_coordinate.create_coordinate(server, planet_seed, coordinate_type='planetoid', subtype='standard')
+        new_system["system_coordinates"][str(planet_seed)] = 'planetoid standard'
         planet_seed += 1
 
 
@@ -143,8 +153,8 @@ def generate_system(server, seed, system_type=None):
     # Place the jovians planets
     # TODO jovian type
     for i in range(nb_jovians):
-        mg_coordinate.create_coordinate(server, planet_seed, coordinate_type='jovian', subtype='jovian')
-        new_system["system_coordinates"][str(planet_seed)] = 'jovian'
+        mg_coordinate.create_coordinate(server, planet_seed, coordinate_type='jovian', subtype='standard')
+        new_system["system_coordinates"][str(planet_seed)] = 'jovian standard'
         planet_seed += 1
 
 
@@ -165,8 +175,8 @@ def generate_system(server, seed, system_type=None):
     # Place the asteroid belt
     # TODO oort_cloud
     if has_oort_cloud:
-        mg_coordinate.create_coordinate(server, planet_seed, coordinate_type='oort_cloud', subtype='oort_cloud')
-        new_system["system_coordinates"][str(planet_seed)] = 'oort_cloud'
+        mg_coordinate.create_coordinate(server, planet_seed, coordinate_type='oort_cloud', subtype='standard')
+        new_system["system_coordinates"][str(planet_seed)] = 'oort_cloud standard'
         planet_seed += 1
 
     return new_system
