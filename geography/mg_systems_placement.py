@@ -77,7 +77,7 @@ def generate_sector_systems(server, sector):
     systems_placed = {}  # {system_seed: system_type} Will only contain the systems generated into DB
 
     systems_types_to_place = {
-        'native': random.randint(mg_sector_params['min_natives_start'], mg_sector_params['max_natives_start'])
+        'native': sector['nb_natives_start']
     }
 
     # While there is systems to place
