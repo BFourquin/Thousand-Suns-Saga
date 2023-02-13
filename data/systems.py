@@ -14,15 +14,17 @@ def info_from_seed(seed):
 
 
 def remove_redundant_info(system):
-    for info in ('seed', 'sector_id', 'pos_y', 'pos_x'):
-        if info in system:
-            del system[info]
+    # TODO Remove easily calculable data ?
+    #for info in ('seed', 'sector_id', 'pos_y', 'pos_x'):
+    #    if info in system:
+    #        del system[info]
     return system
 
 
 def recreate_redundant_info(system):
-    system['seed'] = system['_id']
-    system['sector_id'], system['pos_y'], system['pos_x'] = info_from_seed(system['seed'])
+    # TODO Remove easily calculable data ?
+    #system['seed'] = system['_id']
+    #system['sector_id'], system['pos_y'], system['pos_x'] = info_from_seed(system['seed'])
     return system
 
 # ######################################################################################################################
@@ -64,5 +66,6 @@ def set_system(server, system):
     if previous_system:
         db.delete_one(previous_system)
 
+    system['sector_id'], system['pos_y'], system['pos_x'] = info_from_seed(system['_id'])
     system = remove_redundant_info(system) if system is not None else None
     db.insert_one(system)
