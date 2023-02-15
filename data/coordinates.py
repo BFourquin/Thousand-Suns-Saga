@@ -11,7 +11,7 @@ def get_coordinate(server, seed):
 
 def get_all_coordinates(server):
     client = databases['TSS_' + server]
-    db = client['sectors']
+    db = client['coordinates']
     return list(db.find())
 
 
