@@ -113,11 +113,16 @@ def admin_geography(request):
     server = params['server_name_selected']
     geography_table = []
 
+
+    # #### GLOBAL LISTS #### #
+    # /!\ Slow to generate for systems and nearly impossible for systems, way too big to display correctly
+
     if params['target'] == "sectors":
         geography_table = sectors.get_all_sectors(server)
         # Remove data too heavy
         for sector in geography_table:
-            del sector['systems_coordinates']
+            if 'systems_coordinates' in sector:
+                del sector['systems_coordinates']
 
     if params['target'] == "systems":
         # Remove clutter from system composition dictionary for better display
@@ -133,4 +138,12 @@ def admin_geography(request):
     if params['target'] == "coordinates":
         geography_table = coordinates.get_all_coordinates(server)
 
-    return render(request, 'admin_geography.html', {'geography_table': geography_table})
+
+    # #### SPECIFIC LIST #### #
+    # Search according to _id (seed) and display every sub-elements presents in it
+
+    if params['target'].isnumeric():
+        parent_seed = int(params['target'])
+
+
+    return render(request, 'admin_geography.html', {'geography_table': geography_table, 'target': params['target']})
