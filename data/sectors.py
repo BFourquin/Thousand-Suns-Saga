@@ -3,10 +3,15 @@ from database.db_connect import databases
 
 
 def get_sector(server, y, x):
-
     client = databases['TSS_' + server]
     db = client['sectors']
     return db.find_one({"pos_y": y, "pos_x": x})
+
+
+def get_all_sectors(server):
+    client = databases['TSS_' + server]
+    db = client['sectors']
+    return list(db.find())
 
 
 def get_sector_by_seed(server, seed):

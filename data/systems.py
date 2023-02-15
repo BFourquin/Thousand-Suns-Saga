@@ -52,8 +52,7 @@ def get_all_systems(server):
     client = databases['TSS_' + server]
     db = client['systems']
 
-    system = list(db.find())
-    return system
+    return list(db.find())
 
 
 def set_system(server, system):

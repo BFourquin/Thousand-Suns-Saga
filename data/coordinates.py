@@ -9,6 +9,12 @@ def get_coordinate(server, seed):
     return db.find_one({"_id": seed})
 
 
+def get_all_coordinates(server):
+    client = databases['TSS_' + server]
+    db = client['sectors']
+    return list(db.find())
+
+
 def set_coordinate(server, coordinate):
 
     client = databases['TSS_' + server]

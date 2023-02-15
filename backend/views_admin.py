@@ -10,7 +10,7 @@ from bokeh.embed import components
 
 
 from backend.utils import request_params, parameters_presents
-from data import server_details, user, technology
+from data import server_details, user, technology, sectors, systems, coordinates
 
 
 def admin_login(request):
@@ -101,5 +101,36 @@ def admin_technology(request):
         return redirect(admin_servers_states)
 
     techs = list(technology.get_all_technologies(params['server_name_selected']))
-    print(techs)
     return render(request, 'admin_technology.html', {'technologies': techs})
+
+
+@staff_member_required
+def admin_geography(request):
+    params = request_params(request)
+    if not 'server_name_selected' in params or not 'target' in params:
+        return redirect(admin_servers_states)
+
+    server = params['server_name_selected']
+    geography_table = []
+
+    if params['target'] == "sectors":
+        geography_table = sectors.get_all_sectors(server)
+        # Remove data too heavy
+        for sector in geography_table:
+            del sector['systems_coordinates']
+
+    if params['target'] == "systems":
+        # Remove clutter from system composition dictionary for better display
+        geography_table_cluttered = systems.get_all_systems(server)
+        geography_table = []
+        for system in geography_table_cluttered:
+            system['system_coordinates'] = str(system['system_coordinates']).replace("{'", '')\
+                                                                            .replace("': '", ' : ')\
+                                                                            .replace("', '", '<br>')\
+                                                                            .replace("'}", '')
+            geography_table.append(system)
+
+    if params['target'] == "coordinates":
+        geography_table = coordinates.get_all_coordinates(server)
+
+    return render(request, 'admin_geography.html', {'geography_table': geography_table})

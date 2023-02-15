@@ -50,7 +50,7 @@ urlpatterns = [
     #path('', views_public.public_lobby, name='public_lobby'),
     path('public_lobby/', views_public.public_lobby, name='public_lobby'),
 
-    # ADMIN INTERFACE
+    # ADMIN GLOBAL INTERFACE
     path('admin_login/', views_admin.admin_login, name='admin_login'),
     path('admin_main_dashboard/', views_admin.admin_main_dashboard, name='admin_main_dashboard'),
 
@@ -58,9 +58,11 @@ urlpatterns = [
     path('admin_user_accounts/', views_admin.admin_user_accounts, name='admin_user_accounts'),
     path('admin_user_details/', views_admin.admin_user_details, name='admin_user_details'),
 
+    # ADMIN SERVER SPECIFIC INTERFACE
     path('admin_servers_states/', views_admin.admin_servers_states, name='admin_servers_states'),
         path('admin_servers_states_edit/', views_admin.admin_servers_states_edit, name='admin_servers_states_edit'),
 
+    path('admin_geography/', views_admin.admin_geography, name='admin_geography'),
     path('admin_technology/', views_admin.admin_technology, name='admin_technology'),
 
 

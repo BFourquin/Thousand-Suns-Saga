@@ -1,0 +1,94 @@
+
+{% load static %}
+
+{% include "includes/header.html" %}
+
+{% include "includes/menu.html" %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Géographie — Serveur {{request.GET.server_name_selected}}</h1>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+
+        <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link {% if target == "sectors" %} active{% endif %}"
+                href="/admin_geography/?server_name_selected={{request.GET.server_name_selected}}&target=sectors" role="tab"><strong>Secteurs</strong></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" {% if target == "systems" %} active{% endif %}"
+                   href="/admin_geography/?server_name_selected={{request.GET.server_name_selected}}&target=systems" role="tab"><strong>Systèmes</strong></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" {% if target == "coordinates" %} active{% endif %}"
+                   href="/admin_geography/?server_name_selected={{request.GET.server_name_selected}}&target=coordinates" role="tab"><strong>Coordonnées</strong></a>
+            </li>
+        </ul>
+
+        <div class="card">
+
+          <!-- /.card-header -->
+          <div class="card-body">
+            <table id="DataTable" class="table table-bordered table-hover">
+              <thead>
+                  <tr>
+                    {% for column_name in geography_table.0.keys %}
+                        <th>{{column_name}}</th>
+                    {% endfor %}
+                  </tr>
+              </thead>
+              <tbody>
+                {% autoescape off %}
+                  {% for element in geography_table %}
+                      <tr>
+                          {% for var in element.values %}
+                            <td>{{var}}</td>
+                          {% endfor %}
+
+                      </tr>
+                  {% endfor %}
+                {% endautoescape %}
+              </tbody>
+              <tfoot>
+                  <tr>
+                    {% for column_name in geography_table.0.keys %}
+                        <th>{{column_name}}</th>
+                    {% endfor %}
+                  </tr>
+              </tfoot>
+            </table>
+          </div>
+          <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+    </section>
+    <!-- /.content -->
+  </div>
+
+
+<script>
+  $(function () {
+    var table = $("#DataTable").DataTable({
+      "responsive": true,
+      "lengthChange": true,
+      "pageLength": 50,
+      "autoWidth": false,
+      "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+      "columnDefs":[{ targets: [], visible: false }],
+    }).buttons().container().appendTo('#DataTable_wrapper .col-md-6:eq(0)');
+  });
+
+</script>
+</body>
+</html>
