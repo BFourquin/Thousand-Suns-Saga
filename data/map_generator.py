@@ -3,6 +3,19 @@
 from database.db_connect import databases
 
 
+def get_seed_type(seed):
+    seed_types_by_length = {
+        '4': 'server',
+        '10': 'sector',
+        '16': 'system',
+        '18': 'coordinate'
+    }
+    if str(seed) in seed_types_by_length.keys():
+        return seed_types_by_length[str(seed)]
+    else:
+        raise Exception(str(seed) + ' is not a recognized seed length')
+
+
 def set_map_generator_parameters(server, map_generator_params, mg_type=None):
 
     client = databases['TSS_' + server]

@@ -145,5 +145,7 @@ def admin_geography(request):
     if params['target'].isnumeric():
         parent_seed = int(params['target'])
 
+        #if
+
 
     return render(request, 'admin_geography.html', {'geography_table': geography_table, 'target': params['target']})
