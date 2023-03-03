@@ -10,7 +10,7 @@ from bokeh.embed import components
 
 
 from backend.utils import request_params, parameters_presents
-from data import server_details, user, technology, sectors, systems, coordinates
+from data import server_details, user, technology, sectors, systems, coordinates, map_generator
 
 
 def admin_login(request):
@@ -45,7 +45,7 @@ def bokeh_exemple(request):
     return render(request, 'bokeh_exemple.html', {'bokeh_script': bokeh_script, 'bokeh_div': bokeh_div})
 
 
-@staff_member_required
+#@staff_member_required
 def admin_main_dashboard(request):
     if not request.user.is_superuser:
         return render(request, 'admin_login.html')
@@ -113,6 +113,15 @@ def admin_geography(request):
     server = params['server_name_selected']
     geography_table = []
 
+    def add_urls_on_seeds(geography_table):
+        # Search all geography table's seeds and inject html link to it
+        for entry in geography_table:
+            for key, value in entry.items():
+                if key in ('_id', 'seed'):
+                    entry[key] = '<a href="' \
+                                 '?server_name_selected=' + server + \
+                                 '&target=' + value + '">' + value + '</a>'
+        return geography_table
 
     # #### GLOBAL LISTS #### #
     # /!\ Slow to generate for systems and nearly impossible for systems, way too big to display correctly
@@ -145,7 +154,28 @@ def admin_geography(request):
     if params['target'].isnumeric():
         parent_seed = int(params['target'])
 
-        #if
+        seed_type = map_generator.get_seed_type(parent_seed)
 
+        if seed_type == "sectors":
+            geography_table = sectors.get_sector_by_seed(server, parent_seed)
+            # Remove data too heavy
+            #for sector in geography_table:
+            #    if 'systems_coordinates' in sector:
+            #        del sector['systems_coordinates']
+
+        if seed_type == "system":
+            # Remove clutter from system composition dictionary for better display
+            geography_table = [str(systems.get_system_by_seed(server, parent_seed))\
+                    .replace("{'", '') \
+                    .replace("': '", ' : ') \
+                    .replace("', '", '<br>') \
+                    .replace("'}", '')]
+
+        if seed_type == "coordinate":
+            geography_table = [coordinates.get_coordinate(server, parent_seed)]
+
+    geography_table = add_urls_on_seeds(geography_table)
+
+    print(seed_type, geography_table)
 
     return render(request, 'admin_geography.html', {'geography_table': geography_table, 'target': params['target']})

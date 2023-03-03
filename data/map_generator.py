@@ -10,9 +10,10 @@ def get_seed_type(seed):
         '16': 'system',
         '18': 'coordinate'
     }
-    if str(seed) in seed_types_by_length.keys():
-        return seed_types_by_length[str(seed)]
+    if str(len(str(seed))) in seed_types_by_length.keys():
+        return seed_types_by_length[str(len(str(seed)))]
     else:
+        print(str(seed), seed, seed_types_by_length.keys())
         raise Exception(str(seed) + ' is not a recognized seed length')
 
 
