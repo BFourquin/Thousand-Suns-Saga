@@ -173,9 +173,8 @@ def admin_geography(request):
 
         if seed_type == "coordinate":
             geography_table = [coordinates.get_coordinate(server, parent_seed)]
+        print(seed_type, geography_table)
 
     geography_table = add_urls_on_seeds(geography_table)
-
-    print(seed_type, geography_table)
 
     return render(request, 'admin_geography.html', {'geography_table': geography_table, 'target': params['target']})
