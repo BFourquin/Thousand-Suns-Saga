@@ -70,7 +70,7 @@ def admin_user_details(request):
     return render(request, 'admin_user_details.html', {'user': user_account})
 
 
-# ##########################################################
+# ######################################################################################################################
 # SERVERS STATES
 
 @staff_member_required
@@ -104,6 +104,9 @@ def admin_technology(request):
     return render(request, 'admin_technology.html', {'technologies': techs})
 
 
+# ######################################################################################################################
+# GEOGRAPHY
+
 @staff_member_required
 def admin_geography(request):
     params = request_params(request)
@@ -123,26 +126,34 @@ def admin_geography(request):
                                  '&target=' + value + '">' + value + '</a>'
         return geography_table
 
+    def unclutter_sectors_table(sectors_table):
+        # Remove data too heavy
+        for sector in sectors_table:
+            if 'systems_coordinates' in sector:
+                del sector['systems_coordinates']
+        return sectors_table
+
+    def unclutter_systems_table(systems_table_cluttered):
+        # Remove clutter from system composition dictionary for better display
+        systems_table = []
+        for system in systems_table_cluttered:
+            system['system_coordinates'] = str(system['system_coordinates']).replace("{'", '')\
+                                                                            .replace("': '", ' : ')\
+                                                                            .replace("', '", '<br>')\
+                                                                            .replace("'}", '')
+            systems_table.append(system)
+        return systems_table
+
     # #### GLOBAL LISTS #### #
     # /!\ Slow to generate for systems and nearly impossible for systems, way too big to display correctly
 
     if params['target'] == "sectors":
         geography_table = sectors.get_all_sectors(server)
-        # Remove data too heavy
-        for sector in geography_table:
-            if 'systems_coordinates' in sector:
-                del sector['systems_coordinates']
+        geography_table = unclutter_sectors_table(geography_table)
 
     if params['target'] == "systems":
-        # Remove clutter from system composition dictionary for better display
-        geography_table_cluttered = systems.get_all_systems(server)
-        geography_table = []
-        for system in geography_table_cluttered:
-            system['system_coordinates'] = str(system['system_coordinates']).replace("{'", '')\
-                                                                            .replace("': '", ' : ')\
-                                                                            .replace("', '", '<br>')\
-                                                                            .replace("'}", '')
-            geography_table.append(system)
+        geography_table = systems.get_all_systems(server)
+        geography_table = unclutter_systems_table(geography_table)
 
     if params['target'] == "coordinates":
         geography_table = coordinates.get_all_coordinates(server)
@@ -151,30 +162,30 @@ def admin_geography(request):
     # #### SPECIFIC LIST #### #
     # Search according to _id (seed) and display every sub-elements presents in it
 
+    parent_table, parent_seed, seed_type = None, None, None
     if params['target'].isnumeric():
         parent_seed = int(params['target'])
 
         seed_type = map_generator.get_seed_type(parent_seed)
 
-        if seed_type == "sectors":
-            geography_table = sectors.get_sector_by_seed(server, parent_seed)
-            # Remove data too heavy
-            #for sector in geography_table:
-            #    if 'systems_coordinates' in sector:
-            #        del sector['systems_coordinates']
+        if seed_type == "sector":
+            parent_table = [sectors.get_sector_by_seed(server, parent_seed)]
+            print(parent_table)
+            parent_table = unclutter_sectors_table(parent_table)
 
         if seed_type == "system":
-            # Remove clutter from system composition dictionary for better display
-            geography_table = [str(systems.get_system_by_seed(server, parent_seed))\
-                    .replace("{'", '') \
-                    .replace("': '", ' : ') \
-                    .replace("', '", '<br>') \
-                    .replace("'}", '')]
+            parent_table = [str(systems.get_system_by_seed(server, parent_seed))]
+            parent_table = unclutter_systems_table(parent_table)
 
         if seed_type == "coordinate":
-            geography_table = [coordinates.get_coordinate(server, parent_seed)]
-        print(seed_type, geography_table)
+            parent_table = [coordinates.get_coordinate(server, parent_seed)]
+
+
+        print(seed_type, parent_seed, geography_table)
+        print(sectors.get_sector_by_seed(server, parent_seed))
 
     geography_table = add_urls_on_seeds(geography_table)
 
-    return render(request, 'admin_geography.html', {'geography_table': geography_table, 'target': params['target']})
+    return render(request, 'admin_geography.html', {'geography_table': geography_table, 'target': params['target'],
+                                                    'parent_seed': parent_seed, 'parent_table': parent_table,
+                                                    'seed_type': seed_type})

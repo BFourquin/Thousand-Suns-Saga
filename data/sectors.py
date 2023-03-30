@@ -17,7 +17,7 @@ def get_all_sectors(server):
 def get_sector_by_seed(server, seed):
     client = databases['TSS_' + server]
     db = client['sectors']
-    return db.find_one({"_id": seed})
+    return db.find_one({"_id": str(seed)})
 
 
 def get_direct_neighbours_sectors(server, y, x):
