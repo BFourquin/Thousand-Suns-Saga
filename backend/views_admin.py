@@ -168,10 +168,18 @@ def admin_geography(request):
 
         seed_type = map_generator.get_seed_type(parent_seed)
 
+        print('!!! > ', seed_type)
+
         if seed_type == "sector":
+
             parent_table = [sectors.get_sector_by_seed(server, parent_seed)]
-            print(parent_table)
             parent_table = unclutter_sectors_table(parent_table)
+
+            geography_table = systems.get_systems_in_sector(server, parent_seed)
+            print('1', geography_table)
+            geography_table = unclutter_systems_table(geography_table)
+            print('2', geography_table)
+
 
         if seed_type == "system":
             parent_table = [str(systems.get_system_by_seed(server, parent_seed))]

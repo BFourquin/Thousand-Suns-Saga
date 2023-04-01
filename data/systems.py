@@ -48,6 +48,16 @@ def get_system_by_position(server, sector_id, y, x):
     return system
 
 
+def get_systems_in_sector(server, sector_id):
+    client = databases['TSS_' + server]
+    db = client['systems']
+
+    systems = db.find({"sector_id": str(sector_id)})
+    #system = recreate_redundant_info(system) if system is not None else None
+    print(systems)
+    return systems
+
+
 def get_all_systems(server):
     client = databases['TSS_' + server]
     db = client['systems']
