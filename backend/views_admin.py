@@ -139,15 +139,18 @@ def admin_geography(request):
         # Remove clutter from system composition dictionary for better display
         systems_table = []
         for system in systems_table_cluttered:
-            for planet_seed in system['system_coordinates']:
-                entry[key] = '<a href="' \
-                             '?server_name_selected=' + server + \
-                             '&target=' + value + '">' + value + '</a>'
-            system['system_coordinates'] = str(system['system_coordinates']).replace("{'", '')\
-                                                                            .replace("': '", ' : ')\
-                                                                            .replace("', '", '<br>')\
-                                                                            .replace("'}", '')
-            systems_table.append(system)
+            system_uncluttered = system.copy()
+            system_uncluttered['system_coordinates'] = str(system['system_coordinates']).replace("{'", '')\
+                                                                                        .replace("': '", ' : ')\
+                                                                                        .replace("', '", '<br>')\
+                                                                                        .replace("'}", '')
+            for planet_seed in system['system_coordinates'].keys():
+                system_uncluttered['system_coordinates'] = system_uncluttered['system_coordinates'].replace(planet_seed,
+                                '<a href="' \
+                                '?server_name_selected=' + server + \
+                                '&target=' + planet_seed + '">' + planet_seed + '</a>')
+
+            systems_table.append(system_uncluttered)
         return systems_table
 
     # #### GLOBAL LISTS #### #
@@ -183,18 +186,20 @@ def admin_geography(request):
             geography_table = unclutter_systems_table(geography_table)
 
 
-        if seed_type == "system":
+        elif seed_type == "system":
             parent_table = [str(systems.get_system_by_seed(server, parent_seed))]
             parent_table = unclutter_systems_table(parent_table)
 
-        if seed_type == "coordinate":
+        elif seed_type == "coordinate":
             parent_table = [coordinates.get_coordinate(server, parent_seed)]
 
 
         print(seed_type, parent_seed, geography_table)
-        print(sectors.get_sector_by_seed(server, parent_seed))
+        #print(sectors.get_sector_by_seed(server, parent_seed))
 
-    geography_table = add_urls_on_seeds(geography_table)
+    #geography_table = add_urls_on_seeds(geography_table)
+
+    print('geo', geography_table)
 
     return render(request, 'admin_geography.html', {'geography_table': geography_table, 'target': params['target'],
                                                     'parent_seed': parent_seed, 'parent_table': parent_table,

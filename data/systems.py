@@ -52,9 +52,9 @@ def get_systems_in_sector(server, sector_id):
     client = databases['TSS_' + server]
     db = client['systems']
 
-    systems = db.find({"sector_id": str(sector_id)})
+    systems = list(db.find({"sector_id": str(sector_id)}))
     #system = recreate_redundant_info(system) if system is not None else None
-    print(systems)
+    #print(systems)
     return systems
 
 
