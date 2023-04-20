@@ -120,7 +120,7 @@ def admin_geography(request):
         # Search all geography table's seeds and inject html link to it
         for entry in geography_table:
             for key, value in entry.items():
-                if key in ('_id', 'seed'):
+                if key in ('_id', 'seed', 'sector_id'):
                     entry[key] = '<a href="' \
                                  '?server_name_selected=' + server + \
                                  '&target=' + value + '">' + value + '</a>'
@@ -193,13 +193,7 @@ def admin_geography(request):
         elif seed_type == "coordinate":
             parent_table = [coordinates.get_coordinate(server, parent_seed)]
 
-
-        print(seed_type, parent_seed, geography_table)
-        #print(sectors.get_sector_by_seed(server, parent_seed))
-
-    #geography_table = add_urls_on_seeds(geography_table)
-
-    print('geo', geography_table)
+    geography_table = add_urls_on_seeds(geography_table)
 
     return render(request, 'admin_geography.html', {'geography_table': geography_table, 'target': params['target'],
                                                     'parent_seed': parent_seed, 'parent_table': parent_table,
