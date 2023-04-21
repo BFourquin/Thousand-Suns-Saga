@@ -6,7 +6,7 @@ def get_coordinate(server, seed):
 
     client = databases['TSS_' + server]
     db = client['coordinates']
-    return db.find_one({"_id": seed})
+    return db.find_one({"_id": str(seed)})
 
 
 def get_all_coordinates(server):

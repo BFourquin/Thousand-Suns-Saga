@@ -120,10 +120,10 @@ def admin_geography(request):
         # Search all geography table's seeds and inject html link to it
         for entry in geography_table:
             for key, value in entry.items():
-                if key in ('_id', 'seed', 'sector_id'):
+                if key in ('_id', 'seed', 'sector_id', 'system_id'):
                     entry[key] = '<a href="' \
                                  '?server_name_selected=' + server + \
-                                 '&target=' + value + '">' + value + '</a>'
+                                 '&target=' + str(value) + '">' + str(value) + '</a>'
 
 
         return geography_table
@@ -135,22 +135,23 @@ def admin_geography(request):
                 del sector['systems_coordinates']
         return sectors_table
 
-    def unclutter_systems_table(systems_table_cluttered):
-        # Remove clutter from system composition dictionary for better display
+    def unclutter_geography_table(geo_table_cluttered):
+        # Remove clutter from geography dictionary for better display
         systems_table = []
-        for system in systems_table_cluttered:
-            system_uncluttered = system.copy()
-            system_uncluttered['system_coordinates'] = str(system['system_coordinates']).replace("{'", '')\
-                                                                                        .replace("': '", ' : ')\
-                                                                                        .replace("', '", '<br>')\
-                                                                                        .replace("'}", '')
-            for planet_seed in system['system_coordinates'].keys():
-                system_uncluttered['system_coordinates'] = system_uncluttered['system_coordinates'].replace(planet_seed,
-                                '<a href="' \
-                                '?server_name_selected=' + server + \
-                                '&target=' + planet_seed + '">' + planet_seed + '</a>')
+        for geo in geo_table_cluttered:
+            geo_uncluttered = geo.copy()
+            if 'system_coordinates' in geo_uncluttered:
+                geo_uncluttered['system_coordinates'] = str(geo['system_coordinates']).replace("{'", '')\
+                                                                                    .replace("': '", ' : ')\
+                                                                                    .replace("', '", '<br>')\
+                                                                                    .replace("'}", '')
+                for seed in geo['system_coordinates'].keys():
+                    geo_uncluttered['system_coordinates'] = geo_uncluttered['system_coordinates'].replace(seed,
+                                    '<a href="' \
+                                    '?server_name_selected=' + server + \
+                                    '&target=' + seed + '">' + seed + '</a>')
 
-            systems_table.append(system_uncluttered)
+            systems_table.append(geo_uncluttered)
         return systems_table
 
     # #### GLOBAL LISTS #### #
@@ -162,7 +163,7 @@ def admin_geography(request):
 
     if params['target'] == "systems":
         geography_table = systems.get_all_systems(server)
-        geography_table = unclutter_systems_table(geography_table)
+        geography_table = unclutter_geography_table(geography_table)
 
     if params['target'] == "coordinates":
         geography_table = coordinates.get_all_coordinates(server)
@@ -183,16 +184,25 @@ def admin_geography(request):
             parent_table = unclutter_sectors_table(parent_table)
 
             geography_table = systems.get_systems_in_sector(server, parent_seed)
-            geography_table = unclutter_systems_table(geography_table)
-
+            geography_table = unclutter_geography_table(geography_table)
 
         elif seed_type == "system":
-            parent_table = [str(systems.get_system_by_seed(server, parent_seed))]
-            parent_table = unclutter_systems_table(parent_table)
+            parent_table = systems.get_system_by_seed(server, parent_seed)
+
+            geography_table = []
+            for coo_seed in parent_table['system_coordinates'].keys():
+                geography_table.append(coordinates.get_coordinate(server, coo_seed))
+            print(geography_table)
+            geography_table = unclutter_geography_table(geography_table)
+
+            if 'system_coordinates' in parent_table:
+                del parent_table['system_coordinates']
+            parent_table = unclutter_geography_table([parent_table])
 
         elif seed_type == "coordinate":
             parent_table = [coordinates.get_coordinate(server, parent_seed)]
 
+    parent_table = add_urls_on_seeds(parent_table)
     geography_table = add_urls_on_seeds(geography_table)
 
     return render(request, 'admin_geography.html', {'geography_table': geography_table, 'target': params['target'],

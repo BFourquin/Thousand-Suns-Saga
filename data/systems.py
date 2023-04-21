@@ -34,7 +34,7 @@ def get_system_by_seed(server, seed):
     client = databases['TSS_' + server]
     db = client['systems']
 
-    system = db.find_one({"_id": seed})
+    system = db.find_one({"_id": str(seed)})
     system = recreate_redundant_info(system) if system is not None else None
     return system
 

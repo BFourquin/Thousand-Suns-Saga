@@ -14,7 +14,7 @@ def info_from_seed(seed):
 
 def create_coordinate(server, seed, coordinate_type, subtype):
 
-    coordinate = {'_id': seed,
+    coordinate = {'_id': str(seed),
                   'type': coordinate_type,
                   'subtype': subtype,
                   'sector_id': info_from_seed(seed)[0],
