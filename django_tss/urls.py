@@ -46,6 +46,8 @@ urlpatterns = [
 
     # path('admin/', admin.site.urls),  # Django default interface, now useless
 
+    path('', views_admin.admin_main_dashboard, name='admin_main_dashboard'), # TODO remove
+
     # PUBLIC
     #path('', views_public.public_lobby, name='public_lobby'),
     path('public_lobby/', views_public.public_lobby, name='public_lobby'),

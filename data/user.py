@@ -86,3 +86,6 @@ def get_all_users(strify=False):
         users.append(user)
 
     return users
+
+
+#create_user_extend('Iranis')
