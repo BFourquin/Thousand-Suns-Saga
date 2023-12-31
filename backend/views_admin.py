@@ -202,8 +202,11 @@ def admin_geography(request):
         elif seed_type == "coordinate":
             parent_table = [coordinates.get_coordinate(server, parent_seed)]
 
-    parent_table = add_urls_on_seeds(parent_table)
+
     geography_table = add_urls_on_seeds(geography_table)
+    if parent_table is not None:
+        parent_table = add_urls_on_seeds(parent_table)
+
 
     return render(request, 'admin_geography.html', {'geography_table': geography_table, 'target': params['target'],
                                                     'parent_seed': parent_seed, 'parent_table': parent_table,
