@@ -81,9 +81,9 @@
                       <tr data-href="/admin_user_details/?id={{user_account.id}}">
                           {% for var in user_account.values %}
                             {% if var.date %}
-                                <td>{{var|date:'d/m/Y H:m'}}</td>
+                                <td><a href="/admin_user_details/?id={{user_account.id}}">{{var|date:'d/m/Y H:m'}}</a></td>
                             {% else %}
-                                <td>{{var}}</td>
+                                <td><a href="/admin_user_details/?id={{user_account.id}}">{{var}}</a></td>
                             {% endif %}
                           {% endfor %}
                       </tr>
