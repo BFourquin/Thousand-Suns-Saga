@@ -22,6 +22,10 @@ def create_coordinate(server, seed, coordinate_type, subtype):
                   'sys_y': info_from_seed(seed)[2],
                   'sys_x': info_from_seed(seed)[3],
                   'sys_coordinate': info_from_seed(seed)[4],
+                  'name': str(seed),
+                  'fleet_modifiers': [],
+                  'colony_modifiers': [],
+                  'colonies': []
                   }
 
     coordinates.set_coordinate(server, coordinate)

@@ -5,7 +5,7 @@ from django_tss.settings import DATABASES
 client = databases['TSS_main_server']
 
 
-server_tables_names = ('commandants', 'starting_values', 'cities', 'buildings', 'modifiers', 'technologies',
+server_tables_names = ('commandants', 'starting_values', 'colony', 'buildings', 'modifiers', 'technologies',
                        'ship_components', 'ship_designs', 'fleets', 'factions', 'coordinates', 'systems', 'sectors',
                        'map_generator', 'mg_sectors', 'mg_systems_types',  'mg_systems_compositions', 'mg_suns', 'mg_planets',
                        'statistics')
