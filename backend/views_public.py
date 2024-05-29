@@ -1,11 +1,38 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import authenticate, login, logout
 from django.core.validators import validate_email
+from bokeh.plotting import figure
+from bokeh.embed import components
 
-from data.user import user_name_exist, create_user_and_user_extend, get_user_by_name, get_user_by_object_id, user_mail_already_used
+
+from backend.utils import request_params, parameters_presents
+from data import server_details, user, technology, sectors, systems, coordinates, map_generator
+
 
 
 def public_lobby(request):
     return render(request, 'public_lobby.html')
+
+
+def player_login(request):
+
+    params = request_params(request)
+    print(params)
+    if parameters_presents(('username', 'password'), params):
+
+        username = params['username']
+        password = params['password']
+
+        user = authenticate(username=username, password=password)
+        print(user)
+        if user is not None and user.is_active:
+            login(request, user)
+            return redirect('player_account')
+
+    return render(request, 'player_login.html')
+
 

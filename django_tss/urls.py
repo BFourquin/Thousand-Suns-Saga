@@ -44,13 +44,20 @@ urlpatterns = [
     # DJANGO WEB INTERFACE
     ####################################################################################################################
 
-    # path('admin/', admin.site.urls),  # Django default interface, now useless
+    # path('admin/', admin.site.urls),  # Django default admin interface, now useless
 
     path('', views_admin.admin_main_dashboard, name='admin_main_dashboard'), # TODO remove
 
     # PUBLIC
     #path('', views_public.public_lobby, name='public_lobby'),
     path('public_lobby/', views_public.public_lobby, name='public_lobby'),
+
+    # ACCOUNT
+    path('player_login/', views_public.player_login, name='player_login'),
+
+
+
+    ####################################################################################################################
 
     # ADMIN GLOBAL INTERFACE
     path('admin_login/', views_admin.admin_login, name='admin_login'),

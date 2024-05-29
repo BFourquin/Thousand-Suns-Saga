@@ -1,0 +1,60 @@
+
+{% load static %}
+
+{% include "includes/header.html"  with title="TSS Login" %}
+
+
+
+<body class="login-page dark-mode" style="min-height: 466px;
+                                          background-image: url({% static 'images/background-space.jpg'%});
+                                          background-size: cover; background-repeat: no-repeat;">
+
+
+<div class="login-box">
+  <!-- /.login-logo -->
+  <div class="card card-outline card-primary">
+    <div class="card-header text-center">
+      <a href="/public_lobby/" class="h1" style="font-size: 3.5rem">Thousand Suns Saga</a>
+    </div>
+    <div class="card-body">
+      <p class="login-box-msg">Connexion à votre compte utilisateur</p>
+
+      <form action="/player_login/" method="post">
+        {% csrf_token %}
+
+        <div class="input-group mb-3">
+          <input name="username" type="text" class="form-control" placeholder="Utilisateur">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-user"></span>
+            </div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input name="password" type="password" class="form-control" placeholder="Mot de passe">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-2 mb-3">
+            <button type="submit" class="btn btn-primary btn-block">Connexion</button>
+        </div>
+      </form>
+
+      <p class="mb-1">
+        <a href="forgot_password.html">Mot de passe oublié</a>
+      </p>
+      <p class="mb-0">
+        <a href="register.html" class="text-center">Créer un compte utilisateur</a>
+      </p>
+    </div>
+    <!-- /.card-body -->
+  </div>
+  <!-- /.card -->
+</div>
+<!-- /.login-box -->
+
+</html>
