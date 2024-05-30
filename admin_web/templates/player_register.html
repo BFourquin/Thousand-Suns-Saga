@@ -1,7 +1,7 @@
 
 {% load static %}
 
-{% include "includes/header.html"  with title="TSS Login" %}
+{% include "includes/header.html"  with title="TSS Register" %}
 
 
 
@@ -17,16 +17,25 @@
       <a href="/public_lobby/" class="h1" style="font-size: 3.5rem">Thousand Suns Saga</a>
     </div>
     <div class="card-body">
-      <p class="login-box-msg">Connexion à votre compte utilisateur</p>
+      <p class="login-box-msg">Création d'un compte utilisateur.</p>
+      <p class="login-box-msg">Ce compte regroupera tous les personnages que vous incarnerez dans les différents serveurs de jeu.</p>
 
-      <form action="/player_login/" method="post">
+
+      <form id="create_user" method="POST">
         {% csrf_token %}
-
         <div class="input-group mb-3">
-          <input name="username" type="text" class="form-control" placeholder="Utilisateur">
+          <input name="username" type="text" class="form-control" placeholder="Pseudonyme">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-user"></span>
+            </div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input name="email" type="email" class="form-control" placeholder="Email">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-envelope"></span>
             </div>
           </div>
         </div>
@@ -38,18 +47,21 @@
             </div>
           </div>
         </div>
-
-        <div class="text-center mt-2 mb-3">
-            <button type="submit" class="btn btn-primary btn-block">Connexion</button>
+        <div class="input-group mb-3">
+          <input type="password" class="form-control" placeholder="Vérification mot de passe">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock"></span>
+            </div>
+          </div>
         </div>
+        <div class="text-center mt-2 mb-3">
+            <button type="submit" class="btn btn-primary btn-block submit">S'inscrire</button>
+        </div>
+
+        {% include "includes/form_submit_to_json_api.js" with form="create_user" %}
       </form>
 
-      <p class="mb-1">
-        <a href="/forgot_password/">Mot de passe oublié</a>
-      </p>
-      <p class="mb-0">
-        <a href="/player_register/" class="text-center">Créer un compte utilisateur</a>
-      </p>
     </div>
     <!-- /.card-body -->
   </div>
@@ -57,4 +69,6 @@
 </div>
 <!-- /.login-box -->
 
+
+</body>
 </html>

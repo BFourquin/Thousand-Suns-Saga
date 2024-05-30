@@ -18,21 +18,41 @@ def public_lobby(request):
     return render(request, 'public_lobby.html')
 
 
+
 def player_login(request):
 
     params = request_params(request)
-    print(params)
+
     if parameters_presents(('username', 'password'), params):
 
         username = params['username']
         password = params['password']
-
         user = authenticate(username=username, password=password)
-        print(user)
         if user is not None and user.is_active:
             login(request, user)
             return redirect('player_account')
 
     return render(request, 'player_login.html')
 
+
+
+def player_register(request):
+
+    params = request_params(request)
+
+    if parameters_presents(('username', 'password'), params):
+
+        email = params['email']
+        username = params['username']
+        password = params['password']
+
+        # TODO Verification by email
+
+        user = authenticate(username=username, password=password)
+
+        if user is not None and user.is_active:
+            login(request, user)
+            return redirect('player_register')
+
+    return render(request, 'player_register.html')
 

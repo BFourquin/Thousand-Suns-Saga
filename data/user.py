@@ -23,7 +23,7 @@ def create_user_extend(username):
     user = db_user.find_one({'username': username})
 
     extended_table = {'_id': user['_id'],
-                      'id': user['id'],
+                      'id': user['_id'],
                       'status': 'active',
                       'accounts': {},
                       'dead_accounts': {},

@@ -54,6 +54,7 @@ urlpatterns = [
 
     # ACCOUNT
     path('player_login/', views_public.player_login, name='player_login'),
+    path('player_register/', views_public.player_register, name='player_register'),
 
 
 
