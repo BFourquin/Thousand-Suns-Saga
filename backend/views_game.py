@@ -18,4 +18,4 @@ from data.user import get_user_by_name, get_user_by_object_id
 def user_account(request):
 
     user = get_user_by_name(str(request.user))
-    return render(request, 'user_account.html', {'user': dict(user)})
+    return render(request, 'game/user_account.html', {'user': dict(user)})

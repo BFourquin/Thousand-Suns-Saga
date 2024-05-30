@@ -15,7 +15,7 @@ from data import server_details, user, technology, sectors, systems, coordinates
 
 
 def public_lobby(request):
-    return render(request, 'public_lobby.html')
+    return render(request, 'public/public_lobby.html')
 
 
 
@@ -32,7 +32,7 @@ def player_login(request):
             login(request, user)
             return redirect('player_account')
 
-    return render(request, 'player_login.html')
+    return render(request, 'public/player_login.html')
 
 
 
@@ -54,5 +54,5 @@ def player_register(request):
             login(request, user)
             return redirect('player_register')
 
-    return render(request, 'player_register.html')
+    return render(request, 'public/player_register.html')
 
