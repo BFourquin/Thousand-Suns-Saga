@@ -11,3 +11,11 @@ from bokeh.embed import components
 
 from backend.utils import request_params, parameters_presents
 from data import server_details, user, technology, sectors, systems, coordinates, map_generator
+from data.user import get_user_by_name, get_user_by_object_id
+
+
+@login_required
+def user_account(request):
+
+    user = get_user_by_name(str(request.user))
+    return render(request, 'user_account.html', {'user': dict(user)})

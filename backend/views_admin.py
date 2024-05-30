@@ -26,14 +26,14 @@ def admin_login(request):
             login(request, user)
             return redirect('admin_main_dashboard')
 
-    return render(request, 'admin_login.html')
+    return render(request, 'admin/admin_login.html')
 
 
 @staff_member_required
 def bokeh_exemple(request):
 
     if not request.user.is_superuser:
-        return render(request, 'admin_login.html')
+        return render(request, 'admin/admin_login.html')
 
     # create a plot
     plot = figure(plot_width=400, plot_height=400)
@@ -42,14 +42,14 @@ def bokeh_exemple(request):
     plot.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], size=20, color="navy", alpha=0.5)
     bokeh_script, bokeh_div = components(plot)
 
-    return render(request, 'bokeh_exemple.html', {'bokeh_script': bokeh_script, 'bokeh_div': bokeh_div})
+    return render(request, 'admin/bokeh_exemple.html', {'bokeh_script': bokeh_script, 'bokeh_div': bokeh_div})
 
 
-#@staff_member_required
+# @staff_member_required
 def admin_main_dashboard(request):
     if not request.user.is_superuser:
-        return render(request, 'admin_login.html')
-    return render(request, 'admin_main_dashboard.html')
+        return render(request, 'admin/admin_login.html')
+    return render(request, 'admin/admin_main_dashboard.html')
 
 
 ########################################################################################################################
@@ -59,7 +59,7 @@ def admin_main_dashboard(request):
 # ACCOUNTS
 @staff_member_required
 def admin_user_accounts(request):
-    return render(request, 'admin_user_accounts.html', {'user_accounts': user.get_all_users(strify=True)})
+    return render(request, 'admin/admin_user_accounts.html', {'user_accounts': user.get_all_users(strify=True)})
 
 
 @staff_member_required
@@ -67,7 +67,7 @@ def admin_user_details(request):
     id = request_params(request)['id']
     user_account = user.get_user_by_id(id)
     user_account['objectid'] = user_account['_id']
-    return render(request, 'admin_user_details.html', {'user': user_account})
+    return render(request, 'admin/admin_user_details.html', {'user': user_account})
 
 
 # ######################################################################################################################
@@ -75,7 +75,7 @@ def admin_user_details(request):
 
 @staff_member_required
 def admin_servers_states(request):
-    return render(request, 'admin_servers_states.html', {'servers_details': server_details.get_all_servers_details()})
+    return render(request, 'admin/admin_servers_states.html', {'servers_details': server_details.get_all_servers_details()})
 
 
 @staff_member_required
@@ -101,7 +101,7 @@ def admin_technology(request):
         return redirect(admin_servers_states)
 
     techs = list(technology.get_all_technologies(params['server_name_selected']))
-    return render(request, 'admin_technology.html', {'technologies': techs})
+    return render(request, 'admin/admin_technology.html', {'technologies': techs})
 
 
 # ######################################################################################################################
@@ -208,6 +208,6 @@ def admin_geography(request):
         parent_table = add_urls_on_seeds(parent_table)
 
 
-    return render(request, 'admin_geography.html', {'geography_table': geography_table, 'target': params['target'],
-                                                    'parent_seed': parent_seed, 'parent_table': parent_table,
-                                                    'seed_type': seed_type})
+    return render(request, 'admin/admin_geography.html', {'geography_table': geography_table,'target': params['target'],
+                                                          'parent_seed': parent_seed, 'parent_table': parent_table,
+                                                          'seed_type': seed_type})

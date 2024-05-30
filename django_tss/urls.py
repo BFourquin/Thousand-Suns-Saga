@@ -19,7 +19,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
-from backend import views, views_public, views_admin
+from backend import views_game, views_public, views_admin
 from backend import views_api_user, views_api_commandant
 
 
@@ -46,15 +46,21 @@ urlpatterns = [
 
     # path('admin/', admin.site.urls),  # Django default admin interface, now useless
 
-    path('', views_admin.admin_main_dashboard, name='admin_main_dashboard'), # TODO remove
+    path('', views_admin.admin_main_dashboard, name='admin_main_dashboard'),  # TODO remove
 
     # PUBLIC
-    #path('', views_public.public_lobby, name='public_lobby'),
+
+    path('', views_public.public_lobby, name='public_lobby'),
     path('public_lobby/', views_public.public_lobby, name='public_lobby'),
 
-    # ACCOUNT
     path('player_login/', views_public.player_login, name='player_login'),
     path('player_register/', views_public.player_register, name='player_register'),
+
+
+    # IN GAME
+
+    path('user_account/', views_game.user_account, name='user_account'),
+
 
 
 
