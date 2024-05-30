@@ -20,8 +20,14 @@ def pop_up(response, status):
 
     response['popup'] = True
 
-    # Optionals parameters : "title", "subtitle", "body", "autohide", "delay", "icon", "image"
-    # Defaults :
+    # Optionals parameters : "level", "title", "subtitle", "body", "autohide", "delay", "icon", "image"
+
+    # Message level
+    popup_class_level = {'success': 'bg-success', 'info': 'bg-info', 'warning': 'bg-warning', 'danger': 'bg-danger'}
+    if 'level' in response and response['level'] in popup_class_level:
+        response['class'] = popup_class_level[response['level']]
+
+    # Default hiding:
     if not 'autohide' in response:
         response['autohide'] = True
     if not 'delay' in response:
