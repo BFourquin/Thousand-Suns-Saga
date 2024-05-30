@@ -1,7 +1,7 @@
 
 {% load static %}
 
-{% include "includes/header.html" %}
+{% include "includes/header.html" with title="Compte TSS" %}
 
 {% include "includes/game_menu.html" %}  <!-- include body start -->
 
@@ -35,9 +35,6 @@
 
                 <ul class="list-group list-group-unbordered mb-3">
                   <li class="list-group-item">
-                    <b>Status</b> <a class="float-right">{{user.status}}</a>
-                  </li>
-                  <li class="list-group-item">
                     <b>Email</b> <a class="float-right">{{user.email}} <i class="fas fa-pen"></i></a>
                   </li>
                   <li class="list-group-item">
@@ -58,36 +55,9 @@
 
 
             <!--------------------------------------------------------------------------------------------------------->
-            <!-- Bannissement -->
-
-            {% if status == "banned" %}
-            <div class="card card-danger">
-              <div class="card-header box-profile">
-                <h3 class="card-title">JOUEUR BANNI</h3>
-              </div>
-              <!-- /.card-header -->
-
-              <div class="card-body">
-                <ul class="list-group list-group-unbordered mb-3">
-                  <li class="list-group-item">
-                    <b>Durée du ban</b> <a class="float-right">{{user.banned_until|date:'d/m/Y H:m'}}</a>
-                  </li>
-                  <li class="list-group-item">
-                    <b>Raison</b> <a class="float-right">{{user.banned_reason}}</a>
-                  </li>
-                </ul>
-
-              </div>
-              <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
-            {% endif %}
+            <!-- Parametres -->
 
 
-            <!--------------------------------------------------------------------------------------------------------->
-            <!-- Administration -->
-
-            {% if status != "banned" %}
             <div class="card card-secondary">
               <div class="card-header box-profile">
                 <h3 class="card-title">Administration</h3>
@@ -117,7 +87,6 @@
               <!-- /.card-body -->
             </div>
             <!-- /.card -->
-            {% endif %}
 
             <!--------------------------------------------------------------------------------------------------------->
             <!-- Corps central -->
