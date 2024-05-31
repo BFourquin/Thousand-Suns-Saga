@@ -44,9 +44,6 @@ urlpatterns = [
     # DJANGO WEB INTERFACE
     ####################################################################################################################
 
-    # path('admin/', admin.site.urls),  # Django default admin interface, now useless
-
-    path('', views_admin.admin_main_dashboard, name='admin_main_dashboard'),  # TODO remove
 
     # PUBLIC
 
@@ -65,6 +62,8 @@ urlpatterns = [
 
 
     ####################################################################################################################
+
+    path('admin/', admin.site.urls),  # TODO Remove # Django default admin interface, now useless
 
     # ADMIN GLOBAL INTERFACE
     path('admin_login/', views_admin.admin_login, name='admin_login'),
