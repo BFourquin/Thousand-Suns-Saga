@@ -23,10 +23,12 @@ def user_account(request):
 
     if 'language' in params and params['language'] in ('fr', 'en'):
         data.user.update_user(user, 'language', params['language'])
-        time.sleep(0.5)  # DB delay ?
-    if 'dark_mode' in params and params['language'] in ('true', 'false'):
-        darkmode = params['language'] == 'true'
+
+
+    if 'dark_mode' in params and params['dark_mode'] in ('true', 'false'):
+        darkmode = params['dark_mode'] == 'true'
         data.user.update_user(user, 'dark_mode', darkmode)
-        time.sleep(0.5)  # DB delay ?
+
+    user = get_user_by_name(str(request.user))  # Get it again in case of parameter changed
 
     return render(request, 'game/user_account.html', {'user': dict(user)})

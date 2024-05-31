@@ -1,7 +1,8 @@
 
 {% load static %}
 
-<body class="hold-transition sidebar-mini dark-mode layout-boxed"
+<body class="hold-transition sidebar-mini layout-boxed
+             {% if user_account.dark_mode %} dark-mode {% endif %}"
       style="background-image: url({% static 'images/background-space.jpg'%});
              background-size: cover; background-repeat: no-repeat;">
 

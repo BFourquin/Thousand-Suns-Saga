@@ -97,6 +97,5 @@ def update_user(user, param, value):
 
     # Extended user table
     else:
-        print(db_extend.update_one({"_id": user['_id']}, {"$set": {param: value}}))
-    print(user, {"$set": {param: value}})
+        db_extend.update_one({"_id": user['_id']}, {"$set": {param: value}})
 

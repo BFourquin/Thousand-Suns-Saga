@@ -12,7 +12,6 @@ from data.user import user_name_exist, create_user_and_user_extend, get_user_by_
 def create_commandant(request):
 
     params = request_params(request)
-    print(params)
 
     # ##### USERNAME ######
     if not 'username' in params:
