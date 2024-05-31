@@ -1,4 +1,5 @@
 from data import server_details
+from data.user import get_user_by_name
 
 
 def servers_details(request):
@@ -8,3 +9,11 @@ def servers_details(request):
     old_servers = server_details.get_servers_names(open_servers=False, playable_servers=False, test_servers=False, old_servers=True, admin_visibility=True)
 
     return {'game_servers': game_servers, 'test_servers': test_servers, 'old_servers': old_servers}
+
+
+
+def user_account(request):
+
+    user_account = get_user_by_name(str(request.user))
+
+    return {'user_account': user_account} if user_account else {}

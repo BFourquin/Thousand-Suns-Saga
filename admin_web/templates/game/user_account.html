@@ -60,37 +60,41 @@
 
             <div class="card card-secondary">
               <div class="card-header box-profile">
-                <h3 class="card-title">Administration</h3>
+                <h3 class="card-title">Paramètres</h3>
               </div>
               <!-- /.card-header -->
 
-              <div class="card-body">
-                <ul class="list-group list-group-unbordered mb-3">
-                  <li class="list-group-item">
-                    <b>Actif</b> <a class="float-right">{{user.is_active}}</a>
-                  </li>
-                  <li class="list-group-item">
-                    <b>Staff</b> <a class="float-right">{{user.is_staff}}</a>
-                  </li>
-                  <li class="list-group-item">
-                    <b>Admin</b> <a class="float-right">{{user.is_superuser}}</a>
-                  </li>
-                </ul>
+              <form action="/user_account/" method="POST">
+                  {% csrf_token %}
 
+                <div class="card-body">
+                  <ul class="list-group list-group-unbordered mb-3">
 
-                <a href="#" class="btn btn-primary btn-block"
-                   style="background-color: darkred; border-color: darkred;">
-                    <b>Bannir</b>
-                </a>
+                    <li class="list-group-item">
+                      <b>Langue {{user.language}}</b>
+                      <select name="language" class="form-control float-right" style="max-width: 150px;" onchange="this.form.submit()">
+                            <option value="fr" {% if user.language == 'fr' %} selected="selected" {% endif %}>Français</option>
+                            <option value="en" {% if user.language == 'en' %} selected="selected" {% endif %} >English</option>
+                      </select>
+                    </li>
 
-              </div>
+                    <li class="list-group-item">
+                      <b>Affichage</b>
+                      <select name="dark_mode" class="form-control float-right" style="max-width: 150px;" onchange="this.form.submit()">
+                            <option value="true" {% if user.dark_mode %} selected="selected" {% endif %}>Mode sombre</option>
+                            <option value="false" {% if not user.dark_mode %} selected="selected" {% endif %}>Mode clair</option>
+                      </select>
+                    </li>
+                  </ul>
+                </div>
+              </form>
+
               <!-- /.card-body -->
             </div>
             <!-- /.card -->
 
             <!--------------------------------------------------------------------------------------------------------->
             <!-- Corps central -->
-
 
           </div>
           <!-- /.col -->
