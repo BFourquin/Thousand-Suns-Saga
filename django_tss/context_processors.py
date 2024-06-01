@@ -30,6 +30,6 @@ def localization(request):
     if request.user:
         user_account = get_user_by_name(str(request.user))
         print(dict(request.session))
-        if 'language' in user_account:
+        if user_account and 'language' in user_account:
             translation.activate(user_account['language'])
     return {}
