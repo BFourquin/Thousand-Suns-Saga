@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.urls import include, re_path
 
 from backend import views_game, views_public, views_admin
 from backend import views_api_user, views_api_commandant
@@ -81,4 +82,14 @@ urlpatterns = [
     path('admin_technology/', views_admin.admin_technology, name='admin_technology'),
 
 
-]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+
+####################################################################################################################
+# ROSETTA (TRANSLATION)
+####################################################################################################################
+
+if 'rosetta' in settings.INSTALLED_APPS:
+    urlpatterns += [
+        re_path(r'^rosetta/', include('rosetta.urls'))
+    ]
