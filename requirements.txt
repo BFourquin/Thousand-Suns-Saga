@@ -8,6 +8,7 @@ colorama
 Django
 django-cors-headers
 django-filter
+django-rosetta
 djangorestframework
 djongo
 Flask
