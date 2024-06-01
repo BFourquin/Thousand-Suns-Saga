@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-01 15:22+0200\n"
-"PO-Revision-Date: 2024-06-01 15:34+0000\n"
+"POT-Creation-Date: 2024-06-01 17:08+0200\n"
+"PO-Revision-Date: 2024-06-01 17:09+0000\n"
 "Last-Translator:   <benoittd@hotmail.fr>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -19,10 +19,67 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Translated-Using: django-rosetta 0.10.0\n"
 
-#: .\admin_web\templates\game\user_account.html:61
-msgid "Hi!"
+#: .\admin_web\templates\game\user_account.html:16
+msgid "Compte utilisateur"
+msgstr "User account"
+
+#: .\admin_web\templates\game\user_account.html:39
+msgid "Email"
+msgstr "Email"
+
+#: .\admin_web\templates\game\user_account.html:42
+msgid "Mot de passe"
+msgstr "Password"
+
+#: .\admin_web\templates\game\user_account.html:42
+msgid "Changer"
+msgstr "Change"
+
+#: .\admin_web\templates\game\user_account.html:45
+msgid "Date d'inscription"
+msgstr "Inscription date"
+
+#: .\admin_web\templates\game\user_account.html:48
+msgid "Dernière connexion"
+msgstr "Last connection"
+
+#: .\admin_web\templates\game\user_account.html:63
+msgid "Préférences"
+msgstr "preferences"
+
+#: .\admin_web\templates\game\user_account.html:74
+msgid "Langue"
+msgstr "Language"
+
+#: .\admin_web\templates\game\user_account.html:82
+msgid "Affichage"
+msgstr "Display"
+
+#: .\admin_web\templates\game\user_account.html:84
+msgid "Mode sombre"
+msgstr "Dark mode"
+
+#: .\admin_web\templates\game\user_account.html:85
+msgid "Mode clair"
+msgstr "Light Mode"
+
+#: .\admin_web\templates\game\user_account.html:105
+msgid "Serveurs rejoint"
+msgstr "Joined servers"
+
+#: .\admin_web\templates\game\user_account.html:106
+msgid "Panthéon"
+msgstr "Pantheon"
+
+#: .\admin_web\templates\game\user_account.html:107
+msgid "Historique"
+msgstr "History"
+
+#: .\admin_web\templates\includes\header.html:12
+#, python-format
+msgid " %(title)s "
 msgstr ""
 
-#: .\install.txt:14
-msgid "Bonjour!"
-msgstr ""
+#: .\admin_web\templates\translations.txt:10
+msgid "Compte TSS"
+msgstr "TSS Account"

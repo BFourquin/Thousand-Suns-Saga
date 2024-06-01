@@ -48,7 +48,7 @@ Translation : Rosetta
 The project use the integrated Django i18n associated with Rosetta.  \
 In HTML templates, text to translate need to be in a trans tag as such > {% trans 'Bonjour!' %}
 
-The following command will search the project for text to translate > makemessages -l en --ignore=venv
+The following command will search the project for text to translate > makemessages -l en --ignore=venv --ignore=README.md
 
 You can access the Rosetta interface to do the translation at > (you_site.com)/rosetta  \
 or via the default Django admin page
