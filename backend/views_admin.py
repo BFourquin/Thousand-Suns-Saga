@@ -52,6 +52,16 @@ def admin_main_dashboard(request):
     return render(request, 'admin/admin_main_dashboard.html')
 
 
+
+def test_hijack(request):
+
+    from django.contrib.auth.models import User
+
+    target = User.objects.get(id=2)
+
+    return render(request, 'admin/test_hijack.html', {'another_user': target})
+
+
 ########################################################################################################################
 # GENERAL ADMINISTRATION PAGES
 ########################################################################################################################

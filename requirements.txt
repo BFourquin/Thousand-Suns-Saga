@@ -8,6 +8,7 @@ colorama
 Django
 django-cors-headers
 django-filter
+django-hijack
 django-rosetta
 djangorestframework
 djongo
@@ -25,13 +26,12 @@ Pillow
 pluggy
 py
 pymongo
-#==3.12.3
 pyparsing
 pytest
 pytz
 PyYAML
 six
-sqlparse
+sqlparse==0.2.4
 tornado
 typing_extensions
 watchdog

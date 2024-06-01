@@ -82,14 +82,18 @@ urlpatterns = [
     path('admin_technology/', views_admin.admin_technology, name='admin_technology'),
 
 
+    path('test_hijack/', views_admin.test_hijack, name='test_hijack'),
+
+
     ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
 ####################################################################################################################
-# ROSETTA (TRANSLATION)
+# MODULES
 ####################################################################################################################
 
 if 'rosetta' in settings.INSTALLED_APPS:
-    urlpatterns += [
-        re_path(r'^rosetta/', include('rosetta.urls'))
-    ]
+    urlpatterns += [re_path(r'^rosetta/', include('rosetta.urls'))]
+
+if 'hijack' in settings.INSTALLED_APPS:
+    urlpatterns += [path('hijack/', include('hijack.urls'))]
