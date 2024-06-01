@@ -1,5 +1,11 @@
+
+from django.utils import translation
+
 from data import server_details
 from data.user import get_user_by_name
+
+
+
 
 
 def servers_details(request):
@@ -17,3 +23,13 @@ def user_account(request):
     user_account = get_user_by_name(str(request.user))
 
     return {'user_account': user_account} if user_account else {}
+
+
+def localization(request):
+
+    if request.user:
+        user_account = get_user_by_name(str(request.user))
+        print(dict(request.session))
+        if 'language' in user_account:
+            translation.activate(user_account['language'])
+    return {}
