@@ -18,5 +18,5 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
 # Static folder
 os.chdir('admin_web/static/')
 
-httpd = HTTPServer(('localhost', 8100), CORSRequestHandler)
+httpd = HTTPServer(('localhost', 33100), CORSRequestHandler)
 httpd.serve_forever()

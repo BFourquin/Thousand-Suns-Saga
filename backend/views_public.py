@@ -30,7 +30,7 @@ def player_login(request):
         user = authenticate(username=username, password=password)
         if user is not None and user.is_active:
             login(request, user)
-            return redirect('/user_account/')
+            return redirect('user_account/')
 
     return render(request, 'public/player_login.html')
 
