@@ -1,5 +1,5 @@
 
-# THOUSAND STARS SAGA
+# THOUSAND SUNS SAGA
 
 
 ![TSS Intro](https://i.ibb.co/nD16Htk/Git-Intro.png)
@@ -7,7 +7,12 @@
 
 - Space exploration and colonization
 - Land and space warfare
-- Many resources and complex industrial management
+- Spaceship designer
+- Vast technology tree
+- Many resources to mine / fabricate
+- Many buildings and complex industrial management
+- Markets for resources, ships, weapons
+- Lightly randomized techs and equipment (ever-changing meta)
 - Diplomacy with other players' space empires
 
 
