@@ -15,7 +15,7 @@ from data import server_details, user, technology, sectors, systems, coordinates
 from data.user import get_user_by_name, get_user_by_object_id, update_user
 
 
-@login_required
+@login_required(login_url='/player_login/')
 def user_account(request):
 
     user = get_user_by_name(str(request.user))

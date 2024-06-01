@@ -29,7 +29,7 @@ def admin_login(request):
     return render(request, 'admin/admin_login.html')
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin_login/')
 def bokeh_exemple(request):
 
     if not request.user.is_superuser:
@@ -45,7 +45,7 @@ def bokeh_exemple(request):
     return render(request, 'admin/bokeh_exemple.html', {'bokeh_script': bokeh_script, 'bokeh_div': bokeh_div})
 
 
-# @staff_member_required
+@staff_member_required(login_url='/admin_login/')
 def admin_main_dashboard(request):
     if not request.user.is_superuser:
         return render(request, 'admin/admin_login.html')
@@ -57,12 +57,12 @@ def admin_main_dashboard(request):
 ########################################################################################################################
 
 # ACCOUNTS
-@staff_member_required
+@staff_member_required(login_url='/admin_login/')
 def admin_user_accounts(request):
     return render(request, 'admin/admin_user_accounts.html', {'user_accounts': user.get_all_users(strify=True)})
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin_login/')
 def admin_user_details(request):
     id = request_params(request)['id']
     user_account = user.get_user_by_id(id)
@@ -73,12 +73,12 @@ def admin_user_details(request):
 # ######################################################################################################################
 # SERVERS STATES
 
-@staff_member_required
+@staff_member_required(login_url='/admin_login/')
 def admin_servers_states(request):
     return render(request, 'admin/admin_servers_states.html', {'servers_details': server_details.get_all_servers_details()})
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin_login/')
 def admin_servers_states_edit(request):
     params = request_params(request)
     if params['value'] == 'true':
@@ -94,7 +94,7 @@ def admin_servers_states_edit(request):
 ########################################################################################################################
 
 
-@staff_member_required
+@staff_member_required(login_url='/admin_login/')
 def admin_technology(request):
     params = request_params(request)
     if not 'server_name_selected' in params:
@@ -107,7 +107,7 @@ def admin_technology(request):
 # ######################################################################################################################
 # GEOGRAPHY
 
-@staff_member_required
+@staff_member_required(login_url='/admin_login/')
 def admin_geography(request):
     params = request_params(request)
     if not 'server_name_selected' in params or not 'target' in params:
