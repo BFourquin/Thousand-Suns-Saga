@@ -57,9 +57,6 @@
                       <th>
                            {% trans "Joueurs"%}
                       </th>
-                      <th>
-                           {% trans "Inscription"%}
-                      </th>
 
                       <th>
                            {% trans "Date d'ouverture"%}
@@ -67,7 +64,9 @@
                        <th>
                            {% trans "Multicompte"%}
                        </th>
-                      <th></th>
+                      <th>
+                           {% trans "Inscription"%}
+                      </th>
                   </tr>
               </thead>
               <tbody>
@@ -120,12 +119,6 @@
                           </small>
                       </td>
 
-                      <!-- Status -->
-                      <td>
-                          {% if server.status == 'open' %}{% trans "Ouvert"%}{% endif %}
-                          {% if server.status == 'close' %}{% trans "Fermé"%}{% endif %}
-                          {% if server.status == 'test' %}{% trans "Test"%}{% endif %}
-                      </td>
 
                       <!-- Dates -->
                       <td>
@@ -147,6 +140,9 @@
                           {% if server.status == 'open' %}
                             <a href="/join_server/?server_name={{server.server_name}}" class="btn btn-block btn-primary">{% trans "Rejoindre"%}</a>
                           {% endif %}
+                          {% if server.status == 'close' %}{% trans "Fermé"%}{% endif %}
+                          {% if server.status == 'test' %}{% trans "Test"%}{% endif %}
+
                       </td>
 
                   </tr>
