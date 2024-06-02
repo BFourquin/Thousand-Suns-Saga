@@ -107,7 +107,7 @@
                   <li class="nav-item"><a class="nav-link" href="#settings" data-toggle="tab">{% trans "Historique"%}</a></li>
                 </ul>
               </div><!-- /.card-header -->
-              <div class="card-body">
+              <div class="card-body" >
                 <div class="tab-content">
                   <div class="active tab-pane" id="activity">
 
@@ -115,18 +115,21 @@
                     <!-- Post -->
                     <div class="post" style=" margin-top:20px; border-bottom: 0px">
                       <div class="user-block" style="margin-top: 30px;">
+                        <img class=" img-bordered-sm" src="{% static "images/SAO.jpg"%}" alt="user image"
+                             style="height: 150px; width: 150px; margin-right: 30px;">
                         <img class=" img-bordered-sm" src="{% static "images/Aurelia.png"%}" alt="user image"
                              style="height: 150px; width: 150px; margin-right: 30px;">
-                        <span class="username">
+
+                        <span class="username" style="margin-bottom: 10px;">
                           <span class="description" style="font-size: 25px;">
-                            <a href="#" >Aurélia de Siravedra</a>
-                            [Serveur Alpha]
+                            <a href="#" >Empire de Siravedra / Aurélia de Siravedra</a>
                           </span>
+                          <span class="description" style="font-size: 25px;">[Serveur Alpha]</span>
                         </span>
-                        <span class="description">Status:</span>
-                        <span class="description">Date de création:</span>
-                        <span class="description">Planète capitale:</span>
-                        <span class="description">Faction:</span>
+                        <span class="description">{% trans "Status:"%}</span>
+                        <span class="description">{% trans "Date de création:"%}</span>
+                        <span class="description">{% trans "Planète capitale:"%}</span>
+                        <span class="description">{% trans "Faction:"%}</span>
                       </div>
                       <!-- /.user-block -->
                     </div>
@@ -136,22 +139,38 @@
                     <!-- Post -->
                     <div class="post" style=" margin-top:20px; border-bottom: 0px">
                       <div class="user-block" style="margin-top: 30px;">
+                        <img class=" img-bordered-sm" src="{% static "images/SAO.jpg"%}" alt="user image"
+                             style="height: 150px; width: 150px; margin-right: 30px;">
                         <img class=" img-bordered-sm" src="{% static "images/Wandrille.jpg"%}" alt="user image"
                              style="height: 150px; width: 150px; margin-right: 30px;">
-                        <span class="username">
+
+                        <span class="username" style="margin-bottom: 10px;">
                           <span class="description" style="font-size: 25px;">
-                            <a href="#" >Wandrille Corgat</a>
-                            [Serveur Alpha]
+                            <a href="#" >Empire de Siravedra / Wandrille Corgat</a>
                           </span>
+                          <span class="description" style="font-size: 25px;">[Serveur Alpha]</span>
                         </span>
-                        <span class="description">Status:</span>
-                        <span class="description">Date de création:</span>
-                        <span class="description">Planète capitale:</span>
-                        <span class="description">Faction:</span>
+                        <span class="description">{% trans "Status:"%}</span>
+                        <span class="description">{% trans "Date de création:"%}</span>
+                        <span class="description">{% trans "Planète capitale:"%}</span>
+                        <span class="description">{% trans "Faction:"%}</span>
                       </div>
                       <!-- /.user-block -->
                     </div>
                     <!-- /.post -->
+
+
+                    <!-- Post -->
+                    <div class="post" style=" margin-top:20px; border-bottom: 0px">
+                      <div class="user-block" style="margin-top: 30px;">
+                        <button type="button" class="btn btn-block btn-primary">{% trans "Rejoindre un nouveau serveur"%}</button>
+                      </div>
+                      <!-- /.user-block -->
+                    </div>
+                    <!-- /.post -->
+
+
+
 
 
                   </div>
