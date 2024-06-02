@@ -40,7 +40,7 @@ def get_all_servers_details():
     return db.find({})
 
 
-def create_server(server_name, status='test', admin_only_visibility=True):
+def create_server(server_name, status='test', admin_only_visibility=True, language='fr', roleplay='HRP'):
 
     if get_server_details(server_name):
         raise Exception("'" + server_name + "' already exist.")
@@ -53,6 +53,8 @@ def create_server(server_name, status='test', admin_only_visibility=True):
                       'creation_date': datetime.datetime.today(),
                       'opening_date': datetime.datetime.now(),
                       'end_date': None,
+                      'language': language,
+                      'roleplay': roleplay,
                       'active_commandants': [],
                       'previous_commandants': [],
                       'allow_multiaccounts': False,

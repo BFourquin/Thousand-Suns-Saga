@@ -1,0 +1,182 @@
+
+{% load static %}
+{% load i18n %}
+
+{% include "includes/header.html" with title="Serveurs TSS" %}
+
+{% include "includes/game_menu.html" %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>{% trans "Serveurs TSS"%}</h1>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+
+
+      <!------------------------------------------------------------------------------------------------------------>
+      <!-- ACTIVE SERVERS -->
+
+
+      <div class="card" style="margin-top: 40px;">
+        <div class="card-header">
+          <h3 class="card-title">Serveurs de jeu</h3>
+
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+              <i class="fas fa-minus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-striped projects">
+              <thead>
+                  <tr>
+                      <th style="width: 1%">
+                          #
+                      </th>
+                      <th>
+                          {% trans "Nom du serveur"%}
+                      </th>
+
+                      <th>
+                           {% trans "Langue"%}
+                      </th>
+                      <th>
+                           {% trans "Roleplay"%}
+                      </th>
+                      <th>
+                           {% trans "Joueurs"%}
+                      </th>
+                      <th>
+                           {% trans "Inscription"%}
+                      </th>
+
+                      <th>
+                           {% trans "Date d'ouverture"%}
+                      </th>
+                       <th>
+                           {% trans "Multicompte"%}
+                       </th>
+                      <th></th>
+                  </tr>
+              </thead>
+              <tbody>
+                 {% for server in servers_details  %}
+                 {% if not server.admin_only_visibility and server.status in 'open,close,test'%}
+
+                  <tr>
+                      <td>
+                          <span style="font-size: 1.3em;">#</span>
+                      </td>
+                      <!-- Nom du serveur -->
+                      <td>
+                          <span style="font-size: 2em;">
+                              {{server.server_name}}
+                          </span>
+                      </td>
+
+                      <!-- Language -->
+                      <td>
+                          <span>
+                              {% if server.language == 'fr' %}
+                                <img src="{% static "images/flags/fr.svg"%}"style="width: 30px; margin-right: 5px;">
+                                {% trans "Français"%}
+                              {% endif %}
+
+                              {% if server.language == 'en' %}
+                                <img src="{% static "images/flags/en.svg"%}"style="width: 30px; margin-right: 5px;">
+                                {% trans "Anglais"%}
+                              {% endif %}
+
+                              {% if server.language == 'international' %}
+                                <img src="{% static "images/flags/international.svg"%}"style="width: 30px; margin-right: 5px;">
+                                {% trans "International"%}
+                              {% endif %}
+
+                          </span>
+                      </td>
+
+                      <!-- Roleplay -->
+                      <td>
+                          {{server.roleplay}}
+                      </td>
+
+                      <!-- Joueurs -->
+                      <td>
+                          <small>
+                              Actifs : {{server.active_commandants|length}}
+                              <br/>
+                              Morts : {{server.previous_commandants|length}}
+                          </small>
+                      </td>
+
+                      <!-- Status -->
+                      <td>
+                          {% if server.status == 'open' %}{% trans "Ouvert"%}{% endif %}
+                          {% if server.status == 'close' %}{% trans "Fermé"%}{% endif %}
+                          {% if server.status == 'test' %}{% trans "Test"%}{% endif %}
+                      </td>
+
+                      <!-- Dates -->
+                      <td>
+                          {{server.opening_date|date:'d/m/Y H:m'}}
+                          ( {{server.open_since_days}}
+                          {% if server.open_since_days < 2 %}{% trans "jour"%}{% endif %}
+                          {% if server.open_since_days >= 2 %}{% trans "jours"%}{% endif %} )
+
+                      </td>
+
+                      <!-- Multicomptes -->
+                      <td>
+                          {% if server.allow_multiaccounts %} {% trans "Autorisé"%} {% endif %}
+                          {% if not server.allow_multiaccounts %} {% trans "Interdit"%} {% endif %}
+                      </td>
+
+                      <!-- Rejoindre -->
+                      <td>
+                          {% if server.status == 'open' %}
+                            <a href="/join_server/?server_name={{server.server_name}}" class="btn btn-block btn-primary">{% trans "Rejoindre"%}</a>
+                          {% endif %}
+                      </td>
+
+                  </tr>
+
+                 {% endif %}
+                 {% endfor %}
+
+                  </tr>
+              </tbody>
+          </table>
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+  </aside>
+  <!-- /.control-sidebar -->
+</div>
+<!-- ./wrapper -->
+
+</body>
+</html>
+
+

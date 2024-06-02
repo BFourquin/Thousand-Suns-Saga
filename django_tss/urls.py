@@ -55,6 +55,9 @@ urlpatterns = [
     path('player_register/', views_public.player_register, name='player_register'),
 
 
+    path('servers_list/', views_public.servers_list, name='servers_list'),
+
+
     # IN GAME
 
     path('user_account/', views_game.user_account, name='user_account'),

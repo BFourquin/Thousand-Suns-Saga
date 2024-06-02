@@ -23,80 +23,11 @@
     <section class="content">
       <div class="container-fluid">
         <div class="row">
-          <div class="col-md-3">
 
-            <!--------------------------------------------------------------------------------------------------------->
-            <!-- Profile  -->
-            <div class="card card-primary card-outline">
-              <div class="card-body box-profile">
-
-                <h1 class="text-center">{{user.username}}</h1>
-
-                <!--<p class="text-muted text-center">Software Engineer</p>-->
-
-                <ul class="list-group list-group-unbordered mb-3">
-                  <li class="list-group-item">
-                    <b>{% trans "E-mail"%}</b> <a class="float-right">{{user.email}} <i class="fas fa-pen"></i></a>
-                  </li>
-                  <li class="list-group-item">
-                    <b>{% trans "Mot de passe"%}</b> <a class="float-right">{% trans "Changer"%} <i class="fas fa-pen"></i></a>
-                  </li>
-                  <li class="list-group-item">
-                    <b>{% trans "Date d'inscription"%}</b> <a class="float-right">{{user.date_joined|date:'d/m/Y H:m'}}</a>
-                  </li>
-                  <li class="list-group-item">
-                    <b>{% trans "Dernière connexion"%}</b> <a class="float-right">{{user.last_login|date:'d/m/Y H:m'}}</a>
-                  </li>
-                </ul>
-
-              </div>
-              <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
+          <!--------------------------------------------------------------------------------------------------------->
+          <!-- Corps central -->
 
 
-            <!--------------------------------------------------------------------------------------------------------->
-            <!-- Parametres -->
-
-            <div class="card card-secondary">
-              <div class="card-header box-profile">
-                <h3 class="card-title">{% trans "Préférences"%}</h3>
-              </div>
-              <!-- /.card-header -->
-
-              <form action="/user_account/" method="POST">
-                  {% csrf_token %}
-
-                <div class="card-body">
-                  <ul class="list-group list-group-unbordered mb-3">
-
-                    <li class="list-group-item">
-                      <b>{% trans "Langue"%}</b>
-                      <select name="language" class="form-control float-right" style="max-width: 150px;" onchange="this.form.submit()">
-                            <option value="fr" {% if user.language == 'fr' %} selected="selected" {% endif %}>Français</option>
-                            <option value="en" {% if user.language == 'en' %} selected="selected" {% endif %} >English</option>
-                      </select>
-                    </li>
-
-                    <li class="list-group-item">
-                      <b>{% trans "Affichage"%}</b>
-                      <select name="dark_mode" class="form-control float-right" style="max-width: 150px;" onchange="this.form.submit()">
-                            <option value="true" {% if user.dark_mode %} selected="selected" {% endif %}>{% trans "Mode sombre"%}</option>
-                            <option value="false" {% if not user.dark_mode %} selected="selected" {% endif %}>{% trans "Mode clair"%}</option>
-                      </select>
-                    </li>
-                  </ul>
-                </div>
-              </form>
-
-              <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
-
-            <!--------------------------------------------------------------------------------------------------------->
-            <!-- Corps central -->
-
-          </div>
           <!-- /.col -->
           <div class="col-md-9">
             <div class="card">
@@ -126,7 +57,7 @@
                           </span>
                           <span class="description" style="font-size: 25px;">[Serveur Alpha]</span>
                         </span>
-                        <span class="description">{% trans "Status:"%}</span>
+                        <span class="description">{% trans "Statut:"%}</span>
                         <span class="description">{% trans "Date de création:"%}</span>
                         <span class="description">{% trans "Planète capitale:"%}</span>
                         <span class="description">{% trans "Faction:"%}</span>
@@ -163,7 +94,9 @@
                     <!-- Post -->
                     <div class="post" style=" margin-top:20px; border-bottom: 0px">
                       <div class="user-block" style="margin-top: 30px;">
-                        <button type="button" class="btn btn-block btn-primary">{% trans "Rejoindre un nouveau serveur"%}</button>
+
+                        <a href="/servers_list/" class="btn btn-block btn-primary">{% trans "Rejoindre un nouveau serveur"%}</a>
+
                       </div>
                       <!-- /.user-block -->
                     </div>
@@ -329,6 +262,84 @@
             <!-- /.card -->
           </div>
           <!-- /.col -->
+
+
+          <!--------------------------------------------------------------------------------------------------------->
+          <!-- Profile  -->
+
+          <div class="col-md-3">
+
+            <div class="card card-primary card-outline">
+              <div class="card-body box-profile">
+
+                <h1 class="text-center">{{user.username}}</h1>
+
+                <!--<p class="text-muted text-center">Software Engineer</p>-->
+
+                <ul class="list-group list-group-unbordered mb-3">
+                  <li class="list-group-item">
+                    <b>{% trans "E-mail"%}</b> <a class="float-right">{{user.email}} <i class="fas fa-pen"></i></a>
+                  </li>
+                  <li class="list-group-item">
+                    <b>{% trans "Mot de passe"%}</b> <a class="float-right">{% trans "Changer"%} <i class="fas fa-pen"></i></a>
+                  </li>
+                  <li class="list-group-item">
+                    <b>{% trans "Date d'inscription"%}</b> <a class="float-right">{{user.date_joined|date:'d/m/Y H:m'}}</a>
+                  </li>
+                  <li class="list-group-item">
+                    <b>{% trans "Dernière connexion"%}</b> <a class="float-right">{{user.last_login|date:'d/m/Y H:m'}}</a>
+                  </li>
+                </ul>
+
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+
+
+            <!--------------------------------------------------------------------------------------------------------->
+            <!-- Parametres -->
+
+            <div class="card card-secondary">
+              <div class="card-header box-profile">
+                <h3 class="card-title">{% trans "Préférences"%}</h3>
+              </div>
+              <!-- /.card-header -->
+
+              <form action="/user_account/" method="POST">
+                  {% csrf_token %}
+
+                <div class="card-body">
+                  <ul class="list-group list-group-unbordered mb-3">
+
+                    <li class="list-group-item">
+                      <b>{% trans "Langue"%}</b>
+                      <select name="language" class="form-control float-right" style="max-width: 150px;" onchange="this.form.submit()">
+                            <option value="fr" {% if user.language == 'fr' %} selected="selected" {% endif %}>Français</option>
+                            <option value="en" {% if user.language == 'en' %} selected="selected" {% endif %} >English</option>
+                      </select>
+                    </li>
+
+                    <li class="list-group-item">
+                      <b>{% trans "Affichage"%}</b>
+                      <select name="dark_mode" class="form-control float-right" style="max-width: 150px;" onchange="this.form.submit()">
+                            <option value="true" {% if user.dark_mode %} selected="selected" {% endif %}>{% trans "Mode sombre"%}</option>
+                            <option value="false" {% if not user.dark_mode %} selected="selected" {% endif %}>{% trans "Mode clair"%}</option>
+                      </select>
+                    </li>
+                  </ul>
+                </div>
+              </form>
+
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+
+
+
+
+
         </div>
         <!-- /.row -->
       </div><!-- /.container-fluid -->

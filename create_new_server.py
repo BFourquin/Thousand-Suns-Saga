@@ -13,11 +13,14 @@ from statistics import stats_geography
 
 
 
-server_name = 'Alpha2'
+server_name = 'Alpha'
 excel_server_params = '..\\TSS.xlsx'
 
-server_status = 'test'
-admin_only_visibility = True
+language = 'international'  # 'fr' / 'en' / 'international'
+roleplay = 'HRP'  # 'RP' / 'HRP'
+
+admin_only_visibility = False
+server_status = 'open'
 
 
 """ SERVER STATUS
@@ -55,7 +58,8 @@ if server_details.get_server_details(server_name):
 # SERVER DETAILS
 
 create_tables.create_server_database('TSS_' + server_name)
-server_details.create_server(server_name, status=server_status, admin_only_visibility=admin_only_visibility)
+server_details.create_server(server_name, status=server_status, admin_only_visibility=admin_only_visibility,
+                             language=language, roleplay=roleplay)
 
 
 # TECHNOLOGIES
