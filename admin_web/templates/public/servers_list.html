@@ -138,7 +138,7 @@
                       <!-- Rejoindre -->
                       <td>
                           {% if server.status == 'open' %}
-                            <a href="/join_server/?server_name={{server.server_name}}" class="btn btn-block btn-primary">{% trans "Rejoindre"%}</a>
+                            <a href="/create_commander/?server_name={{server.server_name}}" class="btn btn-block btn-primary">{% trans "Rejoindre"%}</a>
                           {% endif %}
                           {% if server.status == 'close' %}{% trans "Fermé"%}{% endif %}
                           {% if server.status == 'test' %}{% trans "Test"%}{% endif %}

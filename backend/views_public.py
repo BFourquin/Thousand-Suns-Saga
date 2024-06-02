@@ -23,7 +23,7 @@ def public_lobby(request):
 
 def servers_list(request):
 
-    servers = list(server_details.get_all_servers_details())
+    servers = server_details.get_all_servers_details()
     for i in range(len(servers)):
         servers[i]['open_since_days'] = (datetime.datetime.now() - servers[i]['opening_date']).days
 

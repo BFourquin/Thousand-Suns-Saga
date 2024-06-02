@@ -32,3 +32,36 @@ def user_account(request):
     user = get_user_by_name(str(request.user))  # Get it again in case of parameter changed
 
     return render(request, 'game/user_account.html', {'user': dict(user)})
+
+
+
+@login_required(login_url='/create_commander/')
+def create_commander(request):
+
+    params = request_params(request)
+
+    print(server_details.get_all_servers_details())
+
+    # Check server exist
+    if not 'server_name' in params \
+       or not any(s['server_name'] == params['server_name'] for s in server_details.get_all_servers_details()):
+            return redirect('/servers_list/')
+
+
+    # Check multiaccount
+
+
+    user = get_user_by_name(str(request.user))
+    params = request_params(request)
+
+    if 'language' in params and params['language'] in ('fr', 'en'):
+        data.user.update_user(user, 'language', params['language'])
+
+
+    if 'dark_mode' in params and params['dark_mode'] in ('true', 'false'):
+        darkmode = params['dark_mode'] == 'true'
+        data.user.update_user(user, 'dark_mode', darkmode)
+
+    user = get_user_by_name(str(request.user))  # Get it again in case of parameter changed
+
+    return render(request, 'game/create_commander.html', {'user': dict(user)})

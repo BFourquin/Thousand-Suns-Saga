@@ -37,7 +37,7 @@ def get_server_details(server_name):
 
 
 def get_all_servers_details():
-    return db.find({})
+    return list(db.find({}))
 
 
 def create_server(server_name, status='test', admin_only_visibility=True, language='fr', roleplay='HRP'):

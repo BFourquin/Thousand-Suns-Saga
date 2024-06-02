@@ -60,6 +60,7 @@ urlpatterns = [
 
     # IN GAME
 
+    path('create_commander/', views_game.create_commander, name='create_commander'),
     path('user_account/', views_game.user_account, name='user_account'),
 
 
