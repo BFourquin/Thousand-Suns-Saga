@@ -6,7 +6,22 @@ from django.core.validators import validate_email
 
 
 from backend.utils import request_params
-from data.user import user_name_exist, create_user_and_user_extend, get_user_by_name, get_user_by_object_id, user_mail_already_used
+from data.user import user_name_exist, create_user_and_user_extend, get_user_by_name, get_user_by_object_id
+from data import server_details
+
+
+def can_join_server(request):
+
+    print(server_details.get_all_servers_details())
+
+    # Check server exist
+    if not 'server_name' in params \
+       or not any(s['server_name'] == params['server_name'] for s in server_details.get_all_servers_details()):
+            return redirect('/servers_list/', {'title': "Ce serveur n'existe pas"})
+
+
+    # Check multiaccount
+
 
 
 def create_commandant(request):
@@ -24,10 +39,8 @@ def create_commandant(request):
     if not 5 < len(params['username']) < 25:
         return JsonResponse({"message": "Votre pseudo doit faire entre 5 et 25 caractères."}, status=422)
 
-
-
-
     return JsonResponse({"message": "Compte créé."}, status=200)
+
 
 
 def get_commandant(request):

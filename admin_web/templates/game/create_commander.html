@@ -27,28 +27,35 @@
         <div class="card-body row">
           <div class="col-5 text-center d-flex align-items-center justify-content-center">
             <div class="">
-              <h2>{{server.</h2>
+              <h2>{{server.server_name}}</h2>
+              <br/>
+              Ouvert depuis le <br/>
+              {{server.opening_date|date:'d/m/Y H:m'}}
+              ( {{server.open_since_days}}
+              {% if server.open_since_days < 2 %}{% trans "jour"%}{% endif %}
+              {% if server.open_since_days >= 2 %}{% trans "jours"%}{% endif %} )
+              <br/><br/>
+              Joueurs actifs : {{server.active_commandants|length}}
+              <br/>
+              Joueurs morts : {{server.previous_commandants|length}}
+              <br/>
+
             </div>
           </div>
           <div class="col-7">
             <div class="form-group">
-              <label for="inputName">Name</label>
-              <input type="text" id="inputName" class="form-control" />
+              <label for="commandant_name">{% trans "Nom de votre commandant"%}</label>
+              <input type="text" id="commandant_name" class="form-control" />
             </div>
             <div class="form-group">
-              <label for="inputEmail">E-Mail</label>
-              <input type="email" id="inputEmail" class="form-control" />
+              <label for="civilisation_name">{% trans "Nom de votre civilisation"%}</label>
+              <input type="text" id="civilisation_name" class="form-control" />
             </div>
-            <div class="form-group">
-              <label for="inputSubject">Subject</label>
-              <input type="text" id="inputSubject" class="form-control" />
-            </div>
-            <div class="form-group">
-              <label for="inputMessage">Message</label>
-              <textarea id="inputMessage" class="form-control" rows="4"></textarea>
-            </div>
-            <div class="form-group">
-              <input type="submit" class="btn btn-primary" value="Send message">
+
+            {% trans "Vous pourrez changer le nom de votre commandant ou de votre civilisation plus tard pour refléter les évolutions de votre roleplay. Néanmoins, cela ne sera possible que sur approbation de la communauté."%}
+
+            <div class="form-group" style="margin-top:20px;">
+              <input type="submit" class="btn btn-primary" value="{% trans "Rejoindre le serveur"%}">
             </div>
           </div>
         </div>
@@ -58,6 +65,9 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+
+
+  {% include "includes/form_submit_to_json_api.js" with form="create_user" %}
 
 </body>
 </html>

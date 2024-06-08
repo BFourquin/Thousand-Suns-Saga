@@ -2,11 +2,6 @@
 from django.http import JsonResponse
 
 
-########################################################################################################################
-# REDIRECTION
-
-
-
 
 ########################################################################################################################
 # MODAL AND POPUP ALERTS
@@ -33,9 +28,11 @@ def pop_up(response, status):
     if not 'delay' in response:
         response['delay'] = 3000
 
-    print(response, status)
-
     return JsonResponse(response, status=status)
+
+
+########################################################################################################################
+# REDIRECTION
 
 
 def pop_up_and_redirect(response, status, redirect):

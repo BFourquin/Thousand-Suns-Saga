@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.validators import validate_email
 from bokeh.plotting import figure
 from bokeh.embed import components
-import time
+import datetime
 
 import data.user
 from backend.utils import request_params, parameters_presents
@@ -35,33 +35,20 @@ def user_account(request):
 
 
 
-@login_required(login_url='/create_commander/')
+@login_required(login_url='/player_login/')
 def create_commander(request):
-
-    params = request_params(request)
-
-    print(server_details.get_all_servers_details())
-
-    # Check server exist
-    if not 'server_name' in params \
-       or not any(s['server_name'] == params['server_name'] for s in server_details.get_all_servers_details()):
-            return redirect('/servers_list/')
-
-
-    # Check multiaccount
-
 
     user = get_user_by_name(str(request.user))
     params = request_params(request)
 
-    if 'language' in params and params['language'] in ('fr', 'en'):
-        data.user.update_user(user, 'language', params['language'])
+    if not 'server_name' in params:
+        redirect('servers_list')
 
+    server = server_details.get_server_details(params['server_name'])
 
-    if 'dark_mode' in params and params['dark_mode'] in ('true', 'false'):
-        darkmode = params['dark_mode'] == 'true'
-        data.user.update_user(user, 'dark_mode', darkmode)
+    if not server :
+        redirect('servers_list')
 
-    user = get_user_by_name(str(request.user))  # Get it again in case of parameter changed
+    server['open_since_days'] = (datetime.datetime.now() - server['opening_date']).days
 
-    return render(request, 'game/create_commander.html', {'user': dict(user)})
+    return render(request, 'game/create_commander.html', {'server': server})
