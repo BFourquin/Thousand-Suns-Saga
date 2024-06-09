@@ -25,22 +25,62 @@
 
 Language : Python / HTML / JS  \
 Framework : Django  \
-Template : AdminLTE  \
-Translation : Rosetta
-
+Template : AdminLTE
 
 
 ***
 ### INSTALLATION
 
-- Install Gettext and reboot > (Windows version) https://mlocati.github.io/articles/gettext-iconv-windows.html
 
+**Serveur Web Catalogue Digital**
+
+- Install Python 3.11.9 (https://www.python.org/downloads/) \
+  Add option "Add python.exe to PATH" in the installer
+
+- Get the project code from :
+  > https://github.com/BFourquin/Thousand-Suns-Saga
+
+- Open a console and write
+  > cd {répertoire du projet} \
+  > python -m pip install -r requirements.txt
+
+
+**MongoDB**
+
+- Install MongoDB (Community Edition) (https://www.mongodb.com/try/download/community) \
+  Include during installation MongoDB Compass \
+
+- Run the script {project folder}/database/create_tables.py
+
+
+**InfluxDB**
+
+- Install InfluxDB Open Source v2.x (https://www.influxdata.com/downloads/)
+
+- Execute {project folder}/influxd.bat
+
+- Connect on the Influx interface at http://localhost:8086/ \
+  Fill the form for the admin account creation \
+  Keep the API token (/!\ can't be retrieved later)
+
+- Create a file token.txt at the following place : {project folder}/data/influxdb/token.txt \
+  Paste the admin account token in the file
 
 
 ***
-### NEW SERVER
+### RUNNING THE WEBSERVER
+
+Run the following scripts :
+
+- influxd.bat
+- static_server.bat
+- runserver.bat
 
 
+***
+### CREATE NEW GAME SERVERS
+
+TODO
 
 ***
 ### TRANSLATION
@@ -52,4 +92,3 @@ The following command will search the project for text to translate > makemessag
 
 You can access the Rosetta interface to do the translation at > (you_site.com)/rosetta  \
 or via the default Django admin page
-
