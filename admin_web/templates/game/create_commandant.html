@@ -2,7 +2,7 @@
 {% load static %}
 {% load i18n %}
 
-{% include "includes/header.html" with title="Compte TSS" %}
+{% include "includes/header.html" with title="Rejoindre le serveur" %}
 
 {% include "includes/game_menu.html" %}  <!-- include body start -->
 
@@ -31,9 +31,9 @@
               <br/>
               Ouvert depuis le <br/>
               {{server.opening_date|date:'d/m/Y H:m'}}
-              ( {{server.open_since_days}}
+              ({{server.open_since_days}}
               {% if server.open_since_days < 2 %}{% trans "jour"%}{% endif %}
-              {% if server.open_since_days >= 2 %}{% trans "jours"%}{% endif %} )
+              {% if server.open_since_days >= 2 %}{% trans "jours"%}{% endif %})
               <br/><br/>
               Joueurs actifs : {{server.active_commandants|length}}
               <br/>
@@ -43,20 +43,31 @@
             </div>
           </div>
           <div class="col-7">
-            <div class="form-group">
-              <label for="commandant_name">{% trans "Nom de votre commandant"%}</label>
-              <input type="text" id="commandant_name" class="form-control" />
-            </div>
-            <div class="form-group">
-              <label for="civilisation_name">{% trans "Nom de votre civilisation"%}</label>
-              <input type="text" id="civilisation_name" class="form-control" />
-            </div>
 
-            {% trans "Vous pourrez changer le nom de votre commandant ou de votre civilisation plus tard pour refléter les évolutions de votre roleplay. Néanmoins, cela ne sera possible que sur approbation de la communauté."%}
+            <form id="api_create_commandant" method="POST">
+              {% csrf_token %}
 
-            <div class="form-group" style="margin-top:20px;">
-              <input type="submit" class="btn btn-primary" value="{% trans "Rejoindre le serveur"%}">
-            </div>
+              <div class="form-group">
+                <label for="commandant_name">{% trans "Nom de votre commandant"%}</label>
+                <input type="text" id="commandant_name" name="commandant_name" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label for="civilisation_name">{% trans "Nom de votre civilisation"%}</label>
+                <input type="text" id="civilisation_name" name="civilisation_name" class="form-control" />
+              </div>
+
+              <div class="form-group">
+                {% trans "Vous pourrez changer le nom de votre commandant ou de votre civilisation plus tard pour refléter les évolutions de votre roleplay. Néanmoins, cela ne sera possible que sur approbation de la communauté."%}
+
+              </div>
+
+              <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="{% trans "Rejoindre le serveur"%}">
+              </div>
+
+              {% include "includes/form_submit_to_json_api.js" with form="api_create_commandant" %}
+            </form>
+
           </div>
         </div>
       </div>
@@ -66,8 +77,6 @@
   </div>
   <!-- /.content-wrapper -->
 
-
-  {% include "includes/form_submit_to_json_api.js" with form="create_user" %}
 
 </body>
 </html>

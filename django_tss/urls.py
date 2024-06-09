@@ -37,7 +37,7 @@ urlpatterns = [
     path('get_user/', views_api_user.get_user),
 
     # COMMANDANTS
-    path('create_commandant/', views_api_commandant.create_commandant),
+    path('api_create_commandant/', views_api_commandant.api_create_commandant),
     path('get_commandant/', views_api_commandant.get_commandant),
 
 
@@ -60,7 +60,7 @@ urlpatterns = [
 
     # IN GAME
 
-    path('create_commander/', views_game.create_commander, name='create_commander'),
+    path('create_commandant/', views_game.create_commandant, name='create_commandant'),
     path('user_account/', views_game.user_account, name='user_account'),
 
 

@@ -45,7 +45,7 @@ def valid_commandant_creation(server, user, pseudo,
 
 
 
-def create_commandant(server, user, pseudo):
+def api_create_commandant(server, user, pseudo):
 
     client = databases['TSS_' + server]
     db = client['starting_values']

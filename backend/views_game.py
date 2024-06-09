@@ -36,9 +36,8 @@ def user_account(request):
 
 
 @login_required(login_url='/player_login/')
-def create_commander(request):
+def create_commandant(request):
 
-    user = get_user_by_name(str(request.user))
     params = request_params(request)
 
     if not 'server_name' in params:
@@ -51,4 +50,4 @@ def create_commander(request):
 
     server['open_since_days'] = (datetime.datetime.now() - server['opening_date']).days
 
-    return render(request, 'game/create_commander.html', {'server': server})
+    return render(request, 'game/create_commandant.html', {'server': server})

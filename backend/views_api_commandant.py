@@ -7,39 +7,54 @@ from django.core.validators import validate_email
 
 from backend.utils import request_params
 from data.user import user_name_exist, create_user_and_user_extend, get_user_by_name, get_user_by_object_id
+from backend.api_ui_interactions import pop_up, pop_up_and_redirect
 from data import server_details
 
 
-def can_join_server(request):
+def api_can_join_server(request):
 
-    print(server_details.get_all_servers_details())
+    params = request_params(request)
 
     # Check server exist
     if not 'server_name' in params \
        or not any(s['server_name'] == params['server_name'] for s in server_details.get_all_servers_details()):
-            return redirect('/servers_list/', {'title': "Ce serveur n'existe pas"})
-
+            #return pop_up({"title": "Aucun mot de passe spécifié", "level": "danger"}, status=400)
+            return pop_up_and_redirect({"title": "Ce serveur n'existe pas", "level": "success"}, status=400, redirect='/servers_list/')
 
     # Check multiaccount
 
 
 
-def create_commandant(request):
+def api_create_commandant(request):
 
     params = request_params(request)
 
     # ##### USERNAME ######
-    if not 'username' in params:
-        return JsonResponse({"message": "Aucun nom d'utilisateur spécifié."}, status=422)
-    print(params['username'], user_name_exist(params['username']), get_user_by_name(params['username']))
+    if not 'commandant_name' in params:
+        return pop_up({"title": "Aucun nom de commandant spécifié", "level": "danger"}, status=400)
 
-    if user_name_exist(params['username']):
-        return JsonResponse({"message": "Ce nom de commandant est déjà pris."}, status=422)
+    if user_name_exist(params['commandant_name']):
+        return pop_up({"title": "Ce nom de commandant est déjà pris", "level": "danger"}, status=400)
 
-    if not 5 < len(params['username']) < 25:
-        return JsonResponse({"message": "Votre pseudo doit faire entre 5 et 25 caractères."}, status=422)
+    if not 5 <= len(params['commandant_name']) <= 25:
+        return pop_up({"title": "Votre nom de commandant doit faire entre 5 et 25 caractères", "level": "danger"}, status=400)
 
-    return JsonResponse({"message": "Compte créé."}, status=200)
+
+    # ##### CIVILISATION ######
+    if not 'civilisation_name' in params:
+        return pop_up({"title": "Aucun nom de civilisation spécifié", "level": "danger"}, status=400)
+
+    if user_name_exist(params['civilisation_name']):
+        return pop_up({"title": "Ce nom de civilisation est déjà pris", "level": "danger"}, status=400)
+
+    if not 5 <= len(params['civilisation_name']) <= 40:
+        return pop_up({"title": "Votre nom de civilisation doit faire entre 5 et 40 caractères", "level": "danger"}, status=400)
+
+
+    #create_commandant()
+
+
+    return pop_up_and_redirect({"title": "Compte créé", "level": "success"}, status=302, redirect='/user_account/')
 
 
 
@@ -54,7 +69,7 @@ def get_commandant(request):
         user = get_user_by_name(params['username'])
 
     if not user:
-        return JsonResponse({"error": "Compte inexistant."}, status=422)
+        return JsonResponse({"error": "Compte inexistant."}, status=400)
 
     user['_id'] = str(user['_id'])  # ObjectId is not serializable
     del user['password']  # Don't communicate the password hash...

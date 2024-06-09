@@ -9,6 +9,8 @@ therefore it need to be manually declared here to get it detected
 
 {% trans "Compte TSS"%}
 {% trans "Serveurs TSS"%}
+{% trans "Rejoindre le serveur"%}
+
 
 
 ########################################################################################################################
