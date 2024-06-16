@@ -8,8 +8,11 @@ from django.http import JsonResponse
 # FROM ADMINLTE : https://adminlte.io/themes/v3/pages/UI/modals.html
 
 
+#def pop_up()
 
-def pop_up(response, status):
+
+
+def api_pop_up(response, status):
     # Based on "Toasts Examples built in AdminLTE"
     # https://adminlte.io/docs/3.0/javascript/toasts.html
 
@@ -35,6 +38,6 @@ def pop_up(response, status):
 # REDIRECTION
 
 
-def pop_up_and_redirect(response, status, redirect):
+def api_pop_up_and_redirect(response, status, redirect):
     response['redirect'] = redirect
-    return pop_up(response, status)
+    return api_pop_up(response, status)

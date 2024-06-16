@@ -1,7 +1,12 @@
 
 {% load static %}
 
-<body class="hold-transition sidebar-mini">
+<body class="hold-transition sidebar-mini layout-boxed
+             {% if user_account.dark_mode %} dark-mode {% endif %}"
+      style="background-image: url({% static 'images/background-space.jpg'%});
+             background-size: cover; background-repeat: no-repeat;">
+
+
 <div class="wrapper">
   <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-dark">
@@ -62,7 +67,7 @@
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="/admin_main_dashboard/" class="brand-link">
+    <a href="/user_account/" class="brand-link">
       <img src={% static "images/TSS-logo-white.png" %} class="brand-image">
       <span class="brand-text font-weight-light">Thousand Suns Saga</span>
     </a>
@@ -103,57 +108,91 @@
 
 
           <li class="nav-item">
-            <a href="/admin_main_dashboard/" class="nav-link">
+            <a href="" class="nav-link">
+              <i class="fas fa-house nav-icon"></i>
+              <p>Accueil</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="" class="nav-link">
+              <i class="fas fa-eye nav-icon"></i>
+              <p>Découvrir TSS</p>
+            </a>
+          </li>
+
+          <li class="menu-separator">
+
+          <li class="nav-item">
+            <a href="" class="nav-link">
+              <i class="fas fa-key nav-icon"></i>
+              <p>Se connecter</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="" class="nav-link">
+              <i class="fas fa-user-plus nav-icon"></i>
+              <p>Créer un compte</p>
+            </a>
+          </li>
+
+          <li class="menu-separator">
+
+          <li class="nav-item">
+            <a href="" class="nav-link">
               <i class="fas fa-server nav-icon"></i>
-              <p>Vue générale</p>
+              <p>Serveurs</p>
             </a>
           </li>
 
           <li class="nav-item">
-            <a href="/admin_user_accounts/" class="nav-link">
-              <i class="fas fa-users nav-icon"></i>
-              <p>Comptes</p>
+            <a href="" class="nav-link">
+              <i class="fas fa-box-archive nav-icon"></i>
+              <p>Archives</p>
+            </a>
+          </li>
+
+          <li class="menu-separator">
+
+          <li class="nav-item">
+            <a href="" class="nav-link">
+              <i class="fas fa-scale-balanced nav-icon"></i>
+              <p>Règlement</p>
             </a>
           </li>
 
           <li class="nav-item">
-            <a href="/admin_servers_states/" class="nav-link">
-              <i class="fas fa-microchip nav-icon"></i>
-              <p>Etat Serveurs</p>
+            <a href="" class="nav-link">
+              <i class="fas fa-users-between-lines nav-icon"></i>
+              <p>Communauté</p>
             </a>
           </li>
 
+
           <li class="nav-item">
-            <a href="pages/charts/uplot.html" class="nav-link">
+            <a href="" class="nav-link">
               <i class="fas fa-bug nav-icon"></i>
-              <p>Logs</p>
+              <p>Contact</p>
+            </a>
+          </li>
+
+          <li class="menu-separator">
+
+          <li class="nav-item">
+            <a href="" class="nav-link">
+              <i class="fas fa-hand-holding-heart nav-icon"></i>
+              <p>Soutenir TSS</p>
             </a>
           </li>
 
           <li class="nav-item">
-            <a href="pages/charts/uplot.html" class="nav-link">
-              <i class="fas fa-shield-virus nav-icon"></i>
-              <p>Anti-Cheat</p>
+            <a href="" class="nav-link">
+              <i class="fas fa-hand-holding-hand nav-icon"></i>
+              <p>Participer au projet</p>
             </a>
           </li>
 
-          <li class="nav-header" style="margin-top: 30px;">SERVEURS DE JEU</li>
-
-          {% for servername in game_servers %}
-            {% include "includes/menu_server.html" with server_name=servername %}
-          {% endfor %}
-
-          <li class="nav-header" style="margin-top: 30px;">SERVEURS TEST</li>
-
-          {% for servername in test_servers %}
-            {% include "includes/menu_server.html" with server_name=servername %}
-          {% endfor %}
-
-          <li class="nav-header" style="margin-top: 30px;">SERVEURS PRECEDENTS</li>
-
-          {% for servername in old_servers %}
-            {% include "includes/menu_server.html" with server_name=servername %}
-          {% endfor %}
 
         </ul>
       </nav>

@@ -7,7 +7,7 @@ from django.core.validators import validate_email
 
 from backend.utils import request_params
 from data.user import user_name_exist, create_user_and_user_extend, get_user_by_name, get_user_by_object_id
-from backend.api_ui_interactions import pop_up, pop_up_and_redirect
+from backend.api_ui_interactions import api_pop_up, api_pop_up_and_redirect
 from data import server_details
 
 
@@ -19,7 +19,7 @@ def api_can_join_server(request):
     if not 'server_name' in params \
        or not any(s['server_name'] == params['server_name'] for s in server_details.get_all_servers_details()):
             #return pop_up({"title": "Aucun mot de passe spécifié", "level": "danger"}, status=400)
-            return pop_up_and_redirect({"title": "Ce serveur n'existe pas", "level": "success"}, status=400, redirect='/servers_list/')
+            return api_pop_up_and_redirect({"title": "Ce serveur n'existe pas", "level": "success"}, status=400, redirect='/servers_list/')
 
     # Check multiaccount
 
@@ -31,30 +31,30 @@ def api_create_commandant(request):
 
     # ##### USERNAME ######
     if not 'commandant_name' in params:
-        return pop_up({"title": "Aucun nom de commandant spécifié", "level": "danger"}, status=400)
+        return api_pop_up({"title": "Aucun nom de commandant spécifié", "level": "danger"}, status=400)
 
     if user_name_exist(params['commandant_name']):
-        return pop_up({"title": "Ce nom de commandant est déjà pris", "level": "danger"}, status=400)
+        return api_pop_up({"title": "Ce nom de commandant est déjà pris", "level": "danger"}, status=400)
 
     if not 5 <= len(params['commandant_name']) <= 25:
-        return pop_up({"title": "Votre nom de commandant doit faire entre 5 et 25 caractères", "level": "danger"}, status=400)
+        return api_pop_up({"title": "Votre nom de commandant doit faire entre 5 et 25 caractères", "level": "danger"}, status=400)
 
 
     # ##### CIVILISATION ######
     if not 'civilisation_name' in params:
-        return pop_up({"title": "Aucun nom de civilisation spécifié", "level": "danger"}, status=400)
+        return api_pop_up({"title": "Aucun nom de civilisation spécifié", "level": "danger"}, status=400)
 
     if user_name_exist(params['civilisation_name']):
-        return pop_up({"title": "Ce nom de civilisation est déjà pris", "level": "danger"}, status=400)
+        return api_pop_up({"title": "Ce nom de civilisation est déjà pris", "level": "danger"}, status=400)
 
     if not 5 <= len(params['civilisation_name']) <= 40:
-        return pop_up({"title": "Votre nom de civilisation doit faire entre 5 et 40 caractères", "level": "danger"}, status=400)
+        return api_pop_up({"title": "Votre nom de civilisation doit faire entre 5 et 40 caractères", "level": "danger"}, status=400)
 
 
     #create_commandant()
 
 
-    return pop_up_and_redirect({"title": "Compte créé", "level": "success"}, status=302, redirect='/user_account/')
+    return api_pop_up_and_redirect({"title": "Compte créé", "level": "success"}, status=302, redirect='/user_account/')
 
 
 

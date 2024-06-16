@@ -145,19 +145,19 @@
           <li class="nav-header" style="margin-top: 30px;">SERVEURS DE JEU</li>
 
           {% for servername in game_servers %}
-            {% include "includes/menu_server.html" with server_name=servername %}
+            {% include "includes/menu_admin_server.html" with server_name=servername %}
           {% endfor %}
 
           <li class="nav-header" style="margin-top: 30px;">SERVEURS TEST</li>
 
           {% for servername in test_servers %}
-            {% include "includes/menu_server.html" with server_name=servername %}
+            {% include "includes/menu_admin_server.html" with server_name=servername %}
           {% endfor %}
 
           <li class="nav-header" style="margin-top: 30px;">SERVEURS PRECEDENTS</li>
 
           {% for servername in old_servers %}
-            {% include "includes/menu_server.html" with server_name=servername %}
+            {% include "includes/menu_admin_server.html" with server_name=servername %}
           {% endfor %}
 
         </ul>
