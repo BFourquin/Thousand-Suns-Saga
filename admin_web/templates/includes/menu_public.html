@@ -123,24 +123,38 @@
 
           <li class="menu-separator">
 
+          {% if user.is_authenticated %}
+
           <li class="nav-item">
-            <a href="" class="nav-link">
+            <a href="/user_account/" class="nav-link">
+              <i class="fas fa-user nav-icon"></i>
+              <p>Mon compte</p>
+            </a>
+          </li>
+
+          {% else %}
+
+          <li class="nav-item">
+            <a href="/player_login/" class="nav-link">
               <i class="fas fa-key nav-icon"></i>
               <p>Se connecter</p>
             </a>
           </li>
 
           <li class="nav-item">
-            <a href="" class="nav-link">
+            <a href="/player_register/" class="nav-link">
               <i class="fas fa-user-plus nav-icon"></i>
               <p>Créer un compte</p>
             </a>
           </li>
 
+          {% endif %}
+
+
           <li class="menu-separator">
 
           <li class="nav-item">
-            <a href="" class="nav-link">
+            <a href="/servers_list" class="nav-link">
               <i class="fas fa-server nav-icon"></i>
               <p>Serveurs</p>
             </a>
