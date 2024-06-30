@@ -6,6 +6,18 @@
     margin-bottom: 7.5px;
 }
 
+.menu_bottom_logo {
+  width: 92%;
+  bottom: 8px;
+  position: absolute;
+  z-index: -1;
+}
+@media screen and (max-height: 1000px) {
+    .menu_bottom_logo {
+        display: none;
+    }
+}
+
 
 
 .links-icons-column {
