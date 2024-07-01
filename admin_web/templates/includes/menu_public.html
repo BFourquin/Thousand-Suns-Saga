@@ -1,5 +1,6 @@
 
 {% load static %}
+{% load i18n %}
 
 <body class="hold-transition sidebar-mini layout-boxed
              {% if user_account.dark_mode %} dark-mode {% endif %}"
@@ -110,14 +111,14 @@
           <li class="nav-item">
             <a href="" class="nav-link">
               <i class="fas fa-house nav-icon"></i>
-              <p>Accueil</p>
+              <p>{% trans "Accueil" %}</p>
             </a>
           </li>
 
           <li class="nav-item">
             <a href="" class="nav-link">
               <i class="fas fa-eye nav-icon"></i>
-              <p>Découvrir TSS</p>
+              <p>{% trans "Découvrir TSS" %}</p>
             </a>
           </li>
 
@@ -128,7 +129,7 @@
           <li class="nav-item">
             <a href="/user_account/" class="nav-link">
               <i class="fas fa-user nav-icon"></i>
-              <p>Mon compte</p>
+              <p>{% trans "Mon compte" %}</p>
             </a>
           </li>
 
@@ -137,14 +138,14 @@
           <li class="nav-item">
             <a href="/player_login/" class="nav-link">
               <i class="fas fa-key nav-icon"></i>
-              <p>Se connecter</p>
+              <p>{% trans "Se connecter" %}</p>
             </a>
           </li>
 
           <li class="nav-item">
             <a href="/player_register/" class="nav-link">
               <i class="fas fa-user-plus nav-icon"></i>
-              <p>Créer un compte</p>
+              <p>{% trans "Créer un compte" %}</p>
             </a>
           </li>
 
@@ -156,14 +157,14 @@
           <li class="nav-item">
             <a href="/servers_list" class="nav-link">
               <i class="fas fa-server nav-icon"></i>
-              <p>Serveurs</p>
+              <p>{% trans "Serveurs" %}</p>
             </a>
           </li>
 
           <li class="nav-item">
             <a href="" class="nav-link">
               <i class="fas fa-box-archive nav-icon"></i>
-              <p>Archives</p>
+              <p>{% trans "Archives" %}</p>
             </a>
           </li>
 
@@ -172,14 +173,14 @@
           <li class="nav-item">
             <a href="" class="nav-link">
               <i class="fas fa-scale-balanced nav-icon"></i>
-              <p>Règlement</p>
+              <p>{% trans "Règlement" %}</p>
             </a>
           </li>
 
           <li class="nav-item">
             <a href="" class="nav-link">
               <i class="fas fa-users-between-lines nav-icon"></i>
-              <p>Communauté</p>
+              <p>{% trans "Communauté" %}</p>
             </a>
           </li>
 
@@ -187,7 +188,7 @@
           <li class="nav-item">
             <a href="" class="nav-link">
               <i class="fas fa-envelope-open-text nav-icon"></i>
-              <p>Contact</p>
+              <p>{% trans "Contact" %}</p>
             </a>
           </li>
 
@@ -196,14 +197,14 @@
           <li class="nav-item">
             <a href="" class="nav-link">
               <i class="fas fa-hand-holding-heart nav-icon"></i>
-              <p>Soutenir TSS</p>
+              <p>{% trans "Soutenir TSS" %}</p>
             </a>
           </li>
 
           <li class="nav-item">
             <a href="" class="nav-link">
               <i class="fas fa-hand-holding-hand nav-icon"></i>
-              <p>Participer au projet</p>
+              <p>{% trans "Participer au projet" %}</p>
             </a>
           </li>
 

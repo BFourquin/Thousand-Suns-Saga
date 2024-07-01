@@ -1,5 +1,6 @@
 
 {% load static %}
+{% load i18n %}
 
 {% include "includes/header.html"  with title="TSS Register" %}
 
@@ -18,14 +19,14 @@
       <a href="/public_lobby/" class="h1" style="font-size: 3.5rem">THOUSAND SUNS SAGA</a>
     </div>
     <div class="card-body">
-      <p class="login-box-msg">Création d'un compte utilisateur.</p>
-      <p class="login-box-msg">Ce compte regroupera tous les personnages que vous incarnerez dans les différents serveurs de jeu.</p>
+      <p class="login-box-msg">{% trans "Création d'un compte utilisateur." %}</p>
+      <p class="login-box-msg">{% trans "Ce compte regroupera tous les personnages que vous incarnerez dans les différents serveurs de jeu." %}</p>
 
 
       <form id="create_user" method="POST">
         {% csrf_token %}
         <div class="input-group mb-3">
-          <input name="username" type="text" class="form-control" placeholder="Pseudonyme">
+          <input name="username" type="text" class="form-control" placeholder="{% trans 'Pseudonyme' %}">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-user"></span>
@@ -33,7 +34,7 @@
           </div>
         </div>
         <div class="input-group mb-3">
-          <input name="email" type="email" class="form-control" placeholder="Email">
+          <input name="email" type="email" class="form-control" placeholder="{% trans 'Email' %}">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-envelope"></span>
@@ -41,7 +42,7 @@
           </div>
         </div>
         <div class="input-group mb-3">
-          <input name="password" type="password" class="form-control" placeholder="Mot de passe">
+          <input name="password" type="password" class="form-control" placeholder="{% trans 'Mot de passe' %}">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
@@ -49,7 +50,7 @@
           </div>
         </div>
         <div class="input-group mb-3">
-          <input type="password" class="form-control" placeholder="Vérification mot de passe">
+          <input type="password" class="form-control" placeholder="{% trans 'Vérification mot de passe' %}">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
@@ -57,7 +58,7 @@
           </div>
         </div>
         <div class="text-center mt-2 mb-3">
-            <button type="submit" class="btn btn-primary btn-block submit">S'inscrire</button>
+            <button type="submit" class="btn btn-primary btn-block submit">{% trans "S'inscrire" %}</button>
         </div>
 
         {% include "includes/form_submit_to_json_api.js" with form="create_user" %}

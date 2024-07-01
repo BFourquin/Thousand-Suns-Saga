@@ -1,5 +1,6 @@
 
 {% load static %}
+{% load i18n %}
 
 <body class="hold-transition sidebar-mini layout-boxed
              {% if user_account.dark_mode %} dark-mode {% endif %}"
@@ -110,35 +111,35 @@
           <li class="nav-item">
             <a href="/admin_main_dashboard/" class="nav-link">
               <i class="fas fa-server nav-icon"></i>
-              <p>Vue générale</p>
+              <p>{% trans "Vue générale" %}</p>
             </a>
           </li>
 
           <li class="nav-item">
             <a href="/admin_user_accounts/" class="nav-link">
               <i class="fas fa-users nav-icon"></i>
-              <p>Comptes</p>
+              <p>{% trans "Comptes" %}</p>
             </a>
           </li>
 
           <li class="nav-item">
             <a href="/admin_servers_states/" class="nav-link">
               <i class="fas fa-microchip nav-icon"></i>
-              <p>Etat Serveurs</p>
+              <p>{% trans "Etat Serveurs" %}</p>
             </a>
           </li>
 
           <li class="nav-item">
             <a href="pages/charts/uplot.html" class="nav-link">
               <i class="fas fa-bug nav-icon"></i>
-              <p>Logs</p>
+              <p>{% trans "Logs" %}</p>
             </a>
           </li>
 
           <li class="nav-item">
             <a href="pages/charts/uplot.html" class="nav-link">
               <i class="fas fa-shield-virus nav-icon"></i>
-              <p>Anti-Cheat</p>
+              <p>{% trans "Anti-Cheat" %}</p>
             </a>
           </li>
 
