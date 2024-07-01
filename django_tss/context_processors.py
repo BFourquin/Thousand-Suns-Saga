@@ -19,7 +19,9 @@ def user_account(request):
 
     user_account = get_user_by_name(str(request.user))
 
-    return {'user_account': user_account} if user_account else {}
+    dark_mode = user_account['dark_mode'] if user_account else True
+
+    return {'user_account': user_account, 'dark_mode': dark_mode} if user_account else {'dark_mode': dark_mode}
 
 
 def localization(request):
