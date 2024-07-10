@@ -100,15 +100,20 @@ def seed_convertor(*seeds):
 
 def info_from_seed(seed):
     """Get back infos from a seed"""
+    seed = str(seed)
     infos = {}
     if len(seed) >= 4:
         infos['server_seed'] = seed[0:4]
     if len(seed) >= 10:
         infos['sector_id'] = seed[0:10]
+    if len(seed) >= 16:
+        infos['system_id'] = seed[0:16]
+
     if len(seed) >= 13:
         infos['pos_y'] = seed[10:13]
     if len(seed) >= 16:
         infos['pos_x'] = seed[13:16]
+
     if len(seed) >= 18:
         infos['pos_orbital'] = seed[16:18]
     return infos

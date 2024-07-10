@@ -1,4 +1,5 @@
 import datetime
+from random import randint
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -8,6 +9,8 @@ from django.dispatch import receiver
 from database.db_connect import databases
 from data import server_details
 from data import starting_values as sv
+from data.user import get_user_by_name
+from backend import utils
 
 
 def valid_commandant_creation(server, user, pseudo,
@@ -18,6 +21,11 @@ def valid_commandant_creation(server, user, pseudo,
     # Server authorize new accounts
     if server['status'] != 'open' and not user['is_superuser']:
         return False, "Ce serveur n'autorise pas de nouveaux joueurs"
+
+    # Server is not full
+    if not sv.get_starting_values(server)['available_native_planets'] :
+        return False, "Ce serveur ne possède plus de places disponibles"
+
 
     # Iterate all commandants in the server
     for commandant in client['commandant'].find_many({}):
@@ -45,32 +53,57 @@ def valid_commandant_creation(server, user, pseudo,
 
 
 
-def api_create_commandant(server, user, pseudo):
+def create_commandant(server, user, commandant_name, civilisation_name):
 
-    client = databases['TSS_' + server]
-    db = client['starting_values']
-    starting_values = sv.get_starting_values(server)
+    try:
 
-    commandant = {
+        client = databases['TSS_' + server]
+        db = client['commandants']
 
-        # Account parameters
-        'server': server,
-        'user_id': user['_id'],
-        'user_name': user['username'],
-        'pseudo': pseudo,
-        'creation_date': datetime.datetime.now(),
+        user = get_user_by_name(user)
+        starting_values = sv.get_starting_values(server)
 
-        # Empire and allegiances
-        'native_faction': starting_values['starting_factions'],
-        'native_planet': starting_values['starting_planets'],
-        'capital': starting_values['starting_capital'],
-        'territories': starting_values['starting_territories'],
-        'resources': starting_values['starting_ressources'],
-        'technologies': starting_values['starting_technologies'],
-        'player_modifiers': starting_values['starting_modifiers'],
-        'owned_ship_designs': [],
+        starting_planet = starting_values['available_native_planets'][randint(0, len(starting_values['available_native_planets'])-1)]
 
-        # Other
-        'tutorial_step': None}
+        commandant = {
 
-    db.insert_one(commandant)
+            # Account parameters
+            'commandant_name': commandant_name,
+            'civilisation_name': civilisation_name,
+            'gender': 'm',  # TODO gender
+
+            'server': server,
+            'status': 'active',
+            'user_id': user['_id'],
+            'user_name': user['username'],
+            'creation_date': datetime.datetime.now(),
+
+            # Starting position
+            'native_entente': None,  # TODO native_faction
+            'native_sector': utils.info_from_seed(starting_planet)['sector_id'],
+            'native_system': utils.info_from_seed(starting_planet)['system_id'],
+            'native_planet': starting_planet,
+
+            # Empire and allegiances
+            'capital': starting_values['starting_capital'],
+            'territories': starting_values['starting_territories'],
+            'resources': starting_values['starting_resources'],
+            'technologies': starting_values['starting_technologies'],
+            'player_modifiers': starting_values['starting_modifiers'],
+            'owned_ship_designs': [],
+            'orientations': {},
+
+            # Other
+            'tutorial_step': None}
+
+
+        print(commandant)
+        db.insert_one(commandant)
+        # TODO
+
+        return 'created'
+
+    except Exception as e:
+        raise e
+    #    return e
+

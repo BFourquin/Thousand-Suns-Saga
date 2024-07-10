@@ -8,7 +8,7 @@ from django.core.validators import validate_email
 from backend.utils import request_params
 from data.user import user_name_exist, create_user_and_user_extend, get_user_by_name, get_user_by_object_id
 from backend.api_ui_interactions import api_pop_up, api_pop_up_and_redirect
-from data import server_details
+from data import server_details, commandant
 
 
 def api_can_join_server(request):
@@ -22,12 +22,16 @@ def api_can_join_server(request):
             return api_pop_up_and_redirect({"title": "Ce serveur n'existe pas", "level": "success"}, status=400, redirect='/servers_list/')
 
     # Check multiaccount
+    #TODO
+
+
 
 
 
 def api_create_commandant(request):
 
     params = request_params(request)
+    user = get_user_by_name(params['user'])
 
     # ##### USERNAME ######
     if not 'commandant_name' in params:
@@ -51,8 +55,13 @@ def api_create_commandant(request):
         return api_pop_up({"title": "Votre nom de civilisation doit faire entre 5 et 40 caractères", "level": "danger"}, status=400)
 
 
-    #create_commandant()
+    feedback = commandant.create_commandant(params['server'], params['user'],
+                                            params['commandant_name'],
+                                            params['civilisation_name'])
 
+
+    if not feedback == 'created':
+        return api_pop_up({"title": str(feedback), "level": "danger"}, status=400)
 
     return api_pop_up_and_redirect({"title": "Compte créé", "level": "success"}, status=302, redirect='/user_account/')
 

@@ -15,6 +15,7 @@ def create_starting_values(server):
         'starting_resources': {},
         'starting_capital': {},
         'starting_territories': {},
+        'starting_ressources': {},
         'starting_modifiers': {},
         'starting_factions': {},
         'starting_technologies': {},
