@@ -25,8 +25,8 @@ def create_user_extend(username):
     extended_table = {'_id': user['_id'],
                       'id': user['_id'],
                       'status': 'active',
-                      'accounts': {},
-                      'dead_accounts': {},
+                      'accounts': [],
+                      'dead_accounts': [],
                       'banned_until': None,
                       'banned_reason': None,
                       }

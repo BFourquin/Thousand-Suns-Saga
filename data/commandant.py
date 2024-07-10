@@ -1,15 +1,11 @@
 import datetime
 from random import randint
-
-from django.db import models
-from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from bson.objectid import ObjectId
 
 from database.db_connect import databases
 from data import server_details
 from data import starting_values as sv
-from data.user import get_user_by_name
+from data.user import get_user_by_name, update_user
 from backend import utils
 
 
@@ -97,9 +93,13 @@ def create_commandant(server, user, commandant_name, civilisation_name):
             'tutorial_step': None}
 
 
-        print(commandant)
         db.insert_one(commandant)
-        # TODO
+
+        # Add commandant reference to user
+        commandant_id = get_commandant_by_name(server, commandant_name)['_id']
+        accounts = user['accounts'].append(commandant_id)
+        update_user(user, 'accounts', accounts)
+
 
         return 'created'
 
@@ -107,3 +107,15 @@ def create_commandant(server, user, commandant_name, civilisation_name):
         raise e
     #    return e
 
+
+
+def get_commandant_by_object_id(server, _id):
+    client = databases['TSS_' + server]
+    db = client['commandants']
+    return db.find_one({'_id': ObjectId(_id)})
+
+
+def get_commandant_by_name(server, name):
+    client = databases['TSS_' + server]
+    db = client['commandants']
+    return db.find_one({'commandant_name': name})
