@@ -31,7 +31,7 @@ def user_account(request):
 
     user = get_user_by_name(str(request.user))  # Get it again in case of parameter changed
 
-    return render(request, 'game/user_account.html', {'user': dict(user)})
+    return render(request, 'game/user_account.html', {'current_user': dict(user)})
 
 
 
