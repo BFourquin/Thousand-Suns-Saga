@@ -96,8 +96,9 @@ def create_commandant(server, user, commandant_name, civilisation_name):
         db.insert_one(commandant)
 
         # Add commandant reference to user
-        commandant_id = get_commandant_by_name(server, commandant_name)['_id']
-        accounts = user['accounts'].append(commandant_id)
+        commandant_id = get_commandant_by_name(commandant_name, server)['_id']
+        accounts = user['accounts']
+        accounts.append(commandant_id)
         update_user(user, 'accounts', accounts)
 
 
@@ -108,14 +109,37 @@ def create_commandant(server, user, commandant_name, civilisation_name):
     #    return e
 
 
-
-def get_commandant_by_object_id(server, _id):
+def get_commandant_by_object_id(_id, server=None):
     client = databases['TSS_' + server]
     db = client['commandants']
     return db.find_one({'_id': ObjectId(_id)})
 
 
-def get_commandant_by_name(server, name):
+def get_commandant_by_name(name, server=None):
     client = databases['TSS_' + server]
     db = client['commandants']
     return db.find_one({'commandant_name': name})
+
+
+def get_commandant_from_any_server(name=None, _id=None):
+
+    from django_tss.settings import DATABASES
+    for db_name in DATABASES.keys():
+        if db_name == 'default':
+            continue
+
+        try:
+            client = databases['TSS_' + db_name]
+            db = client['commandants']
+        except:
+            continue
+
+        if name:
+            result = db.find_one({'commandant_name': name})
+            if result:
+                return result
+
+        if _id:
+            result = db.find_one({'_id': ObjectId(_id)})
+            if result:
+                return result

@@ -11,7 +11,7 @@ import datetime
 
 import data.user
 from backend.utils import request_params, parameters_presents
-from data import server_details, user, technology, sectors, systems, coordinates, map_generator
+from data import server_details, user, commandant, technology, sectors, systems, coordinates, map_generator
 from data.user import get_user_by_name, get_user_by_object_id, update_user
 
 
@@ -24,14 +24,26 @@ def user_account(request):
     if 'language' in params and params['language'] in ('fr', 'en'):
         data.user.update_user(user, 'language', params['language'])
 
-
     if 'dark_mode' in params and params['dark_mode'] in ('true', 'false'):
         darkmode = params['dark_mode'] == 'true'
         data.user.update_user(user, 'dark_mode', darkmode)
 
+    accounts = []
+    for account_id in user['accounts']:
+        account = data.commandant.get_commandant_from_any_server(_id=account_id)
+        if account:
+            accounts.append(account)
+
+    dead_accounts = user['dead_accounts']
+    for account_id in user['dead_accounts']:
+        dead_account = data.commandant.get_commandant_from_any_server(_id=account_id)
+        if dead_account:
+            dead_accounts.append(dead_account)
+
     user = get_user_by_name(str(request.user))  # Get it again in case of parameter changed
 
-    return render(request, 'game/user_account.html', {'current_user': dict(user)})
+    return render(request, 'game/user_account.html', {'current_user': dict(user),
+                                                      'accounts': accounts, 'dead_accounts': dead_accounts})
 
 
 
