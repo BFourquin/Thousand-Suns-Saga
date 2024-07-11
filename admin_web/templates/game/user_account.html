@@ -349,16 +349,16 @@
                     <li class="list-group-item">
                       <b>{% trans "Langue"%}</b>
                       <select name="language" class="form-control float-right" style="max-width: 150px;" onchange="this.form.submit()">
-                            <option value="fr" {% if user.language == 'fr' %} selected="selected" {% endif %}>Français</option>
-                            <option value="en" {% if user.language == 'en' %} selected="selected" {% endif %} >English</option>
+                            <option value="fr" {% if current_user.language == 'fr' %} selected="selected" {% endif %}>Français</option>
+                            <option value="en" {% if current_user.language == 'en' %} selected="selected" {% endif %} >English</option>
                       </select>
                     </li>
 
                     <li class="list-group-item">
                       <b>{% trans "Affichage"%}</b>
                       <select name="dark_mode" class="form-control float-right" style="max-width: 150px;" onchange="this.form.submit()">
-                            <option value="true" {% if user.dark_mode %} selected="selected" {% endif %}>{% trans "Mode sombre"%}</option>
-                            <option value="false" {% if not user.dark_mode %} selected="selected" {% endif %}>{% trans "Mode clair"%}</option>
+                            <option value="true" {% if current_user.dark_mode %} selected="selected" {% endif %}>{% trans "Mode sombre"%}</option>
+                            <option value="false" {% if not current_user.dark_mode %} selected="selected" {% endif %}>{% trans "Mode clair"%}</option>
                       </select>
                     </li>
                   </ul>

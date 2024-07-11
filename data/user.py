@@ -93,9 +93,10 @@ def update_user(user, param, value):
     # Default django user table
     if param in ('last_login', 'is_superuser', 'username', 'first_name', 'last_name',
                  'email', 'is_staff', 'is_active', 'date_joined'):
-        db_user.update_one(user, {"$set": {param: value}})
+        db_user.update_one({"_id": user['_id']}, {"$set": {param: value}})
 
     # Extended user table
     else:
+        print(param, value)
         db_extend.update_one({"_id": user['_id']}, {"$set": {param: value}})
 
