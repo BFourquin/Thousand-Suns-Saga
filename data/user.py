@@ -29,6 +29,10 @@ def create_user_extend(username):
                       'dead_accounts': [],
                       'banned_until': None,
                       'banned_reason': None,
+                      'language': 'En',
+                      'darkmode': True,
+                      'playing_on_server': None,
+                      'playing_on_commandant': None,
                       }
 
     db_extend.insert_one(extended_table)
