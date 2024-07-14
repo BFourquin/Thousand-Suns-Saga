@@ -11,7 +11,7 @@ import datetime
 
 import data.user
 from backend.utils import request_params, parameters_presents
-from data import server_details, user, commandant, technology, sectors, systems, coordinates, map_generator
+from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator
 from data.user import get_user_by_name, get_user_by_object_id, update_user
 
 
@@ -52,8 +52,8 @@ def create_commandant(request):
 
     params = request_params(request)
 
-    if not 'server_name' in params:
-        redirect('servers_list')
+    if not 'server' in params:
+        redirect('/user_account/')
 
     server = server_details.get_server_details(params['server_name'])
 
@@ -63,3 +63,54 @@ def create_commandant(request):
     server['open_since_days'] = (datetime.datetime.now() - server['opening_date']).days
 
     return render(request, 'game/create_commandant.html', {'server': server})
+
+
+
+@login_required(login_url='/player_login/')
+def commandant_login(request):
+
+    params = request_params(request)
+    print(params)
+
+    for param in 'server', 'commandant_id', 'user':
+        if not param in params :
+            redirect('/user_account/')
+
+    user = get_user_by_name(str(request.user))
+    commandant_id = params['commandant_id']
+    server_name = params['server']
+    server = data.server_details.get_server_details('TSS_'+server_name)
+
+    if commandant_id not in user['accounts']:
+
+        # Check if suspicious connection to another player's commandant
+        if data.commandant.get_commandant_by_object_id(server_name, commandant_id):
+            ... # TODO log suspicious use to another player's commandant
+        redirect('/user_account/')
+
+    commandant = data.commandant.get_commandant_by_object_id(server_name, commandant_id)
+    if not commandant:
+        redirect('/user_account/')
+
+    data.user.update_user(user, 'playing_on_server', server_name)
+    data.user.update_user(user, 'playing_on_commandant', commandant_id)
+
+    return redirect('/geography_system/', {'system': commandant['native_system']})
+
+
+"""
+@login_required(login_url='/player_login/')
+def geography_system(request):
+
+    params = request_params(request)
+
+    if not 'system_id' in params or not 'server' in params:
+        redirect('') # TODO redirect to parent sector
+
+    system = systems.get_system_by_seed(server, params['system_id'])
+
+
+    server['open_since_days'] = (datetime.datetime.now() - server['opening_date']).days
+
+    return render(request, 'game/create_commandant.html', {'server': server})
+"""

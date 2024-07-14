@@ -64,6 +64,7 @@ def create_commandant(server, user, commandant_name, civilisation_name):
         commandant = {
 
             # Account parameters
+            'id': None,  # Get it later
             'commandant_name': commandant_name,
             'civilisation_name': civilisation_name,
             'gender': 'm',  # TODO gender
@@ -101,6 +102,7 @@ def create_commandant(server, user, commandant_name, civilisation_name):
         accounts.append(commandant_id)
         update_user(user, 'accounts', accounts)
 
+        update_commandant(server, commandant, '_id', commandant_id)  # Add id field (django template can't read '_id')
 
         return 'created'
 
@@ -109,13 +111,13 @@ def create_commandant(server, user, commandant_name, civilisation_name):
     #    return e
 
 
-def get_commandant_by_object_id(_id, server=None):
+def get_commandant_by_object_id(server, _id):
     client = databases['TSS_' + server]
     db = client['commandants']
     return db.find_one({'_id': ObjectId(_id)})
 
 
-def get_commandant_by_name(name, server=None):
+def get_commandant_by_name(server, name):
     client = databases['TSS_' + server]
     db = client['commandants']
     return db.find_one({'commandant_name': name})
@@ -143,3 +145,11 @@ def get_commandant_from_any_server(name=None, _id=None):
             result = db.find_one({'_id': ObjectId(_id)})
             if result:
                 return result
+
+
+def update_commandant(server, commandant, param, value):
+
+    client = databases['TSS_' + server]
+    db = client['commandants']
+    db.update_one({"_id": commandant['_id']}, {"$set": {param: value}})
+

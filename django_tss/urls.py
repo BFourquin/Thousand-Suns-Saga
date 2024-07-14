@@ -58,11 +58,14 @@ urlpatterns = [
     path('servers_list/', views_public.servers_list, name='servers_list'),
 
 
-    # IN GAME
 
-    path('create_commandant/', views_game.create_commandant, name='create_commandant'),
+    # IN GAME
     path('user_account/', views_game.user_account, name='user_account'),
 
+    path('create_commandant/', views_game.create_commandant, name='create_commandant'),
+    path('commandant_login/', views_game.commandant_login, name='commandant_login'),
+
+    #path('geography_system/', views_game.geography_system, name='geography_system'),
 
 
 
