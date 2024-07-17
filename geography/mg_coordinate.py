@@ -1,5 +1,6 @@
 
 from data import coordinates, statistics
+from geography import name_generator
 
 
 def info_from_seed(seed):
@@ -22,7 +23,7 @@ def create_coordinate(server, seed, coordinate_type, subtype):
                   'sys_y': info_from_seed(seed)[2],
                   'sys_x': info_from_seed(seed)[3],
                   'sys_coordinate': info_from_seed(seed)[4],
-                  'name': str(seed),
+                  'name': name_generator.random_combination(),
                   'fleet_modifiers': [],
                   'colony_modifiers': [],
                   'colonies': []
