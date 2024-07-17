@@ -1,7 +1,6 @@
 
 import random
 
-from data.commandant import get_commandant_by_object_id
 from data.user import get_user_by_name
 
 
@@ -30,6 +29,8 @@ def parameters_presents(params, request_params):
 
 
 def get_active_server_and_commandant_from_request(request):
+    from data.commandant import get_commandant_by_object_id
+
     user = get_user_by_name(str(request.user))
 
     server = user['playing_on_server']

@@ -1,7 +1,10 @@
 
 from bson.objectid import ObjectId
 
-from django.contrib.auth.models import User
+try:
+    from django.contrib.auth.models import User
+except:
+    ...  # Django needed, but won't be available or needed when used from create_new_server.py
 
 from database.db_connect import databases
 
