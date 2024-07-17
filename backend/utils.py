@@ -1,6 +1,9 @@
 
 import random
 
+from data.commandant import get_commandant_by_object_id
+from data.user import get_user_by_name
+
 
 ########################################################################################################################
 # VIEWS FUNCTIONS
@@ -24,6 +27,17 @@ def parameters_presents(params, request_params):
         if not param in request_params:
             return False
     return True
+
+
+def get_active_server_and_commandant_from_request(request):
+    user = get_user_by_name(str(request.user))
+
+    server = user['playing_on_server']
+
+    commandant_id = user['playing_on_commandant']
+    commandant = get_commandant_by_object_id(server, commandant_id)
+    return server, commandant
+
 
 
 ########################################################################################################################

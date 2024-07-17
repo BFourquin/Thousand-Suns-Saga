@@ -12,10 +12,17 @@
   position: absolute;
   z-index: -1;
 }
-@media screen and (max-height: 1000px) {
+@media screen and (max-height: 600px) {
     .menu_bottom_logo {
         display: none;
     }
+}
+
+
+.icon_button {
+  max-width: 40px;
+  max-height: 40px;
+  align-self: last baseline;
 }
 
 

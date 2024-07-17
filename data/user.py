@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 
 from database.db_connect import databases
 
+
 client = databases['TSS_main_server']
 db_user = client['auth_user']
 db_extend = client['auth_user_extended']
