@@ -83,58 +83,33 @@
                 <div class="tab-content">
                   <div class="active tab-pane" id="activity">
 
-                    <div class="row row-cols-{{display_nb_coos_per_rows}}">
+
                     {% for coo in system_coordinates %}
 
-                      <div class="col">
-                          <div class="card">
-                            <!--
-                            <div class="card-header">
-                              <h3 class="card-title">
-                                <i class="fas fa-text-width"></i>
-                                Description
-                              </h3>
-                            </div>
-                            -->
-                            <!-- /.card-header -->
-                            <div class="card-body">
-                              <dl>
-                                <dt><img class=" img-bordered-sm" src='{% static "" %}{{coo.image}}' alt="user image"
-                                    style="width: min(100%, 400px); margin-right: 30px;"></dt>
+                      <!-- Post -->
+                      <div class="post" style=" margin-top:20px; border-bottom: 0px">
+                        <div class="user-block" style="margin-top: 30px;">
+                          <img class=" img-bordered-sm" src='{% static "" %}{{coo.image}}' alt="user image"
+                               style="height: 150px; width: 150px; margin-right: 30px;">
 
-                                <dt>
-                                  <span class="" style="margin-bottom: 10px; font-size: 25px; text-align:center;"><a href="#" >
-                                    <!--<i class="fa-solid fa-arrow-right-to-bracket" style="border: 0.5px solid #4f5962;></i>-->
-                                    {{coo.sys_coordinate}}. {{coo.name}}
-                                  </a></span>
-                                </dt>
+                          <span class="username" style="margin-bottom: 10px;">
+                            <span class="description" style="font-size: 25px;">
+                              <a href="#" >
+                                <!--<i class="fa-solid fa-arrow-right-to-bracket" style="border: 0.5px solid #4f5962;></i>-->
+                                [{{coo.sys_coordinate}}]  {{coo.name}}
 
-                                <dt><span class="description" style="font-size: 20px;">{{coo.type}} {{coo.subtype}}</span></dt>
-
-                                <dt>{% trans "Colonies"%}</dt>
-                                <dd></dd>
-
-                                <dt>{% trans "Flottes"%}</dt>
-                                <dd></dd>
-
-                                <dt>{% trans "Revendications"%}</dt>
-                                <dd></dd>
-
-                                <dt></dt>
-                                <dd></dd>
-
-                                <dt></dt>
-                                <dd></dd>
-
-                              </dl>
-                            </div>
-                            <!-- /.card-body -->
-                          </div>
-                          <!-- /.card -->
+                              </a>
+                            </span>
+                            <span class="description" style="font-size: 25px;">{{coo.type}} {{coo.subtype}}</span>
+                          </span>
+                          <span class="description">{% trans "Colonies :"%} </span>
+                          <span class="description">{% trans "Flottes :"%} </span>
+                          <span class="description">{% trans "Revendications :"%}</span>
+                        </div>
+                        <!-- /.user-block -->
                       </div>
-
+                      <!-- /.post -->
                     {% endfor %}
-                    </div>
 
 
 
