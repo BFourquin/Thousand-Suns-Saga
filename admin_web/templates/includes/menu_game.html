@@ -108,58 +108,104 @@
                with font-awesome or any other icon font library -->
 
 
-          <li class="nav-item">
-            <a href="/admin_main_dashboard/" class="nav-link">
-              <i class="fas fa-server nav-icon"></i>
-              <p>{% trans "Vue générale" %}</p>
+        <li class="nav-item">
+            <a href="" class="nav-link">
+                <i class="fas fa-tv nav-icon"></i>
+                <p>Centre de commande</p>
             </a>
-          </li>
+        </li>
 
-          <li class="nav-item">
-            <a href="/admin_user_accounts/" class="nav-link">
-              <i class="fas fa-users nav-icon"></i>
-              <p>{% trans "Comptes" %}</p>
+        <li class="nav-item">
+            <a href="" class="nav-link">
+                <i class="fas fa-landmark nav-icon"></i>
+                <p>Gouvernement</p>
             </a>
-          </li>
+        </li>
 
-          <li class="nav-item">
-            <a href="/admin_servers_states/" class="nav-link">
-              <i class="fas fa-microchip nav-icon"></i>
-              <p>{% trans "Etat Serveurs" %}</p>
+        <li class="nav-item">
+            <a href="" class="nav-link">
+                <i class="fas fa-tower-cell nav-icon"></i>
+                <p>Diplomatie</p>
             </a>
-          </li>
+        </li>
 
-          <li class="nav-item">
-            <a href="pages/charts/uplot.html" class="nav-link">
-              <i class="fas fa-bug nav-icon"></i>
-              <p>{% trans "Logs" %}</p>
+        <li class="menu-separator">
+
+        <li class="nav-item">
+            <a href="" class="nav-link">
+                <i class="fas fa-coins nav-icon"></i>
+                <p>Economie</p>
             </a>
-          </li>
+        </li>
 
-          <li class="nav-item">
-            <a href="pages/charts/uplot.html" class="nav-link">
-              <i class="fas fa-shield-virus nav-icon"></i>
-              <p>{% trans "Anti-Cheat" %}</p>
+        <li class="nav-item">
+            <a href="" class="nav-link">
+                <i class="fas fa-boxes-stacked nav-icon"></i>
+                <p>Ressources</p>
             </a>
-          </li>
+        </li>
 
-          <li class="nav-header" style="margin-top: 30px;">SERVEURS DE JEU</li>
+        <li class="menu-separator">
 
-          {% for servername in game_servers %}
-            {% include "includes/menu_admin_server.html" with server_name=servername %}
-          {% endfor %}
+        <li class="nav-item">
+            <a href="" class="nav-link">
+                <i class="fas fa-city nav-icon"></i>
+                <p>Colonies</p>
+            </a>
+        </li>
 
-          <li class="nav-header" style="margin-top: 30px;">SERVEURS TEST</li>
+        <li class="nav-item">
+            <a href="" class="nav-link">
+                <i class="fas fa-sun nav-icon"></i>
+                <p>Géographie</p>
+            </a>
+        </li>
 
-          {% for servername in test_servers %}
-            {% include "includes/menu_admin_server.html" with server_name=servername %}
-          {% endfor %}
+        <li class="menu-separator">
 
-          <li class="nav-header" style="margin-top: 30px;">SERVEURS PRECEDENTS</li>
+        <li class="nav-item">
+            <a href="" class="nav-link">
+                <i class="fas fa-space-shuttle nav-icon"></i>
+                <p>Flottes</p>
+            </a>
+        </li>
 
-          {% for servername in old_servers %}
-            {% include "includes/menu_admin_server.html" with server_name=servername %}
-          {% endfor %}
+        <li class="nav-item">
+            <a href="" class="nav-link">
+                <i class="fas fa-user nav-icon"></i>
+                <p>Armées</p>
+            </a>
+        </li>
+
+        <li class="menu-separator">
+
+        <li class="nav-item">
+            <a href="" class="nav-link">
+                <i class="fas fa-flask nav-icon"></i>
+                <p>Technologies</p>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="" class="nav-link">
+                <i class="fas fa-wrench nav-icon"></i>
+                <p>Composants Vaisseaux</p>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="" class="nav-link">
+                <i class="fas fa-drafting-compass nav-icon"></i>
+                <p>Design Vaisseaux</p>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="" class="nav-link">
+                <i class="fas fa-lightbulb nav-icon"></i>
+                <p>Modificateurs</p>
+            </a>
+        </li>
 
         </ul>
       </nav>
