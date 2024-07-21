@@ -128,10 +128,6 @@ def geography_system(request):
 
     nb_rows_display = 1 + (len(system_coordinates)-1)//8
     display_nb_coos_per_rows = len(system_coordinates)//nb_rows_display
-    print(display_nb_coos_per_rows)
-
-
-    print(system_coordinates)
 
 
     return render(request, 'game/geography_system.html', {'server': server, 'system': system,
