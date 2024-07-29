@@ -98,12 +98,15 @@ def create_commandant(server, user, commandant_name, civilisation_name):
 
         # Add commandant reference to user
         commandant_id = get_commandant_by_name(server, commandant_name)['_id']
-        print(commandant_id)
         accounts = user['accounts']
         accounts.append(commandant_id)
         update_user(user, 'accounts', accounts)
 
         update_commandant(server, commandant, 'id', commandant_id)  # Add id field (django template can't read '_id')
+
+        # Add commandant and user references to server_details
+        server_details.add_active_user(server, user['_id'])
+        server_details.add_active_commandant(server, commandant_id)
 
         return 'created'
 
@@ -115,7 +118,6 @@ def create_commandant(server, user, commandant_name, civilisation_name):
 def get_commandant_by_object_id(server, _id):
     client = databases['TSS_' + server]
     db = client['commandants']
-    print(_id)
     return db.find_one({'_id': ObjectId(_id)})
 
 
