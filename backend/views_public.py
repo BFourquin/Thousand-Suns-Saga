@@ -16,8 +16,8 @@ from data import server_details
 
 
 
-def public_lobby(request):
-    return render(request, 'public/public_lobby.html')
+def public_homepage(request):
+    return render(request, 'public/public_homepage.html')
 
 
 

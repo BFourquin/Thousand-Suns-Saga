@@ -48,8 +48,8 @@ urlpatterns = [
 
     # PUBLIC
 
-    path('', views_public.public_lobby, name='public_lobby'),
-    path('public_lobby/', views_public.public_lobby, name='public_lobby'),
+    path('', views_public.public_homepage, name='public_homepage'),
+    path('public_homepage/', views_public.public_homepage, name='public_homepage'),
 
     path('player_login/', views_public.player_login, name='player_login'),
     path('player_register/', views_public.player_register, name='player_register'),
