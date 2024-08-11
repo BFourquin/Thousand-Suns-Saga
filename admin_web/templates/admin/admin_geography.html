@@ -76,10 +76,10 @@
 
             {% if target == "map" %}
 
-              <img src="{% static "images/server_specific/Alpha/map/map.png"%}"
+              <img src="{% static "" %}images/server_specific/{{request.GET.server_name_selected}}/map/map.png"
                              style="height: 100%; padding: 30px;
                              display: block; margin-left: auto; margin-right: auto;">
-              <img src="{% static "images/server_specific/Alpha/map/map_with_sectors.png"%}"
+              <img src="{% static "" %}images/server_specific/{{request.GET.server_name_selected}}/map/map_with_sectors.png"
                              style="height: 100%; padding: 30px;
                              display: block; margin-left: auto; margin-right: auto;">
 
