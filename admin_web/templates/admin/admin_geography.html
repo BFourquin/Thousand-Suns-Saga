@@ -51,6 +51,11 @@
 
         <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
             <li class="nav-item">
+                <a class="nav-link {% if target == "map" %} active{% endif %}"
+                href="/admin_geography/?server_name_selected={{request.GET.server_name_selected}}&target=map" role="tab"><strong>Carte</strong></a>
+            </li>
+
+            <li class="nav-item">
                 <a class="nav-link {% if target == "sectors" %} active{% endif %}"
                 href="/admin_geography/?server_name_selected={{request.GET.server_name_selected}}&target=sectors" role="tab"><strong>Secteurs</strong></a>
             </li>
@@ -68,6 +73,18 @@
 
           <!-- /.card-header -->
           <div class="card-body">
+
+            {% if target == "map" %}
+
+              <img src="{% static "images/server_specific/Alpha/map/map.png"%}"
+                             style="height: 100%; padding: 30px;
+                             display: block; margin-left: auto; margin-right: auto;">
+              <img src="{% static "images/server_specific/Alpha/map/map_with_sectors.png"%}"
+                             style="height: 100%; padding: 30px;
+                             display: block; margin-left: auto; margin-right: auto;">
+
+            {% else %}
+
             <table id="DataTable" class="table table-bordered table-hover">
               <thead>
                   <tr>
@@ -96,6 +113,9 @@
                   </tr>
               </tfoot>
             </table>
+
+          {% endif %}
+
           </div>
           <!-- /.card-body -->
         </div>

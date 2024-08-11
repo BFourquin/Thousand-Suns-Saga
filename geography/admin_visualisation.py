@@ -59,8 +59,8 @@ def display_sectors(server, display_sector_types=True, auto_close_visualisation=
     pygame.display.flip()
 
     # Save as image
-    Path("admin_web\\static\\images\\map\\"+server+'\\map\\').mkdir(parents=True, exist_ok=True)
-    pygame.image.save(screen, "admin_web\\static\\images\\map\\" + server + "\\map.png")
+    Path("admin_web\\static\\images\\server_specific\\"+server+'\\map\\').mkdir(parents=True, exist_ok=True)
+    pygame.image.save(screen, "admin_web\\static\\images\\server_specific\\" + server + "\\map\\map.png")
 
     # Variable to keep our game loop running
     running = True
@@ -91,7 +91,7 @@ def display_sectors(server, display_sector_types=True, auto_close_visualisation=
                 pygame.display.flip()
 
                 # Save as image
-                pygame.image.save(screen, "admin_web\\static\\images\\map\\" + server + "\\map_with_sectors.png")
+                pygame.image.save(screen, "admin_web\\static\\images\\server_specific\\"+server+"\\map\\map_with_sectors.png")
 
                 if auto_close_visualisation:
                     running = False
