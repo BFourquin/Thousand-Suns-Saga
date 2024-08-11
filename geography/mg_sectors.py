@@ -20,7 +20,7 @@ def generate_sector_basic_values(pos_y, pos_x, seed):
     return new_sector
 
 
-def generate_sectors(server):
+def generate_sectors(server, auto_close_visualisation=False):
 
     # Server generation parameters
     mg_params = map_generator.get_map_generator_parameters(server, mg_type='global')
@@ -179,4 +179,5 @@ def generate_sectors(server):
     print("A visualisation window will appear, displaying at first the systems placement, then you can display the sector types on mouse click.")
 
     from geography import admin_visualisation
-    admin_visualisation.display_sectors(server, display_sector_types=False)
+    admin_visualisation.display_sectors(server, display_sector_types=False,
+                                        auto_close_visualisation=auto_close_visualisation)

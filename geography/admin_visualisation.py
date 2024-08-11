@@ -3,47 +3,15 @@ import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 import random
+import time
+from pathlib import Path
 
 from data import map_generator, sectors
+#from settings import
 
 
-def display_sector():
 
-    # Define the background colour
-    # using RGB color coding.
-    background_colour = (0, 0, 0)
-
-    # Define the dimensions of
-    # screen object(width,height)
-    screen = pygame.display.set_mode((800, 800))
-
-    # Fill the background colour to the screen
-    screen.fill(background_colour)
-
-    for _ in range(150):
-        screen.set_at((random.randint(40,760), random.randint(40,760)), (200,200,200))
-
-    # Update the display using flip
-    pygame.display.flip()
-
-    # Variable to keep our game loop running
-    running = True
-
-    # game loop
-    while running:
-
-        # for loop through the event queue
-        for event in pygame.event.get():
-
-            # Check for QUIT event
-            if event.type == pygame.QUIT:
-                running = False
-
-
-#display_sector()
-
-
-def display_sectors(server, display_sector_types=True):
+def display_sectors(server, display_sector_types=True, auto_close_visualisation=False):
 
     # Server generation parameters
     mg_params = map_generator.get_map_generator_parameters(server, mg_type='global')
@@ -90,6 +58,10 @@ def display_sectors(server, display_sector_types=True):
     # Update the display using flip
     pygame.display.flip()
 
+    # Save as image
+    Path("admin_web\\static\\images\\map\\"+server+'\\map\\').mkdir(parents=True, exist_ok=True)
+    pygame.image.save(screen, "admin_web\\static\\images\\map\\" + server + "\\map.png")
+
     # Variable to keep our game loop running
     running = True
 
@@ -100,7 +72,7 @@ def display_sectors(server, display_sector_types=True):
         for event in pygame.event.get():
 
             # On Click : display sectors types
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN or auto_close_visualisation:
                 for y in range(mg_params['nb_sectors_axe_y']):
                     for x in range(mg_params['nb_sectors_axe_x']):
                         selected_sector = sectors.get_sector(server, y, x)
@@ -115,13 +87,22 @@ def display_sectors(server, display_sector_types=True):
                             screen.set_at((w * x + (sx * w) // 100, y * w + (sy * w) // 100),
                                           (star_color, star_color, star_color))
 
-                        # Update the display using flip
-                        pygame.display.flip()
+                # Update the display using flip
+                pygame.display.flip()
+
+                # Save as image
+                pygame.image.save(screen, "admin_web\\static\\images\\map\\" + server + "\\map_with_sectors.png")
+
+                if auto_close_visualisation:
+                    running = False
+                    break
 
             # Check for QUIT event
             if event.type == pygame.QUIT:
                 running = False
 
+        time.sleep(0.5)
+
 
 if __name__ == '__main__':
-    display_sectors('Alpha', display_sector_types=False)
+    display_sectors('Alpha', display_sector_types=False, auto_close_visualisation=True)

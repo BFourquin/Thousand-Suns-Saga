@@ -12,17 +12,6 @@ from geography import map_generator, mg_sectors
 from statistics import stats_geography
 
 
-
-server_name = 'Alpha'
-excel_server_params = '..\\TSS.xlsx'
-
-language = 'international'  # 'fr' / 'en' / 'international'
-roleplay = 'HRP'  # 'RP' / 'HRP'
-
-admin_only_visibility = False
-server_status = 'open'
-
-
 """ SERVER STATUS
 open : users can create an account and play
 close : users can play but not create new accounts
@@ -34,6 +23,20 @@ dead : everything shut down
 """ ADMIN ONLY VISIBILITY
 The game server will be displayed on the public site  
 """
+
+
+server_name = 'Alpha2'
+excel_server_params = '..\\TSS.xlsx'
+
+language = 'international'  # 'fr' / 'en' / 'international'
+roleplay = 'HRP'  # 'RP' / 'HRP'
+
+admin_only_visibility = False
+server_status = 'open'
+
+hide_visualisation = True
+
+
 
 
 # Manual addition in settings database declarations necessary
@@ -79,7 +82,7 @@ map_generator.remove_past_generation(server_name)
 
 map_generator.load_map_generator_parameters(server_name, excel_server_params)
 
-mg_sectors.generate_sectors(server_name)
+mg_sectors.generate_sectors(server_name, hide_visualisation)
 
 # STATISTICS
 
