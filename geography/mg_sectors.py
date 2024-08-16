@@ -28,7 +28,7 @@ def generate_sectors(server, auto_close_visualisation=False):
 
     if str(mg_params['seed'])[0] == '0':
         raise ValueError("The first digit of a seed can't be a 0")
-    random.seed(int(mg_params['seed']))
+    random.seed(int(mg_params['seed']))  # Add secret salt to prevent reproduction by user
 
     # SEED USAGE
     # generator seed + sector x and y position + system x and y position + position in the solar system
@@ -165,16 +165,12 @@ def generate_sectors(server, auto_close_visualisation=False):
             mg_systems_placement.generate_sector_systems(server, sectors.get_sector(server, y, x))
 
     ####################################################################################################################
-    # Visualisation
-
-    #for y in range(mg_params['nb_sectors_axe_y']):
-    #    for x in range(mg_params['nb_sectors_axe_x']):
-    #        print(str(sectors.get_sector(server, y, x)['sector_type'])[:6], ' '*(6-len(str(sectors.get_sector(server, y, x)['sector_type']))), end=' | ')
-    #    print()
-
     # Apply statistics collected into the DB
     statistics.set_statistics_category(server, "map_generation", statistics.mg_stats_buffer)
     statistics.mg_stats_buffer = {}
+
+    ####################################################################################################################
+    # Visualisation
 
     print("A visualisation window will appear, displaying at first the systems placement, then you can display the sector types on mouse click.")
 
