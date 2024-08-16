@@ -14,7 +14,7 @@ server_tables_names = ('commandants', 'starting_values', 'colony', 'buildings', 
 
 def create_table(db_name, table_name, printing=True):
     try:
-        databases[db_name].create_collection(table_name)
+        databases['TSS_'+db_name].create_collection(table_name)
         if printing:
             print('[' + db_name + '] ' + table_name + ' créé.')
     except Exception as e:

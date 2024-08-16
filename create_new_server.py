@@ -3,7 +3,7 @@ import sys
 import random
 from datetime import datetime
 
-from django_tss.settings import DATABASES
+from django_tss.settings import DATABASES, mongodb_settings
 from database import create_tables
 from database.load_technologies import load_technologies
 from database.db_connect import clients
@@ -25,8 +25,8 @@ The game server will be displayed on the public site
 """
 
 
-server_name = 'Alpha2'
-excel_server_params = '..\\TSS.xlsx'
+server_name = 'Alpha_test'
+excel_server_params = 'TSS.xlsx'
 
 language = 'international'  # 'fr' / 'en' / 'international'
 roleplay = 'HRP'  # 'RP' / 'HRP'
@@ -48,19 +48,31 @@ if server_name not in DATABASES:
 
 #
 if server_details.get_server_details(server_name):
-    print("/!\\ "+server_name+" already exist ! Do you want to remove the previous server ? (Y/n)")
-    if server_name == 'Alpha2' or input() in ('Y', 'y'):  # TODO remove condition
-        clients['TSS_' + server_name].drop_database('TSS_' + server_name)
-        server_details.delete_server_details(server_name)
-    else:
-        print('Server creation canceled')
-        sys.exit()
 
+    # Test server, don't care about deleting it
+    if server_name == 'Alpha_test':
+        try:
+            clients['TSS_' + server_name].drop_database('TSS_' + server_name)
+        except KeyError:
+            ...
+        server_details.delete_server_details(server_name)
+
+    else:
+        print("/!\\ "+server_name+" already exist ! Do you want to remove the previous server ? (Y/n)")
+        if input() in ('Y', 'y'):
+            clients['TSS_' + server_name].drop_database('TSS_' + server_name)
+            server_details.delete_server_details(server_name)
+        else:
+            print('Server creation canceled')
+            sys.exit()
+
+
+#db_connect(mongodb_settings('TSS_' + server_name))
 
 
 # SERVER DETAILS
 
-create_tables.create_server_database('TSS_' + server_name)
+create_tables.create_server_database(server_name)
 server_details.create_server(server_name, status=server_status, admin_only_visibility=admin_only_visibility,
                              language=language, roleplay=roleplay)
 
