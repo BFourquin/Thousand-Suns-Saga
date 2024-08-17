@@ -67,6 +67,7 @@ urlpatterns = [
 
     path('geography_system/', views_game.geography_system, name='geography_system'),
 
+    path('reports/', views_game.reports, name='reports'),
 
 
     ####################################################################################################################

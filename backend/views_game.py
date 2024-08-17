@@ -16,6 +16,9 @@ from data import server_details, user, commandant, systems, technology, sectors,
 from data.user import get_user_by_name, get_user_by_object_id, update_user
 
 
+########################################################################################################################
+# PUBLIC AREA
+
 @login_required(login_url='/player_login/')
 def user_account(request):
 
@@ -97,6 +100,70 @@ def commandant_login(request):
     return redirect('/geography_system/', {'system_id': commandant['native_system']})
 
 
+@login_required(login_url='/player_login/')
+def user_account(request):
+
+    user = get_user_by_name(str(request.user))
+    params = request_params(request)
+
+    if 'language' in params and params['language'] in ('fr', 'en'):
+        data.user.update_user(user, 'language', params['language'])
+
+    if 'dark_mode' in params and params['dark_mode'] in ('true', 'false'):
+        darkmode = params['dark_mode'] == 'true'
+        data.user.update_user(user, 'dark_mode', darkmode)
+
+    accounts = []
+    for account_id in user['accounts']:
+        account = data.commandant.get_commandant_from_any_server(_id=account_id)
+        if account:
+            accounts.append(account)
+
+    dead_accounts = user['dead_accounts']
+    for account_id in user['dead_accounts']:
+        dead_account = data.commandant.get_commandant_from_any_server(_id=account_id)
+        if dead_account:
+            dead_accounts.append(dead_account)
+
+    user = get_user_by_name(str(request.user))  # Get it again in case of parameter changed
+
+    return render(request, 'game/user_account.html', {'current_user': dict(user),
+                                                      'accounts': accounts, 'dead_accounts': dead_accounts})
+
+
+########################################################################################################################
+#  IN GAME AREA
+
+
+@login_required(login_url='/player_login/')
+def reports(request):
+
+    params = request_params(request)
+    server, commandant = get_active_server_and_commandant_from_request(request)
+
+    if not server or not commandant:
+        redirect('/user_account/')
+
+    # TODO check if commandant has vision on the system
+
+
+    reports = [{'id': 'id',
+                'datetime': 'now',
+                'report_image': 'images/Aurelia.png',
+
+                'sender': 'Aurelia de Siravedra',
+                'sender_image': 'images/Aurelia.png',
+
+                'title': 'Bienvenue sur Thousand Suns Saga',
+                'message': "La mission de colonisation de ce monde est un succès, mais votre mission ne fait que commencer."
+                           "Un peuple tout entier attend vos ordres pour faire prospérer cette modeste colonie en une véritable civilisation à part entère !",
+
+               }]
+
+
+    return render(request, 'game/reports.html', {'server': server, 'reports': reports})
+
+
 
 @login_required(login_url='/player_login/')
 def geography_system(request):
@@ -106,6 +173,8 @@ def geography_system(request):
 
     if not server or not commandant:
         redirect('/user_account/')
+
+    # TODO check if commandant has vision on the system
 
 
     if 'system_id' in params:
@@ -133,3 +202,4 @@ def geography_system(request):
     return render(request, 'game/geography_system.html', {'server': server, 'system': system,
                                                           'system_coordinates': system_coordinates,
                                                           'display_nb_coos_per_rows': display_nb_coos_per_rows})
+
