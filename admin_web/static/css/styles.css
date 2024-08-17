@@ -36,3 +36,10 @@
     white-space: nowrap;
     overflow: hidden;
 }
+
+
+.span_centering_icon{
+  min-width: 26px;
+  display: inline-block;
+  text-align: center;
+}

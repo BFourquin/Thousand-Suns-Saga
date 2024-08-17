@@ -29,7 +29,7 @@
 
 
       <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-2">
 
           <div class="card">
             <div class="card-header">
@@ -43,65 +43,80 @@
             </div>
             <div class="card-body p-0">
               <ul class="nav nav-pills flex-column">
+
                 <li class="nav-item">
                   <a href="#" class="nav-link">
-                    <i class="fas fa-inbox"></i> {% trans "Tous les rapports"%}
+                    <span class="span_centering_icon"><i class="fas fa-inbox"></i></span>
+                    {% trans "Tous les rapports"%}
                   </a>
                 </li>
+
                 <li class="nav-item">
                   <a href="#" class="nav-link">
-                    <i class="fas fa-file-invoice"></i> {% trans "Bilan de cycle"%}
+                    <span class="span_centering_icon"><i class="fas fa-file-invoice"></i></span>
+                    {% trans "Bilan de cycle"%}
                   </a>
                 </li>
                 <li class="nav-item active">
                   <a href="#" class="nav-link">
-                    <i class="fas fa-jet-fighter"></i> {% trans "Combats spatiaux"%}
+                    <span class="span_centering_icon"><i class="fas fa-jet-fighter"></i></span>
+                    {% trans "Combats spatiaux"%}
                     <span class="badge bg-primary float-right">12</span>
                   </a>
                 </li>
                 <li class="nav-item">
                   <a href="#" class="nav-link">
-                    <i class="fas fa-person-rifle"></i> {% trans "Combats terestres"%}
+                    <span class="span_centering_icon"><i class="fas fa-person-rifle"></i></span>
+                    {% trans "Combats terestres"%}
                   </a>
                 </li>
                 <li class="nav-item">
                   <a href="#" class="nav-link">
-                    <i class="fas  fa-landmark"></i> {% trans "Gouvernement"%}
+                    <span class="span_centering_icon"><i class="fas  fa-landmark"></i></span>
+                    {% trans "Gouvernement"%}
                   </a>
                 </li>
                 <li class="nav-item">
                   <a href="#" class="nav-link">
-                    <i class="fas  fa-tower-cell"></i> {% trans "Diplomatie"%}
+                    <span class="span_centering_icon"><i class="fas  fa-tower-cell"></i></span>
+                    {% trans "Diplomatie"%}
                   </a>
                 </li>
                 <li class="nav-item">
                   <a href="#" class="nav-link">
-                    <i class="fas  fa-coins"></i> {% trans "Economie / Ressources"%}
+                    <span class="span_centering_icon"><i class="fas  fa-coins"></i></span>
+                    {% trans "Economie"%}
+                    <span class="badge bg-primary float-right">12</span>
                   </a>
                 </li>
                 <li class="nav-item">
                   <a href="#" class="nav-link">
-                    <i class="fas  fa-city"></i> {% trans "Colonies"%}
+                    <span class="span_centering_icon"><i class="fas  fa-city"></i></span>
+                    {% trans "Colonies"%}
                   </a>
                 </li>
                 <li class="nav-item">
                   <a href="#" class="nav-link">
-                    <i class="fas  fa-jet-fighter"></i> {% trans "Flottes"%}
+                    <span class="span_centering_icon"><i class="fas  fa-jet-fighter"></i></span>
+                    {% trans "Flottes"%}
                   </a>
                 </li>
                 <li class="nav-item">
                   <a href="#" class="nav-link">
-                    <i class="fas  fa-sun"></i> {% trans "Exploration"%}
+                    <span class="span_centering_icon"><i class="fas  fa-sun"></i></span>
+                    {% trans "Exploration"%}
                   </a>
                 </li>
                 <li class="nav-item">
                   <a href="#" class="nav-link">
-                    <i class="fas  fa-flask"></i> {% trans "Technologies"%}
+                    <span class="span_centering_icon"><i class="fas  fa-flask"></i></span>
+                    {% trans "Technologies"%}
                   </a>
                 </li>
                 <li class="nav-item">
                   <a href="#" class="nav-link">
-                    <i class="fas  fa-file-alt"></i> {% trans "Autres"%}
+                    <span class="span_centering_icon"><i class="fas  fa-file-alt"></i></span>
+                    {% trans "Autres"%}
                   </a>
                 </li>
               </ul>
@@ -124,20 +139,20 @@
               <ul class="nav nav-pills flex-column">
                 <li class="nav-item">
                   <a href="#" class="nav-link">
-                    <i class="fas fa-file"></i>
-                      {% trans "Rapports courants"%}
+                    <span class="span_centering_icon"><i class="fas fa-file"></i></span>
+                    {% trans "Rapports courants"%}
                   </a>
                 </li>
                 <li class="nav-item">
                   <a href="#" class="nav-link">
-                    <i class="fas fa-file-zipper"></i>
-                      {% trans "Rapports archivés"%}
+                    <span class="span_centering_icon"><i class="fas fa-file-zipper"></i></span>
+                    {% trans "Rapports archivés"%}
                   </a>
                 </li>
                 <li class="nav-item">
                   <a href="#" class="nav-link">
-                    <i class="fas fa-copy"></i>
-                     {% trans "Tous les rapports"%}
+                    <span class="span_centering_icon"><i class="fas fa-copy"></i></span>
+                    {% trans "Tous les rapports"%}
                   </a>
                 </li>
               </ul>
@@ -147,14 +162,14 @@
           <!-- /.card -->
 
 
-          <a href="compose.html" class="btn btn-primary btn-block mb-3">{% trans "Marquer comme lu tous les rapports"%}</a>
+          <a href="compose.html" class="btn btn-primary btn-block mb-3">{% trans "Tout marquer comme lu"%}</a>
 
-          <a href="compose.html" class="btn btn-outline-primary btn-block mb-3">{% trans "Télécharger tous les rapports"%}</a>
+          <a href="compose.html" class="btn btn-outline-primary btn-block mb-3">{% trans "Télécharger les rapports"%}</a>
 
 
         </div>
         <!-- /.col -->
-        <div class="col-md-9">
+        <div class="col-md-10">
           <div class="card card-primary card-outline">
             <div class="card-header">
               <h3 class="card-title">Inbox</h3>
