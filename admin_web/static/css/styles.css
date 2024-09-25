@@ -43,3 +43,16 @@
   display: inline-block;
   text-align: center;
 }
+
+.img_without_td_padding{
+  max-width: 3rem;
+  margin-top: -0.99rem;
+  margin-bottom: -0.75rem;
+}
+
+.text-ellipsis{
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: min(650px,35vw);
+}

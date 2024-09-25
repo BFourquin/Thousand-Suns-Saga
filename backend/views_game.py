@@ -147,18 +147,23 @@ def reports(request):
     # TODO check if commandant has vision on the system
 
 
-    reports = [{'id': 'id',
-                'datetime': 'now',
-                'report_image': 'images/Aurelia.png',
+    report =   {'id': 'id',
+                'owner': None,
+                'category': 'other',
+                'category_icon': 'fa-file-alt',
 
-                'sender': 'Aurelia de Siravedra',
-                'sender_image': 'images/Aurelia.png',
+                'datetime': '14/06/2412 11h35',
+
+                'illustration': 'images/Aurelia.png',
 
                 'title': 'Bienvenue sur Thousand Suns Saga',
                 'message': "La mission de colonisation de ce monde est un succès, mais votre mission ne fait que commencer."
                            "Un peuple tout entier attend vos ordres pour faire prospérer cette modeste colonie en une véritable civilisation à part entère !",
 
-               }]
+                'sender': 'Aurelia de Siravedra',
+                'sender_image': 'images/Aurelia.png',
+               }
+    reports = [report, report, report]
 
 
     return render(request, 'game/reports.html', {'server': server, 'reports': reports})
