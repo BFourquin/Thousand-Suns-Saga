@@ -8,13 +8,13 @@ client = databases['TSS_main_server']
 server_tables_names = ('commandants', 'starting_values', 'colony', 'buildings', 'modifiers', 'technologies',
                        'ship_components', 'ship_designs', 'fleets', 'factions', 'coordinates', 'systems', 'sectors',
                        'map_generator', 'mg_sectors', 'mg_systems_types',  'mg_systems_compositions', 'mg_suns', 'mg_planets',
-                       'statistics')
+                       'statistics', 'report')
 
 
 
 def create_table(db_name, table_name, printing=True):
     try:
-        databases['TSS_'+db_name].create_collection(table_name)
+        databases[db_name].create_collection(table_name)
         if printing:
             print('[' + db_name + '] ' + table_name + ' créé.')
     except Exception as e:
