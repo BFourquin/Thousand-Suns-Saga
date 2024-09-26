@@ -89,6 +89,7 @@ def create_commandant(server, user, commandant_name, civilisation_name):
             'player_modifiers': starting_values['starting_modifiers'],
             'owned_ship_designs': [],
             'orientations': {},
+            'reports': [],
 
             # Other
             'tutorial_step': None}

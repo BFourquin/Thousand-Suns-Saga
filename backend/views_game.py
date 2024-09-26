@@ -154,7 +154,7 @@ def reports(request):
 
                 'datetime': '14/06/2412 11h35',
 
-                'illustration': 'images/Aurelia.png',
+                'illustration': 'images/report/command_center.png',
 
                 'title': 'Bienvenue sur Thousand Suns Saga',
                 'message': "La mission de colonisation de ce monde est un succès, mais votre mission ne fait que commencer."
@@ -163,7 +163,7 @@ def reports(request):
                 'sender': 'Aurelia de Siravedra',
                 'sender_image': 'images/Aurelia.png',
                }
-    reports = [report, report, report]
+    reports = [report, report, report, report, report, report, report]
 
 
     return render(request, 'game/reports.html', {'server': server, 'reports': reports})
