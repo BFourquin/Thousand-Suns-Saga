@@ -1,0 +1,60 @@
+
+
+import datetime
+from random import randint
+from bson.objectid import ObjectId
+
+from database.db_connect import databases
+from data.report_generator import generate_report
+from data.commandant import get_commandant_by_object_id, push_param_commandant
+
+
+
+
+def create_report(server, owner_id, report_type, args={}, sender=None, sender_image=None):
+
+    try:
+        client = databases['TSS_' + server]
+        db = client['report']
+
+        report = generate_report(server, owner_id, report_type, args, sender, sender_image)
+
+        result = db.insert_one(report)
+        id = result.inserted_id
+        db.update_one({"_id": id}, {"$set": {'id': id}})  # Add id field (django template can't read '_id')
+
+        # Add to commandant reports list
+        push_param_commandant(server, owner_id, 'reports', id)
+
+
+
+    except Exception as e:
+        # TODO logs wrong reports
+        raise e
+    #    return e
+
+
+def get_report_by_object_id(server, _id):
+    client = databases['TSS_' + server]
+    db = client['report']
+    return db.find_one({'_id': ObjectId(_id)})
+
+
+def get_commandant_reports(server, commandant_id, filter_status=None, filter_category=None):
+
+    client = databases['TSS_' + server]
+    db = client['report']
+
+    reports_id_list = get_commandant_by_object_id(server, commandant_id)['reports']
+    reports_list = db.find({'_id': {'$in': reports_id_list}})
+
+    return list(reports_list)
+
+
+def delete_report(server, commandant, param, value):
+
+    client = databases['TSS_' + server]
+    db = client['commandants']
+    db.update_one({"_id": commandant['_id']}, {"$set": {param: value}})
+
+

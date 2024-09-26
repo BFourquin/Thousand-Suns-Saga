@@ -14,6 +14,7 @@ import data.user
 from backend.utils import request_params, parameters_presents, get_active_server_and_commandant_from_request
 from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator
 from data.user import get_user_by_name, get_user_by_object_id, update_user
+from data.report import get_commandant_reports
 
 
 ########################################################################################################################
@@ -144,9 +145,9 @@ def reports(request):
     if not server or not commandant:
         redirect('/user_account/')
 
-    # TODO check if commandant has vision on the system
+    reports = get_commandant_reports(server, commandant['_id'], filter_status=None, filter_category=None)
 
-
+    # TODO remove display test
     report =   {'id': 'id',
                 'owner': None,
                 'category': 'other',
@@ -156,15 +157,14 @@ def reports(request):
 
                 'illustration': 'images/report/command_center.png',
 
-                'title': 'Bienvenue sur Thousand Suns Saga',
+                'title': 'Colonisation réussie',
                 'message': "La mission de colonisation de ce monde est un succès, mais votre mission ne fait que commencer."
                            "Un peuple tout entier attend vos ordres pour faire prospérer cette modeste colonie en une véritable civilisation à part entère !",
 
                 'sender': 'Aurelia de Siravedra',
                 'sender_image': 'images/Aurelia.png',
                }
-    reports = [report, report, report, report, report, report, report]
-
+    reports.append(report);reports.append(report);reports.append(report);reports.append(report);reports.append(report)
 
     return render(request, 'game/reports.html', {'server': server, 'reports': reports})
 

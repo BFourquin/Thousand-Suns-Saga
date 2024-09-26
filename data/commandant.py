@@ -167,14 +167,14 @@ def push_param_commandant(server, commandant_id, param, value):
 
     client = databases['TSS_' + server]
     db = client['commandants']
-    db.update_one({"_id": commandant_id}, {"push": {param: value}})
+    db.update_one({"_id": commandant_id}, {"$push": {param: value}})
 
 
 def pull_param_commandant(server, commandant_id, param, value):
 
     client = databases['TSS_' + server]
     db = client['commandants']
-    db.update_one({"_id": commandant_id}, {"pull": {param: value}})
+    db.update_one({"_id": commandant_id}, {"$pull": {param: value}})
 
 
 def delete_commandant(server, commandant_id):
@@ -187,8 +187,8 @@ def delete_commandant(server, commandant_id):
     commandant = get_commandant_by_object_id(server, commandant_id)
     user = get_user_by_name(commandant['user_name'])
 
-    pull_param_user(user, 'accounts', commandant_id)  # Remove reference from user table
-    db.delete_one({"_id": commandant_id})
+    pull_param_user(user, 'accounts', ObjectId(commandant_id))  # Remove reference from user table
+    db.delete_one({"_id": ObjectId(commandant_id)})
 
 
 
