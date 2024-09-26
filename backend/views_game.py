@@ -147,8 +147,9 @@ def reports(request):
 
     reports = get_commandant_reports(server, commandant['_id'], filter_status=None, filter_category=None)
 
-    # TODO remove display test
+    # TODO remove graphic test reports <--
     report =   {'id': 'id',
+                'status': 'unread',
                 'owner': None,
                 'category': 'other',
                 'category_icon': 'fa-file-alt',
@@ -164,7 +165,11 @@ def reports(request):
                 'sender': 'Aurelia de Siravedra',
                 'sender_image': 'images/Aurelia.png',
                }
-    reports.append(report);reports.append(report);reports.append(report);reports.append(report);reports.append(report)
+    reports.append(report.copy());reports.append(report.copy())
+    report['status'] = 'read';reports.append(report.copy());reports.append(report.copy())
+    report['status'] = 'archived';reports.append(report.copy());reports.append(report.copy())
+    # TODO remove graphic test reports -->
+
 
     return render(request, 'game/reports.html', {'server': server, 'reports': reports})
 

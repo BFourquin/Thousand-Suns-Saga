@@ -14,7 +14,7 @@ def generate_report(server, owner_id, report_type, args={}, sender=None, sender_
     # Default values for report
     report = {
         'id': None,
-        'status': 'unread',  # 'unread' | 'read' | 'archive'
+        'status': 'unread',  # 'unread' | 'read' | 'archived'
         'owner': owner_id,
         'category': 'other',
         'category_icon': 'fa-file-alt',

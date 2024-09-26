@@ -56,3 +56,11 @@
   white-space: nowrap;
   max-width: min(650px,30vw);
 }
+
+.unread{
+  background-color: rgb(105, 106, 47) !important;
+}
+
+.archived{
+  background-color: rgb(57, 66, 96) !important;
+}
