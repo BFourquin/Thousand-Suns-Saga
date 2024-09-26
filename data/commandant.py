@@ -176,3 +176,22 @@ def pull_param_commandant(server, commandant_id, param, value):
     db = client['commandants']
     db.update_one({"_id": commandant_id}, {"pull": {param: value}})
 
+
+def delete_commandant(server, commandant_id):
+    # /!\ TEST AND ADMIN ACTION ONLY (removal of the commandant and any mention in user account)
+    # Use commandant_death() instead for normal endgame or death of a player
+
+    client = databases['TSS_' + server]
+    db = client['commandants']
+
+    commandant = get_commandant_by_object_id(server, commandant_id)
+    user = get_user_by_name(commandant['user_name'])
+
+    pull_param_user(user, 'accounts', commandant_id)  # Remove reference from user table
+    db.delete_one({"_id": commandant_id})
+
+
+
+if __name__ == '__main__':
+    server = 'Alpha'
+    delete_commandant(server, get_commandant_by_name(server, 'test01')['_id'])
