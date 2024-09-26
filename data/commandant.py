@@ -5,7 +5,7 @@ from bson.objectid import ObjectId
 from database.db_connect import databases
 from data import server_details
 from data import starting_values as sv
-from data.user import get_user_by_name, update_user
+from data.user import get_user_by_name, update_user, pull_param_user
 from backend import utils
 
 
@@ -161,4 +161,18 @@ def update_commandant(server, commandant, param, value):
     client = databases['TSS_' + server]
     db = client['commandants']
     db.update_one({"_id": commandant['_id']}, {"$set": {param: value}})
+
+
+def push_param_commandant(server, commandant_id, param, value):
+
+    client = databases['TSS_' + server]
+    db = client['commandants']
+    db.update_one({"_id": commandant_id}, {"push": {param: value}})
+
+
+def pull_param_commandant(server, commandant_id, param, value):
+
+    client = databases['TSS_' + server]
+    db = client['commandants']
+    db.update_one({"_id": commandant_id}, {"pull": {param: value}})
 
