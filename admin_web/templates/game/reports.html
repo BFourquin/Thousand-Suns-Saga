@@ -226,7 +226,7 @@
                   <tbody>
 
                   {% for report in reports %}
-                    <tr class="{{report.status}}" style="white-space: nowrap;">
+                    <tr class="{{report.status}}{% if dark_mode %}-dark{% endif %}" style="white-space: nowrap;">
                       <td>
                         <div class="icheck-primary">
                           <input type="checkbox" value="selected" id="{{report.id}}">
