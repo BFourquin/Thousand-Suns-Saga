@@ -109,6 +109,10 @@ def create_commandant(server, user, commandant_name, civilisation_name):
         server_details.add_active_user(server, user['_id'])
         server_details.add_active_commandant(server, commandant_id)
 
+        # Welcome and tutorial report
+        from data.report import create_report  # Placed here to prevent circular import
+        create_report(server, commandant_id, 'welcome_on_TSS')
+
         return 'created'
 
     except Exception as e:
