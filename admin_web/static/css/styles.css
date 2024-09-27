@@ -70,3 +70,7 @@
 .archived{
   background-color: rgb(196, 204, 230) !important;
 }
+
+.pointer_cursor {
+    cursor: pointer;
+}

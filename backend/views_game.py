@@ -148,7 +148,7 @@ def reports(request):
     reports = get_commandant_reports(server, commandant['_id'], filter_status=None, filter_category=None)
 
     # TODO remove graphic test reports <--
-    report =   {'id': 'id',
+    report =   {'id': 0,
                 'status': 'unread',
                 'owner': None,
                 'category': 'other',
