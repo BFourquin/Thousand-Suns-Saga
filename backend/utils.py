@@ -8,9 +8,25 @@ from data.user import get_user_by_name
 # VIEWS FUNCTIONS
 
 def request_params(request):
-    # return parameters passed by both GET and POST methods
-    params = request.POST.copy()
-    params.update(request.GET)
+    # Return parameters passed by both GET and POST methods
+    # Adapt request lists parameters into python list
+
+    params = {}
+
+    for key in request.POST:
+        values = request.POST.getlist(key)
+        if len(values) > 1:
+            params[key] = values
+        else:
+            params[key] = values[0]
+
+    for key in request.GET:
+        values = request.GET.getlist(key)
+        if len(values) > 1:
+            params[key] = values
+        else:
+            params[key] = values[0]
+
     return params
 
 
