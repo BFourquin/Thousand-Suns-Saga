@@ -27,287 +27,300 @@
           <!--------------------------------------------------------------------------------------------------------->
           <!-- Corps central -->
 
+      <form id="report-form" method="POST" action="/reports/">
+        {% csrf_token %}
 
-      <div class="row">
-        <div class="col-md-2">
 
-          <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">{% trans "Catégories"%}</h3>
+        <div class="row">
+          <div class="col-md-2">
 
-              <div class="card-tools">
-                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                  <i class="fas fa-minus"></i>
-                </button>
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">{% trans "Catégories"%}</h3>
+
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                </div>
               </div>
-            </div>
-            <div class="card-body p-0">
-              <ul class="nav nav-pills flex-column">
+              <div class="card-body p-0">
+                <ul class="nav nav-pills flex-column">
 
-                <li class="nav-item">
-                  <a href="#" class="nav-link">
-                    <span class="span_centering_icon"><i class="fas fa-inbox"></i></span>
-                    {% trans "Tous les rapports"%}
-                  </a>
-                </li>
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <span class="span_centering_icon"><i class="fas fa-inbox"></i></span>
+                      {% trans "Tous les rapports"%}
+                    </a>
+                  </li>
 
-                <li class="nav-item">
-                  <a href="#" class="nav-link">
-                    <span class="span_centering_icon"><i class="fas fa-file-invoice"></i></span>
-                    {% trans "Bilan de cycle"%}
-                  </a>
-                </li>
-                <li class="nav-item active">
-                  <a href="#" class="nav-link">
-                    <span class="span_centering_icon"><i class="fas fa-jet-fighter"></i></span>
-                    {% trans "Combats spatiaux"%}
-                    <span class="badge bg-primary float-right">12</span>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="#" class="nav-link">
-                    <span class="span_centering_icon"><i class="fas fa-person-rifle"></i></span>
-                    {% trans "Combats terestres"%}
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="#" class="nav-link">
-                    <span class="span_centering_icon"><i class="fas  fa-landmark"></i></span>
-                    {% trans "Gouvernement"%}
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="#" class="nav-link">
-                    <span class="span_centering_icon"><i class="fas  fa-tower-cell"></i></span>
-                    {% trans "Diplomatie"%}
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="#" class="nav-link">
-                    <span class="span_centering_icon"><i class="fas  fa-coins"></i></span>
-                    {% trans "Economie"%}
-                    <span class="badge bg-primary float-right">12</span>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="#" class="nav-link">
-                    <span class="span_centering_icon"><i class="fas  fa-city"></i></span>
-                    {% trans "Colonies"%}
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="#" class="nav-link">
-                    <span class="span_centering_icon"><i class="fas  fa-jet-fighter"></i></span>
-                    {% trans "Flottes"%}
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="#" class="nav-link">
-                    <span class="span_centering_icon"><i class="fas  fa-sun"></i></span>
-                    {% trans "Exploration"%}
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="#" class="nav-link">
-                    <span class="span_centering_icon"><i class="fas  fa-flask"></i></span>
-                    {% trans "Technologies"%}
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="#" class="nav-link">
-                    <span class="span_centering_icon"><i class="fas  fa-file-alt"></i></span>
-                    {% trans "Autres"%}
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <!-- /.card-body -->
-          </div>
-          <!-- /.card -->
-          <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">{% trans "Archives"%}</h3>
-
-              <div class="card-tools">
-                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                  <i class="fas fa-minus"></i>
-                </button>
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <span class="span_centering_icon"><i class="fas fa-file-invoice"></i></span>
+                      {% trans "Bilan de cycle"%}
+                    </a>
+                  </li>
+                  <li class="nav-item active">
+                    <a href="#" class="nav-link">
+                      <span class="span_centering_icon"><i class="fas fa-jet-fighter"></i></span>
+                      {% trans "Combats spatiaux"%}
+                      <span class="badge bg-primary float-right">12</span>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <span class="span_centering_icon"><i class="fas fa-person-rifle"></i></span>
+                      {% trans "Combats terestres"%}
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <span class="span_centering_icon"><i class="fas  fa-landmark"></i></span>
+                      {% trans "Gouvernement"%}
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <span class="span_centering_icon"><i class="fas  fa-tower-cell"></i></span>
+                      {% trans "Diplomatie"%}
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <span class="span_centering_icon"><i class="fas  fa-coins"></i></span>
+                      {% trans "Economie"%}
+                      <span class="badge bg-primary float-right">12</span>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <span class="span_centering_icon"><i class="fas  fa-city"></i></span>
+                      {% trans "Colonies"%}
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <span class="span_centering_icon"><i class="fas  fa-jet-fighter"></i></span>
+                      {% trans "Flottes"%}
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <span class="span_centering_icon"><i class="fas  fa-sun"></i></span>
+                      {% trans "Exploration"%}
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <span class="span_centering_icon"><i class="fas  fa-flask"></i></span>
+                      {% trans "Technologies"%}
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <span class="span_centering_icon"><i class="fas  fa-file-alt"></i></span>
+                      {% trans "Autres"%}
+                    </a>
+                  </li>
+                </ul>
               </div>
+
+              <!-- /.card-body -->
             </div>
-            <div class="card-body p-0">
-              <ul class="nav nav-pills flex-column">
-                <li class="nav-item">
-                  <a href="#" class="nav-link">
-                    <span class="span_centering_icon"><i class="fas fa-file"></i></span>
-                    {% trans "Rapports courants"%}
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="#" class="nav-link">
-                    <span class="span_centering_icon"><i class="fas fa-file-zipper"></i></span>
-                    {% trans "Rapports archivés"%}
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="#" class="nav-link">
-                    <span class="span_centering_icon"><i class="fas fa-copy"></i></span>
-                    {% trans "Tous les rapports"%}
-                  </a>
-                </li>
-              </ul>
+            <!-- /.card -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">{% trans "Archives"%}</h3>
+
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <ul class="nav nav-pills flex-column">
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <span class="span_centering_icon"><i class="fas fa-file"></i></span>
+                      {% trans "Rapports courants"%}
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <span class="span_centering_icon"><i class="fas fa-file-zipper"></i></span>
+                      {% trans "Rapports archivés"%}
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#" class="nav-link">
+                      <span class="span_centering_icon"><i class="fas fa-copy"></i></span>
+                      {% trans "Tous les rapports"%}
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <!-- /.card-body -->
             </div>
-            <!-- /.card-body -->
+            <!-- /.card -->
+
+
+            <a href="compose.html" class="btn btn-primary btn-block mb-3">{% trans "Tout marquer comme lu"%}</a>
+
+            <a href="compose.html" class="btn btn-outline-primary btn-block mb-3">{% trans "Télécharger les rapports"%}</a>
+
+
           </div>
-          <!-- /.card -->
+          <!-- /.col -->
+          <div class="col-md-10">
+            <div class="card card-primary card-outline">
+              <div class="card-header">
+                <h3 class="card-title">{% trans "Rapports"%}</h3>
 
-
-          <a href="compose.html" class="btn btn-primary btn-block mb-3">{% trans "Tout marquer comme lu"%}</a>
-
-          <a href="compose.html" class="btn btn-outline-primary btn-block mb-3">{% trans "Télécharger les rapports"%}</a>
-
-
-        </div>
-        <!-- /.col -->
-        <div class="col-md-10">
-          <div class="card card-primary card-outline">
-            <div class="card-header">
-              <h3 class="card-title">{% trans "Rapports"%}</h3>
-
-              <div class="card-tools">
-                <div class="input-group input-group-sm">
-                  <input type="text" class="form-control" placeholder="{% trans "Recherche"%}">
-                  <div class="input-group-append">
-                    <div class="btn btn-primary">
-                      <i class="fas fa-search"></i>
+                <div class="card-tools">
+                  <div class="input-group input-group-sm">
+                    <input type="text" class="form-control" placeholder="{% trans "Recherche"%}">
+                    <div class="input-group-append">
+                      <div class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                      </div>
                     </div>
                   </div>
                 </div>
+                <!-- /.card-tools -->
               </div>
-              <!-- /.card-tools -->
-            </div>
-            <!-- /.card-header -->
-            <div class="card-body p-0">
-              <div class="mailbox-controls">
-                <!-- Check all button -->
-                <button type="button" class="btn btn-default btn-sm checkbox-toggle"><i class="far fa-square"></i>
-                </button>
-                <div class="btn-group">
-                  <button type="button" class="btn btn-default btn-sm">
+              <!-- /.card-header -->
+              <div class="card-body p-0">
+                <div class="mailbox-controls">
+                  <!-- Check all button -->
+                  <button type="button" class="btn btn-default btn-sm checkbox-toggle"><i class="far fa-square"></i>
+                  </button>
+
+                  <!-- Delete button -->
+                  <button type="submit" name="action" value="delete" class="btn btn-default btn-sm btn-delete">
                     <i class="far fa-trash-alt"></i>
                   </button>
+
+                  <div class="btn-group">
+
+                    <!-- Read button -->
+                    <button type="button" class="btn btn-default btn-sm">
+                      <i class="fas fa-reply"></i>
+                    </button>
+
+                    <!-- Unread button -->
+                    <button type="button" class="btn btn-default btn-sm">
+                      <i class="fas fa-share"></i>
+                    </button>
+                  </div>
+
+                  <!-- Archive button -->
                   <button type="button" class="btn btn-default btn-sm">
-                    <i class="fas fa-reply"></i>
+                    <i class="fas fa-sync-alt"></i>
                   </button>
-                  <button type="button" class="btn btn-default btn-sm">
-                    <i class="fas fa-share"></i>
-                  </button>
+
+                  <div class="float-right">
+                    1-50/200
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-default btn-sm">
+                        <i class="fas fa-chevron-left"></i>
+                      </button>
+                      <button type="button" class="btn btn-default btn-sm">
+                        <i class="fas fa-chevron-right"></i>
+                      </button>
+                    </div>
+                    <!-- /.btn-group -->
+                  </div>
+                  <!-- /.float-right -->
                 </div>
-                <!-- /.btn-group -->
-                <button type="button" class="btn btn-default btn-sm">
-                  <i class="fas fa-sync-alt"></i>
-                </button>
-                <div class="float-right">
-                  1-50/200
+                <div class="table-responsive mailbox-messages" style="padding-bottom: 5px;">
+                  <table class="table table-hover table-striped">
+                    <tbody>
+
+                    {% for report in reports %}
+
+                      <tr class="{{report.status}}{% if dark_mode %}-dark{% endif %}" style="white-space: nowrap;">
+                        <td>
+                          <div class="icheck-primary">
+                            <input type="checkbox" name="reports[]" value="{{report.id}}" id="{{report.id}}">
+                            <label for="{{report.id}}"></label>
+                          </div>
+                        </td>
+
+                        <td class="mailbox-attachment"><i class="fas {{report.category_icon}}"></i></td>
+                        <td class="mailbox-date">{{report.datetime}}</td>
+
+
+                        <td class="mailbox-date pointer_cursor" onclick="window.location='report/$id={{report.id}}';">
+                          <img class="img_without_td_padding" src="{% static ""%}{{report.illustration}}" style=""></td>
+
+                        {% if not report.sender %}  <!-- No originating commandant mentioned, take all remaining place-->
+                          <td class="mailbox-subject text-ellipsis pointer_cursor" colspan="3" onclick="window.location='report/$id={{report.id}}';">
+                            <b>{{report.title}}</b> - {{report.message}}></td>
+
+                        {% else %} <!-- Let place for the reference of commandant originating the report-->
+                          <td class="mailbox-subject text-ellipsis"><b>{{report.title}}</b> - {{report.message}}></td>
+
+                          <td class="mailbox-name"><a href='/commandant_info/?pseudo="{{report.sender}}"'>{{report.sender}}</a></td>
+                          <td class="mailbox-date" style="padding-right: 0px;"><a href='/commandant_info/?pseudo="{{report.sender}}"'>
+                            <img class="img_without_td_padding" src="{% static ""%}{{report.sender_image}}" style=""></a></td>
+                        {% endif %}
+
+                      </tr>
+                    {% endfor %}
+
+
+                    </tbody>
+                  </table>
+                  <!-- /.table -->
+                </div>
+                <!-- /.mail-box-messages -->
+              </div>
+              <!-- /.card-body -->
+              <div class="card-footer p-0">
+                <div class="mailbox-controls">
+                  <!-- Check all button -->
+                  <button type="button" class="btn btn-default btn-sm checkbox-toggle">
+                    <i class="far fa-square"></i>
+                  </button>
                   <div class="btn-group">
                     <button type="button" class="btn btn-default btn-sm">
-                      <i class="fas fa-chevron-left"></i>
+                      <i class="far fa-trash-alt"></i>
                     </button>
                     <button type="button" class="btn btn-default btn-sm">
-                      <i class="fas fa-chevron-right"></i>
+                      <i class="fas fa-reply"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-sm">
+                      <i class="fas fa-share"></i>
                     </button>
                   </div>
                   <!-- /.btn-group -->
-                </div>
-                <!-- /.float-right -->
-              </div>
-              <div class="table-responsive mailbox-messages" style="padding-bottom: 5px;">
-                <table class="table table-hover table-striped">
-                  <tbody>
-
-                  {% for report in reports %}
-
-                    <tr class="{{report.status}}{% if dark_mode %}-dark{% endif %}" style="white-space: nowrap;">
-                      <td>
-                        <div class="icheck-primary">
-                          <input type="checkbox" value="selected" id="{{report.id}}">
-                          <label for="{{report.id}}"></label>
-                        </div>
-                      </td>
-
-                      <td class="mailbox-attachment"><i class="fas {{report.category_icon}}"></i></td>
-                      <td class="mailbox-date">{{report.datetime}}</td>
-
-
-                      <td class="mailbox-date pointer_cursor" onclick="window.location='report/$id={{report.id}}';">
-                        <img class="img_without_td_padding" src="{% static ""%}{{report.illustration}}" style=""></td>
-
-                      {% if not report.sender %}  <!-- No originating commandant mentioned, take all remaining place-->
-                        <td class="mailbox-subject text-ellipsis pointer_cursor" colspan="3" onclick="window.location='report/$id={{report.id}}';">
-                          <b>{{report.title}}</b> - {{report.message}}></td>
-
-                      {% else %} <!-- Let place for the reference of commandant originating the report-->
-                        <td class="mailbox-subject text-ellipsis"><b>{{report.title}}</b> - {{report.message}}></td>
-
-                        <td class="mailbox-name"><a href='/commandant_info/?pseudo="{{report.sender}}"'>{{report.sender}}</a></td>
-                        <td class="mailbox-date" style="padding-right: 0px;"><a href='/commandant_info/?pseudo="{{report.sender}}"'>
-                          <img class="img_without_td_padding" src="{% static ""%}{{report.sender_image}}" style=""></a></td>
-                      {% endif %}
-
-                    </tr>
-                  {% endfor %}
-
-
-                  </tbody>
-                </table>
-                <!-- /.table -->
-              </div>
-              <!-- /.mail-box-messages -->
-            </div>
-            <!-- /.card-body -->
-            <div class="card-footer p-0">
-              <div class="mailbox-controls">
-                <!-- Check all button -->
-                <button type="button" class="btn btn-default btn-sm checkbox-toggle">
-                  <i class="far fa-square"></i>
-                </button>
-                <div class="btn-group">
                   <button type="button" class="btn btn-default btn-sm">
-                    <i class="far fa-trash-alt"></i>
+                    <i class="fas fa-sync-alt"></i>
                   </button>
-                  <button type="button" class="btn btn-default btn-sm">
-                    <i class="fas fa-reply"></i>
-                  </button>
-                  <button type="button" class="btn btn-default btn-sm">
-                    <i class="fas fa-share"></i>
-                  </button>
-                </div>
-                <!-- /.btn-group -->
-                <button type="button" class="btn btn-default btn-sm">
-                  <i class="fas fa-sync-alt"></i>
-                </button>
-                <div class="float-right">
-                  1-50/200
-                  <div class="btn-group">
-                    <button type="button" class="btn btn-default btn-sm">
-                      <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <button type="button" class="btn btn-default btn-sm">
-                      <i class="fas fa-chevron-right"></i>
-                    </button>
+                  <div class="float-right">
+                    1-50/200
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-default btn-sm">
+                        <i class="fas fa-chevron-left"></i>
+                      </button>
+                      <button type="button" class="btn btn-default btn-sm">
+                        <i class="fas fa-chevron-right"></i>
+                      </button>
+                    </div>
+                    <!-- /.btn-group -->
                   </div>
-                  <!-- /.btn-group -->
+                  <!-- /.float-right -->
                 </div>
-                <!-- /.float-right -->
               </div>
             </div>
+            <!-- /.card -->
           </div>
-          <!-- /.card -->
+          <!-- /.col -->
         </div>
-        <!-- /.col -->
-      </div>
-      <!-- /.row -->
+        <!-- /.row -->
 
+      </form>
 
     </section>
     <!-- /.content -->
@@ -345,6 +358,8 @@
       }
     })
   })
+
+
 </script>
 
 </body>

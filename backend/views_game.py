@@ -14,7 +14,7 @@ import data.user
 from backend.utils import request_params, parameters_presents, get_active_server_and_commandant_from_request
 from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator
 from data.user import get_user_by_name, get_user_by_object_id, update_user
-from data.report import get_commandant_reports
+from data.report import get_commandant_reports, delete_report
 
 
 ########################################################################################################################
@@ -145,10 +145,24 @@ def reports(request):
     if not server or not commandant:
         redirect('/user_account/')
 
+
+    if 'action' in params:
+        if isinstance(params['reports[]'], str):  # Only one report selected instead of list : convert to list
+            params['reports[]'] = [params['reports[]']]
+
+        for report_id in params['reports[]']:
+            try:
+                # Delete button
+                if params['action'] == 'delete':
+                    delete_report(server, report_id)
+
+            except TypeError:  # Report not existing (already deleted):
+                continue
+
     reports = get_commandant_reports(server, commandant['_id'], filter_status=None, filter_category=None)
 
     # TODO remove graphic test reports <--
-    report =   {'id': 0,
+    report =   {'id': '66f5689febe0ed0d929f3ca1',
                 'status': 'unread',
                 'owner': None,
                 'category': 'other',

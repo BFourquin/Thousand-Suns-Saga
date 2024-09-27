@@ -6,7 +6,7 @@ from bson.objectid import ObjectId
 
 from database.db_connect import databases
 from data.report_generator import generate_report
-from data.commandant import get_commandant_by_object_id, push_param_commandant
+from data.commandant import get_commandant_by_object_id, push_param_commandant, pull_param_commandant
 
 
 
@@ -51,10 +51,17 @@ def get_commandant_reports(server, commandant_id, filter_status=None, filter_cat
     return list(reports_list)
 
 
-def delete_report(server, commandant, param, value):
+def delete_report(server, report_id):
 
     client = databases['TSS_' + server]
-    db = client['commandants']
-    db.update_one({"_id": commandant['_id']}, {"$set": {param: value}})
+    db = client['report']
+
+    report = get_report_by_object_id(server, report_id)
+
+    # Remove reference from the owning commandant's reports list
+    commandant_id = report['owner']
+    pull_param_commandant(server, commandant_id, 'reports', report_id)
+
+    db.delete_one({"_id": ObjectId(report_id)})
 
 
