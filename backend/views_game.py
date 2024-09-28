@@ -165,6 +165,14 @@ def reports(request):
                 if params['action'] == 'unread':
                     change_report_status(server, report_id, 'unread')
 
+                # Archive button
+                if params['action'] == 'archive':
+                    print(report_id)
+                    change_report_status(server, report_id, 'archived')
+                # Unarchive button
+                if params['action'] == 'unarchive':
+                    change_report_status(server, report_id, 'read')
+
             except TypeError:  # Report not existing (already deleted):
                 continue
 
