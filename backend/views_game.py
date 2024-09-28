@@ -14,7 +14,7 @@ import data.user
 from backend.utils import request_params, parameters_presents, get_active_server_and_commandant_from_request
 from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator
 from data.user import get_user_by_name, get_user_by_object_id, update_user
-from data.report import get_commandant_reports, delete_report
+from data.report import get_commandant_reports, delete_report, change_report_status
 
 
 ########################################################################################################################
@@ -145,6 +145,7 @@ def reports(request):
     if not server or not commandant:
         redirect('/user_account/')
 
+    print(params)
 
     if 'action' in params:
         if isinstance(params['reports[]'], str):  # Only one report selected instead of list : convert to list
@@ -155,6 +156,14 @@ def reports(request):
                 # Delete button
                 if params['action'] == 'delete':
                     delete_report(server, report_id)
+
+                # Read button
+                if params['action'] == 'read':
+                    print(report_id)
+                    change_report_status(server, report_id, 'read')
+                # Unread button
+                if params['action'] == 'unread':
+                    change_report_status(server, report_id, 'unread')
 
             except TypeError:  # Report not existing (already deleted):
                 continue

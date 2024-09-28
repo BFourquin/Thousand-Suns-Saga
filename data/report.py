@@ -51,6 +51,13 @@ def get_commandant_reports(server, commandant_id, filter_status=None, filter_cat
     return list(reports_list)
 
 
+
+def change_report_status(server, report_id, status):
+    client = databases['TSS_' + server]
+    db = client['report']
+    db.update_one({"_id": ObjectId(report_id)}, {"$set": {'status': status}})
+
+
 def delete_report(server, report_id):
 
     client = databases['TSS_' + server]
