@@ -286,24 +286,38 @@
               <div class="card-footer p-0">
                 <div class="mailbox-controls">
                   <!-- Check all button -->
-                  <button type="button" class="btn btn-default btn-sm checkbox-toggle">
-                    <i class="far fa-square"></i>
+                  <button type="button" class="btn btn-default btn-sm checkbox-toggle"><i class="far fa-square"></i>
                   </button>
+
+                  <!-- Delete button -->
+                  <button type="submit" name="action" value="delete" class="btn btn-default btn-sm">
+                    <i class="far fa-trash-alt"></i>
+                  </button>
+
                   <div class="btn-group">
-                    <button type="button" class="btn btn-default btn-sm">
-                      <i class="far fa-trash-alt"></i>
+
+                    <!-- Read button -->
+                    <button type="submit" name="action" value="read" class="btn btn-default btn-sm">
+                      <i class="fas fa-envelope-open-text"></i>
                     </button>
-                    <button type="button" class="btn btn-default btn-sm">
-                      <i class="fas fa-reply"></i>
-                    </button>
-                    <button type="button" class="btn btn-default btn-sm">
-                      <i class="fas fa-share"></i>
+
+                    <!-- Unread button -->
+                    <button type="submit" name="action" value="unread" class="btn btn-default btn-sm">
+                      <i class="fas fa-envelope"></i>
                     </button>
                   </div>
-                  <!-- /.btn-group -->
-                  <button type="button" class="btn btn-default btn-sm">
-                    <i class="fas fa-sync-alt"></i>
-                  </button>
+
+                  <div class="btn-group">
+                    <!-- Archive button -->
+                    <button type="submit" name="action" value="archive" class="btn btn-default btn-sm">
+                      <i class="fas fa-file-zipper"></i>
+                    </button>
+                    <!-- Unrchive button -->
+                    <button type="submit" name="action" value="unarchive" class="btn btn-default btn-sm">
+                      <i class="fas fa-file"></i>
+                    </button>
+                  </div>
+
                   <div class="float-right">
                     1-50/200
                     <div class="btn-group">
