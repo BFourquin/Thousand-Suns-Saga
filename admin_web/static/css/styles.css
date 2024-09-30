@@ -74,3 +74,8 @@
 .pointer_cursor {
     cursor: pointer;
 }
+
+.report_count{
+  padding-top: 0.25em;
+  margin-top: 0.25rem;
+}

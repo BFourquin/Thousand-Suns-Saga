@@ -51,6 +51,9 @@
                     <a href="#" class="nav-link">
                       <span class="span_centering_icon"><i class="fas fa-inbox"></i></span>
                       {% trans "Tous les rapports"%}
+                      {% if nb_unread_reports.all %}
+                        <span class="report_count badge bg-primary float-right">{{nb_unread_reports.all}}</span>
+                      {% endif %}
                     </a>
                   </li>
 
@@ -58,25 +61,36 @@
                     <a href="#" class="nav-link">
                       <span class="span_centering_icon"><i class="fas fa-file-invoice"></i></span>
                       {% trans "Bilan de cycle"%}
+                      {% if nb_unread_reports.cycle_summary %}
+                        <span class="report_count badge bg-primary float-right">{{nb_unread_reports.cycle_summary}}</span>
+                      {% endif %}
                     </a>
                   </li>
                   <li class="nav-item active">
                     <a href="#" class="nav-link">
                       <span class="span_centering_icon"><i class="fas fa-jet-fighter"></i></span>
                       {% trans "Combats spatiaux"%}
-                      <span class="badge bg-primary float-right">12</span>
+                      {% if nb_unread_reports.space_combat %}
+                        <span class="report_count badge bg-primary float-right">{{nb_unread_reports.space_combat}}</span>
+                      {% endif %}
                     </a>
                   </li>
                   <li class="nav-item">
                     <a href="#" class="nav-link">
                       <span class="span_centering_icon"><i class="fas fa-person-rifle"></i></span>
                       {% trans "Combats terestres"%}
+                      {% if nb_unread_reports.land_combat %}
+                        <span class="report_count badge bg-primary float-right">{{nb_unread_reports.land_combat}}</span>
+                      {% endif %}
                     </a>
                   </li>
                   <li class="nav-item">
                     <a href="#" class="nav-link">
                       <span class="span_centering_icon"><i class="fas  fa-landmark"></i></span>
                       {% trans "Gouvernement"%}
+                      {% if nb_unread_reports.government %}
+                        <span class="report_count badge bg-primary float-right">{{nb_unread_reports.government}}</span>
+                      {% endif %}
                     </a>
                   </li>
                   <li class="nav-item">
@@ -84,42 +98,62 @@
                       <span class="span_centering_icon"><i class="fas  fa-tower-cell"></i></span>
                       {% trans "Diplomatie"%}
                     </a>
+                    {% if nb_unread_reports.diplomacy %}
+                        <span class="report_count badge bg-primary float-right">{{nb_unread_reports.diplomacy}}</span>
+                      {% endif %}
                   </li>
                   <li class="nav-item">
                     <a href="#" class="nav-link">
                       <span class="span_centering_icon"><i class="fas  fa-coins"></i></span>
                       {% trans "Economie"%}
-                      <span class="badge bg-primary float-right">12</span>
+                      {% if nb_unread_reports.economy %}
+                        <span class="report_count badge bg-primary float-right">{{nb_unread_reports.economy}}</span>
+                      {% endif %}
                     </a>
                   </li>
                   <li class="nav-item">
                     <a href="#" class="nav-link">
                       <span class="span_centering_icon"><i class="fas  fa-city"></i></span>
                       {% trans "Colonies"%}
+                      {% if nb_unread_reports.colony %}
+                        <span class="report_count badge bg-primary float-right">{{nb_unread_reports.colony}}</span>
+                      {% endif %}
                     </a>
                   </li>
                   <li class="nav-item">
                     <a href="#" class="nav-link">
                       <span class="span_centering_icon"><i class="fas  fa-jet-fighter"></i></span>
                       {% trans "Flottes"%}
+                      {% if nb_unread_reports.fleets %}
+                        <span class="report_count badge bg-primary float-right">{{nb_unread_reports.fleets}}</span>
+                      {% endif %}
                     </a>
                   </li>
                   <li class="nav-item">
                     <a href="#" class="nav-link">
                       <span class="span_centering_icon"><i class="fas  fa-sun"></i></span>
                       {% trans "Exploration"%}
+                      {% if nb_unread_reports.exploration %}
+                        <span class="report_count badge bg-primary float-right">{{nb_unread_reports.exploration}}</span>
+                      {% endif %}
                     </a>
                   </li>
                   <li class="nav-item">
                     <a href="#" class="nav-link">
                       <span class="span_centering_icon"><i class="fas  fa-flask"></i></span>
                       {% trans "Technologies"%}
+                      {% if nb_unread_reports.technologies %}
+                        <span class="report_count badge bg-primary float-right">{{nb_unread_reports.technologies}}</span>
+                      {% endif %}
                     </a>
                   </li>
                   <li class="nav-item">
                     <a href="#" class="nav-link">
                       <span class="span_centering_icon"><i class="fas  fa-file-alt"></i></span>
                       {% trans "Autres"%}
+                      {% if nb_unread_reports.other %}
+                        <span class="report_count badge bg-primary float-right">{{nb_unread_reports.other}}</span>
+                      {% endif %}
                     </a>
                   </li>
                 </ul>

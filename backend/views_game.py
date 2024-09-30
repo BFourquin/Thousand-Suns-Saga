@@ -145,8 +145,6 @@ def reports(request):
     if not server or not commandant:
         redirect('/user_account/')
 
-    print(params)
-
     if 'action' in params:
         if isinstance(params['reports[]'], str):  # Only one report selected instead of list : convert to list
             params['reports[]'] = [params['reports[]']]
@@ -176,7 +174,7 @@ def reports(request):
             except TypeError:  # Report not existing (already deleted):
                 continue
 
-    reports = get_commandant_reports(server, commandant['_id'], filter_status=None, filter_category=None)
+    reports, nb_unread_reports = get_commandant_reports(server, commandant['_id'], filter_status=None, filter_category=None)
 
     # TODO remove graphic test reports <--
     report =   {'id': '66f5689febe0ed0d929f3ca1',
@@ -202,7 +200,9 @@ def reports(request):
     # TODO remove graphic test reports -->
 
 
-    return render(request, 'game/reports.html', {'server': server, 'reports': reports})
+
+    return render(request, 'game/reports.html', {'server': server, 'reports': reports,
+                                                 'nb_unread_reports': nb_unread_reports})
 
 
 

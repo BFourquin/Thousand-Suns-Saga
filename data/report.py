@@ -48,7 +48,9 @@ def get_commandant_reports(server, commandant_id, filter_status=None, filter_cat
     reports_id_list = get_commandant_by_object_id(server, commandant_id)['reports']
     reports_list = db.find({'_id': {'$in': reports_id_list}})
 
-    return list(reports_list)
+    unread_reports_count = unread_reports_counting(server, commandant_id, reports_list)
+
+    return list(reports_list), unread_reports_count
 
 
 
@@ -70,5 +72,34 @@ def delete_report(server, report_id):
     pull_param_commandant(server, commandant_id, 'reports', report_id)
 
     db.delete_one({"_id": ObjectId(report_id)})
+
+
+########################################################################################################################
+#
+
+def unread_reports_counting(server, owner_id, reports_list=None):
+    # Return a dict of the number of unread reports by category
+    # nb_unread_reports = {'all': 5, 'space_combat: 2, ...}
+
+    # Get reports_list from parameter if possible, preventing duplicate big db query
+    if reports_list is None:
+        reports_list = get_commandant_reports(server, owner_id)
+
+    nb_unread_reports = {'all': 0}
+    for report in reports_list:
+        if report['status'] == 'unread':
+
+            # All categories
+            nb_unread_reports['all'] += 1
+
+            # Specific category
+            if report['category'] in nb_unread_reports:
+                nb_unread_reports['category'] += 1
+            else:
+                nb_unread_reports['category'] = 1
+
+    print(nb_unread_reports)
+
+    return nb_unread_reports
 
 
