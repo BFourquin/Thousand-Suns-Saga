@@ -18,6 +18,8 @@
 
 ## Work in progress, estimated ~2026
 
+<< [Screenshots of the pre-alpha](SCREENSHOTS.md) >>
+
 
 ***
 ***
