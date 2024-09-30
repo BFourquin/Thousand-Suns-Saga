@@ -86,7 +86,12 @@
                     <div class="float-right">
                       <button type="submit" name="action" value="delete" class="btn btn-default"><i class="far fa-trash-alt"></i> {% trans "Supprimer"%}</button>
                     </div>
-                    <button type="submit" name="action" value="archive" class="btn btn-default"><i class="fas fa-file-zipper"></i> {% trans "Archiver"%}</button>
+                    {% if report.status != "archived" %}
+                      <button type="submit" name="action" value="archive" class="btn btn-default"><i class="fas fa-file-zipper"></i> {% trans "Archiver"%}</button>
+                    {% else %}
+                      <button type="submit" name="action" value="unarchive" class="btn btn-default"><i class="fas fa-file-zipper"></i> {% trans "Désarchiver"%}</button>
+                    {% endif %}
+
                     <button type="submit" name="action" value="unread" class="btn btn-default"><i class="fas fa-envelope"></i> {% trans "Marquer comme non-lu"%}</button>
 
                   </form>
