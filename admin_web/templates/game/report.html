@@ -1,0 +1,142 @@
+
+{% load i18n %}
+{% load static %}
+
+
+{% include "includes/header.html" with title="Rapports" %}
+
+{% include "includes/menu_game.html" %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>{% trans "Rapport"%} </h1>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+
+      <!--------------------------------------------------------------------------------------------------------->
+      <!-- Corps central -->
+
+      <form id="report-form" method="POST" action="/reports/">
+        {% csrf_token %}
+
+        <!-- Default box -->
+        <div class="card">
+          <div class="card-body row">
+
+
+            <div class="col-5 text-center d-flex align-items-center justify-content-center">
+              <div class="">
+                <img class="" src="{% static ""%}{{report.illustration}}" style="max-width: 90%; max-height: 90%;">
+              </div>
+            </div>
+
+
+            <div class="col-7">
+              <div class="card card-primary card-outline">
+                <div class="card-body p-0">
+                  <div class="mailbox-read-info">
+                    <p></p>
+                    <h5>{{report.title}}</h5>
+                    <p></p>
+                    <h6 class="grey_text">{{report.tss_calendar}}</h6>
+                      <span class="mailbox-read-time float-right"></span>
+                  </div>
+                  <!-- /.mailbox-read-info -->
+
+                  <!-- TODO decide to put back or remove reports control at top of message
+                  <div class="mailbox-controls with-border text-center">
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-default btn-sm" data-container="body" title="Delete">
+                        <i class="far fa-trash-alt"></i>
+                      </button>
+                      <button type="button" class="btn btn-default btn-sm" data-container="body" title="Reply">
+                        <i class="fas fa-reply"></i>
+                      </button>
+                      <button type="button" class="btn btn-default btn-sm" data-container="body" title="Forward">
+                        <i class="fas fa-share"></i>
+                      </button>
+                    </div>
+                    <button type="button" class="btn btn-default btn-sm" title="Print">
+                      <i class="fas fa-print"></i>
+                    </button>
+                  </div>-->
+                  <!-- /.mailbox-controls -->
+
+                  <div class="mailbox-read-message">
+                    <p></p>
+                    <p>{{report.message}}</p>
+                  </div>
+                  <!-- /.mailbox-read-message -->
+                </div>
+                <!-- /.card-body -->
+                <!-- /.card-footer -->
+                <div class="card-footer">
+                  <div class="float-right">
+                    <button type="button" class="btn btn-default"><i class="fas fa-reply"></i> Reply</button>
+                    <button type="button" class="btn btn-default"><i class="fas fa-share"></i> Forward</button>
+                  </div>
+                  <button type="button" class="btn btn-default"><i class="far fa-trash-alt"></i> Delete</button>
+                  <button type="button" class="btn btn-default"><i class="fas fa-print"></i> Print</button>
+                </div>
+                <!-- /.card-footer -->
+              </div>
+              <!-- /.card -->
+            </div>
+          </div>
+        </div>
+
+
+      </form>
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+<script>
+  $(function () {
+    //Enable check and uncheck all functionality
+    $('.checkbox-toggle').click(function () {
+      var clicks = $(this).data('clicks')
+      if (clicks) {
+        //Uncheck all checkboxes
+        $('.mailbox-messages input[type=\'checkbox\']').prop('checked', false)
+        $('.checkbox-toggle .far.fa-check-square').removeClass('fa-check-square').addClass('fa-square')
+      } else {
+        //Check all checkboxes
+        $('.mailbox-messages input[type=\'checkbox\']').prop('checked', true)
+        $('.checkbox-toggle .far.fa-square').removeClass('fa-square').addClass('fa-check-square')
+      }
+      $(this).data('clicks', !clicks)
+    })
+
+    //Handle starring for font awesome
+    $('.mailbox-star').click(function (e) {
+      e.preventDefault()
+      //detect type
+      var $this = $(this).find('a > i')
+      var fa    = $this.hasClass('fa')
+
+      //Switch states
+      if (fa) {
+        $this.toggleClass('fa-star')
+        $this.toggleClass('fa-star-o')
+      }
+    })
+  })
+
+
+</script>
+
+</body>
+</html>

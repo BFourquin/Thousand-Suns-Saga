@@ -14,7 +14,7 @@ import data.user
 from backend.utils import request_params, parameters_presents, get_active_server_and_commandant_from_request
 from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator
 from data.user import get_user_by_name, get_user_by_object_id, update_user
-from data.report import get_commandant_reports, delete_report, change_report_status
+from data.report import get_commandant_reports, get_report_by_object_id, delete_report, change_report_status
 
 
 ########################################################################################################################
@@ -157,7 +157,6 @@ def reports(request):
 
                 # Read button
                 if params['action'] == 'read':
-                    print(report_id)
                     change_report_status(server, report_id, 'read')
                 # Unread button
                 if params['action'] == 'unread':
@@ -203,6 +202,46 @@ def reports(request):
 
     return render(request, 'game/reports.html', {'server': server, 'reports': reports,
                                                  'nb_unread_reports': nb_unread_reports})
+
+
+@login_required(login_url='/player_login/')
+def report(request):
+
+    params = request_params(request)
+    server, commandant = get_active_server_and_commandant_from_request(request)
+
+    if not server or not commandant:
+        redirect('/user_account/')
+
+    if not 'report_id' in params:
+        redirect('/reports/')
+
+    report = get_report_by_object_id(server, params['report_id'])
+    if not report:
+        redirect('/reports/')
+
+    if 'action' in params:
+        if isinstance(params['reports[]'], str):  # Only one report selected instead of list : convert to list
+            params['reports[]'] = [params['reports[]']]
+
+        for report_id in params['reports[]']:
+            try:
+                # Delete button
+                if params['action'] == 'delete':
+                    delete_report(server, report_id)
+
+                # Archive button
+                if params['action'] == 'archive':
+                    change_report_status(server, report_id, 'archived')
+                # Unarchive button
+                if params['action'] == 'unarchive':
+                    change_report_status(server, report_id, 'read')
+
+            except TypeError:  # Report not existing (already deleted):
+                continue
+
+
+    return render(request, 'game/report.html', {'server': server, 'report': report,})
 
 
 
