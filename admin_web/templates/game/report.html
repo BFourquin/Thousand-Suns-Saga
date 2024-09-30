@@ -26,9 +26,6 @@
       <!--------------------------------------------------------------------------------------------------------->
       <!-- Corps central -->
 
-      <form id="report-form" method="POST" action="/reports/">
-        {% csrf_token %}
-
         <!-- Default box -->
         <div class="card">
           <div class="card-body row">
@@ -81,12 +78,18 @@
                 <!-- /.card-body -->
                 <!-- /.card-footer -->
                 <div class="card-footer">
-                  <div class="float-right">
-                    <button type="button" class="btn btn-default"><i class="fas fa-reply"></i> Reply</button>
-                    <button type="button" class="btn btn-default"><i class="fas fa-share"></i> Forward</button>
-                  </div>
-                  <button type="button" class="btn btn-default"><i class="far fa-trash-alt"></i> Delete</button>
-                  <button type="button" class="btn btn-default"><i class="fas fa-print"></i> Print</button>
+                  <form id="report-form" method="POST" action="/reports/">
+                    {% csrf_token %}
+                     <input type="hidden" id="reports[]" name="reports[]" value="{{report.id}}">
+
+
+                    <div class="float-right">
+                      <button type="submit" name="action" value="delete" class="btn btn-default"><i class="far fa-trash-alt"></i> {% trans "Supprimer"%}</button>
+                    </div>
+                    <button type="submit" name="action" value="archive" class="btn btn-default"><i class="fas fa-file-zipper"></i> {% trans "Archiver"%}</button>
+                    <button type="submit" name="action" value="unread" class="btn btn-default"><i class="fas fa-envelope"></i> {% trans "Marquer comme non-lu"%}</button>
+
+                  </form>
                 </div>
                 <!-- /.card-footer -->
               </div>
@@ -96,47 +99,12 @@
         </div>
 
 
-      </form>
 
     </section>
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
 
-<script>
-  $(function () {
-    //Enable check and uncheck all functionality
-    $('.checkbox-toggle').click(function () {
-      var clicks = $(this).data('clicks')
-      if (clicks) {
-        //Uncheck all checkboxes
-        $('.mailbox-messages input[type=\'checkbox\']').prop('checked', false)
-        $('.checkbox-toggle .far.fa-check-square').removeClass('fa-check-square').addClass('fa-square')
-      } else {
-        //Check all checkboxes
-        $('.mailbox-messages input[type=\'checkbox\']').prop('checked', true)
-        $('.checkbox-toggle .far.fa-square').removeClass('fa-square').addClass('fa-check-square')
-      }
-      $(this).data('clicks', !clicks)
-    })
-
-    //Handle starring for font awesome
-    $('.mailbox-star').click(function (e) {
-      e.preventDefault()
-      //detect type
-      var $this = $(this).find('a > i')
-      var fa    = $this.hasClass('fa')
-
-      //Switch states
-      if (fa) {
-        $this.toggleClass('fa-star')
-        $this.toggleClass('fa-star-o')
-      }
-    })
-  })
-
-
-</script>
 
 </body>
 </html>

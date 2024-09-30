@@ -220,26 +220,7 @@ def report(request):
     if not report:
         redirect('/reports/')
 
-    if 'action' in params:
-        if isinstance(params['reports[]'], str):  # Only one report selected instead of list : convert to list
-            params['reports[]'] = [params['reports[]']]
-
-        for report_id in params['reports[]']:
-            try:
-                # Delete button
-                if params['action'] == 'delete':
-                    delete_report(server, report_id)
-
-                # Archive button
-                if params['action'] == 'archive':
-                    change_report_status(server, report_id, 'archived')
-                # Unarchive button
-                if params['action'] == 'unarchive':
-                    change_report_status(server, report_id, 'read')
-
-            except TypeError:  # Report not existing (already deleted):
-                continue
-
+    change_report_status(server, params['report_id'], 'read')
 
     return render(request, 'game/report.html', {'server': server, 'report': report,})
 
