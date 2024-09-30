@@ -46,11 +46,10 @@ def get_commandant_reports(server, commandant_id, filter_status=None, filter_cat
     db = client['report']
 
     reports_id_list = get_commandant_by_object_id(server, commandant_id)['reports']
-    reports_list = db.find({'_id': {'$in': reports_id_list}})
-
+    reports_list = list(db.find({'_id': {'$in': reports_id_list}}))
     unread_reports_count = unread_reports_counting(server, commandant_id, reports_list)
 
-    return list(reports_list), unread_reports_count
+    return reports_list, unread_reports_count
 
 
 
@@ -98,8 +97,6 @@ def unread_reports_counting(server, owner_id, reports_list=None):
                 nb_unread_reports[category] += 1
             else:
                 nb_unread_reports[category] = 1
-
-    print(nb_unread_reports)
 
     return nb_unread_reports
 
