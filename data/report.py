@@ -93,10 +93,11 @@ def unread_reports_counting(server, owner_id, reports_list=None):
             nb_unread_reports['all'] += 1
 
             # Specific category
-            if report['category'] in nb_unread_reports:
-                nb_unread_reports['category'] += 1
+            category = report['category']
+            if category in nb_unread_reports:
+                nb_unread_reports[category] += 1
             else:
-                nb_unread_reports['category'] = 1
+                nb_unread_reports[category] = 1
 
     print(nb_unread_reports)
 
