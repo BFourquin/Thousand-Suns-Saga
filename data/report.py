@@ -40,7 +40,7 @@ def get_report_by_object_id(server, _id):
     return db.find_one({'_id': ObjectId(_id)})
 
 
-def get_commandant_reports(server, commandant_id, filter_status=None, filter_category=None):
+def get_commandant_reports(server, commandant_id, filter_status=None, filter_category=None, search_text=None):
 
     client = databases['TSS_' + server]
     db = client['report']
@@ -49,6 +49,7 @@ def get_commandant_reports(server, commandant_id, filter_status=None, filter_cat
     reports_list = list(db.find({'_id': {'$in': reports_id_list}}))
     unread_reports_count = unread_reports_counting(server, commandant_id, reports_list)
 
+    # Filters and search
 
     if filter_category and filter_category != 'all':
         reports_list_unsorted, reports_list = reports_list, []
@@ -56,6 +57,23 @@ def get_commandant_reports(server, commandant_id, filter_status=None, filter_cat
         for report in reports_list_unsorted:
             if report['category'] == filter_category:
                 reports_list.append(report)
+
+    if filter_status and filter_status != 'all':
+        reports_list_unsorted, reports_list = reports_list, []
+
+        for report in reports_list_unsorted:
+            if filter_status == 'not_archived' and report['status'] != 'archived':
+                reports_list.append(report)
+            elif report['status'] == filter_status:
+                reports_list.append(report)
+
+    if search_text:
+        reports_list_unsorted, reports_list = reports_list, []
+        for report in reports_list_unsorted:
+            for val in report.values():
+                if isinstance(val, str) and search_text in val:
+                    reports_list.append(report)
+                    break
 
     return reports_list, unread_reports_count
 

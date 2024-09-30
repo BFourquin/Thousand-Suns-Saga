@@ -2,11 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth import authenticate, login, logout
-from django.core.validators import validate_email
-from bokeh.plotting import figure
-from bokeh.embed import components
+from django.core.paginator import Paginator
 import datetime
 
 
@@ -174,10 +170,13 @@ def reports(request):
                 continue
 
 
-    filter_category = params['category'] if 'category' in params else None
+    filter_category = params['category'] if 'category' in params else 'all'
+    filter_status = params['status'] if 'status' in params else 'not_archived'
+    search_text = params['search_text'] if 'search_text' in params else None
 
     reports, nb_unread_reports = get_commandant_reports(server, commandant['_id'],
-                                                        filter_status=None, filter_category=filter_category)
+                                                        filter_status=filter_status, filter_category=filter_category,
+                                                        search_text=search_text)
 
     # TODO remove graphic test reports <--
     """report =   {'id': '66f5689febe0ed0d929f3ca1',
@@ -202,9 +201,11 @@ def reports(request):
     report['status'] = 'archived';reports.append(report.copy());reports.append(report.copy())
     # TODO remove graphic test reports -->"""
 
-
     return render(request, 'game/reports.html', {'server': server, 'reports': reports,
-                                                 'nb_unread_reports': nb_unread_reports})
+                                                 'nb_unread_reports': nb_unread_reports,
+                                                 'status': filter_status, 'category': filter_category,
+                                                 'search_text': search_text,
+                                                 })
 
 
 @login_required(login_url='/player_login/')

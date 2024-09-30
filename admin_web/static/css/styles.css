@@ -80,6 +80,10 @@
   margin-top: 0.25rem;
 }
 
+.hover{
+    color: #007bff !important;
+}
+
 .grey_text{
     color: #999;
 }

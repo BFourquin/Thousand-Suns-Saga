@@ -24,11 +24,14 @@
     <section class="content">
 
 
-          <!--------------------------------------------------------------------------------------------------------->
-          <!-- Corps central -->
+      <!--------------------------------------------------------------------------------------------------------->
+      <!-- Corps central -->
 
-      <form id="report-form" method="POST" action="/reports/">
+      <form id="report-form" method="POST" action="/reports/?category={{category}}&status={{status}}">
         {% csrf_token %}
+
+        <input type="hidden" id="category" name="category" value="{{category}}">
+        <input type="hidden" id="status" name="status" value="{{status}}">
 
 
         <div class="row">
@@ -48,7 +51,7 @@
                 <ul class="nav nav-pills flex-column">
 
                   <li class="nav-item">
-                    <a href="/reports/?category=all" class="nav-link">
+                    <a href="/reports/?category=all" rel="keep-params" class="nav-link {% if category == 'all' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-inbox"></i></span>
                       {% trans "Tous les rapports"%}
                       {% if nb_unread_reports.all %}
@@ -58,7 +61,7 @@
                   </li>
 
                   <li class="nav-item">
-                    <a href="/reports/?category=cycle_summary" class="nav-link">
+                    <a href="/reports/?category=cycle_summary" rel="keep-params" class="nav-link {% if category == 'cycle_summary' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-file-invoice"></i></span>
                       {% trans "Bilan de cycle"%}
                       {% if nb_unread_reports.cycle_summary %}
@@ -67,7 +70,7 @@
                     </a>
                   </li>
                   <li class="nav-item active">
-                    <a href="/reports/?category=space_combat" class="nav-link">
+                    <a href="/reports/?category=space_combat" rel="keep-params" class="nav-link {% if category == 'space_combat' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-jet-fighter"></i></span>
                       {% trans "Combats spatiaux"%}
                       {% if nb_unread_reports.space_combat %}
@@ -76,7 +79,7 @@
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="/reports/?category=land_combat" class="nav-link">
+                    <a href="/reports/?category=land_combat" rel="keep-params" class="nav-link {% if category == 'land_combat' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-person-rifle"></i></span>
                       {% trans "Combats terestres"%}
                       {% if nb_unread_reports.land_combat %}
@@ -85,7 +88,7 @@
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="/reports/?category=government" class="nav-link">
+                    <a href="/reports/?category=government" rel="keep-params" class="nav-link {% if category == 'government' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas  fa-landmark"></i></span>
                       {% trans "Gouvernement"%}
                       {% if nb_unread_reports.government %}
@@ -94,7 +97,7 @@
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="/reports/?category=diplomacy" class="nav-link">
+                    <a href="/reports/?category=diplomacy" rel="keep-params" class="nav-link {% if category == 'diplomacy' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas  fa-tower-cell"></i></span>
                       {% trans "Diplomatie"%}
                     </a>
@@ -103,7 +106,7 @@
                       {% endif %}
                   </li>
                   <li class="nav-item">
-                    <a href="/reports/?category=economy" class="nav-link">
+                    <a href="/reports/?category=economy" rel="keep-params" class="nav-link {% if category == 'economy' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas  fa-coins"></i></span>
                       {% trans "Economie"%}
                       {% if nb_unread_reports.economy %}
@@ -112,7 +115,7 @@
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="/reports/?category=colony" class="nav-link">
+                    <a href="/reports/?category=colony" rel="keep-params" class="nav-link {% if category == 'colony' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas  fa-city"></i></span>
                       {% trans "Colonies"%}
                       {% if nb_unread_reports.colony %}
@@ -121,7 +124,7 @@
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="/reports/?category=fleets" class="nav-link">
+                    <a href="/reports/?category=fleets" rel="keep-params" class="nav-link {% if category == 'fleets' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas  fa-jet-fighter"></i></span>
                       {% trans "Flottes"%}
                       {% if nb_unread_reports.fleets %}
@@ -130,7 +133,7 @@
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="/reports/?category=exploration" class="nav-link">
+                    <a href="/reports/?category=exploration" rel="keep-params" class="nav-link {% if category == 'exploration' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas  fa-sun"></i></span>
                       {% trans "Exploration"%}
                       {% if nb_unread_reports.exploration %}
@@ -139,7 +142,7 @@
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="/reports/?category=technologies" class="nav-link">
+                    <a href="/reports/?category=technologies" rel="keep-params" class="nav-link {% if category == 'technologies' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas  fa-flask"></i></span>
                       {% trans "Technologies"%}
                       {% if nb_unread_reports.technologies %}
@@ -148,7 +151,7 @@
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="/reports/?category=other" class="nav-link">
+                    <a href="/reports/?category=other" rel="keep-params" class="nav-link {% if category == 'other' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas  fa-file-alt"></i></span>
                       {% trans "Autres"%}
                       {% if nb_unread_reports.other %}
@@ -175,19 +178,25 @@
               <div class="card-body p-0">
                 <ul class="nav nav-pills flex-column">
                   <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="/reports/?status=unread" rel="keep-params" class="nav-link {% if status == 'unread' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-envelope"></i></span>
+                      {% trans "Non-lus seulement"%}
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="/reports/?status=not_archived" rel="keep-params" class="nav-link {% if status == 'not_archived' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-file"></i></span>
                       {% trans "Rapports courants"%}
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="/reports/?status=archived" rel="keep-params" class="nav-link {% if status == 'archived' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-file-zipper"></i></span>
                       {% trans "Rapports archivés"%}
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="/reports/?status=all" rel="keep-params" class="nav-link {% if status == 'all' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-copy"></i></span>
                       {% trans "Tous les rapports"%}
                     </a>
@@ -213,11 +222,13 @@
 
                 <div class="card-tools">
                   <div class="input-group input-group-sm">
-                    <input type="text" class="form-control" placeholder="{% trans "Recherche"%}">
+                    <input type="text" class="form-control"  name="search_text"
+                           placeholder="{% trans "Recherche"%}"
+                           {% if search_text %} value="{{search_text}}" {% endif %}>
                     <div class="input-group-append">
-                      <div class="btn btn-primary">
+                      <button  type="submit" name="search" value="search"  class="btn btn-primary">
                         <i class="fas fa-search"></i>
-                      </div>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -227,34 +238,40 @@
               <div class="card-body p-0">
                 <div class="mailbox-controls">
                   <!-- Check all button -->
-                  <button type="button" class="btn btn-default btn-sm checkbox-toggle"><i class="far fa-square"></i>
+                  <button type="button" class="btn btn-default btn-sm checkbox-toggle"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Tout sélectionner"%}"><i class="far fa-square"></i>
                   </button>
 
                   <!-- Delete button -->
-                  <button type="submit" name="action" value="delete" class="btn btn-default btn-sm">
+                  <button type="submit" name="action" value="delete" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Supprimer"%}">
                     <i class="far fa-trash-alt"></i>
                   </button>
 
                   <div class="btn-group">
 
                     <!-- Read button -->
-                    <button type="submit" name="action" value="read" class="btn btn-default btn-sm">
+                    <button type="submit" name="action" value="read" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Marquer comme lu"%}">
                       <i class="fas fa-envelope-open-text"></i>
                     </button>
 
                     <!-- Unread button -->
-                    <button type="submit" name="action" value="unread" class="btn btn-default btn-sm">
+                    <button type="submit" name="action" value="unread" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Marquer comme non-lu"%}">
                       <i class="fas fa-envelope"></i>
                     </button>
                   </div>
 
                   <div class="btn-group">
                     <!-- Archive button -->
-                    <button type="submit" name="action" value="archive" class="btn btn-default btn-sm">
+                    <button type="submit" name="action" value="archive" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Archiver"%}">
                       <i class="fas fa-file-zipper"></i>
                     </button>
                     <!-- Unrchive button -->
-                    <button type="submit" name="action" value="unarchive" class="btn btn-default btn-sm">
+                    <button type="submit" name="action" value="unarchive" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Désarchiver"%}">
                       <i class="fas fa-file"></i>
                     </button>
                   </div>
@@ -320,47 +337,42 @@
               <div class="card-footer p-0">
                 <div class="mailbox-controls">
                   <!-- Check all button -->
-                  <button type="button" class="btn btn-default btn-sm checkbox-toggle"><i class="far fa-square"></i>
+                  <button type="button" class="btn btn-default btn-sm checkbox-toggle"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Tout sélectionner"%}"><i class="far fa-square"></i>
                   </button>
 
                   <!-- Delete button -->
-                  <button type="submit" name="action" value="delete" class="btn btn-default btn-sm">
+                  <button type="submit" name="action" value="delete" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Supprimer"%}">
                     <i class="far fa-trash-alt"></i>
                   </button>
 
                   <div class="btn-group">
 
                     <!-- Read button -->
-                    <button type="submit" name="action" value="read" class="btn btn-default btn-sm">
+                    <button type="submit" name="action" value="read" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Marquer comme lu"%}">
                       <i class="fas fa-envelope-open-text"></i>
                     </button>
 
                     <!-- Unread button -->
-                    <button type="submit" name="action" value="unread" class="btn btn-default btn-sm">
+                    <button type="submit" name="action" value="unread" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Marquer comme non-lu"%}">
                       <i class="fas fa-envelope"></i>
                     </button>
                   </div>
 
                   <div class="btn-group">
                     <!-- Archive button -->
-                    <button type="submit" name="action" value="archive" class="btn btn-default btn-sm">
+                    <button type="submit" name="action" value="archive" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Archiver"%}">
                       <i class="fas fa-file-zipper"></i>
                     </button>
                     <!-- Unrchive button -->
-                    <button type="submit" name="action" value="unarchive" class="btn btn-default btn-sm">
+                    <button type="submit" name="action" value="unarchive" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Désarchiver"%}">
                       <i class="fas fa-file"></i>
                     </button>
-                  </div>
-
-                  <div class="float-right">
-                    1-50/200
-                    <div class="btn-group">
-                      <button type="button" class="btn btn-default btn-sm">
-                        <i class="fas fa-chevron-left"></i>
-                      </button>
-                      <button type="button" class="btn btn-default btn-sm">
-                        <i class="fas fa-chevron-right"></i>
-                      </button>
                     </div>
                     <!-- /.btn-group -->
                   </div>
@@ -413,6 +425,32 @@
     })
   })
 
+// Keep current page parameters when following a filter link
+$("a[rel~='keep-params']").click(function(e) {
+    e.preventDefault();
+
+    // Get the current URL parameters
+    var currentParams = new URLSearchParams(window.location.search);
+
+    // Get the URL of the clicked link
+    var href = $(this).attr('href');
+    var url = new URL(href, window.location.origin);
+
+    // Get the parameters from the link
+    var linkParams = new URLSearchParams(url.search);
+
+    // Merge parameters, avoiding duplicates
+    linkParams.forEach(function(value, key) {
+        currentParams.set(key, value); // Replace the parameter if it already exists
+    });
+
+    // Build the final URL
+    var dest = url.origin + url.pathname + '?' + currentParams.toString();
+
+    // Short timeout to overcome browser bugs
+    window.setTimeout(function() {
+        window.location.href = dest;}, 100);
+});
 
 </script>
 
