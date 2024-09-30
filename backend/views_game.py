@@ -173,10 +173,14 @@ def reports(request):
             except TypeError:  # Report not existing (already deleted):
                 continue
 
-    reports, nb_unread_reports = get_commandant_reports(server, commandant['_id'], filter_status=None, filter_category=None)
+
+    filter_category = params['category'] if 'category' in params else None
+
+    reports, nb_unread_reports = get_commandant_reports(server, commandant['_id'],
+                                                        filter_status=None, filter_category=filter_category)
 
     # TODO remove graphic test reports <--
-    report =   {'id': '66f5689febe0ed0d929f3ca1',
+    """report =   {'id': '66f5689febe0ed0d929f3ca1',
                 'status': 'unread',
                 'owner': None,
                 'category': 'other',
@@ -196,8 +200,7 @@ def reports(request):
     reports.append(report.copy());reports.append(report.copy())
     report['status'] = 'read';reports.append(report.copy());reports.append(report.copy())
     report['status'] = 'archived';reports.append(report.copy());reports.append(report.copy())
-    # TODO remove graphic test reports -->
-
+    # TODO remove graphic test reports -->"""
 
 
     return render(request, 'game/reports.html', {'server': server, 'reports': reports,

@@ -49,6 +49,14 @@ def get_commandant_reports(server, commandant_id, filter_status=None, filter_cat
     reports_list = list(db.find({'_id': {'$in': reports_id_list}}))
     unread_reports_count = unread_reports_counting(server, commandant_id, reports_list)
 
+
+    if filter_category and filter_category != 'all':
+        reports_list_unsorted, reports_list = reports_list, []
+
+        for report in reports_list_unsorted:
+            if report['category'] == filter_category:
+                reports_list.append(report)
+
     return reports_list, unread_reports_count
 
 
