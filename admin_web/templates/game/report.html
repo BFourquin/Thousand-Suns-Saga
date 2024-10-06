@@ -42,11 +42,31 @@
               <div class="card card-primary card-outline">
                 <div class="card-body p-0">
                   <div class="mailbox-read-info">
-                    <p></p>
-                    <h5>{{report.title}}</h5>
-                    <p></p>
-                    <h6 class="grey_text">{{report.tss_calendar}}</h6>
-                      <span class="mailbox-read-time float-right"></span>
+                    <!-- Main content: report title and timestamp -->
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <p></p>
+                        <h4>{{ report.title }}</h4>
+                        <p></p>
+                        <h6 class="grey_text">{{ report.tss_calendar }}</h6>
+                        <p></p>
+                      </div>
+
+                      <!-- Sender's information and image aligned next to each other -->
+                      <div class="d-flex align-items-center text-right">
+                        <!-- Sender's name and government name aligned left of the image -->
+                        <div class="text-left mr-3">
+                          <p class="mt-2 mb-0">{{ report.sender_name }}</p>
+                          <p class="mt-2 mb-0">{{ report.sender_gov_name }}</p>
+                        </div>
+
+                        <!-- Sender's image -->
+                        <img src="{% static "" %}{{report.sender_image}}" style="max-height: 6em;">
+                      </div>
+                    </div>
+
+                    <!-- Time at the bottom of the content -->
+                    <span class="mailbox-read-time float-right"></span>
                   </div>
                   <!-- /.mailbox-read-info -->
 
