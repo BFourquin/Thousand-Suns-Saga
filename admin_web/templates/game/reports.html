@@ -269,27 +269,40 @@
                           data-toggle="tooltip" data-placement="bottom" title="{% trans "Archiver"%}">
                       <i class="fas fa-file-zipper"></i>
                     </button>
-                    <!-- Unrchive button -->
+                    <!-- Unarchive button -->
                     <button type="submit" name="action" value="unarchive" class="btn btn-default btn-sm"
                           data-toggle="tooltip" data-placement="bottom" title="{% trans "Désarchiver"%}">
                       <i class="fas fa-file"></i>
                     </button>
                   </div>
 
+
                   <div class="float-right">
-                    1-50/200
+                    {{ reports.paginator.count }} {% trans " Rapports"%}
+
                     <div class="btn-group">
-                      <button type="button" class="btn btn-default btn-sm">
-                        <i class="fas fa-chevron-left"></i>
-                      </button>
-                      <button type="button" class="btn btn-default btn-sm">
-                        <i class="fas fa-chevron-right"></i>
-                      </button>
+                      {% if reports.has_previous %}
+                        <a href="?page={{ reports.previous_page_number }}" rel="keep-params" class="btn btn-default btn-sm">
+                          <i class="fas fa-chevron-left"></i>
+                        </a>
+                      {% else %}
+                        <button class="btn btn-default btn-sm" disabled>
+                          <i class="fas fa-chevron-left"></i>
+                        </button>
+                      {% endif %}
+
+                      {% if reports.has_next %}
+                        <a href="?page={{ reports.next_page_number }}" rel="keep-params" class="btn btn-default btn-sm">
+                          <i class="fas fa-chevron-right"></i>
+                        </a>
+                      {% else %}
+                        <button class="btn btn-default btn-sm" disabled>
+                          <i class="fas fa-chevron-right"></i>
+                        </button>
+                      {% endif %}
                     </div>
-                    <!-- /.btn-group -->
                   </div>
-                  <!-- /.float-right -->
-                </div>
+
                 <div class="table-responsive mailbox-messages" style="padding-bottom: 5px;">
                   <table class="table table-hover table-striped">
                     <tbody>
