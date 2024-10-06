@@ -179,7 +179,7 @@ def reports(request):
                                                         search_text=search_text)
 
     # TODO remove graphic test reports <--
-    report =   {'id': '66f5689febe0ed0d929f3ca1',
+    """report =   {'id': '66f5689febe0ed0d929f3ca1',
                 'status': 'unread',
                 'owner': None,
                 'category': 'other',
@@ -198,7 +198,7 @@ def reports(request):
                }
     reports.append(report.copy());reports.append(report.copy())
     report['status'] = 'read';reports.append(report.copy());reports.append(report.copy())
-    report['status'] = 'archived';reports.append(report.copy());reports.append(report.copy())
+    report['status'] = 'archived';reports.append(report.copy());reports.append(report.copy())"""
     # TODO remove graphic test reports -->
 
     # Pagination
@@ -209,7 +209,7 @@ def reports(request):
     return render(request, 'game/reports.html', {'server': server, 'reports': reports,
                                                  'nb_unread_reports': nb_unread_reports,
                                                  'status': filter_status, 'category': filter_category,
-                                                 'search_text': search_text,
+                                                 'search_text': search_text, 'page': page_number
                                                  })
 
 

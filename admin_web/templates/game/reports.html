@@ -278,11 +278,11 @@
 
 
                   <div class="float-right">
-                    {{ reports.paginator.count }} {% trans " Rapports"%}
+                    {{ reports.paginator.count }} {% trans "Rapports"%} | {% trans "Page"%} {{page}}
 
                     <div class="btn-group">
                       {% if reports.has_previous %}
-                        <a href="?page={{ reports.previous_page_number }}" rel="keep-params" class="btn btn-default btn-sm">
+                        <a href="/reports/?page={{ reports.previous_page_number }}" rel="keep-params" class="btn btn-default btn-sm">
                           <i class="fas fa-chevron-left"></i>
                         </a>
                       {% else %}
@@ -292,7 +292,7 @@
                       {% endif %}
 
                       {% if reports.has_next %}
-                        <a href="?page={{ reports.next_page_number }}" rel="keep-params" class="btn btn-default btn-sm">
+                        <a href="/reports/?page={{ reports.next_page_number }}" rel="keep-params" class="btn btn-default btn-sm">
                           <i class="fas fa-chevron-right"></i>
                         </a>
                       {% else %}
