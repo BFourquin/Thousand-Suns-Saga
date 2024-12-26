@@ -6571,20 +6571,50 @@
 											"top": 689,
 											"width": 207,
 											"height": 13
+										},
+										{
+											"_type": "ERDColumnView",
+											"_id": "AAAAAAGSYtbKLtNKVa4=",
+											"_parent": {
+												"$ref": "AAAAAAGSKaerhBrl3s0="
+											},
+											"model": {
+												"$ref": "AAAAAAGSYtbKGtNHH7w="
+											},
+											"font": "Arial;13;0",
+											"left": 997,
+											"top": 704,
+											"width": 207,
+											"height": 13
+										},
+										{
+											"_type": "ERDColumnView",
+											"_id": "AAAAAAGSYtbs39NR1P0=",
+											"_parent": {
+												"$ref": "AAAAAAGSKaerhBrl3s0="
+											},
+											"model": {
+												"$ref": "AAAAAAGSYtbsz9NO2dI="
+											},
+											"font": "Arial;13;0",
+											"left": 997,
+											"top": 719,
+											"width": 207,
+											"height": 13
 										}
 									],
 									"font": "Arial;13;0",
 									"left": 992,
 									"top": 519,
 									"width": 217,
-									"height": 188
+									"height": 218
 								}
 							],
 							"font": "Arial;13;0",
 							"left": 992,
 							"top": 496,
 							"width": 217,
-							"height": 211,
+							"height": 241,
 							"nameLabel": {
 								"$ref": "AAAAAAGSKaerhBrkGLM="
 							},
@@ -10049,6 +10079,24 @@
 								"$ref": "AAAAAAGSKaerhBrhH9Q="
 							},
 							"name": "sender_image",
+							"length": 0
+						},
+						{
+							"_type": "ERDColumn",
+							"_id": "AAAAAAGSYtbKGtNHH7w=",
+							"_parent": {
+								"$ref": "AAAAAAGSKaerhBrhH9Q="
+							},
+							"name": "sender_name",
+							"length": 0
+						},
+						{
+							"_type": "ERDColumn",
+							"_id": "AAAAAAGSYtbsz9NO2dI=",
+							"_parent": {
+								"$ref": "AAAAAAGSKaerhBrhH9Q="
+							},
+							"name": "sender_gov_name",
 							"length": 0
 						}
 					]

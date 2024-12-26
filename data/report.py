@@ -27,7 +27,6 @@ def create_report(server, owner_id, report_type, args={}, sender=None, sender_im
         push_param_commandant(server, owner_id, 'reports', id)
 
 
-
     except Exception as e:
         # TODO logs wrong reports
         raise e
@@ -101,6 +100,13 @@ def delete_report(server, report_id):
 
 ########################################################################################################################
 #
+
+def mark_all_reports_as_read(server, commandant_id, category=None):
+
+    reports = get_commandant_reports(server, commandant_id, filter_status='unread', filter_category=category)[0]
+    for report in reports:
+        change_report_status(server, report['_id'], 'read')
+
 
 def unread_reports_counting(server, owner_id, reports_list=None):
     # Return a dict of the number of unread reports by category

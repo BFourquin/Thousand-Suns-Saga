@@ -10,7 +10,7 @@ import data.user
 from backend.utils import request_params, parameters_presents, get_active_server_and_commandant_from_request
 from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator
 from data.user import get_user_by_name, get_user_by_object_id, update_user
-from data.report import get_commandant_reports, get_report_by_object_id, delete_report, change_report_status
+from data.report import get_commandant_reports, get_report_by_object_id, delete_report, change_report_status, mark_all_reports_as_read
 
 
 ########################################################################################################################
@@ -142,6 +142,13 @@ def reports(request):
         redirect('/user_account/')
 
     if 'action' in params:
+
+        # Mark all as read global button
+        if params['action'] == 'mark_all_as_read':
+            mark_all_reports_as_read(server, commandant['_id'], params['category'] if 'category' in params else 'all')
+            return redirect('/reports/')
+
+        # Get all selected reports
         if isinstance(params['reports[]'], str):  # Only one report selected instead of list : convert to list
             params['reports[]'] = [params['reports[]']]
 
@@ -213,6 +220,7 @@ def reports(request):
                                                  })
 
 
+
 @login_required(login_url='/player_login/')
 def report(request):
 
@@ -231,7 +239,7 @@ def report(request):
 
     change_report_status(server, params['report_id'], 'read')
 
-    return render(request, 'game/report.html', {'server': server, 'report': report,})
+    return render(request, 'game/report.html', {'server': server, 'report': report})
 
 
 
