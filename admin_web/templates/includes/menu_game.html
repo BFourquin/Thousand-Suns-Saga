@@ -125,7 +125,11 @@
         <li class="nav-item">
             <a href="/reports/" class="nav-link">
                 <i class="fas fa-inbox nav-icon"></i>
-                <p>{% trans "Rapports" %}</p>
+                <p>{% trans "Rapports" %}
+                    {% if 'nb_unread_reports' in commandant and commandant.nb_unread_reports > 0 %}
+                        <span class="badge badge-warning right">{{commandant.nb_unread_reports}}</span>
+                    {% endif %}
+                </p>
             </a>
         </li>
 
