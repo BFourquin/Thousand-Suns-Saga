@@ -6,7 +6,7 @@ from bson.objectid import ObjectId
 
 from database.db_connect import databases
 from data.report_generator import generate_report
-from data.commandant import get_commandant_by_object_id, push_param_commandant, pull_param_commandant
+from data.commandant import get_commandant_by_object_id, push_param_commandant, pull_param_commandant, update_commandant
 
 
 
@@ -26,11 +26,12 @@ def create_report(server, owner_id, report_type, args={}, sender=None, sender_im
         # Add to commandant reports list
         push_param_commandant(server, owner_id, 'reports', id)
 
+        # Recount unread reports
+        update_nb_unread_reports(server, owner_id)
 
     except Exception as e:
         # TODO logs wrong reports
         raise e
-    #    return e
 
 
 def get_report_by_object_id(server, _id):
@@ -108,13 +109,13 @@ def mark_all_reports_as_read(server, commandant_id, category=None):
         change_report_status(server, report['_id'], 'read')
 
 
-def unread_reports_counting(server, owner_id, reports_list=None):
+def unread_reports_counting(server, commandant_id, reports_list=None):
     # Return a dict of the number of unread reports by category
     # nb_unread_reports = {'all': 5, 'space_combat: 2, ...}
 
     # Get reports_list from parameter if possible, preventing duplicate big db query
     if reports_list is None:
-        reports_list = get_commandant_reports(server, owner_id)
+        reports_list = get_commandant_reports(server, commandant_id)
 
     nb_unread_reports = {'all': 0}
     for report in reports_list:
@@ -133,3 +134,9 @@ def unread_reports_counting(server, owner_id, reports_list=None):
     return nb_unread_reports
 
 
+def update_nb_unread_reports(server, commandant_id):
+
+    reports_list = get_commandant_reports(server, commandant_id)[0]
+    print(reports_list)
+    nb_unread_reports = sum(1 for report in reports_list if report.get('status') == 'unread')
+    update_commandant(server, commandant_id, 'nb_unread_reports', nb_unread_reports)

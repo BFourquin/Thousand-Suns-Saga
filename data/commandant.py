@@ -89,7 +89,10 @@ def create_commandant(server, user, commandant_name, civilisation_name):
             'player_modifiers': starting_values['starting_modifiers'],
             'owned_ship_designs': [],
             'orientations': {},
+
+            # Reports
             'reports': [],
+            'nb_unread_reports': 0,
 
             # Other
             'tutorial_step': None}
@@ -103,7 +106,7 @@ def create_commandant(server, user, commandant_name, civilisation_name):
         accounts.append(commandant_id)
         update_user(user, 'accounts', accounts)
 
-        update_commandant(server, commandant, 'id', commandant_id)  # Add id field (django template can't read '_id')
+        update_commandant(server, commandant_id, 'id', commandant_id)  # Add id field (django template can't read '_id')
 
         # Add commandant and user references to server_details
         server_details.add_active_user(server, user['_id'])
@@ -156,11 +159,11 @@ def get_commandant_from_any_server(name=None, _id=None):
                 return result
 
 
-def update_commandant(server, commandant, param, value):
+def update_commandant(server, commandant_id, param, value):
 
     client = databases['TSS_' + server]
     db = client['commandants']
-    db.update_one({"_id": commandant['_id']}, {"$set": {param: value}})
+    db.update_one({"_id": commandant_id}, {"$set": {param: value}})
 
 
 def push_param_commandant(server, commandant_id, param, value):

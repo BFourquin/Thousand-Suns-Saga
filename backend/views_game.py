@@ -10,7 +10,8 @@ import data.user
 from backend.utils import request_params, parameters_presents, get_active_server_and_commandant_from_request
 from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator
 from data.user import get_user_by_name, get_user_by_object_id, update_user
-from data.report import get_commandant_reports, get_report_by_object_id, delete_report, change_report_status, mark_all_reports_as_read
+from data.report import get_commandant_reports, get_report_by_object_id, delete_report, change_report_status, \
+    mark_all_reports_as_read, update_nb_unread_reports
 
 
 ########################################################################################################################
@@ -146,6 +147,7 @@ def reports(request):
         # Mark all as read global button
         if params['action'] == 'mark_all_as_read':
             mark_all_reports_as_read(server, commandant['_id'], params['category'] if 'category' in params else 'all')
+            update_nb_unread_reports(server, commandant['_id'])
             return redirect('/reports/')
 
         # Get all selected reports
@@ -175,6 +177,9 @@ def reports(request):
 
             except TypeError:  # Report not existing (already deleted):
                 continue
+
+        update_nb_unread_reports(server, commandant['_id'])
+    print(commandant['nb_unread_reports'])
 
 
     filter_category = params['category'] if 'category' in params else 'all'
