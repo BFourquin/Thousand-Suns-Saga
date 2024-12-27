@@ -150,36 +150,37 @@ def reports(request):
             update_nb_unread_reports(server, commandant['_id'])
             return redirect('/reports/')
 
-        # Get all selected reports
-        if isinstance(params['reports[]'], str):  # Only one report selected instead of list : convert to list
-            params['reports[]'] = [params['reports[]']]
+        if 'reports[]' in params:
 
-        for report_id in params['reports[]']:
-            try:
-                # Delete button
-                if params['action'] == 'delete':
-                    delete_report(server, report_id)
+            # Get all selected reports
+            if isinstance(params['reports[]'], str):  # Only one report selected instead of list : convert to list
+                params['reports[]'] = [params['reports[]']]
 
-                # Read button
-                if params['action'] == 'read':
-                    change_report_status(server, report_id, 'read')
-                # Unread button
-                if params['action'] == 'unread':
-                    change_report_status(server, report_id, 'unread')
+            for report_id in params['reports[]']:
+                try:
+                    # Delete button
+                    if params['action'] == 'delete':
+                        delete_report(server, report_id)
 
-                # Archive button
-                if params['action'] == 'archive':
-                    print(report_id)
-                    change_report_status(server, report_id, 'archived')
-                # Unarchive button
-                if params['action'] == 'unarchive':
-                    change_report_status(server, report_id, 'read')
+                    # Read button
+                    if params['action'] == 'read':
+                        change_report_status(server, report_id, 'read')
+                    # Unread button
+                    if params['action'] == 'unread':
+                        change_report_status(server, report_id, 'unread')
 
-            except TypeError:  # Report not existing (already deleted):
-                continue
+                    # Archive button
+                    if params['action'] == 'archive':
+                        print(report_id)
+                        change_report_status(server, report_id, 'archived')
+                    # Unarchive button
+                    if params['action'] == 'unarchive':
+                        change_report_status(server, report_id, 'read')
+
+                except TypeError:  # Report not existing (already deleted):
+                    continue
 
         update_nb_unread_reports(server, commandant['_id'])
-    print(commandant['nb_unread_reports'])
 
 
     filter_category = params['category'] if 'category' in params else 'all'
