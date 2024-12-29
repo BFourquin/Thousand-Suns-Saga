@@ -248,6 +248,8 @@ def report(request):
     return render(request, 'game/report.html', {'server': server, 'report': report})
 
 
+########################################################################################################################
+
 
 @login_required(login_url='/player_login/')
 def geography_system(request):
@@ -286,4 +288,24 @@ def geography_system(request):
     return render(request, 'game/geography_system.html', {'server': server, 'system': system,
                                                           'system_coordinates': system_coordinates,
                                                           'display_nb_coos_per_rows': display_nb_coos_per_rows})
+
+
+########################################################################################################################
+
+
+
+
+@login_required(login_url='/player_login/')
+def resources(request):
+
+    params = request_params(request)
+    server, commandant = get_active_server_and_commandant_from_request(request)
+
+    if not server or not commandant:
+        redirect('/user_account/')
+
+
+    return render(request, 'game/resources.html', {'server': server,
+                                                 })
+
 

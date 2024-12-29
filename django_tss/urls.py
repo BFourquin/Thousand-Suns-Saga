@@ -65,6 +65,8 @@ urlpatterns = [
     path('create_commandant/', views_game.create_commandant, name='create_commandant'),
     path('commandant_login/', views_game.commandant_login, name='commandant_login'),
 
+    path('resources/', views_game.resources, name='resources'),
+
     path('geography_system/', views_game.geography_system, name='geography_system'),
 
     path('reports/', views_game.reports, name='reports'),
