@@ -6,6 +6,7 @@ from datetime import datetime
 from django_tss.settings import DATABASES, mongodb_settings
 from database import create_tables
 from database.load_technologies import load_technologies
+from database.load_resources import load_resources
 from database.db_connect import clients
 from data import server_details, statistics, starting_values
 from geography import map_generator, mg_sectors
@@ -78,12 +79,17 @@ server_details.create_server(server_name, status=server_status, admin_only_visib
 
 
 # TECHNOLOGIES
-
 load_technologies(excel_tech_path=excel_server_params,
                   sheet_tech_name='Techs',
-
                   server_name=server_name,
                   delete_actual_techs=True)
+
+# RESOURCES
+load_resources(excel_tech_path=excel_server_params,
+               sheet_tech_name='Resources',
+               server_name=server_name,
+               delete_actual_techs=True)
+
 
 # NEW PLAYERS STARTING VALUES
 starting_values.create_starting_values(server_name)
