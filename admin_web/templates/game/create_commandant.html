@@ -27,9 +27,9 @@
         <div class="card-body row">
           <div class="col-5 text-center d-flex align-items-center justify-content-center">
             <div class="">
-              <h2></h2>
+              <h2>{{server.server_name}}</h2>
               <br/>
-              Ouvert depuis le <br/>{{server.server_name}}
+              Ouvert depuis le <br/>
               {{server.opening_date|date:'d/m/Y H:m'}}
               ({{server.open_since_days}}
               {% if server.open_since_days < 2 %}{% trans "jour"%}{% endif %}
