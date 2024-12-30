@@ -59,7 +59,9 @@
                   <tbody>
                     {% for resource in resources %}
                       <tr>
-                        <td>{{resource.name}}</td>
+                        <td><img class="img_without_td_padding" src="{% static ""%}{{resource.icon}}" style="">
+                            {{resource.name}}
+                        </td>
                         <td>{{resource.stock}} T</td>
                         <td>{{resource.produced}} T</td>
                         <td>{{resource.consumed}} T</td>

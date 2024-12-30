@@ -315,7 +315,8 @@ def resources(request):
 
     for resource in resources_declaration:
         resources_table.append({
-            'name': resource['name_fr'],  # TODO translation
+            'name': resource['name_' + 'fr'],  # TODO translation
+            'icon': resource['icon'],
             'stock': 7452,
             'max_storage': 20000,
             'buy_percent': 20,
