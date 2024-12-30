@@ -26,6 +26,7 @@
 ### TECHNICAL STACK
 
 Language : Python / HTML / JS  \
+Databse : MongoDB / Influx V2 \
 Framework : Django  \
 Template : AdminLTE
 
@@ -34,7 +35,7 @@ Template : AdminLTE
 ### INSTALLATION
 
 
-**Serveur Web Catalogue Digital**
+**Web Server**
 
 - Install Python 3.11.9 (https://www.python.org/downloads/) \
   Add option "Add python.exe to PATH" in the installer
@@ -56,6 +57,8 @@ Template : AdminLTE
 
 
 **InfluxDB**
+
+(NOT YET IMPLEMENTED)
 
 - Install InfluxDB Open Source v2.x (https://www.influxdata.com/downloads/)
 
@@ -87,7 +90,7 @@ TODO
 ***
 ### TRANSLATION
 
-The project use the integrated Django i18n associated with Rosetta.  \
+The project use the integrated Django i18n associated with Rosetta as interface.  \
 In HTML templates, text to translate need to be in a trans tag as such > {% trans 'Bonjour!' %}
 
 The following command will search the project for text to translate > makemessages -l en --ignore=venv --ignore=README.md
