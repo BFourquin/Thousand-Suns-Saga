@@ -12,6 +12,7 @@ from data import server_details, user, commandant, systems, technology, sectors,
 from data.user import get_user_by_name, get_user_by_object_id, update_user
 from data.report import get_commandant_reports, get_report_by_object_id, delete_report, change_report_status, \
     mark_all_reports_as_read, update_nb_unread_reports
+from data.resources import get_all_resources_parameters
 
 
 ########################################################################################################################
@@ -304,8 +305,30 @@ def resources(request):
     if not server or not commandant:
         redirect('/user_account/')
 
+    resources_declaration = get_all_resources_parameters(server)
+    commandant_resources = None
+    commandant_resources_stats = None
+    global_resources_stats = None
 
-    return render(request, 'game/resources.html', {'server': server,
-                                                 })
+    # Reformat with only useful info
+    resources_table = []
+
+    for resource in resources_declaration:
+        resources_table.append({
+            'name': resource['name_fr'],  # TODO translation
+            'stock': 7452,
+            'max_storage': 20000,
+            'buy_percent': 20,
+            'sell_percent': 60,
+            'produced': 178,
+            'consumed': 80,
+            'balance': 98,
+            'self_sustainability': 223,
+            'global_supply': 72,
+            'decree': '',
+            'effect': '',
+        })
+
+    return render(request, 'game/resources.html', {'server': server, 'resources': resources_table})
 
 
