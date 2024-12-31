@@ -12,7 +12,7 @@ from data import server_details, user, commandant, systems, technology, sectors,
 from data.user import get_user_by_name, get_user_by_object_id, update_user
 from data.report import get_commandant_reports, get_report_by_object_id, delete_report, change_report_status, \
     mark_all_reports_as_read, update_nb_unread_reports
-from data.resources import get_all_resources_parameters
+from data.resources import get_all_resources_parameters, get_resources_categories, get_resources_subcategories
 
 
 ########################################################################################################################
@@ -330,6 +330,10 @@ def resources(request):
             'effect': '',
         })
 
-    return render(request, 'game/resources.html', {'server': server, 'resources': resources_table})
+    resources_categories = get_resources_categories(server)
+    # resources_categories['name'] = resources_categories['name_fr']  # TODO auto-translation
+
+    return render(request, 'game/resources.html', {'server': server, 'resources': resources_table,
+                                                   'resources_categories': resources_categories})
 
 

@@ -23,7 +23,24 @@
     <!-- Main content -->
     <section class="content">
 
-<div class="col-12">
+      <div class="col-12">
+
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+
+                  <label class="btn btn-app btn-secondary">
+                    <i class="fas fa-barcode"></i>
+                    <input type="radio" name="options" id="all" autocomplete="off" checked=""> {% trans "Tout"%}
+                  </label>
+
+                  {% for category in resources_categories %}
+                  <label class="btn btn-app btn-secondary">
+                    <i class="fas {{category.icon}}"></i>
+                    <input type="radio" name="options" id="{{category.internal_name}}" autocomplete="off"> {{category.name_fr}}
+                  </label>
+                  {% endfor %}
+
+            </div>
+
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title">Fixed Header Table</h3>
