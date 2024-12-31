@@ -86,9 +86,9 @@ load_technologies(excel_tech_path=excel_server_params,
 
 # RESOURCES
 load_resources(excel_tech_path=excel_server_params,
-               sheet_tech_name='Resources',
+               sheet_resources_name='Resources',
                server_name=server_name,
-               delete_actual_techs=True)
+               delete_actual_resources=True)
 
 
 # NEW PLAYERS STARTING VALUES
