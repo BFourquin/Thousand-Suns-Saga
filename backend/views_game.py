@@ -317,6 +317,10 @@ def resources(request):
     resources_table = []
 
     for resource in resources_declaration:
+
+        if selected_category != 'all' and resource['category'] != selected_category:
+            continue
+
         resources_table.append({
             'name': resource['name_' + 'fr'],  # TODO translation
             'icon': resource['icon'],

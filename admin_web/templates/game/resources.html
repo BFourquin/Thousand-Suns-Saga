@@ -25,8 +25,11 @@
 
       <div class="col-12">
 
+        <!-- Dernier groupe de boutons aligné à droite -->
+        <div class="d-flex justify-content-end">
             <div class="btn-group btn-group-toggle flex-wrap" data-toggle="buttons">
-                <!-- Option "Tout" -->
+
+                <!-- ALL CATEGORIES -->
                 <label class="btn btn-app text-center {% if selected_category == 'all' %}btn-secondary{% else %}btn-default{% endif %}"
                          onclick="window.location.href='?selected_category=all'">
                     <i class="fas fa-infinity"></i>
@@ -34,7 +37,7 @@
                     {% trans "Tout" %}
                 </label>
 
-                <!-- Options pour chaque catégorie -->
+                <!-- SPECIFIC CATEGORY -->
                 {% for category in resources_categories %}
                 <label class="btn btn-app text-center {% if selected_category == category.internal_name %}btn-secondary{% else %}btn-default{% endif %}"
                        onclick="window.location.href='?selected_category={{ category.internal_name }}'">
@@ -44,6 +47,48 @@
                 </label>
                 {% endfor %}
             </div>
+
+            <!-- Separator -->
+            <div class="central-element flex-grow-1 mx-3 text-center">
+            </div>
+
+              <div class="btn-group btn-group-toggle flex-wrap" data-toggle="buttons">
+
+                <!-- SHORTAGE -->
+                <label class="btn btn-app text-center {% if selected_category == 'shortage' %}btn-secondary{% else %}btn-default{% endif %}"
+                       onclick="window.location.href='?selected_category=shortage'">
+                  <i class="fas fa-square-xmark"></i>
+                  <input type="radio" name="options" id="shortage" autocomplete="off" {% if selected_category == 'shortage' %}checked{% endif %}>
+                  {% trans "Pénurie" %}
+                </label>
+
+                <!-- DECREASE -->
+                <label class="btn btn-app text-center {% if selected_category == 'decrease' %}btn-secondary{% else %}btn-default{% endif %}"
+                       onclick="window.location.href='?selected_category=decrease'">
+                  <i class="fas fa-square-caret-down"></i>
+                  <input type="radio" name="options" id="decrease" autocomplete="off" {% if selected_category == 'decrease' %}checked{% endif %}>
+                  {% trans "En baisse" %}
+                </label>
+
+                <!-- DECREASE -->
+                <label class="btn btn-app text-center {% if selected_category == 'not_sefl_sufficiant' %}btn-secondary{% else %}btn-default{% endif %}"
+                       onclick="window.location.href='?selected_category=not_sefl_sufficiant'">
+                  <i class="fas fa-square-poll-vertical"></i>
+                  <input type="radio" name="options" id="not_sefl_sufficiant" autocomplete="off" {% if selected_category == 'not_sefl_sufficiant' %}checked{% endif %}>
+                  {% trans "Non autosuffisant" %}
+                </label>
+
+                <!-- UNSOLD -->
+                <label class="btn btn-app text-center {% if selected_category == 'full_storage' %}btn-secondary{% else %}btn-default{% endif %}"
+                       onclick="window.location.href='?selected_category=full_storage'">
+                  <i class="fas fa-square-minus"></i>
+                  <input type="radio" name="options" id="full_storage" autocomplete="off" {% if selected_category == 'full_storage' %}checked{% endif %}>
+                  {% trans "Plein" %}
+                </label>
+
+              </div>
+            </div>
+
 
 
             <div class="card">
