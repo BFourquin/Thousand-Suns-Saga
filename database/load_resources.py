@@ -36,6 +36,7 @@ def load_resources(excel_tech_path, sheet_resources_name, server_name, delete_ac
                 resources = {}
                 for i in range(len(titles)):
                     resources[titles[i]] = row[i] if row[i] != '' else None
+                resources.pop('', None)  # Remove empty rows
 
                 print(row)
                 db.insert_one(resources)
@@ -66,6 +67,7 @@ def load_resources(excel_tech_path, sheet_resources_name, server_name, delete_ac
                 resources_cat = {}
                 for i in range(len(titles)):
                     resources_cat[titles[i]] = row[i] if row[i] != '' else None
+                resources_cat.pop('', None)  # Remove empty rows
 
                 print(row)
                 db.insert_one(resources_cat)
