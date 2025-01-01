@@ -305,6 +305,9 @@ def resources(request):
     if not server or not commandant:
         redirect('/user_account/')
 
+    selected_category = params['selected_category'] if 'selected_category' in params else 'all'
+
+
     resources_declaration = get_all_resources_parameters(server)
     commandant_resources = None
     commandant_resources_stats = None
@@ -334,6 +337,7 @@ def resources(request):
     # resources_categories['name'] = resources_categories['name_fr']  # TODO auto-translation
 
     return render(request, 'game/resources.html', {'server': server, 'resources': resources_table,
+                                                   'selected_category': selected_category,
                                                    'resources_categories': resources_categories})
 
 
