@@ -56,7 +56,6 @@ def get_active_server_and_commandant_from_request(request):
     return server, commandant
 
 
-
 ########################################################################################################################
 # RANDOM FUNCTIONS
 

@@ -321,10 +321,16 @@ def resources(request):
         if selected_category != 'all' and resource['category'] != selected_category:
             continue
 
+        resource_name = resource['internal_name']
+        if resource_name not in commandant['resources'].keys():
+            print(resource_name, commandant['resources'].keys())
+            continue  # TODO display undiscovered resources greyed instead of hiding them ?
+
+
         resources_table.append({
             'name': resource['name_' + 'fr'],  # TODO translation
             'icon': resource['icon'],
-            'stock': 7452,
+            'stock': commandant['resources'][resource_name] if resource_name in commandant['resources'] else 0,
             'max_storage': 20000,
             'buy_percent': 20,
             'sell_percent': 60,
