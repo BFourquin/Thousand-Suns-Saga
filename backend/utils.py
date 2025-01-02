@@ -70,7 +70,12 @@ def probability_picker(probabilities, random_number=random.random()):
         random_number = random.random()
 
     # Check if all cumulated probabilities equal 1, 0.01 rounding error tolerance
-    total_prob = sum(probabilities.values())
+    try:
+        total_prob = sum(probabilities.values())
+    except Exception as e:
+        print('PROBABILITY ERROR > ', probabilities)
+        raise e
+
     if not 0.99 <= total_prob <= 1.01:
         for key, value in probabilities.items():
             probabilities[key] = value / total_prob
