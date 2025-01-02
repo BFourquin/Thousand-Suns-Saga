@@ -23,3 +23,11 @@ def get_resources_subcategories(server_name):
     db = client['resources_subcategories']
 
     return db.find({})
+
+
+########################################################################################################################
+
+
+def give_starting_resources(server_name, commandant_id):
+
+    ...

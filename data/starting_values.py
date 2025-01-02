@@ -2,17 +2,19 @@
 from database.db_connect import databases
 
 
-def create_starting_values(server):
+def create_starting_values(server, start_type='default_land_colony', remove_previous=False):
 
     client = databases['TSS_' + server]
     db = client['starting_values']
 
     # Remove previous values
-    db.delete_many({})
+    if remove_previous:
+        db.delete_many({})
 
     starting_values = {
+        'start_type': start_type,
         'available_native_planets': [],
-        'starting_resources': {},
+        'starting_resources': starting_values_ressources(server, start_type='default_land_colony'),
         'starting_capital': {},
         'starting_territories': {},
         'starting_ressources': {},
@@ -25,15 +27,14 @@ def create_starting_values(server):
 
 
 
-def get_starting_values(server):
+def get_starting_values(server, start_type='default_land_colony'):
     client = databases['TSS_' + server]
     db = client['starting_values']
-    return db.find_one()
-
-#create_starting_values(None, 'Alpha', None)
+    return db.find_one({'start_type': start_type})
 
 
-# #### AVAILABLE NATIVE PLANETS #### #
+########################################################################################################################
+# #### AVAILABLE NATIVE PLANETS ########################################################################################
 
 
 def get_available_native_planets(server):
@@ -61,3 +62,26 @@ def remove_available_native_planets(server, planet_seed):
     planets_list.remove(planet_seed)
     db.update_one({}, {"$set": {'planets_list': planets_list}})
 
+
+########################################################################################################################
+# #### STARTING RESOURCES ##############################################################################################
+
+def starting_values_ressources(server, start_type='default_land_colony'):
+    client = databases['TSS_' + server]
+    resources = client['resources'].find({})
+
+    starting_resources = {}
+
+    for resource in resources:
+        if resource['available_from_start'] in ('True', 'true'):
+            resource_name = resource['internal_name']
+            quantity = resource['start_quantity'] if resource['start_quantity'] else 0
+            starting_resources[resource_name] = quantity
+
+    return starting_resources
+
+
+########################################################################################################################
+
+if __name__ == '__main__':
+    create_starting_values('Alpha_test', remove_previous=True)
