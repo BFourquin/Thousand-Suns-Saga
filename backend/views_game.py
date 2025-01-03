@@ -323,8 +323,7 @@ def resources(request):
 
         resource_name = resource['internal_name']
         if resource_name not in commandant['resources'].keys():
-            print(resource_name, commandant['resources'].keys())
-            continue  # TODO display undiscovered resources greyed instead of hiding them ?
+            ... # continue  # TODO display undiscovered resources greyed instead of hiding them ?
 
 
         resources_table.append({
