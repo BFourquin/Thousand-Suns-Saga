@@ -49,6 +49,9 @@ def get_active_server_and_commandant_from_request(request):
 
     user = get_user_by_name(str(request.user))
 
+    if not user:
+        return None, None
+
     server = user['playing_on_server']
 
     commandant_id = user['playing_on_commandant']
