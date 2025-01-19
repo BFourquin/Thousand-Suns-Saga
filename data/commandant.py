@@ -160,6 +160,7 @@ def get_commandant_from_any_server(name=None, _id=None):
 
 
 def update_commandant(server, commandant_id, param, value):
+    # Modifies an existing document or documents in a collection
 
     client = databases['TSS_' + server]
     db = client['commandants']
@@ -167,6 +168,7 @@ def update_commandant(server, commandant_id, param, value):
 
 
 def push_param_commandant(server, commandant_id, param, value):
+    # Appends a specified value to an array
 
     client = databases['TSS_' + server]
     db = client['commandants']
@@ -174,6 +176,7 @@ def push_param_commandant(server, commandant_id, param, value):
 
 
 def pull_param_commandant(server, commandant_id, param, value):
+    # Removes from an existing array all instances of a value or values that match a specified condition.
 
     client = databases['TSS_' + server]
     db = client['commandants']
@@ -196,5 +199,5 @@ def delete_commandant(server, commandant_id):
 
 
 if __name__ == '__main__':
-    server = 'Alpha'
+    server = 'Alpha_test'
     delete_commandant(server, get_commandant_by_name(server, 'test01')['_id'])
