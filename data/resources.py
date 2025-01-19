@@ -1,5 +1,6 @@
 
 
+from data.commandant import get_commandant_by_object_id
 from database.db_connect import databases
 
 
@@ -28,6 +29,31 @@ def get_resources_subcategories(server_name):
 ########################################################################################################################
 
 
+def check_enough_resource(server, commandant_id, resource, quantity):
+    commandant = get_commandant_by_object_id(server, commandant_id)
+
+    if resource not in commandant['resources']:
+        return False
+
+    return commandant['resources'] >= quantity
+
+
+
+def resource_change(server, commandant_id, resource, quantity, allow_negative=False):
+    commandant = get_commandant_by_object_id(server, commandant_id)
+
+    if resource not in commandant['resources']:
+        return False
+
+    if allow_negative or commandant['resources'] + quantity > 0:
+        commandant['resources'][resource] += quantity
+        return True
+    return False
+
+
+########################################################################################################################
+
+
 def give_starting_resources(server_name, commandant_id):
 
-    ...
+    ...  # TODO
