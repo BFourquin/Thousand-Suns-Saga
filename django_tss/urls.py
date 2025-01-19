@@ -67,6 +67,9 @@ urlpatterns = [
 
     path('resources/', views_game.resources, name='resources'),
 
+    path('colonies/', views_game.colonies, name='colonies'),
+    #path('colony/', views_game.colony, name='colony'),
+
     path('geography_system/', views_game.geography_system, name='geography_system'),
 
     path('reports/', views_game.reports, name='reports'),
