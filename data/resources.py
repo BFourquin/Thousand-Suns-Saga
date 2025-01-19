@@ -48,8 +48,8 @@ def resource_change(server, commandant_id, resource, quantity, allow_negative=Fa
     if allow_negative or commandant['resources'][resource] + quantity > 0:
         commandant['resources'][resource] += quantity
         update_commandant(server, commandant_id,
-                              'resources.'+resource,
-                              commandant['resources'][resource])
+                          'resources.'+resource,
+                          commandant['resources'][resource])
         return True
     return False
 

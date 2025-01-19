@@ -1,5 +1,26 @@
 
 
+/* TEMPLATE OVERRIDES */
+
+.menu-open {
+    border-left-width: 3px;
+    border-left-style: solid;
+    border-radius: 0px !important;
+}
+
+.content-header {
+  padding: 20px 2rem;
+}
+
+@media screen and (min-width: 1600px) {
+    .content-wrapper > .content {
+        padding: 0 1.5rem !important;
+    }
+}
+
+
+/* GENERAL STYLES */
+
 .menu-separator {
     border-bottom: 1px solid #4f5962;
     margin-top: 7.5px;
@@ -12,6 +33,8 @@
   position: absolute;
   z-index: -1;
 }
+
+
 @media screen and (max-height: 600px) {
     .menu_bottom_logo {
         display: none;
@@ -24,7 +47,6 @@
   max-height: 40px;
   align-self: last baseline;
 }
-
 
 
 .links-icons-column {
