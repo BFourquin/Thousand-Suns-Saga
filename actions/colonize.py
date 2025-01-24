@@ -1,8 +1,8 @@
 
-from data import colony
+from data import colonies, districts, coordinates, starting_values
 
 
-def check_if_colonisable(commandant, planet_id):
+def check_if_colonisable(commandant, coordinate_seed):
 
     # TODO check if habitable
     # TODO check the planet is not contested by a strong revendication
@@ -10,28 +10,20 @@ def check_if_colonisable(commandant, planet_id):
     return True
 
 
-def colonize(server, commandant, fleet_id, coordinate, colony_name, colony_type, admin_force_action=False):
+def colonize(server, commandant, fleet_id, coordinate_seed, colony_type, colony_name=None, admin_force_action=False):
 
     if not admin_force_action:  # Bypass checks and needing a colonizer ship if admin action
 
-        if not check_if_colonisable(commandant, coordinate):
+        if not check_if_colonisable(commandant, coordinate_seed):
             return 'Planet is not colonisable'  # TODO translation
 
-    # TODO check the fleet has a colonizer ship
-    # TODO remove the colonizer ship
+        # TODO check the fleet has a colonizer ship
+        # TODO remove the colonizer ship
 
-    new_colony = {
-        'name': colony_name,
-        'owner': commandant['_id'],
-        'controller': commandant['_id'],
-        'coordinate': coordinate['_id'],
-        'districts': [],
-        'colony_type': colony_type,  # TODO more types
-    }
+    if colony_name is None:
+        colony_name = coordinates.get_coordinate(server, coordinate_seed)['name']
 
-    # TODO add districts and buildings according to colony type, planet biome and colonizing ship modules
-
-    colony.set_colony(server, new_colony)
-
+    colonies.new_colony(server, commandant['_id'], colony_name, coordinate_seed, colony_type, districts=None)
+    starting_values.remove_available_native_planets(server, coordinate_seed)
 
 

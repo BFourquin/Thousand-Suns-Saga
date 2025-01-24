@@ -40,27 +40,19 @@ def get_starting_values(server, start_type='default_land_colony'):
 def get_available_native_planets(server):
     client = databases['TSS_' + server]
     db = client['starting_values']
-    available_native_planets = db.find_one()
-    if available_native_planets:
-        return available_native_planets['available_native_planets']
+    return db.find_one()['available_native_planets']
 
 
 def add_available_native_planets(server, planet_seed):
     client = databases['TSS_' + server]
     db = client['starting_values']
-    planets_list = get_available_native_planets(server)
-    if not planets_list:
-        planets_list = []
-    planets_list.append(planet_seed)
-    db.update_one({}, {"$set": {'available_native_planets': planets_list}})
+    db.update_one({}, {"$push": {'available_native_planets': planet_seed}})
 
 
 def remove_available_native_planets(server, planet_seed):
     client = databases['TSS_' + server]
     db = client['starting_values']
-    planets_list = db.find_one()['available_native_planets']
-    planets_list.remove(planet_seed)
-    db.update_one({}, {"$set": {'planets_list': planets_list}})
+    db.update_one({}, {"$pull": {'available_native_planets': planet_seed}})
 
 
 ########################################################################################################################
