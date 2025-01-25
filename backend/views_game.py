@@ -279,7 +279,7 @@ def geography_system(request):
     system_coordinates = []
     for coordinate in system['system_coordinates'].keys():
         coo = data.coordinates.get_coordinate(server, coordinate)
-        coo['image'] = 'images/placeholder/'+coo['type']+'.png'
+        coo['image'] = 'images/placeholder/'+coo['type']+'.png'  # TODO get planet image
 
         system_coordinates.append(coo)
 
@@ -365,13 +365,12 @@ def colonies(request):
     filter_marker = params['marker'] if 'marker' in params else 'all'
     search_text = params['search_text'] if 'search_text' in params else None
 
-    colonies = get_colonies_controlled_by_commandant(server, commandant['_id'])
+    colonies = get_colonies_controlled_by_commandant(server, commandant['_id'], add_coo_image=True)
 
     #reports, nb_unread_reports = get_commandant_reports(server, commandant['_id'],
     #                                                    filter_status=filter_status, filter_category=filter_category,
     #                                                    search_text=search_text)
 
-    print(colonies)
 
     return render(request, 'game/colonies.html', {'server': server, 'colonies': colonies,
                                                   'marker': filter_marker, 'category': filter_category,

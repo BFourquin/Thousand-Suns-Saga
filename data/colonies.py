@@ -9,10 +9,16 @@ def get_colony(server, id):
     return db.find_one({"_id": id})
 
 
-def get_colonies_controlled_by_commandant(server, commandant_id):
+def get_colonies_controlled_by_commandant(server, commandant_id, add_coo_image=False):
     client = databases['TSS_' + server]
     db = client['colonies']
-    return list(db.find({"controller": commandant_id}))
+    colonies = list(db.find({"controller": commandant_id}))
+
+    if add_coo_image:
+        for i in range(len(colonies)):
+            colonies[i]['coordinate_image'] = 'images/placeholder/telluric.png'  # TODO get image from planet table
+
+    return colonies
 
 
 def get_all_colonies(server):
@@ -47,7 +53,7 @@ def pull_param_colony(server, colony_id, param, value):
 
 
 
-def new_colony(server, commandant_id, colony_name, coordinate, colony_type, districts=None):
+def new_colony(server, commandant_id, colony_name, coordinate, colony_type, colony_size, districts=None):
 
     client = databases['TSS_' + server]
     db = client['colonies']
@@ -59,6 +65,7 @@ def new_colony(server, commandant_id, colony_name, coordinate, colony_type, dist
         'coordinate': coordinate,
         'districts': [],
         'colony_type': colony_type,  # TODO more types
+        'colony_size': colony_size,
     }
 
     # TODO add districts and buildings according to colony type, planet biome and colonizing ship modules

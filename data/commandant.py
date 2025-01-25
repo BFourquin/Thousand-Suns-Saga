@@ -120,6 +120,7 @@ def create_commandant(server, user, commandant_name, civilisation_name):
                           coordinate_seed=starting_planet_id,
                           colony_name=None,
                           colony_type='starting_colony',
+                          colony_size='territory',
                           admin_force_action=True)
 
         # Welcome and tutorial report
