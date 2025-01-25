@@ -129,3 +129,39 @@
 .multiple_icons_line{
     padding: 0.5rem 0.5rem !important;
 }
+
+
+.background-img-colony {
+    position: relative;
+    /* On n'ajoute pas l'image ici, elle est dans le HTML */
+}
+
+.background-img-colony::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%; /* Zone du dégradé */
+    height: 100%;
+    background: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)); /* Dégradé noir à gauche */
+    pointer-events: none; /* Ne pas interférer avec les clics */
+    z-index: 0; /* Mettre ce dégradé en arrière-plan */
+}
+
+.background-img-colony::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%; /* Zone de filtre */
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4); /* Filtre noir simple à droite */
+    pointer-events: none; /* Ne pas interférer avec les clics */
+    z-index: 0; /* Mettre ce filtre en arrière-plan */
+}
+
+/* Assurer que le contenu du <tr> reste visible au-dessus du dégradé */
+.background-img-colony > * {
+    position: relative;
+    z-index: 1;
+}

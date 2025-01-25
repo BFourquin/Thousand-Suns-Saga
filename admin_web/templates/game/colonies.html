@@ -328,12 +328,18 @@
                   </div>
 
                 <div class="table-responsive mailbox-messages" style="padding-bottom: 5px;">
-                  <table class="table table-hover table-striped">
+                  <table class="table table-hover table-striped" style="width: 100%; table-layout: auto;">
                     <tbody>
 
                     {% for colony in colonies %}
 
-                      <tr class="pointer_cursor" style="white-space: nowrap;" onclick="window.location='/report/?report_id={{report.id}}';">
+                      <tr class="pointer_cursor background-img-colony" style='white-space: nowrap;
+
+                        position: relative;
+    background: url("{% static ""%}images/colony_landscape.png") no-repeat right center;
+    background-size: cover;
+
+'>
 
                         <td class="mailbox-date pointer_cursor">
                           <img class="large_img_without_td_padding" src="{% static ""%}{{colony.coordinate_image}}" style=""></td>
@@ -364,10 +370,14 @@
                           <span>Districts : {{colony.districts|length}}/3 <i class="fas fa-hexagon-nodes"></i></span><br>
                           <span>Travailleurs : 100% <i class="fas fa-hammer"></i></span>
                         </td>
-
-                        <td class="mailbox-date" style="padding-right: 0px; width: 100%;"><a href='/commandant_info/?pseudo="{{report.sender}}"'>
+<!--
+                        <td class="" style="  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden;
+  white-space: nowrap;"><a href='/commandant_info/?pseudo="{{report.sender}}"'>
                           <img class="td_left_fading_illustration" src="{% static ""%}images/colony_landscape.png" style=""></a></td>
-
+-->
                       </tr>
 
                     {% endfor %}
