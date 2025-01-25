@@ -1,13 +1,18 @@
 
 from database.db_connect import databases
-import coordinates
+from data.districts import create_district
 
 
 def get_colony(server, id):
-
     client = databases['TSS_' + server]
     db = client['colonies']
     return db.find_one({"_id": id})
+
+
+def get_colonies_controlled_by_commandant(server, commandant_id):
+    client = databases['TSS_' + server]
+    db = client['colonies']
+    return list(db.find({"controller": commandant_id}))
 
 
 def get_all_colonies(server):
@@ -59,9 +64,9 @@ def new_colony(server, commandant_id, colony_name, coordinate, colony_type, dist
     # TODO add districts and buildings according to colony type, planet biome and colonizing ship modules
     district_type = 'world_capital'
 
-    colony_id = db.insert_one(new_colony)
+    colony_id = db.insert_one(new_colony).inserted_id
 
-    districts.create_district(server, colony_id, district_type, starting_buildings=None)
+    create_district(server, colony_id, district_type, starting_buildings=None)
 
 
 

@@ -10,11 +10,11 @@ def check_if_colonisable(commandant, coordinate_seed):
     return True
 
 
-def colonize(server, commandant, fleet_id, coordinate_seed, colony_type, colony_name=None, admin_force_action=False):
+def colonize(server, commandant_id, fleet_id, coordinate_seed, colony_type, colony_name=None, admin_force_action=False):
 
     if not admin_force_action:  # Bypass checks and needing a colonizer ship if admin action
 
-        if not check_if_colonisable(commandant, coordinate_seed):
+        if not check_if_colonisable(commandant_id, coordinate_seed):
             return 'Planet is not colonisable'  # TODO translation
 
         # TODO check the fleet has a colonizer ship
@@ -23,7 +23,7 @@ def colonize(server, commandant, fleet_id, coordinate_seed, colony_type, colony_
     if colony_name is None:
         colony_name = coordinates.get_coordinate(server, coordinate_seed)['name']
 
-    colonies.new_colony(server, commandant['_id'], colony_name, coordinate_seed, colony_type, districts=None)
+    colonies.new_colony(server, commandant_id, colony_name, coordinate_seed, colony_type, districts=None)
     starting_values.remove_available_native_planets(server, coordinate_seed)
 
 

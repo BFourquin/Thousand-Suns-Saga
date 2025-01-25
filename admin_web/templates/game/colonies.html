@@ -53,7 +53,7 @@
                   <li class="nav-item">
                     <a href="/colonies/?category=all" rel="keep-params" class="nav-link {% if category == 'all' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-globe"></i></span>
-                      {% trans "Tous les rapports"%}
+                      {% trans "Toutes les colonies"%}
                       {% if nb_unread_colonies.all %}
                         <span class="report_count badge badge-warning float-right">{{nb_unread_colonies.all}}</span>
                       {% endif %}
@@ -172,6 +172,9 @@
                     <a href="/colonies/?marker=industry" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'industry' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-industry"></i></span>
                     </a>
+                    <a href="/colonies/?marker=mining" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'mining' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-oil-well"></i></span>
+                    </a>
                     <a href="/colonies/?marker=science" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'science' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-flask"></i></span>
                     </a>
@@ -180,9 +183,6 @@
                     </a>
                     <a href="/colonies/?marker=farm" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'farm' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-wheat-awn"></i></span>
-                    </a>
-                    <a href="/colonies/?marker=marker" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'marker' %}hover{% endif %}">
-                      <span class="span_centering_icon"><i class="fas fa-envelope"></i></span>
                     </a>
 
                   </li>
@@ -302,7 +302,7 @@
 
 
                   <div class="float-right">
-                    {{ colonies.paginator.count }} {% trans "Rapports"%} | {% trans "Page"%} {{page}}
+                    {{ colonies.paginator.count }} {% trans "Colonies"%} | {% trans "Page"%} {{page}}
 
                     <div class="btn-group">
                       {% if colonies.has_previous %}
@@ -331,34 +331,9 @@
                   <table class="table table-hover table-striped">
                     <tbody>
 
-                    {% for report in colonies %}
-
-                      <tr class="{{report.status}}{% if dark_mode %}-dark{% endif %}" style="white-space: nowrap;">
-                        <td>
-                          <div class="icheck-primary">
-                            <input type="checkbox" name="colonies[]" value="{{report.id}}" id="{{report.id}}">
-                            <label for="{{report.id}}"></label>
-                          </div>
-                        </td>
-
-                        <td class="mailbox-attachment"><i class="fas {{report.category_icon}}"></i></td>
-                        <td class="mailbox-date">{{report.datetime}}</td>
-
-
-                        <td class="mailbox-date pointer_cursor" onclick="window.location='/report/?report_id={{report.id}}';">
-                          <img class="img_without_td_padding" src="{% static ""%}{{report.illustration}}" style=""></td>
-
-                        {% if not report.sender %}  <!-- No originating commandant mentioned, take all remaining place-->
-                          <td class="mailbox-subject text-ellipsis pointer_cursor" colspan="3" onclick="window.location='/report/?report_id={{report.id}}';">
-                            <b>{{report.title}}</b> - {{report.message}}></td>
-
-                        {% else %} <!-- Let place for the reference of commandant originating the report-->
-                          <td class="mailbox-subject text-ellipsis"><b>{{report.title}}</b> - {{report.message}}></td>
-
-                          <td class="mailbox-name"><a href='/commandant_info/?pseudo="{{report.sender}}"'>{{report.sender_name}}</a></td>
-                          <td class="mailbox-date" style="padding-right: 0px;"><a href='/commandant_info/?pseudo="{{report.sender}}"'>
-                            <img class="img_without_td_padding" src="{% static ""%}{{report.sender_image}}" style=""></a></td>
-                        {% endif %}
+                    {% for colony in colonies %}
+                      <tr>
+                        {{colony.name}} - {{colony.coordinate}}
 
                       </tr>
                     {% endfor %}

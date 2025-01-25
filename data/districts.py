@@ -50,7 +50,7 @@ def create_district(server, colony_id, district_type, starting_buildings=None):
         'damages': 0,
     }
 
-    district_id = db.insert_one(district)
+    district_id = db.insert_one(district).inserted_id
     colonies.push_param_colony(server, colony_id, 'districts', district_id)
 
 

@@ -60,7 +60,6 @@ def create_commandant(server, user, commandant_name, civilisation_name):
         user = get_user_by_name(user)
         starting_values = sv.get_starting_values(server)
 
-        # TODO check if starting position still colonizable
         starting_planet_id = starting_values['available_native_planets'][randint(0, len(starting_values['available_native_planets'])-1)]
 
         commandant = {
@@ -118,11 +117,10 @@ def create_commandant(server, user, commandant_name, civilisation_name):
         # Starting colony
         colonize.colonize(server, commandant_id,
                           fleet_id=None,
-                          coordinate=starting_planet_id,
+                          coordinate_seed=starting_planet_id,
                           colony_name=None,
                           colony_type='starting_colony',
                           admin_force_action=True)
-
 
         # Welcome and tutorial report
         from data.report import create_report  # Placed here to prevent circular import

@@ -12,6 +12,7 @@ from data import server_details, user, commandant, systems, technology, sectors,
 from data.user import get_user_by_name, get_user_by_object_id, update_user
 from data.report import get_commandant_reports, get_report_by_object_id, delete_report, change_report_status, \
     mark_all_reports_as_read, update_nb_unread_reports
+from data.colonies import get_colonies_controlled_by_commandant
 from data.resources import get_all_resources_parameters, get_resources_categories, get_resources_subcategories
 
 
@@ -364,11 +365,15 @@ def colonies(request):
     filter_marker = params['marker'] if 'marker' in params else 'all'
     search_text = params['search_text'] if 'search_text' in params else None
 
+    colonies = get_colonies_controlled_by_commandant(server, commandant['_id'])
+
     #reports, nb_unread_reports = get_commandant_reports(server, commandant['_id'],
     #                                                    filter_status=filter_status, filter_category=filter_category,
     #                                                    search_text=search_text)
 
-    return render(request, 'game/colonies.html', {'server': server,
+    print(colonies)
+
+    return render(request, 'game/colonies.html', {'server': server, 'colonies': colonies,
                                                   'marker': filter_marker, 'category': filter_category,
                                                   'search_text': search_text
                                                   })
