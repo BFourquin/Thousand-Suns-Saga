@@ -333,13 +333,10 @@
 
                     {% for colony in colonies %}
 
-                      <tr class="pointer_cursor background-img-colony" style='white-space: nowrap;
-
-                        position: relative;
-    background: url("{% static ""%}images/colony_landscape.png") no-repeat right center;
-    background-size: cover;
-
-'>
+                      <tr class="pointer_cursor background-img-colony{% if dark_mode %}-dark{% endif %}"
+                          style='white-space: nowrap; position: relative;
+                                 background: url("{% static ""%}images/colony_landscape.png") no-repeat right center;
+                                 background-size: cover;'>
 
                         <td class="mailbox-date pointer_cursor">
                           <img class="large_img_without_td_padding" src="{% static ""%}{{colony.coordinate_image}}" style=""></td>

@@ -1,0 +1,68 @@
+
+.background-img-colony {
+    position: relative;
+}
+
+.background-img-colony::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.4));
+    pointer-events: none;
+    z-index: 0;
+}
+
+.background-img-colony::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.background-img-colony > * {
+    position: relative;
+    z-index: 1;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+.background-img-colony-dark {
+    position: relative;
+}
+
+.background-img-colony-dark::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4));
+    pointer-events: none;
+    z-index: 0;
+}
+
+.background-img-colony-dark::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.background-img-colony-dark > * {
+    position: relative;
+    z-index: 1;
+}
