@@ -72,6 +72,22 @@
   margin-bottom: -0.75rem;
 }
 
+.large_img_without_td_padding{
+  max-height: 6.2rem;
+  margin-top: -0.75rem;
+  margin-bottom: -0.75rem;
+}
+
+.td_left_fading_illustration{
+  max-height: 6.2rem;
+  margin-top: -0.75rem;
+  margin-bottom: -0.75rem;
+  position: relative;
+  //left: -100%;
+  -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1));
+  mask-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1));
+}
+
 .text-ellipsis{
   text-overflow: ellipsis;
   overflow: hidden;

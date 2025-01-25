@@ -367,6 +367,8 @@ def colonies(request):
 
     colonies = get_colonies_controlled_by_commandant(server, commandant['_id'], add_coo_image=True)
 
+    colonies.append(colonies)
+
     #reports, nb_unread_reports = get_commandant_reports(server, commandant['_id'],
     #                                                    filter_status=filter_status, filter_category=filter_category,
     #                                                    search_text=search_text)
