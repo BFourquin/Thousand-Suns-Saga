@@ -5,7 +5,7 @@
 
 {% include "includes/header.html" with title="Colonies" %}
 
-{% include "includes/menu_game.html" %}  <!-- include body start -->
+{% include "includes/menu_game.html" with page_title=_("Colonies") %}  <!-- include body start -->
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -14,7 +14,7 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1>{% trans "Colonies"%} </h1>
+            <!--<h1>{% trans "Colonies"%} </h1>-->
           </div>
         </div>
       </div><!-- /.container-fluid -->
@@ -242,7 +242,7 @@
           <div class="col-md-10">
             <div class="card card-primary card-outline">
               <div class="card-header">
-                <h3 class="card-title">{% trans "Rapports"%}</h3>
+                <h3 class="card-title">{% trans "Colonies"%}</h3>
 
                 <div class="card-tools">
                   <div class="input-group input-group-sm">

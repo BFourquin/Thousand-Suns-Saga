@@ -21,6 +21,11 @@
 
 /* GENERAL STYLES */
 
+.head-title {
+    line-height: 22px;
+    text-align: center;
+}
+
 .menu-separator {
     border-bottom: 1px solid #4f5962;
     margin-top: 7.5px;
