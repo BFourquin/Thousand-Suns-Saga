@@ -14,8 +14,9 @@ def get_colonies_controlled_by_commandant(server, commandant_id, add_coo_image=F
     db = client['colonies']
     colonies = list(db.find({"controller": commandant_id}))
 
-    if add_coo_image:
-        for i in range(len(colonies)):
+    for i in range(len(colonies)):
+        colonies[i]['id'] = colonies[i]['_id']
+        if add_coo_image:
             colonies[i]['coordinate_image'] = 'images/placeholder/telluric.png'  # TODO get image from planet table
 
     return colonies
