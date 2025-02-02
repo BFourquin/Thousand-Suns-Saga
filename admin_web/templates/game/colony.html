@@ -116,35 +116,35 @@
                 <div class="input-group input-group-sm">
 
                   <!-- DISTRICTS FILTERS -->
-                  <span class="card-title" style="padding-top: 0.2rem;}">
+                  <span class="card-title nav-pills" style="padding-top: 0.2rem;}">
 
                     {% trans "Filtrer par types"%} :  
 
-                    <a href="/colony/?colony_id={{colony.id}}&districts_type=all" class=" {% if districts_type == 'all' %}hover{% endif %}">
+                    <a href="/colony/?colony_id={{colony.id}}&districts_type=all" class="pills {% if districts_type == 'all' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-infinity"></i></span>
                     </a>
-                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_industrial" class=" {% if districts_type == 'district_industrial' %}hover{% endif %}">
+                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_industrial" class="pills {% if districts_type == 'district_industrial' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-industry"></i></span>
                     </a>
-                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_mining" class=" {% if districts_type == 'district_mining' %}hover{% endif %}">
+                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_mining" class="pills {% if districts_type == 'district_mining' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-oil-well"></i></span>
                     </a>
-                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_scientific" class=" {% if districts_type == 'district_scientific' %}hover{% endif %}">
+                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_scientific" class="pills {% if districts_type == 'district_scientific' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-flask"></i></span>
                     </a>
-                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_economy" class=" {% if districts_type == 'district_economy' %}hover{% endif %}">
+                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_economy" class="pills {% if districts_type == 'district_economy' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-coins"></i></span>
                     </a>
-                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_farming" class=" {% if districts_type == 'district_farming' %}hover{% endif %}">
+                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_farming" class="pills {% if districts_type == 'district_farming' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-wheat-awn"></i></span>
                     </a>
-                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_military" class=" {% if districts_type == 'district_military' %}hover{% endif %}">
-                      <span class="span_centering_icon"><i class="fas fa-person-rifle"></i></span>
+                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_military" class="pills {% if districts_type == 'district_military' %}hover{% endif %}">
+                      <span class="span_centering_icon pills "><i class="fas fa-person-rifle"></i></span>
                     </a>
-                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_nature" class=" {% if districts_type == 'district_nature' %}hover{% endif %}">
+                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_nature" class="pills {% if districts_type == 'district_nature' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-leaf"></i></span>
                     </a>
-                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_empty" class=" {% if districts_type == 'district_empty' %}hover{% endif %}">
+                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_empty" class="pills {% if districts_type == 'district_empty' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-square-plus"></i></span>
                     </a>
                   </span>
@@ -159,13 +159,10 @@
             <div class="card-body p-0">
 
               <div class="table-responsive mailbox-messages" style="padding-bottom: 5px;">
-                <table class="table table-striped" style="width: 100%; table-layout: auto;">
+                <table class="table table-stripped" style="width: 100%; table-layout: auto;">
                   <tbody>
 
-                    <tr class="pointer_cursor background-img-colony{% if dark_mode %}-dark{% endif %}"
-                        style='white-space: nowrap; position: relative;
-                               background: url("{% static ""%}images/colony_landscape.png") no-repeat right center;
-                               background-size: cover;'>
+                    <tr class="" style='white-space: nowrap;'>
 
                       <td class="mailbox-date pointer_cursor">
                         <img class="large_img_without_td_padding" src="{% static ""%}{{colony.coordinate_image}}" style=""></td>
