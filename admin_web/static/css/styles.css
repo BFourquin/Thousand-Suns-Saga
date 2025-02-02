@@ -83,6 +83,12 @@
   margin-bottom: -0.75rem;
 }
 
+.rem15_large_img_without_td_padding{
+  max-height: 15rem;
+  margin-top: -0.75rem;
+  margin-bottom: -0.75rem;
+}
+
 .td_left_fading_illustration{
   max-height: 6.2rem;
   margin-top: -0.75rem;
@@ -91,6 +97,10 @@
   //left: -100%;
   -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1));
   mask-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1));
+}
+
+.align-bottom{
+    vertical-align: bottom;
 }
 
 .text-ellipsis{

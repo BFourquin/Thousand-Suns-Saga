@@ -1,25 +1,39 @@
 
 from bson.objectid import ObjectId
 
+from backend import utils
 from database.db_connect import databases
 from data.districts import create_district
 
 
-def get_colony(server, id):
+def additional_colony_info(colony, add_coo_image):
+    # Add id, geographic_location and images
+
+    colony['id'] = colony['_id']
+    colony['geographic_location'] = utils.info_from_seed(colony['coordinate'])
+    if add_coo_image:
+        colony['coordinate_image'] = 'images/placeholder/telluric.png'  # TODO get image from planet table
+
+    return colony
+
+
+def get_colony(server, id, add_coo_image=False):
     client = databases['TSS_' + server]
     db = client['colonies']
-    return db.find_one({"_id": ObjectId(id)})
+
+    colony = db.find_one({"_id": ObjectId(id)})
+    colony = additional_colony_info(colony, add_coo_image)
+
+    return colony
 
 
 def get_colonies_controlled_by_commandant(server, commandant_id, add_coo_image=False):
     client = databases['TSS_' + server]
     db = client['colonies']
-    colonies = list(db.find({"controller": commandant_id}))
 
+    colonies = list(db.find({"controller": commandant_id}))
     for i in range(len(colonies)):
-        colonies[i]['id'] = colonies[i]['_id']
-        if add_coo_image:
-            colonies[i]['coordinate_image'] = 'images/placeholder/telluric.png'  # TODO get image from planet table
+        colonies[i] = additional_colony_info(colonies[i], add_coo_image)
 
     return colonies
 

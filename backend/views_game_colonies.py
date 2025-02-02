@@ -46,17 +46,17 @@ def colony(request):
     params = request_params(request)
     server, commandant = get_active_server_and_commandant_from_request(request)
 
+    filter_districts = params['districts_type'] if 'districts_type' in params else 'all'
+
     if not server or not commandant:
         redirect('/user_account/')
     if 'colony_id' not in params:
         redirect('/colonies/')
 
-    colony_dict = get_colony(server, params['colony_id'])
-
-    print(colony_dict)
-    print(colony_dict['name'])
+    colony_dict = get_colony(server, params['colony_id'], add_coo_image=True)
 
     return render(request, 'game/colony.html', {'server': server, 'colony': colony_dict,
-                                                  })
+                                                'districts_type': filter_districts,
+                                                })
 
 

@@ -337,13 +337,7 @@
                           style='white-space: nowrap; position: relative;
                                  background: url("{% static ""%}images/colony_landscape.png") no-repeat right center;
                                  background-size: cover;'
-                          onclick="colony_link('/colony/?colony_id={{colony.id}}')">
-
-                        <script type="text/javascript">
-                          function colony_link(url)
-                            {document.location.href = url;}
-                        </script>
-
+                          onclick="document.location.href='/colony/?colony_id={{colony.id}}'">
 
                         <td class="mailbox-date pointer_cursor">
                           <img class="large_img_without_td_padding" src="{% static ""%}{{colony.coordinate_image}}" style=""></td>
