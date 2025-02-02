@@ -146,9 +146,12 @@
 }
 
 
-.pills_color{
+.pills{
+    color: #6c757d;;
+}
+.dark-mode{
+    .pills{
+        color: #ced4da;
+    }
 }
 
-.pills{
-    color: #ced4da;
-}
