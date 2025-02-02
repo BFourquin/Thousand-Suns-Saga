@@ -1,4 +1,6 @@
 
+from bson.objectid import ObjectId
+
 from database.db_connect import databases
 from data.districts import create_district
 
@@ -6,7 +8,7 @@ from data.districts import create_district
 def get_colony(server, id):
     client = databases['TSS_' + server]
     db = client['colonies']
-    return db.find_one({"_id": id})
+    return db.find_one({"_id": ObjectId(id)})
 
 
 def get_colonies_controlled_by_commandant(server, commandant_id, add_coo_image=False):

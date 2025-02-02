@@ -336,7 +336,14 @@
                       <tr class="pointer_cursor background-img-colony{% if dark_mode %}-dark{% endif %}"
                           style='white-space: nowrap; position: relative;
                                  background: url("{% static ""%}images/colony_landscape.png") no-repeat right center;
-                                 background-size: cover;'>
+                                 background-size: cover;'
+                          onclick="colony_link('/colony/?colony_id={{colony.id}}')">
+
+                        <script type="text/javascript">
+                          function colony_link(url)
+                            {document.location.href = url;}
+                        </script>
+
 
                         <td class="mailbox-date pointer_cursor">
                           <img class="large_img_without_td_padding" src="{% static ""%}{{colony.coordinate_image}}" style=""></td>
@@ -367,14 +374,7 @@
                           <span>Districts : {{colony.districts|length}}/3 <i class="fas fa-hexagon-nodes"></i></span><br>
                           <span>Travailleurs : 100% <i class="fas fa-hammer"></i></span>
                         </td>
-<!--
-                        <td class="" style="  width: auto !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
-  overflow: hidden;
-  white-space: nowrap;"><a href='/commandant_info/?pseudo="{{report.sender}}"'>
-                          <img class="td_left_fading_illustration" src="{% static ""%}images/colony_landscape.png" style=""></a></td>
--->
+
                       </tr>
 
                     {% endfor %}
@@ -445,67 +445,6 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-
-<script>
-  $(function () {
-    //Enable check and uncheck all functionality
-    $('.checkbox-toggle').click(function () {
-      var clicks = $(this).data('clicks')
-      if (clicks) {
-        //Uncheck all checkboxes
-        $('.mailbox-messages input[type=\'checkbox\']').prop('checked', false)
-        $('.checkbox-toggle .far.fa-check-square').removeClass('fa-check-square').addClass('fa-square')
-      } else {
-        //Check all checkboxes
-        $('.mailbox-messages input[type=\'checkbox\']').prop('checked', true)
-        $('.checkbox-toggle .far.fa-square').removeClass('fa-square').addClass('fa-check-square')
-      }
-      $(this).data('clicks', !clicks)
-    })
-
-    //Handle starring for font awesome
-    $('.mailbox-star').click(function (e) {
-      e.preventDefault()
-      //detect type
-      var $this = $(this).find('a > i')
-      var fa    = $this.hasClass('fa')
-
-      //Switch states
-      if (fa) {
-        $this.toggleClass('fa-star')
-        $this.toggleClass('fa-star-o')
-      }
-    })
-  })
-
-// Keep current page parameters when following a filter link
-$("a[rel~='keep-params']").click(function(e) {
-    e.preventDefault();
-
-    // Get the current URL parameters
-    var currentParams = new URLSearchParams(window.location.search);
-
-    // Get the URL of the clicked link
-    var href = $(this).attr('href');
-    var url = new URL(href, window.location.origin);
-
-    // Get the parameters from the link
-    var linkParams = new URLSearchParams(url.search);
-
-    // Merge parameters, avoiding duplicates
-    linkParams.forEach(function(value, key) {
-        currentParams.set(key, value); // Replace the parameter if it already exists
-    });
-
-    // Build the final URL
-    var dest = url.origin + url.pathname + '?' + currentParams.toString();
-
-    // Short timeout to overcome browser bugs
-    window.setTimeout(function() {
-        window.location.href = dest;}, 100);
-});
-
-</script>
 
 </body>
 </html>

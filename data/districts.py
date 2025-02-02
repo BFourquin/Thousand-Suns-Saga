@@ -1,4 +1,6 @@
 
+from bson.objectid import ObjectId
+
 from database.db_connect import databases
 from data import colonies
 
@@ -7,7 +9,7 @@ def get_district(server, id):
 
     client = databases['TSS_' + server]
     db = client['districts']
-    return db.find_one({"_id": id})
+    return db.find_one({"_id": ObjectId(id)})
 
 
 def get_all_districts(server):
