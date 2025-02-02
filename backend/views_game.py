@@ -350,33 +350,3 @@ def resources(request):
                                                    'selected_category': selected_category,
                                                    'resources_categories': resources_categories})
 
-
-
-@login_required(login_url='/player_login/')
-def colonies(request):
-
-    params = request_params(request)
-    server, commandant = get_active_server_and_commandant_from_request(request)
-
-    if not server or not commandant:
-        redirect('/user_account/')
-
-    filter_category = params['category'] if 'category' in params else 'all'
-    filter_marker = params['marker'] if 'marker' in params else 'all'
-    search_text = params['search_text'] if 'search_text' in params else None
-
-    colonies = get_colonies_controlled_by_commandant(server, commandant['_id'], add_coo_image=True)
-
-    colonies.append(colonies)
-
-    #reports, nb_unread_reports = get_commandant_reports(server, commandant['_id'],
-    #                                                    filter_status=filter_status, filter_category=filter_category,
-    #                                                    search_text=search_text)
-
-
-    return render(request, 'game/colonies.html', {'server': server, 'colonies': colonies,
-                                                  'marker': filter_marker, 'category': filter_category,
-                                                  'search_text': search_text
-                                                  })
-
-

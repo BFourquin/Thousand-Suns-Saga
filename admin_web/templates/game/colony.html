@@ -1,0 +1,445 @@
+
+{% load i18n %}
+{% load static %}
+
+
+{% include "includes/header.html" with title="Colonies" %}
+
+{% include "includes/menu_game.html" with page_title=_("Colonies") %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <!--<h1>{% trans "Colonies"%} </h1>-->
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+
+
+      <!--------------------------------------------------------------------------------------------------------->
+      <!-- Corps central -->
+
+      <form id="report-form" method="POST" action="/colonies/?category={{category}}&marker={{marker}}">
+        {% csrf_token %}
+
+        <input type="hidden" id="category" name="category" value="{{category}}">
+        <input type="hidden" id="marker" name="marker" value="{{marker}}">
+
+
+        <div class="row">
+          <div class="col-md-2">
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">{% trans "Filtres par taille"%}</h3>
+
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <ul class="nav nav-pills flex-column">
+
+                  <li class="nav-item">
+                    <a href="/colonies/?category=all" rel="keep-params" class="nav-link {% if category == 'all' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-globe"></i></span>
+                      {% trans "Toutes les colonies"%}
+                      {% if nb_unread_colonies.all %}
+                        <span class="report_count badge badge-warning float-right">{{nb_unread_colonies.all}}</span>
+                      {% endif %}
+                    </a>
+                  </li>
+
+                  <li class="nav-item">
+                    <a href="/colonies/?category=capital" rel="keep-params" class="nav-link {% if category == 'capital' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-landmark"></i></span>
+                      {% trans "Capitale"%}
+                      {% if nb_unread_colonies.capital %}
+                        <span class="report_count badge badge-warning float-right">{{nb_unread_colonies.capital}}</span>
+                      {% endif %}
+                    </a>
+                  </li>
+                  <li class="nav-item active">
+                    <a href="/colonies/?category=megalopolis" rel="keep-params" class="nav-link {% if category == 'megalopolis' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-building"></i></span>
+                      {% trans "Mégalopoles"%}
+                      {% if nb_unread_colonies.megalopolis %}
+                        <span class="report_count badge badge-warning float-right">{{nb_unread_colonies.megalopolis}}</span>
+                      {% endif %}
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="/colonies/?category=metropolis" rel="keep-params" class="nav-link {% if category == 'metropolis' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-school-flag"></i></span>
+                      {% trans "Métropoles"%}
+                      {% if nb_unread_colonies.metropolis %}
+                        <span class="report_count badge badge-warning float-right">{{nb_unread_colonies.metropolis}}</span>
+                      {% endif %}
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="/colonies/?category=territory" rel="keep-params" class="nav-link {% if category == 'territory' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas  fa-tree-city"></i></span>
+                      {% trans "Territoires"%}
+                      {% if nb_unread_colonies.territory %}
+                        <span class="report_count badge badge-warning float-right">{{nb_unread_colonies.territory}}</span>
+                      {% endif %}
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="/colonies/?category=city" rel="keep-params" class="nav-link {% if category == 'city' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas  fa-house-flag"></i></span>
+                      {% trans "Cités"%}
+                    </a>
+                    {% if nb_unread_colonies.city %}
+                        <span class="report_count badge badge-warning float-right">{{nb_unread_colonies.city}}</span>
+                      {% endif %}
+                  </li>
+                  <li class="nav-item">
+                    <a href="/colonies/?category=outpost" rel="keep-params" class="nav-link {% if category == 'outpost' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas  fa-tower-observation"></i></span>
+                      {% trans "Avant-postes"%}
+                      {% if nb_unread_colonies.outpost %}
+                        <span class="report_count badge badge-warning float-right">{{nb_unread_colonies.outpost}}</span>
+                      {% endif %}
+                    </a>
+                  </li>
+                  <li class="nav-item"></li><li class="nav-item"></li>
+                  <li class="nav-item">
+                    <a href="/colonies/?category=revendication" rel="keep-params" class="nav-link {% if category == 'revendication' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas  fa-flag"></i></span>
+                      {% trans "Revendications"%}
+                      {% if nb_unread_colonies.revendication %}
+                        <span class="report_count badge badge-warning float-right">{{nb_unread_colonies.revendication}}</span>
+                      {% endif %}
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">{% trans "Filtres par marqueurs"%}</h3>
+
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <ul class="nav nav-pills flex-column">
+
+
+                  <!-- GENERIC -->
+                  <li class="nav-item" style="display: inline-flex; justify-content: center;">
+
+                    <a href="/colonies/?marker=all" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'all' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-globe"></i></span>
+                    </a>
+                    <a href="/colonies/?marker=landmark" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'landmark' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-landmark-dome"></i></span>
+                    </a>
+                    <a href="/colonies/?marker=star" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'star' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-star"></i></span>
+                    </a>
+                    <a href="/colonies/?marker=marker" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'marker' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-envelope"></i></span>
+                    </a>
+                    <a href="/colonies/?marker=marker" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'marker' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-flag"></i></span>
+                    </a>
+
+                  </li>
+
+
+                  <!-- ORIENTATION -->
+                  <li class="nav-item" style="display: inline-flex; justify-content: center;">
+
+                    <a href="/colonies/?marker=industry" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'industry' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-industry"></i></span>
+                    </a>
+                    <a href="/colonies/?marker=mining" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'mining' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-oil-well"></i></span>
+                    </a>
+                    <a href="/colonies/?marker=science" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'science' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-flask"></i></span>
+                    </a>
+                    <a href="/colonies/?marker=economy" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'economy' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-coins"></i></span>
+                    </a>
+                    <a href="/colonies/?marker=farm" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'farm' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-wheat-awn"></i></span>
+                    </a>
+
+                  </li>
+
+                  <!-- MILITARY -->
+                  <li class="nav-item" style="display: inline-flex; justify-content: center;">
+
+                    <a href="/colonies/?marker=fleet" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'fleet' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-jet-fighter"></i></span>
+                    </a>
+                    <a href="/colonies/?marker=army" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'army' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-person-rifle"></i></span>
+                    </a>
+                    <a href="/colonies/?marker=target" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'target' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-crosshairs"></i></span>
+                    </a>
+                    <a href="/colonies/?marker=pirate" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'pirate' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-skull-crossbones"></i></span>
+                    </a>
+                    <a href="/colonies/?marker=death" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'death' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-skull"></i></span>
+                    </a>
+
+                  </li>
+
+
+                  <!-- MILITARY -->
+                  <li class="nav-item" style="display: inline-flex; justify-content: center;">
+
+                    <a href="/colonies/?marker=fleet" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'fleet' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-robot"></i></span>
+                    </a>
+                    <a href="/colonies/?marker=vision" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'vision' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-binoculars"></i></span>
+                    </a>
+                    <a href="/colonies/?marker=sickness" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'sickness' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-virus-covid"></i></span>
+                    </a>
+                    <a href="/colonies/?marker=trash" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'trash' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-trash-can"></i></span>
+                    </a>
+                    <a href="/colonies/?marker=death" rel="keep-params" class="nav-link multiple_icons_line {% if marker == 'death' %}hover{% endif %}">
+                      <span class="span_centering_icon"><i class="fas fa-skull"></i></span>
+                    </a>
+
+                  </li>
+
+                </ul>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+
+
+          </div>
+          <!-- /.col -->
+          <div class="col-md-10">
+            <div class="card card-primary card-outline">
+              <div class="card-header">
+                <h3 class="card-title">{% trans "Colonies"%}</h3>
+
+                <div class="card-tools">
+                  <div class="input-group input-group-sm">
+                    <input type="text" class="form-control"  name="search_text"
+                           placeholder="{% trans "Recherche"%}"
+                           {% if search_text %} value="{{search_text}}" {% endif %}>
+                    <div class="input-group-append">
+                      <button  type="submit" name="search" value="search"  class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <!-- /.card-tools -->
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body p-0">
+                <div class="mailbox-controls">
+                  <!-- Check all button -->
+                  <button type="button" class="btn btn-default btn-sm checkbox-toggle"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Tout sélectionner"%}"><i class="far fa-square"></i>
+                  </button>
+
+                  <!-- Delete button -->
+                  <button type="submit" name="action" value="delete" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Supprimer"%}">
+                    <i class="far fa-trash-alt"></i>
+                  </button>
+
+                  <div class="btn-group">
+
+                    <!-- Read button -->
+                    <button type="submit" name="action" value="read" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Marquer comme lu"%}">
+                      <i class="fas fa-envelope-open-text"></i>
+                    </button>
+
+                    <!-- Unread button -->
+                    <button type="submit" name="action" value="unread" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Marquer comme non-lu"%}">
+                      <i class="fas fa-envelope"></i>
+                    </button>
+                  </div>
+
+                  <div class="btn-group">
+                    <!-- Archive button -->
+                    <button type="submit" name="action" value="archive" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Archiver"%}">
+                      <i class="fas fa-file-zipper"></i>
+                    </button>
+                    <!-- Unarchive button -->
+                    <button type="submit" name="action" value="unarchive" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Désarchiver"%}">
+                      <i class="fas fa-file"></i>
+                    </button>
+                  </div>
+
+
+                  <div class="float-right">
+                    {{ colonies.paginator.count }} {% trans "Colonies"%} | {% trans "Page"%} {{page}}
+
+                    <div class="btn-group">
+                      {% if colonies.has_previous %}
+                        <a href="/colonies/?page={{ colonies.previous_page_number }}" rel="keep-params" class="btn btn-default btn-sm">
+                          <i class="fas fa-chevron-left"></i>
+                        </a>
+                      {% else %}
+                        <button class="btn btn-default btn-sm" disabled>
+                          <i class="fas fa-chevron-left"></i>
+                        </button>
+                      {% endif %}
+
+                      {% if colonies.has_next %}
+                        <a href="/colonies/?page={{ colonies.next_page_number }}" rel="keep-params" class="btn btn-default btn-sm">
+                          <i class="fas fa-chevron-right"></i>
+                        </a>
+                      {% else %}
+                        <button class="btn btn-default btn-sm" disabled>
+                          <i class="fas fa-chevron-right"></i>
+                        </button>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                <div class="table-responsive mailbox-messages" style="padding-bottom: 5px;">
+                  <table class="table table-hover table-striped" style="width: 100%; table-layout: auto;">
+                    <tbody>
+
+                      <tr class="pointer_cursor background-img-colony{% if dark_mode %}-dark{% endif %}"
+                          style='white-space: nowrap; position: relative;
+                                 background: url("{% static ""%}images/colony_landscape.png") no-repeat right center;
+                                 background-size: cover;'
+                          onclick="colony_link('/colony/?colony_id={{colony.id}}')">
+
+                        <script type="text/javascript">
+                          function colony_link(url)
+                            {document.location.href = url;}
+                        </script>
+
+
+                        <td class="mailbox-date pointer_cursor">
+                          <img class="large_img_without_td_padding" src="{% static ""%}{{colony.coordinate_image}}" style=""></td>
+
+                        <td class="mailbox-subject" style="font-size: 20px; padding: 0.25rem; text-align: center;">
+                          <b style="font-size: 35px;">{{colony.name}}</b>
+                          <br>
+                          <i class="fas fa-landmark"></i>
+                          {% if colony.markers %} <br> {% endif %}
+
+                                — <i class="fas fa-industry"></i>
+                                  <i class="fas fa-wheat-awn"></i>
+
+                          {% for marker in colony.markers %}
+                            <i class="fas {{marker}}"></i>
+                          {% endfor %}
+                        </td>
+
+                        <td class="">{{colony.coordinate}}</td>
+
+                        <td class="">
+                          <span>Habitants : 1 000 000 <i class="fas fa-users"></i></span><br>
+                          <span>Bonheur : 75% <i class="fas fa-masks-theater"></i></span><br>
+                          <span>Ordre : 75% <i class="fas fa-person-military-pointing"></i></span>
+                        </td>
+
+                        <td class="">
+                          <span>Districts : {{colony.districts|length}}/3 <i class="fas fa-hexagon-nodes"></i></span><br>
+                          <span>Travailleurs : 100% <i class="fas fa-hammer"></i></span>
+                        </td>
+
+                      </tr>
+
+                    </tbody>
+                  </table>
+                  <!-- /.table -->
+                </div>
+                <!-- /.mail-box-messages -->
+              </div>
+              <!-- /.card-body -->
+              <div class="card-footer p-0">
+                <div class="mailbox-controls">
+                  <!-- Check all button -->
+                  <button type="button" class="btn btn-default btn-sm checkbox-toggle"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Tout sélectionner"%}"><i class="far fa-square"></i>
+                  </button>
+
+                  <!-- Delete button -->
+                  <button type="submit" name="action" value="delete" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Supprimer"%}">
+                    <i class="far fa-trash-alt"></i>
+                  </button>
+
+                  <div class="btn-group">
+
+                    <!-- Read button -->
+                    <button type="submit" name="action" value="read" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Marquer comme lu"%}">
+                      <i class="fas fa-envelope-open-text"></i>
+                    </button>
+
+                    <!-- Unread button -->
+                    <button type="submit" name="action" value="unread" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Marquer comme non-lu"%}">
+                      <i class="fas fa-envelope"></i>
+                    </button>
+                  </div>
+
+                  <div class="btn-group">
+                    <!-- Archive button -->
+                    <button type="submit" name="action" value="archive" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Archiver"%}">
+                      <i class="fas fa-file-zipper"></i>
+                    </button>
+                    <!-- Unrchive button -->
+                    <button type="submit" name="action" value="unarchive" class="btn btn-default btn-sm"
+                          data-toggle="tooltip" data-placement="bottom" title="{% trans "Désarchiver"%}">
+                      <i class="fas fa-file"></i>
+                    </button>
+                    </div>
+                    <!-- /.btn-group -->
+                  </div>
+                  <!-- /.float-right -->
+                </div>
+              </div>
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+
+      </form>
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+</body>
+</html>

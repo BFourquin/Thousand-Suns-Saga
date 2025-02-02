@@ -20,7 +20,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, re_path
 
-from backend import views_game, views_public, views_admin
+from backend import views_public, views_game, views_admin, views_game_colonies
 from backend import views_api_user, views_api_commandant
 
 
@@ -67,8 +67,8 @@ urlpatterns = [
 
     path('resources/', views_game.resources, name='resources'),
 
-    path('colonies/', views_game.colonies, name='colonies'),
-    #path('colony/', views_game.colony, name='colony'),
+    path('colonies/', views_game_colonies.colonies, name='colonies'),
+    path('colony/', views_game_colonies.colony, name='colony'),
 
     path('geography_system/', views_game.geography_system, name='geography_system'),
 
