@@ -31,7 +31,7 @@ def colonies(request):
 
     colonies = get_colonies_controlled_by_commandant(server, commandant['_id'], add_coo_image=True)
 
-    colonies.append(colonies)
+    colonies.append(colonies) # TODO remove, visual test
 
     return render(request, 'game/colonies.html', {'server': server, 'colonies': colonies,
                                                   'marker': filter_marker, 'category': filter_category,
@@ -53,7 +53,11 @@ def colony(request):
     if 'colony_id' not in params:
         redirect('/colonies/')
 
-    colony_dict = get_colony(server, params['colony_id'], add_coo_image=True)
+    try:
+        colony_dict = get_colony(server, params['colony_id'], add_coo_image=True)
+    except Exception as e:
+        redirect('/colonies/')
+
 
     return render(request, 'game/colony.html', {'server': server, 'colony': colony_dict,
                                                 'districts_type': filter_districts,
