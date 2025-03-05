@@ -7,6 +7,7 @@ from django_tss.settings import DATABASES, mongodb_settings
 from database import create_tables
 from database.load_technologies import load_technologies
 from database.load_resources import load_resources
+from database.load_buildings import load_buildings
 from database.db_connect import clients
 from data import server_details, statistics, starting_values
 from geography import map_generator, mg_sectors
@@ -90,6 +91,11 @@ load_resources(excel_tech_path=excel_server_params,
                server_name=server_name,
                delete_actual_resources=True)
 
+# BUILDINGS
+load_buildings(excel_tech_path=excel_server_params,
+               sheet_resources_name='Buildings',
+               server_name=server_name,
+               delete_actual_buildings=True)
 
 # NEW PLAYERS STARTING VALUES
 starting_values.create_starting_values(server_name)
