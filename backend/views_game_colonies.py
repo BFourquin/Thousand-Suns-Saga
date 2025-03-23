@@ -23,7 +23,7 @@ def colonies(request):
     server, commandant = get_active_server_and_commandant_from_request(request)
 
     if not server or not commandant:
-        redirect('/user_account/')
+        return redirect('/user_account/')
 
     filter_category = params['category'] if 'category' in params else 'all'
     filter_marker = params['marker'] if 'marker' in params else 'all'
@@ -46,17 +46,18 @@ def colony(request):
     params = request_params(request)
     server, commandant = get_active_server_and_commandant_from_request(request)
 
+    if not server or not commandant:
+        return redirect('/user_account/')
+    if 'colony_id' not in params or params['colony_id'] not in commandant['colonies']:
+        return redirect('/colonies/')
+
     filter_districts = params['districts_type'] if 'districts_type' in params else 'all'
 
-    if not server or not commandant:
-        redirect('/user_account/')
-    if 'colony_id' not in params:
-        redirect('/colonies/')
 
     try:
         colony_dict = get_colony(server, params['colony_id'], add_coo_image=True)
     except Exception as e:
-        redirect('/colonies/')
+        return redirect('/colonies/')
 
 
     return render(request, 'game/colony.html', {'server': server, 'colony': colony_dict,

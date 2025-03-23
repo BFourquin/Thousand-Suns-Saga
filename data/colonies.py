@@ -70,7 +70,7 @@ def pull_param_colony(server, colony_id, param, value):
 
 
 
-def new_colony(server, commandant_id, colony_name, coordinate, colony_type, colony_size, districts=None):
+def new_colony(server, commandant_id, colony_name, coordinate, colony_type, central_district_type):
 
     client = databases['TSS_' + server]
     db = client['colonies']
@@ -82,15 +82,21 @@ def new_colony(server, commandant_id, colony_name, coordinate, colony_type, colo
         'coordinate': coordinate,
         'districts': [],
         'colony_type': colony_type,  # TODO more types
-        'colony_size': colony_size,
+        'districts_slots_occupied': 0,
+        'districts_slots_total': 0,
     }
-
-    # TODO add districts and buildings according to colony type, planet biome and colonizing ship modules
-    district_type = 'world_capital'
 
     colony_id = db.insert_one(new_colony).inserted_id
 
-    create_district(server, colony_id, district_type, starting_buildings=None)
+    create_district(server, colony_id, central_district_type, starting_buildings=None)
 
 
+def check_and_occupy_district_slot(server, colony_id):
+    colony = get_colony(server, id)
+
+    if colony['districts_slots_occupied'] < colony['districts_slots_total']:
+        update_colony(server, colony_id, 'districts_slots_occupied', colony['districts_slots_occupied']+1)
+        return True
+    else:
+        return False
 

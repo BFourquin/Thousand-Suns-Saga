@@ -57,12 +57,12 @@ def create_commandant(request):
     params = request_params(request)
 
     if not 'server' in params:
-        redirect('/user_account/')
+        return redirect('/user_account/')
 
     server = server_details.get_server_details(params['server_name'])
 
     if not server :
-        redirect('servers_list')
+        return redirect('servers_list')
 
     server['open_since_days'] = (datetime.datetime.now() - server['opening_date']).days
 
@@ -76,7 +76,7 @@ def commandant_login(request):
     params = request_params(request)
 
     if parameters_presents(('server', 'commandant_id', 'user'), params):
-        redirect('/user_account/')
+        return redirect('/user_account/')
 
     user = get_user_by_name(str(request.user))
     commandant_id = params['commandant_id']
@@ -88,11 +88,11 @@ def commandant_login(request):
         # Check if suspicious connection to another player's commandant
         if data.commandant.get_commandant_by_object_id(server_name, commandant_id):
             ... # TODO log suspicious use to another player's commandant
-        redirect('/user_account/')
+        return redirect('/user_account/')
 
     commandant = data.commandant.get_commandant_by_object_id(server_name, commandant_id)
     if not commandant:
-        redirect('/user_account/')
+        return redirect('/user_account/')
 
     data.user.update_user(user, 'playing_on_server', server_name)
     data.user.update_user(user, 'playing_on_commandant', commandant_id)
@@ -142,7 +142,7 @@ def reports(request):
     server, commandant = get_active_server_and_commandant_from_request(request)
 
     if not server or not commandant:
-        redirect('/user_account/')
+        return redirect('/user_account/')
 
     if 'action' in params:
 
@@ -236,14 +236,14 @@ def report(request):
     server, commandant = get_active_server_and_commandant_from_request(request)
 
     if not server or not commandant:
-        redirect('/user_account/')
+        return redirect('/user_account/')
 
     if not 'report_id' in params:
-        redirect('/reports/')
+        return redirect('/reports/')
 
     report = get_report_by_object_id(server, params['report_id'])
     if not report:
-        redirect('/reports/')
+        return redirect('/reports/')
 
     change_report_status(server, params['report_id'], 'read')
 
@@ -260,7 +260,7 @@ def geography_system(request):
     server, commandant = get_active_server_and_commandant_from_request(request)
 
     if not server or not commandant:
-        redirect('/user_account/')
+        return redirect('/user_account/')
 
     # TODO check if commandant has vision on the system
 
@@ -304,7 +304,7 @@ def resources(request):
     server, commandant = get_active_server_and_commandant_from_request(request)
 
     if not server or not commandant:
-        redirect('/user_account/')
+        return redirect('/user_account/')
 
     selected_category = params['selected_category'] if 'selected_category' in params else 'all'
 

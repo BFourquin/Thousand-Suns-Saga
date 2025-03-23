@@ -120,7 +120,7 @@ def create_commandant(server, user, commandant_name, civilisation_name):
                           coordinate_seed=starting_planet_id,
                           colony_name=None,
                           colony_type='starting_colony',
-                          colony_size='district_territory',
+                          central_district_type='district_territory',
                           admin_force_action=True)
 
         # Welcome and tutorial report
@@ -211,4 +211,4 @@ def delete_commandant(server, commandant_id):
 
 if __name__ == '__main__':
     server = 'Alpha_test'
-    delete_commandant(server, get_commandant_by_name(server, 'test01')['_id'])
+    delete_commandant(server, get_commandant_by_name(server, 'Paullus Beneradane')['_id'])
