@@ -26,8 +26,10 @@ def add_infos_to_resources_dict(server_name, resources_dict, language=None, comm
     for res_internal_name, quantity in resources_dict.items():
         resource_declaration = get_resource_parameters(server_name, res_internal_name)
         resources_dict[res_internal_name] = {
+            'internal_name': res_internal_name,
+            'name': resource_declaration['name_' + language] if language else resource_declaration['name_en'],
             'quantity': quantity,
-            'name': resource_declaration['name_'+language] if language else resource_declaration['name_en'],
+            'commandant_storage': commandant['resources'][res_internal_name] if commandant and res_internal_name in commandant['resources'] else 0,
             'enough_stockpiles': commandant and res_internal_name in commandant['resources'] and commandant['resources'][res_internal_name] >= quantity,
             'illustration': resource_declaration['icon'],
             'unit_notation': resource_declaration['unit_notation'],
