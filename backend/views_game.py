@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from bson.objectid import ObjectId
 import datetime
 
 
@@ -56,12 +57,13 @@ def create_commandant(request):
 
     params = request_params(request)
 
-    if not 'server' in params:
+    if not 'server_name' in params:
+        print(params)
         return redirect('/user_account/')
 
     server = server_details.get_server_details(params['server_name'])
 
-    if not server :
+    if not server:
         return redirect('servers_list')
 
     server['open_since_days'] = (datetime.datetime.now() - server['opening_date']).days
@@ -75,7 +77,7 @@ def commandant_login(request):
 
     params = request_params(request)
 
-    if parameters_presents(('server', 'commandant_id', 'user'), params):
+    if not parameters_presents(('server', 'commandant_id'), params):
         return redirect('/user_account/')
 
     user = get_user_by_name(str(request.user))
@@ -83,8 +85,7 @@ def commandant_login(request):
     server_name = params['server']
     server = data.server_details.get_server_details('TSS_'+server_name)
 
-    if commandant_id not in user['accounts']:
-
+    if ObjectId(commandant_id) not in user['accounts']:
         # Check if suspicious connection to another player's commandant
         if data.commandant.get_commandant_by_object_id(server_name, commandant_id):
             ... # TODO log suspicious use to another player's commandant

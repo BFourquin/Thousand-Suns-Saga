@@ -6,6 +6,7 @@ from database.db_connect import databases
 from data.districts import create_district
 
 
+
 def additional_colony_info(colony, add_coo_image):
     # Add id, geographic_location and images
 
@@ -87,6 +88,8 @@ def new_colony(server, commandant_id, colony_name, coordinate, colony_type, cent
     }
 
     colony_id = db.insert_one(new_colony).inserted_id
+    from data.commandant import push_param_commandant
+    push_param_commandant(server, commandant_id, 'colonies', colony_id)
 
     create_district(server, colony_id, central_district_type, starting_buildings=None)
 

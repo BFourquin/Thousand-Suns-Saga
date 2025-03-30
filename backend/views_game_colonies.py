@@ -3,15 +3,18 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from bson.objectid import ObjectId
 import datetime
 
 import data.user
-from backend.utils import request_params, parameters_presents, get_active_server_and_commandant_from_request
+from backend.utils import request_params, parameters_presents, get_active_server_and_commandant_from_request, get_language
 from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator
 from data.user import get_user_by_name, get_user_by_object_id, update_user
 from data.report import get_commandant_reports, get_report_by_object_id, delete_report, change_report_status, \
     mark_all_reports_as_read, update_nb_unread_reports
 from data.colonies import get_colonies_controlled_by_commandant, get_colony
+from data.districts import get_district
+from data.districts_types import get_district_type
 from data.resources import get_all_resources_parameters, get_resources_categories, get_resources_subcategories
 
 
@@ -46,22 +49,27 @@ def colony(request):
     params = request_params(request)
     server, commandant = get_active_server_and_commandant_from_request(request)
 
+
     if not server or not commandant:
         return redirect('/user_account/')
-    if 'colony_id' not in params or params['colony_id'] not in commandant['colonies']:
+    if 'colony_id' not in params or ObjectId(params['colony_id']) not in commandant['colonies']:
         return redirect('/colonies/')
 
-    filter_districts = params['districts_type'] if 'districts_type' in params else 'all'
+    filter_districts = params['filter_districts'] if 'filter_districts' in params else 'all'
 
+    colony_dict = get_colony(server, params['colony_id'], add_coo_image=True)
 
-    try:
-        colony_dict = get_colony(server, params['colony_id'], add_coo_image=True)
-    except Exception as e:
-        return redirect('/colonies/')
-
+    districts = []
+    for district_id in colony_dict['districts']:
+        district = get_district(server, district_id)  # Specific district info
+        district.update(get_district_type(server, district['district_type']))  # Global district values
+        district['name'] = district['name_'+get_language(request)]
+        district['free_districts_slots'] = district['districts_slots'] - len(colony_dict['districts']) + 1
+        print(district['free_districts_slots'])
+        districts.append(district)
 
     return render(request, 'game/colony.html', {'server': server, 'colony': colony_dict,
-                                                'districts_type': filter_districts,
+                                                'districts': districts, 'filter_districts': filter_districts,
                                                 })
 
 

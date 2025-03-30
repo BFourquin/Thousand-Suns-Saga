@@ -59,6 +59,12 @@ def get_active_server_and_commandant_from_request(request):
     return server, commandant
 
 
+def get_language(request):
+    user = get_user_by_name(str(request.user))
+    language = user['language']
+    return language
+
+
 ########################################################################################################################
 # RANDOM FUNCTIONS
 

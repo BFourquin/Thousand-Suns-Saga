@@ -120,31 +120,31 @@
 
                     {% trans "Filtrer par types"%} :  
 
-                    <a href="/colony/?colony_id={{colony.id}}&districts_type=all" class="pills {% if districts_type == 'all' %}hover{% endif %}">
+                    <a href="/colony/?colony_id={{colony.id}}&filter_districts=all" class="pills {% if filter_districts == 'all' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-infinity"></i></span>
                     </a>
-                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_industrial" class="pills {% if districts_type == 'district_industrial' %}hover{% endif %}">
+                    <a href="/colony/?colony_id={{colony.id}}&filter_districts=industrial_district" class="pills {% if filter_districts == 'industrial_district' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-industry"></i></span>
                     </a>
-                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_mining" class="pills {% if districts_type == 'district_mining' %}hover{% endif %}">
+                    <a href="/colony/?colony_id={{colony.id}}&filter_districts=mining_district" class="pills {% if filter_districts == 'mining_district' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-oil-well"></i></span>
                     </a>
-                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_scientific" class="pills {% if districts_type == 'district_scientific' %}hover{% endif %}">
+                    <a href="/colony/?colony_id={{colony.id}}&filter_districts=scientific_district" class="pills {% if filter_districts == 'scientific_district' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-flask"></i></span>
                     </a>
-                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_economy" class="pills {% if districts_type == 'district_economy' %}hover{% endif %}">
+                    <a href="/colony/?colony_id={{colony.id}}&filter_districts=economy_district" class="pills {% if filter_districts == 'economy_district' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-coins"></i></span>
                     </a>
-                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_farming" class="pills {% if districts_type == 'district_farming' %}hover{% endif %}">
+                    <a href="/colony/?colony_id={{colony.id}}&filter_districts=farming_district" class="pills {% if filter_districts == 'farming_district' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-wheat-awn"></i></span>
                     </a>
-                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_military" class="pills {% if districts_type == 'district_military' %}hover{% endif %}">
+                    <a href="/colony/?colony_id={{colony.id}}&filter_districts=military_district" class="pills {% if filter_districts == 'military_district' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-person-rifle"></i></span>
                     </a>
-                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_nature" class="pills {% if districts_type == 'district_nature' %}hover{% endif %}">
+                    <a href="/colony/?colony_id={{colony.id}}&filter_districts=nature_district" class="pills {% if filter_districts == 'nature_district' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-leaf"></i></span>
                     </a>
-                    <a href="/colony/?colony_id={{colony.id}}&districts_type=district_empty" class="pills {% if districts_type == 'district_empty' %}hover{% endif %}">
+                    <a href="/colony/?colony_id={{colony.id}}&filter_districts=available_place_district" class="pills {% if filter_districts == 'available_place_district' %}hover{% endif %}">
                       <span class="span_centering_icon"><i class="fas fa-square-plus"></i></span>
                     </a>
                   </span>
@@ -162,43 +162,55 @@
                 <table class="table table-stripped" style="width: 100%; table-layout: auto;">
                   <tbody>
 
-                    <tr class="" style='white-space: nowrap;'>
+                    {% for district in districts %}
+                      {% if filter_districts == 'all' or filter_districts == district.category or filter_districts == 'available_place_district' and district.buildings_slots_free > 0 %}
 
-                      <td class="mailbox-date pointer_cursor">
-                        <img class="large_img_without_td_padding" src="{% static ""%}{{colony.coordinate_image}}" style=""></td>
+                        <tr class="" style='white-space: nowrap;'>
 
-                      <td class="mailbox-subject" style="font-size: 20px; padding: 0.25rem; text-align: center;">
-                        <b style="font-size: 35px;">{{colony.name}}</b>
-                        <br>
-                        <i class="fas fa-landmark"></i>
-                        {% if colony.markers %} <br> {% endif %}
+                          <td class="mailbox-date pointer_cursor">
+                            <img class="large_img_without_td_padding" src="{% static ""%}{{district.illustration}}" style=""></td>
 
-                              — <i class="fas fa-industry"></i>
-                                <i class="fas fa-wheat-awn"></i>
+                          <td class="mailbox-subject" style="font-size: 20px; padding: 0.25rem; text-align: center;">
+                            <b style="font-size: 20px;">{{district.name}}</b>
+                            <br>
+                            <i class="fas fa-up-long"></i>
+                            <i class="fas fa-screwdriver-wrench"></i>
+                            <i class="fas fa-power-off"></i>
+                            <i class="fas fa-arrows-turn-to-dots"></i>
+                          </td>
 
-                        {% for marker in colony.markers %}
-                          <i class="fas {{marker}}"></i>
-                        {% endfor %}
-                      </td>
+                          <td class="">
+                            <span>Secteur : {{colony.geographic_location.sector_id}}</span><br>
+                            <span>Système : X {{colony.geographic_location.pos_x}} | Y {{colony.geographic_location.pos_y}}</span><br>
+                            <span>Orbite : {{colony.geographic_location.pos_orbital}}</span><br>
+                          </td>
 
-                      <td class="">
-                        <span>Secteur : {{colony.geographic_location.sector_id}}</span><br>
-                        <span>Système : X {{colony.geographic_location.pos_x}} | Y {{colony.geographic_location.pos_y}}</span><br>
-                        <span>Orbite : {{colony.geographic_location.pos_orbital}}</span><br>
-                      </td>
+                          <td class="">
+                            <span>Habitants : 1 000 000 <i class="fas fa-users"></i></span><br>
+                            <span>Bonheur : 75% <i class="fas fa-masks-theater"></i></span><br>
+                            <span>Ordre : 75% <i class="fas fa-person-military-pointing"></i></span>
+                          </td>
 
-                      <td class="">
-                        <span>Habitants : 1 000 000 <i class="fas fa-users"></i></span><br>
-                        <span>Bonheur : 75% <i class="fas fa-masks-theater"></i></span><br>
-                        <span>Ordre : 75% <i class="fas fa-person-military-pointing"></i></span>
-                      </td>
+                          <td class="">
+                            <span>Districts : {{colony.districts|length}}/3 <i class="fas fa-hexagon-nodes"></i></span><br>
+                            <span>Travailleurs : 100% <i class="fas fa-hammer"></i></span>
+                          </td>
 
-                      <td class="">
-                        <span>Districts : {{colony.districts|length}}/3 <i class="fas fa-hexagon-nodes"></i></span><br>
-                        <span>Travailleurs : 100% <i class="fas fa-hammer"></i></span>
-                      </td>
+                        </tr>
 
-                    </tr>
+
+
+                      {% endif %}
+                    {% endfor %}
+
+
+                    {% if districts.0.free_districts_slots > 0 %}
+                      <tr class="" style='white-space: nowrap;'>
+                        <td colspan="12">
+                          <button type="button" class="btn btn{% if dark_mode %}-outline{% endif %}-secondary btn-block btn-flat"><i class="fa fa-square-plus"></i>  {% trans "Fonder un nouveau district"%}</button>
+                        </td>
+                      </tr>
+                    {% endif %}
 
                   </tbody>
                 </table>
