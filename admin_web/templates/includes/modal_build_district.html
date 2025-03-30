@@ -41,9 +41,10 @@
                       <b style="font-size: 20px;">{{district.name}}</b>
                     </td>
 
-                    <td class="" style="vertical-align: middle;">
+                    <td class="" style="vertical-align: middle; padding-top:0; padding-bottom: 0px;">
                       {% for resource in district.build_cost.values %}
-                        <span style="color: {% if resource.enough_stockpiles %} #28a745 {% else %} #dc3545 {% endif %} ;">
+                        <span style="color: {% if resource.enough_stockpiles %} #28a745 {% else %} #dc3545 {% endif %} ; line-height: 2rem;"
+                              title="{{resource.name}} &#013; {% trans "Stock"%} : {{resource.commandant_storage}} ">
                           <img class="img_without_td_padding" src="{% static ""%}{{resource.illustration}}" style="max-width: 2rem;">
                           {{resource.quantity}} {{resource.unit_notation}}
                         </span>
@@ -51,9 +52,9 @@
                       {% endfor %}
                     </td>
 
-                    <td class="" style="vertical-align: middle;">
+                    <td class="" style="vertical-align: middle; padding-top:0; padding-bottom: 0px;">
                       {% for resource in district.maintenance.values %}
-                        <span style="color: {% if resource.enough_stockpiles %} #28a745 {% else %} #dc3545 {% endif %} ;"
+                        <span style="color: {% if resource.enough_stockpiles %} #28a745 {% else %} #dc3545 {% endif %} ; line-height: 2rem;"
                               title="{{resource.name}} &#013; {% trans "Stock"%} : {{resource.commandant_storage}} ">
                           <img class="img_without_td_padding" src="{% static ""%}{{resource.illustration}}" style="max-width: 2rem;">
                           {{resource.quantity}} {{resource.unit_notation}}
