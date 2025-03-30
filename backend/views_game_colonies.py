@@ -14,7 +14,7 @@ from data.report import get_commandant_reports, get_report_by_object_id, delete_
     mark_all_reports_as_read, update_nb_unread_reports
 from data.colonies import get_colonies_controlled_by_commandant, get_colony
 from data.districts import get_district
-from data.districts_types import get_district_type
+from data.districts_types import get_district_type, get_all_districts_types, get_all_buildable_districts_types
 from data.resources import get_all_resources_parameters, get_resources_categories, get_resources_subcategories
 
 
@@ -59,17 +59,21 @@ def colony(request):
 
     colony_dict = get_colony(server, params['colony_id'], add_coo_image=True)
 
+    buildable_districts = get_all_buildable_districts_types(server, commandant, get_language(request))
+
     districts = []
     for district_id in colony_dict['districts']:
         district = get_district(server, district_id)  # Specific district info
         district.update(get_district_type(server, district['district_type']))  # Global district values
         district['name'] = district['name_'+get_language(request)]
         district['free_districts_slots'] = district['districts_slots'] - len(colony_dict['districts']) + 1
-        print(district['free_districts_slots'])
         districts.append(district)
+
+
 
     return render(request, 'game/colony.html', {'server': server, 'colony': colony_dict,
                                                 'districts': districts, 'filter_districts': filter_districts,
+                                                'buildable_districts': buildable_districts,
                                                 })
 
 

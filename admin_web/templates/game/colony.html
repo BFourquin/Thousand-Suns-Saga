@@ -207,7 +207,16 @@
                     {% if districts.0.free_districts_slots > 0 %}
                       <tr class="" style='white-space: nowrap;'>
                         <td colspan="12">
-                          <button type="button" class="btn btn{% if dark_mode %}-outline{% endif %}-secondary btn-block btn-flat"><i class="fa fa-square-plus"></i>  {% trans "Fonder un nouveau district"%}</button>
+                          <button type="button" class="btn btn{% if dark_mode %}-outline{% endif %}-secondary btn-block btn-flat"
+                                  data-toggle="modal" data-target="#modal-build_district">
+                            <i class="fa fa-square-plus"></i>
+                              {% trans "Fonder un nouveau district"%} — {{districts.0.free_districts_slots}}
+                              {% if districts.0.free_districts_slots > 1 %}
+                                {% trans "emplacements libres"%}
+                              {% else %}
+                                {% trans "emplacement libre"%}
+                              {% endif %}
+                          </button>
                         </td>
                       </tr>
                     {% endif %}
@@ -221,6 +230,9 @@
             <!-- /.card-body -->
           </div>
             <!-- /.card -->
+
+
+      {% include "includes/modal_build_district.html" %}
 
       </form>
 

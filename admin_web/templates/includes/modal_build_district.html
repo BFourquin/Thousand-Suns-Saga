@@ -1,0 +1,64 @@
+
+{% load i18n %}
+{% load static %}
+
+<div class="modal fade" id="modal-build_district" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">{% trans "Fonder un nouveau district"%}</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <table class="table table-stripped" style="width: 100%; table-layout: auto;">
+            <tbody>
+
+              {% for district in buildable_districts %}
+
+                  <tr class="" style='white-space: nowrap;'>
+
+                    <td class="mailbox-date pointer_cursor">
+                      <img class="large_img_without_td_padding" src="{% static ""%}{{district.illustration}}" style=""></td>
+
+                    <td class="mailbox-subject" style="font-size: 20px; padding: 1rem; text-align: center;">
+                      <b style="font-size: 25px;"><i class="fas fa-industry"></i></b>
+                      <br>
+                      <b style="font-size: 20px;">{{district.name}}</b>
+                    </td>
+
+                    <td class="">
+                      <span>Secteur : {{colony.geographic_location.sector_id}}</span><br>
+                      <span>Système : X {{colony.geographic_location.pos_x}} | Y {{colony.geographic_location.pos_y}}</span><br>
+                      <span>Orbite : {{colony.geographic_location.pos_orbital}}</span><br>
+                    </td>
+
+                    <td class="">
+                      <span>Habitants : 1 000 000 <i class="fas fa-users"></i></span><br>
+                      <span>Bonheur : 75% <i class="fas fa-masks-theater"></i></span><br>
+                      <span>Ordre : 75% <i class="fas fa-person-military-pointing"></i></span>
+                    </td>
+
+                    <td class="">
+                      <button type="button" class="btn btn-primary" data-dismiss="modal">{% trans "Construire"%}</button>
+                    </td>
+
+                  </tr>
+
+              {% endfor %}
+
+            </tbody>
+          </table>
+        </div>
+
+
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">{% trans "Annuler"%}</button>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
