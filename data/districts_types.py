@@ -2,7 +2,6 @@
 from bson.objectid import ObjectId
 
 from database.db_connect import databases
-from data import colonies
 
 
 def get_district_type_by_id(server, id, language=None):
@@ -42,15 +41,23 @@ def get_all_buildable_districts_types(server, commandant, language=None):
 
     client = databases['TSS_' + server]
     db = client['districts_types']
-
     districts = list(db.find())
+
+    # Remove unconstructibles districts
     for district in districts[:]:  # Duplicate districts list to iterate correctly while removing entries
-        if district['category'] == 'central_district':
+        if district['category'] == 'central_district':  # Central district are not buildable, only upgradable
             # TODO remove unbuildable districts limited by tech too
             districts.remove(district)
+
+    # More info on resources cost and maintenance
+    from data.resources import add_infos_to_resources_dict
+    for i in range(len(districts)):
+        districts[i]['build_cost'] = add_infos_to_resources_dict(server, districts[i]['build_cost'], language, commandant)
+        districts[i]['maintenance'] = add_infos_to_resources_dict(server, districts[i]['maintenance'], language, commandant)
 
     if language:
         for i in range(len(districts)):
             districts[i]['name'] = districts[i]['name_' + language]
+
 
     return districts

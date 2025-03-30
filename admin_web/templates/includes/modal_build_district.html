@@ -30,9 +30,23 @@
                     </td>
 
                     <td class="" style="vertical-align: middle;">
-                      <span>Secteur : {{colony.geographic_location.sector_id}}</span><br>
-                      <span>Système : X {{colony.geographic_location.pos_x}} | Y {{colony.geographic_location.pos_y}}</span><br>
-                      <span>Orbite : {{colony.geographic_location.pos_orbital}}</span><br>
+                      {% for resource in district.build_cost.values %}
+                        <span style="color: {% if resource.enough_stockpiles %} #28a745 {% else %} #dc3545 {% endif %} ;">
+                          <img class="img_without_td_padding" src="{% static ""%}{{resource.illustration}}" style="max-width: 2rem;">
+                          {{resource.quantity}} {{resource.unit_notation}}
+                        </span>
+                        {% if not forloop.last %}<br>{% endif%}
+                      {% endfor %}
+                    </td>
+
+                    <td class="" style="vertical-align: middle;">
+                      {% for resource in district.maintenance.values %}
+                        <span style="color: {% if resource.enough_stockpiles %} #28a745 {% else %} #dc3545 {% endif %} ;">
+                          <img class="img_without_td_padding" src="{% static ""%}{{resource.illustration}}" style="max-width: 2rem;">
+                          {{resource.quantity}} {{resource.unit_notation}}
+                        </span>
+                        {% if not forloop.last %}<br>{% endif%}
+                      {% endfor %}
                     </td>
 
                     <td class="" style="vertical-align: middle;">

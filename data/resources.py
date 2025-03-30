@@ -12,6 +12,33 @@ def get_all_resources_parameters(server_name):
     return db.find({})
 
 
+def get_resource_parameters(server_name, resource_name):
+    client = databases['TSS_' + server_name]
+    db = client['resources']
+
+    return db.find_one({'internal_name': resource_name})
+
+
+def add_infos_to_resources_dict(server_name, resources_dict, language=None, commandant=None):
+    # Add necessary interface info (like name and illustrations) from a simple {resource: quantity} dict
+    # Return : { resource : {quantity:int, name:str, enough_stockpiles:bool, illustration:str} }
+
+    for res_internal_name, quantity in resources_dict.items():
+        resource_declaration = get_resource_parameters(server_name, res_internal_name)
+        resources_dict[res_internal_name] = {
+            'quantity': quantity,
+            'name': resource_declaration['name_'+language] if language else resource_declaration['name_en'],
+            'enough_stockpiles': commandant and res_internal_name in commandant['resources'] and commandant['resources'][res_internal_name] >= quantity,
+            'illustration': resource_declaration['icon'],
+            'unit_notation': resource_declaration['unit_notation'],
+        }
+    return resources_dict
+
+
+########################################################################################################################
+# RESOURCES CATEGORIES AND SUB-CATEGORIES
+
+
 def get_resources_categories(server_name):
     client = databases['TSS_' + server_name]
     db = client['resources_categories']
@@ -36,7 +63,6 @@ def check_enough_resource(server, commandant_id, resource, quantity):
         return False
 
     return commandant['resources'][resource] >= quantity
-
 
 
 def resource_change(server, commandant_id, resource, quantity, allow_negative=False):
