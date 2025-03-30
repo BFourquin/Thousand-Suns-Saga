@@ -14,7 +14,19 @@
 
         <div class="modal-body">
           <table class="table table-stripped" style="width: 100%; table-layout: auto;">
+
+          <thead>
+                <tr>
+                  <th colspan="2">{% trans "District"%}</th>
+                  <th>{% trans "Coût"%}</th>
+                  <th>{% trans "Maintenance"%}</th>
+                  <th>{% trans "Emplacements"%}</th>
+                  <th>{% trans "Ordre"%}</th>
+                </tr>
+            </thead>
             <tbody>
+
+
 
               {% for district in buildable_districts %}
 
@@ -57,7 +69,8 @@
                     </td>
 
                     <td class="" style="vertical-align: middle;">
-                      <button type="button" class="btn btn-primary" data-dismiss="modal">{% trans "Construire"%}</button>
+                      <button type="button" class="btn {% if district.enough_stockpiles %} btn-primary {% else %} btn-danger disabled {% endif %}"
+                              data-dismiss="modal">{% trans "Construire"%}</button>
                     </td>
 
                   </tr>
