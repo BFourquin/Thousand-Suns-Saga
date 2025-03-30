@@ -44,7 +44,7 @@ def get_all_buildable_districts_types(server, commandant, language=None):
     db = client['districts_types']
 
     districts = list(db.find())
-    for district in districts:
+    for district in districts[:]:  # Duplicate districts list to iterate correctly while removing entries
         if district['category'] == 'central_district':
             # TODO remove unbuildable districts limited by tech too
             districts.remove(district)

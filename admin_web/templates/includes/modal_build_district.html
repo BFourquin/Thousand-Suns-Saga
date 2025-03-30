@@ -20,28 +20,29 @@
 
                   <tr class="" style='white-space: nowrap;'>
 
-                    <td class="mailbox-date pointer_cursor">
+                    <td class="mailbox-date" style="width: 0;">
                       <img class="large_img_without_td_padding" src="{% static ""%}{{district.illustration}}" style=""></td>
 
-                    <td class="mailbox-subject" style="font-size: 20px; padding: 1rem; text-align: center;">
+                    <td class="mailbox-subject" style="font-size: 20px; text-align: center; vertical-align: middle;">
                       <b style="font-size: 25px;"><i class="fas {{district.icon}}"></i></b>
                       <br>
                       <b style="font-size: 20px;">{{district.name}}</b>
                     </td>
 
-                    <td class="">
+                    <td class="" style="vertical-align: middle;">
                       <span>Secteur : {{colony.geographic_location.sector_id}}</span><br>
                       <span>Système : X {{colony.geographic_location.pos_x}} | Y {{colony.geographic_location.pos_y}}</span><br>
                       <span>Orbite : {{colony.geographic_location.pos_orbital}}</span><br>
                     </td>
 
-                    <td class="">
-                      <span>Habitants : 1 000 000 <i class="fas fa-users"></i></span><br>
-                      <span>Bonheur : 75% <i class="fas fa-masks-theater"></i></span><br>
-                      <span>Ordre : 75% <i class="fas fa-person-military-pointing"></i></span>
+                    <td class="" style="vertical-align: middle;">
+                      <span>{{district.buildings_slots}} {% trans "bâtiments"%}</span><br>
+                      {% if district.districts_slots > 0 %}
+                      <span>{{district.districts_slots}} {% trans "districts"%}</span><br>
+                      {% endif %}
                     </td>
 
-                    <td class="">
+                    <td class="" style="vertical-align: middle;">
                       <button type="button" class="btn btn-primary" data-dismiss="modal">{% trans "Construire"%}</button>
                     </td>
 

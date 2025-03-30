@@ -1,4 +1,5 @@
 
+import ast
 import pylightxl as xl
 from database.db_connect import databases
 
@@ -38,24 +39,32 @@ def load_buildings(excel_tech_path, sheet_resources_name, server_name, delete_ac
                     db = client['buildings_types']
                     continue
 
-                resources_cat = {}
+                districts_cat = {}
                 for i in range(len(titles)):
 
                     # Boolean entries
                     if '_based' in titles[i] or '_district' in titles[i]:
-                        resources_cat[titles[i]] = True if row[i] in ('True', 'true') else False
+                        districts_cat[titles[i]] = True if row[i] in ('True', 'true') else False
                     # Integer entries
-                    if '_slots' in titles[i]:
-                        resources_cat[titles[i]] = row[i] if row[i] else 0
+                    elif '_slots' in titles[i]:
+                        districts_cat[titles[i]] = row[i] if row[i] else 0
+                    # Dictionary entries
+                    elif titles[i] in ('build_cost', 'maintenance'):
+                        try :
+                            districts_cat[titles[i]] = ast.literal_eval(row[i]) if row[i] else {}
+                        except ValueError:
+                            raise ValueError(titles[i] + ' is not a valid python dictionary : ' + str(row[i]) + ' | origin : ' + str(districts_cat))
+                        if not isinstance(districts_cat[titles[i]], dict):
+                            raise ValueError(titles[i] + ' is not a valid python dictionary : ' + str(row[i]) + ' | origin : ' + str(districts_cat))
 
                     # Normal entry
                     else:
-                        resources_cat[titles[i]] = row[i] if row[i] != '' else None
+                        districts_cat[titles[i]] = row[i] if row[i] != '' else None
 
-                resources_cat.pop('', None)  # Remove empty rows
+                districts_cat.pop('', None)  # Remove empty rows
 
-                print(resources_cat)
-                db.insert_one(resources_cat)
+                print(districts_cat)
+                db.insert_one(districts_cat)
 
 
 
