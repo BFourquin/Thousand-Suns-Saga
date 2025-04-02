@@ -19,7 +19,7 @@ def get_resource_parameters(server_name, resource_name):
     return db.find_one({'internal_name': resource_name})
 
 
-def add_infos_to_resources_dict(server_name, resources_dict, language=None, commandant=None):
+def add_infos_to_resources_dict(server_name, resources_dict, commandant=None, language=None):
     # Add necessary interface info (like name and illustrations) from a simple {resource: quantity} dict
     # Return : { resource : {quantity:int, name:str, enough_stockpiles:bool, illustration:str} }
 
@@ -63,8 +63,20 @@ def check_enough_resource(server, commandant_id, resource, quantity):
 
     if resource not in commandant['resources']:
         return False
-
     return commandant['resources'][resource] >= quantity
+
+
+def check_enough_resources_dict(server, commandant_id, resources_dict, return_missing_details=False):
+    commandant = get_commandant_by_object_id(server, commandant_id)
+
+    enough_resources = True
+    missing_resources = {}
+
+    for resource, quantity in resources_dict.items():
+        if resource not in commandant['resources'] or commandant['resources'][resource] <= quantity:
+            enough_resources = False
+            missing_resources[resource] = quantity - commandant['resources'][resource]
+    return (enough_resources, missing_resources) if return_missing_details else enough_resources
 
 
 def resource_change(server, commandant_id, resource, quantity, allow_negative=False):

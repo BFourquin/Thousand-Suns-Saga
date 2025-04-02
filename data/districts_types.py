@@ -52,8 +52,8 @@ def get_all_buildable_districts_types(server, commandant, language=None):
     # More info on resources cost and maintenance
     from data.resources import add_infos_to_resources_dict
     for i in range(len(districts)):
-        districts[i]['build_cost'] = add_infos_to_resources_dict(server, districts[i]['build_cost'], language, commandant)
-        districts[i]['maintenance'] = add_infos_to_resources_dict(server, districts[i]['maintenance'], language, commandant)
+        districts[i]['build_cost'] = add_infos_to_resources_dict(server, districts[i]['build_cost'], commandant, language)
+        districts[i]['maintenance'] = add_infos_to_resources_dict(server, districts[i]['maintenance'], commandant, language)
 
         # Check if any resource is missing to build it
         districts[i]['enough_stockpiles'] = True
@@ -65,6 +65,5 @@ def get_all_buildable_districts_types(server, commandant, language=None):
     if language:
         for i in range(len(districts)):
             districts[i]['name'] = districts[i]['name_' + language]
-
 
     return districts

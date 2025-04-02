@@ -3,7 +3,8 @@ from bson.objectid import ObjectId
 
 from backend import utils
 from database.db_connect import databases
-from data.districts import create_district
+from data.districts import create_district, get_district
+from data.admin import cheat_log
 
 
 
@@ -94,8 +95,14 @@ def new_colony(server, commandant_id, colony_name, coordinate, colony_type, cent
     create_district(server, colony_id, central_district_type, starting_buildings=None)
 
 
+########################################################################################################################
+# DISTRICTS SLOTS
+
+
 def check_and_occupy_district_slot(server, colony_id):
     colony = get_colony(server, id)
+
+    # TODO take into account future special districts with different slots size
 
     if colony['districts_slots_occupied'] < colony['districts_slots_total']:
         update_colony(server, colony_id, 'districts_slots_occupied', colony['districts_slots_occupied']+1)
@@ -103,3 +110,21 @@ def check_and_occupy_district_slot(server, colony_id):
     else:
         return False
 
+
+def calculate_districts_slots(server, colony_id):
+    colony = get_colony(server, id)
+
+    slots_total = 0
+    slots_occupied = 0
+
+    for district_id in colony['districts']:
+        district = get_district(server, district_id)
+
+        slots_total += district['districts_slots']
+        if district['category'] != 'central_district':
+            slots_occupied += 1  # TODO take into account future special districts with different slots size
+
+    if colony['districts_slots_occupied'] > colony['districts_slots_total']:
+        ...
+        # TODO cheat log
+        # cheat_log()
