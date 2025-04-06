@@ -20,3 +20,18 @@ therefore it need to be manually declared here to get it detected
 ########################################################################################################################
 # API MESSAGE
 ########################################################################################################################
+
+# COMMANDANT CREATION
+{% trans "Aucun nom de commandant spécifié"%}
+{% trans "Ce nom de commandant est déjà pris"%}
+{% trans "Votre nom de commandant doit faire entre 5 et 25 caractères"%}
+{% trans "Ce nom de civilisation est déjà pris"%}
+{% trans "Votre nom de civilisation doit faire entre 5 et 40 caractères"%}
+{% trans "Compte créé"%}
+
+# DISTRICTS / BUILDINGS
+{% trans "Construction spécifiée incorrecte"%}
+{% trans "Ressources manquantes pour la construction"%}
+{% trans "Cette colonie n'a plus d'espace pour un nouveau district de cette taille"%}
+{% trans "District en construction"%}
+
