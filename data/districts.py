@@ -38,17 +38,13 @@ def create_district(server, colony_id, district_type, starting_buildings=None):
 
     # Check if slot available for a new district
     if district_type_properties['category'] != 'central_district':
-        slot_available = colonies.check_and_occupy_district_slot(server, colony_id)
-        if not slot_available:
-            ...  # TODO error message no district slot available
+        colonies.check_available_district_slot(server, colony_id, 1)  # TODO take into account future special districts with different slots size
     # Central district : they define how many districts slots you have
     else:
         colonies.update_colony(server, colony_id, 'districts_slots_total', district_type_properties['districts_slots'])
 
-
-
     district = {
-        'colony_id': colony_id,
+        'colony_id': ObjectId(colony_id),
         'district_type': district_type,
         'category': district_type_properties['category'],
         'buildings': starting_buildings if starting_buildings else [],
@@ -70,7 +66,9 @@ def create_district(server, colony_id, district_type, starting_buildings=None):
 
 
     district_id = db.insert_one(district).inserted_id
-    colonies.push_param_colony(server, colony_id, 'districts', district_id)
+    print('district_id', district_id)
+    colonies.push_param_colony(server, colony_id, 'districts', ObjectId(district_id))  # Add to colony's list of districts
+    colonies.recalculate_districts_slots(server, colony_id)
 
 
 

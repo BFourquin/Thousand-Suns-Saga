@@ -4,6 +4,7 @@ from bson.objectid import ObjectId
 from backend import utils
 from database.db_connect import databases
 from data.districts import create_district, get_district
+from data.districts_types import get_district_type
 from data.admin import cheat_log
 
 
@@ -60,7 +61,9 @@ def push_param_colony(server, colony_id, param, value):
 
     client = databases['TSS_' + server]
     db = client['colonies']
+    print(value, '>>', get_colony(server, colony_id))
     db.update_one({"_id": colony_id}, {"$push": {param: value}})
+    print('||>>', get_colony(server, colony_id))
 
 
 def pull_param_colony(server, colony_id, param, value):
@@ -69,7 +72,6 @@ def pull_param_colony(server, colony_id, param, value):
     client = databases['TSS_' + server]
     db = client['colonies']
     db.update_one({"_id": colony_id}, {"$pull": {param: value}})
-
 
 
 def new_colony(server, commandant_id, colony_name, coordinate, colony_type, central_district_type):
@@ -99,20 +101,13 @@ def new_colony(server, commandant_id, colony_name, coordinate, colony_type, cent
 # DISTRICTS SLOTS
 
 
-def check_and_occupy_district_slot(server, colony_id):
-    colony = get_colony(server, id)
-
-    # TODO take into account future special districts with different slots size
-
-    if colony['districts_slots_occupied'] < colony['districts_slots_total']:
-        update_colony(server, colony_id, 'districts_slots_occupied', colony['districts_slots_occupied']+1)
-        return True
-    else:
-        return False
+def check_available_district_slot(server, colony_id, nb_slots):
+    slots_total, slots_occupied = recalculate_districts_slots(server, colony_id)
+    return nb_slots <= slots_total - slots_occupied
 
 
-def calculate_districts_slots(server, colony_id):
-    colony = get_colony(server, id)
+def recalculate_districts_slots(server, colony_id):
+    colony = get_colony(server, colony_id)
 
     slots_total = 0
     slots_occupied = 0
@@ -120,11 +115,16 @@ def calculate_districts_slots(server, colony_id):
     for district_id in colony['districts']:
         district = get_district(server, district_id)
 
-        slots_total += district['districts_slots']
+        slots_total += get_district_type(server, district['district_type'])['districts_slots']
         if district['category'] != 'central_district':
             slots_occupied += 1  # TODO take into account future special districts with different slots size
+
+    update_colony(server, colony_id, 'districts_slots_total', slots_total)
+    update_colony(server, colony_id, 'districts_slots_occupied', slots_occupied)
 
     if colony['districts_slots_occupied'] > colony['districts_slots_total']:
         ...
         # TODO cheat log
         # cheat_log()
+
+    return slots_total, slots_occupied
