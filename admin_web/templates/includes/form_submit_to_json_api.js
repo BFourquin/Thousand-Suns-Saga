@@ -32,7 +32,7 @@
         $('#{{form}}').submit(function(e) {
             e.preventDefault();
             $.ajax({
-                url: '/{{form}}/',
+                url: {% if api_url %}'/{{api_url}}/'{% else %}'/{{form}}/'{% endif %},
                 data: $(this).serialize(),
                 type: 'POST',
                 done: function(data) {api_interaction(data.responseJSON)},

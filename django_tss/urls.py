@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 from django.urls import include, re_path
 
 from backend import views_public, views_game, views_admin, views_game_colonies
-from backend import views_api_user, views_api_commandant
+from backend import views_api_user, views_api_commandant, views_api_buildings
 
 
 app_name = "admin"
@@ -39,6 +39,9 @@ urlpatterns = [
     # COMMANDANTS
     path('api_create_commandant/', views_api_commandant.api_create_commandant),
     path('get_commandant/', views_api_commandant.get_commandant),
+
+    # BUILDINGS & DISTRICTS
+    path('api_build_district/', views_api_buildings.api_build_district),
 
 
     ####################################################################################################################

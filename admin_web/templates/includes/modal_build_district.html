@@ -12,75 +12,85 @@
           </button>
         </div>
 
+
+
         <div class="modal-body">
           <table class="table table-stripped" style="width: 100%; table-layout: auto;">
 
-          <thead>
-                <tr>
-                  <th colspan="2">{% trans "District"%}</th>
-                  <th>{% trans "Coût"%}</th>
-                  <th>{% trans "Maintenance"%}</th>
-                  <th>{% trans "Emplacements"%}</th>
-                  <th>{% trans "Ordre"%}</th>
-                </tr>
-            </thead>
-            <tbody>
-
-
-
-              {% for district in buildable_districts %}
-
-                  <tr class="" style='white-space: nowrap;'>
-
-                    <td class="mailbox-date" style="width: 0;">
-                      <img class="large_img_without_td_padding" src="{% static ""%}{{district.illustration}}" style=""></td>
-
-                    <td class="mailbox-subject" style="font-size: 20px; text-align: center; vertical-align: middle;">
-                      <b style="font-size: 25px;"><i class="fas {{district.icon}}"></i></b>
-                      <br>
-                      <b style="font-size: 20px;">{{district.name}}</b>
-                    </td>
-
-                    <td class="" style="vertical-align: middle; padding-top:0; padding-bottom: 0px;">
-                      {% for resource in district.build_cost.values %}
-                        <span style="color: {% if resource.enough_stockpiles %} #28a745 {% else %} #dc3545 {% endif %} ; line-height: 2rem;"
-                              title="{{resource.name}} &#013; {% trans "Stock"%} : {{resource.commandant_storage}} ">
-                          <img class="img_without_td_padding" src="{% static ""%}{{resource.illustration}}" style="max-width: 2rem;">
-                          {{resource.quantity}} {{resource.unit_notation}}
-                        </span>
-                        {% if not forloop.last %}<br>{% endif%}
-                      {% endfor %}
-                    </td>
-
-                    <td class="" style="vertical-align: middle; padding-top:0; padding-bottom: 0px;">
-                      {% for resource in district.maintenance.values %}
-                        <span style="color: {% if resource.enough_stockpiles %} #28a745 {% else %} #dc3545 {% endif %} ; line-height: 2rem;"
-                              title="{{resource.name}} &#013; {% trans "Stock"%} : {{resource.commandant_storage}} ">
-                          <img class="img_without_td_padding" src="{% static ""%}{{resource.illustration}}" style="max-width: 2rem;">
-                          {{resource.quantity}} {{resource.unit_notation}}
-                        </span>
-                        {% if not forloop.last %}<br>{% endif%}
-                      {% endfor %}
-                    </td>
-
-                    <td class="" style="vertical-align: middle;">
-                      <span>{{district.buildings_slots}} {% trans "bâtiments"%}</span><br>
-                      {% if district.districts_slots > 0 %}
-                      <span>{{district.districts_slots}} {% trans "districts"%}</span><br>
-                      {% endif %}
-                    </td>
-
-                    <td class="" style="vertical-align: middle;">
-                      <button type="button" class="btn {% if district.enough_stockpiles %} btn-primary {% else %} btn-danger disabled {% endif %}"
-                              data-dismiss="modal">{% trans "Construire"%}</button>
-                    </td>
-
+            <thead>
+                  <tr>
+                    <th colspan="2">{% trans "District"%}</th>
+                    <th>{% trans "Coût"%}</th>
+                    <th>{% trans "Maintenance"%}</th>
+                    <th>{% trans "Emplacements"%}</th>
+                    <th>{% trans "Ordre"%}</th>
                   </tr>
+              </thead>
 
-              {% endfor %}
+              <tbody>
+                {% for district in buildable_districts %}
 
-            </tbody>
+                <form id="api_form_build_{{district.internal_name}}" method="POST">
+                  {% csrf_token %}
+                  <input type="hidden" id="server" name="server" value={{server_name}} />
+                  <input type="hidden" id="colony_id" name="colony_id" value={{colony_id}} />
+                  <input type="hidden" name="district_type" value="{{ district.internal_name }}">
+
+                    <tr class="" style='white-space: nowrap;'>
+
+                      <td class="mailbox-date" style="width: 0;">
+                        <img class="large_img_without_td_padding" src="{% static ""%}{{district.illustration}}" style=""></td>
+
+                      <td class="mailbox-subject" style="font-size: 20px; text-align: center; vertical-align: middle;">
+                        <b style="font-size: 25px;"><i class="fas {{district.icon}}"></i></b>
+                        <br>
+                        <b style="font-size: 20px;">{{district.name}}</b>
+                      </td>
+
+                      <td class="" style="vertical-align: middle; padding-top:0; padding-bottom: 0px;">
+                        {% for resource in district.build_cost.values %}
+                          <span style="color: {% if resource.enough_stockpiles %} #28a745 {% else %} #dc3545 {% endif %} ; line-height: 2rem;"
+                                title="{{resource.name}} &#013; {% trans "Stock"%} : {{resource.commandant_storage}} ">
+                            <img class="img_without_td_padding" src="{% static ""%}{{resource.illustration}}" style="max-width: 2rem;">
+                            {{resource.quantity}} {{resource.unit_notation}}
+                          </span>
+                          {% if not forloop.last %}<br>{% endif%}
+                        {% endfor %}
+                      </td>
+
+                      <td class="" style="vertical-align: middle; padding-top:0; padding-bottom: 0px;">
+                        {% for resource in district.maintenance.values %}
+                          <span style="color: {% if resource.enough_stockpiles %} #28a745 {% else %} #dc3545 {% endif %} ; line-height: 2rem;"
+                                title="{{resource.name}} &#013; {% trans "Stock"%} : {{resource.commandant_storage}} ">
+                            <img class="img_without_td_padding" src="{% static ""%}{{resource.illustration}}" style="max-width: 2rem;">
+                            {{resource.quantity}} {{resource.unit_notation}}
+                          </span>
+                          {% if not forloop.last %}<br>{% endif%}
+                        {% endfor %}
+                      </td>
+
+                      <td class="" style="vertical-align: middle;">
+                        <span>{{district.buildings_slots}} {% trans "bâtiments"%}</span><br>
+                        {% if district.districts_slots > 0 %}
+                        <span>{{district.districts_slots}} {% trans "districts"%}</span><br>
+                        {% endif %}
+                      </td>
+
+                      <td class="" style="vertical-align: middle;">
+
+                        <button type="submit" class="btn {% if district.enough_stockpiles %} btn-primary ">
+                                                         {% else %} btn-danger disabled "> {% endif %}
+                                {% trans "Construire"%}</button>
+                      </td>
+
+                    </tr>
+                  </form>
+                  {% include "includes/form_submit_to_json_api.js" with form="api_form_build_"|add:district.internal_name api_url="api_build_district" %}
+
+                {% endfor %}
+              </tbody>
           </table>
+
         </div>
 
 
@@ -92,3 +102,4 @@
     </div>
     <!-- /.modal-dialog -->
 </div>
+

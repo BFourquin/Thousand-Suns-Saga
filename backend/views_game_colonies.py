@@ -58,6 +58,7 @@ def colony(request):
     filter_districts = params['filter_districts'] if 'filter_districts' in params else 'all'
 
     colony_dict = get_colony(server, params['colony_id'], add_coo_image=True)
+    colony_dict['id'] = colony_dict['_id']
 
     buildable_districts = get_all_buildable_districts_types(server, commandant, get_language(request))
 
