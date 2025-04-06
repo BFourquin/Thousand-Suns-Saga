@@ -61,9 +61,7 @@ def push_param_colony(server, colony_id, param, value):
 
     client = databases['TSS_' + server]
     db = client['colonies']
-    print(value, '>>', get_colony(server, colony_id))
-    db.update_one({"_id": colony_id}, {"$push": {param: value}})
-    print('||>>', get_colony(server, colony_id))
+    db.update_one({"_id": ObjectId(colony_id)}, {"$push": {param: value}})
 
 
 def pull_param_colony(server, colony_id, param, value):

@@ -73,7 +73,7 @@ def check_enough_resources_dict(server, commandant_id, resources_dict, return_mi
     missing_resources = {}
 
     for resource, quantity in resources_dict.items():
-        if resource not in commandant['resources'] or commandant['resources'][resource] <= quantity:
+        if resource not in commandant['resources'] or commandant['resources'][resource] < quantity:
             enough_resources = False
             missing_resources[resource] = quantity - commandant['resources'][resource]
     return (enough_resources, missing_resources) if return_missing_details else enough_resources
