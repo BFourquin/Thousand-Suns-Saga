@@ -66,9 +66,39 @@ def create_district(server, colony_id, district_type, starting_buildings=None):
 
 
     district_id = db.insert_one(district).inserted_id
-    print('district_id', district_id)
     colonies.push_param_colony(server, colony_id, 'districts', ObjectId(district_id))  # Add to colony's list of districts
     colonies.recalculate_districts_slots(server, colony_id)
 
 
+def delete_district(server, district_id, refund_ratio=0):
+
+    client = databases['TSS_' + server]
+    db = client['districts']
+
+    district = db.find_one({"_id": ObjectId(district_id)})
+    if not district:
+        return False
+
+
+    # TODO check if destruction is valid
+
+    # Removal of the entry and it's references
+    colonies.pull_param_colony(server, district['district_type'], 'districts', ObjectId(district_id))
+    db.remove_one({"_id": ObjectId(district_id)})
+
+
+    # RESOURCES REFUNDING (done after to prevent multiple refunding by spamming faster than DB deletion)
+    resources_refund = {}
+
+    # Buildings cost refunds
+    for building in district['buildings']:
+        ... # TODO building refund on deletion
+
+    # District cost refund
+    district_type = districts_types.get_district_type(server, district['district_type'])
+    for resource, quantity in district_type.items():
+        if resource in resources_refund:
+            resources_refund[resource] += quantity * refund_ratio
+        else:
+            resources_refund[resource] = quantity * refund_ratio
 

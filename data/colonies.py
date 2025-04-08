@@ -53,7 +53,7 @@ def update_colony(server, colony_id, param, value):
 
     client = databases['TSS_' + server]
     db = client['colonies']
-    db.update_one({"_id": colony_id}, {"$set": {param: value}})
+    db.update_one({"_id": ObjectId(colony_id)}, {"$set": {param: value}})
 
 
 def push_param_colony(server, colony_id, param, value):
@@ -69,7 +69,7 @@ def pull_param_colony(server, colony_id, param, value):
 
     client = databases['TSS_' + server]
     db = client['colonies']
-    db.update_one({"_id": colony_id}, {"$pull": {param: value}})
+    db.update_one({"_id": ObjectId(colony_id)}, {"$pull": {param: value}})
 
 
 def new_colony(server, commandant_id, colony_name, coordinate, colony_type, central_district_type):
