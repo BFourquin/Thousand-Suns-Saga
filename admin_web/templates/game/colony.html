@@ -210,7 +210,7 @@
                       {% endif %}
                     {% endfor %}
 
-                    {% if districts.0.free_districts_slots > 0 %}
+                    {% if districts.0.free_districts_slots > 0 or True %}
 
                       <tr class="" style='white-space: nowrap;'>
                         <td colspan="12">
@@ -232,7 +232,7 @@
                 </table>
                 <!-- /.table -->
 
-                {% include "includes/modal_build_district.html" with server_name=server colony_id=colony.id %}
+                {% include "includes/colony/modal_build_district.html" with server_name=server colony_id=colony.id %}
 
               </div>
               <!-- /.mail-box-messages -->
