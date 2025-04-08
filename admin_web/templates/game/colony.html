@@ -174,10 +174,16 @@
                           <td class="mailbox-subject" style="font-size: 20px; padding: 0.25rem; text-align: center;">
                             <b style="font-size: 20px;">{{district.name}}</b>
                             <br>
-                            <i class="fas fa-up-long"></i>
-                            <i class="fas fa-screwdriver-wrench"></i>
-                            <i class="fas fa-power-off"></i>
-                            <i class="fas fa-arrows-turn-to-dots"></i>
+                            <a href="/colony/?colony_id={{colony.id}}&district_delete={{district.id}}" class="pills">
+                              <span class="span_centering_icon" title="{% trans "Améliorer"%}"><i class="fas fa-up-long"></i></span></a>
+                            <a href="/colony/?colony_id={{colony.id}}&district_upgrade={{district.id}}" class="pills"><span class="span_centering_icon">
+                              <span class="span_centering_icon" title="{% trans "Modification"%}"><i class="fas fa-screwdriver-wrench"></i></span></a>
+                            <a href="/colony/?colony_id={{colony.id}}&district_activation={{district.id}}" class="pills"><span class="span_centering_icon">
+                              <span class="span_centering_icon" title="{% trans "Activation"%}"><i class="fas fa-power-off"></i></span></a>
+                            <a href="/colony/?colony_id={{colony.id}}&district_reorganize={{district.id}}" class="pills"><span class="span_centering_icon">
+                              <span class="span_centering_icon" title="{% trans "Réorganiser"%}"><i class="fas fa-arrows-turn-to-dots"></i></span></a>
+                            <a href="/colony/?colony_id={{colony.id}}&district_delete={{district.id}}" class="pills"><span class="span_centering_icon">
+                              <span class="span_centering_icon" title="{% trans "Détruire"%}"><i class="fas fa-trash-can"></i></span></a>
                           </td>
 
                           <td class="">
