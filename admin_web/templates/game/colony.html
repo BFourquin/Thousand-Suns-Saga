@@ -182,7 +182,8 @@
                               <span class="span_centering_icon" title="{% trans "Activation"%}"><i class="fas fa-power-off"></i></span></a>
                             <a href="/colony/?colony_id={{colony.id}}&district_reorganize={{district.id}}" class="pills"><span class="span_centering_icon">
                               <span class="span_centering_icon" title="{% trans "Réorganiser"%}"><i class="fas fa-arrows-turn-to-dots"></i></span></a>
-                            <a href="/colony/?colony_id={{colony.id}}&district_delete={{district.id}}" class="pills"><span class="span_centering_icon">
+                            <a href="#modal-delete-district-{{district.id}}" class="pills"><span class="span_centering_icon"
+                               data-toggle="modal" data-target="#modal-delete-district-{{district.id}}">
                               <span class="span_centering_icon" title="{% trans "Détruire"%}"><i class="fas fa-trash-can"></i></span></a>
                           </td>
 
@@ -215,7 +216,7 @@
                       <tr class="" style='white-space: nowrap;'>
                         <td colspan="12">
                           <button type="button" class="btn btn{% if dark_mode %}-outline{% endif %}-secondary btn-block btn-flat"
-                                  data-toggle="modal" data-target="#modal-build_district">
+                                  data-toggle="modal" data-target="#modal-build-district">
                             <i class="fa fa-square-plus"></i>
                               {% trans "Fonder un nouveau district"%} — {{districts.0.free_districts_slots}}
                               {% if districts.0.free_districts_slots > 1 %}
@@ -232,7 +233,15 @@
                 </table>
                 <!-- /.table -->
 
+
+                <!-- Action buttons modals -->
+                {% for district in districts %}
+                  {% include "includes/colony/modal_delete_district.html" with server_name=server district=district colony_id=colony.id %}
+                {% endfor%}
+
+                <!-- New district construction modal -->
                 {% include "includes/colony/modal_build_district.html" with server_name=server colony_id=colony.id %}
+
 
               </div>
               <!-- /.mail-box-messages -->

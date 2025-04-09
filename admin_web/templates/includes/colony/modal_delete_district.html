@@ -1,0 +1,47 @@
+
+{% load i18n %}
+{% load static %}
+
+<div class="modal modal-danger fade" id="modal-delete-district-{{district.id}}" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content bg-danger">
+        <div class="modal-header">
+          <h4 class="modal-title">{% trans "Détruire ce district ?"%}</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+
+
+
+        <div class="modal-body">
+          <table class="table table-stripped" style="width: 100%; table-layout: auto;>
+              <tbody>
+                <tr style="white-space: nowrap;">
+                  <td style="width: 0; border: none;">
+                    <img style="max-height: 10em;margin-bottom: -0.75em;" src="{% static ""%}{{district.illustration}}" style=""></td>
+
+                  <td style="font-size: 20px; text-align: center; vertical-align: middle; border: none;">
+                    <b style="font-size: 2em;"><i class="fas {{district.icon}}"></i>  {{district.name}}</b>
+                    <br>
+                    <span style="font-size: 1.1em;">{% trans "Le district et l'ensemble de ses bâtiments seront détruits, mais une partie des ressources pourront être recyclées."%}</span>
+
+                </td>
+              </tbody>
+          </table>
+
+        </div>
+
+
+        <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-outline-light btn-default" data-dismiss="modal">{% trans "Annuler"%}</button>
+            <button type="button" class="btn btn-outline-light">{% trans "Détruire"%}</button>
+        </div>
+
+      </div>
+      <!-- /.modal-content -->
+
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
