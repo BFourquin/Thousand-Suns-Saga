@@ -70,7 +70,7 @@ def create_district(server, colony_id, district_type, starting_buildings=None):
     colonies.recalculate_districts_slots(server, colony_id)
 
 
-def delete_district(server, district_id, refund_ratio=0):
+def delete_district(server, district_id, refund_ratio=0.75):
 
     client = databases['TSS_' + server]
     db = client['districts']
@@ -92,7 +92,7 @@ def delete_district(server, district_id, refund_ratio=0):
 
     # Buildings cost refunds
     for building in district['buildings']:
-        ... # TODO building refund on deletion
+        ...  # TODO building refund on deletion
 
     # District cost refund
     district_type = districts_types.get_district_type(server, district['district_type'])

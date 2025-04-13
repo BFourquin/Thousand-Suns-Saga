@@ -12,31 +12,39 @@
           </button>
         </div>
 
+        <form id="api_form_delete_district_{{district.id}}" method="POST">
+          {% csrf_token %}
+
+            <input type="hidden" id="server" name="server" value={{server_name}} />
+            <input type="hidden" id="colony_id" name="colony_id" value={{colony_id}} />
+            <input type="hidden" name="district_id" value="{{ district.id }}">
+
+            <div class="modal-body">
+              <table class="table table-stripped" style="width: 100%; table-layout: auto;>
+                  <tbody>
+                    <tr style="white-space: nowrap;">
+                      <td style="width: 0; border: none;">
+                        <img style="max-height: 10em;margin-bottom: -0.75em;" src="{% static ""%}{{district.illustration}}" style=""></td>
+
+                      <td style="font-size: 20px; text-align: center; vertical-align: middle; border: none;">
+                        <b style="font-size: 2em;"><i class="fas {{district.icon}}"></i>  {{district.name}}</b>
+                        <br>
+                        <span style="font-size: 1.1em;">{% trans "Le district et l'ensemble de ses bâtiments seront détruits, mais une partie des ressources pourront être recyclées."%}</span>
+                    </td>
+                  </tbody>
+              </table>
+
+            </div>
 
 
-        <div class="modal-body">
-          <table class="table table-stripped" style="width: 100%; table-layout: auto;>
-              <tbody>
-                <tr style="white-space: nowrap;">
-                  <td style="width: 0; border: none;">
-                    <img style="max-height: 10em;margin-bottom: -0.75em;" src="{% static ""%}{{district.illustration}}" style=""></td>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-outline-light btn-default" data-dismiss="modal">{% trans "Annuler"%}</button>
+                <button type="submit" class="btn btn-outline-light">{% trans "Détruire"%}</button>
+            </div>
 
-                  <td style="font-size: 20px; text-align: center; vertical-align: middle; border: none;">
-                    <b style="font-size: 2em;"><i class="fas {{district.icon}}"></i>  {{district.name}}</b>
-                    <br>
-                    <span style="font-size: 1.1em;">{% trans "Le district et l'ensemble de ses bâtiments seront détruits, mais une partie des ressources pourront être recyclées."%}</span>
+          </form>
 
-                </td>
-              </tbody>
-          </table>
-
-        </div>
-
-
-        <div class="modal-footer justify-content-between">
-            <button type="button" class="btn btn-outline-light btn-default" data-dismiss="modal">{% trans "Annuler"%}</button>
-            <button type="button" class="btn btn-outline-light">{% trans "Détruire"%}</button>
-        </div>
+        {% include "includes/form_submit_to_json_api.js" with form="api_form_delete_"|add:district.id api_url="api_delete_district" %}
 
       </div>
       <!-- /.modal-content -->

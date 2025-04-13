@@ -10,7 +10,7 @@ from backend.utils import request_params, get_active_server_and_commandant_from_
 from backend.api_ui_interactions import api_pop_up, api_pop_up_and_redirect
 from data.resources import check_enough_resources_dict
 from data.colonies import check_available_district_slot, recalculate_districts_slots
-from data.districts import create_district
+from data.districts import create_district, delete_district
 
 
 
@@ -58,3 +58,38 @@ def api_build_district(request):
 
     create_district(server, params['colony_id'], district_type['internal_name'])
     return api_pop_up_and_redirect({"title": "District en construction", "level": "success"}, status=302, redirect='/colony/?colony_id='+str(params['colony_id']))
+
+
+
+@login_required(login_url='/player_login/')
+def api_delete_district(request):
+
+    params = request_params(request)
+    server, commandant = get_active_server_and_commandant_from_request(request)
+
+    print(params)
+
+    if not server or not commandant:
+        return redirect('/user_account/')
+    if 'colony_id' not in params or ObjectId(params['colony_id']) not in commandant['colonies']:
+        return redirect('/colonies/')
+    if 'district_id' not in params:
+        return api_pop_up({"title": "Cible de la démolition invalide", "level": "danger"}, status=400)
+
+    db = databases['TSS_' + server]['districts']
+    district = db.find_one({"_id": ObjectId(params['district_id'])})
+
+    if not district:
+        return api_pop_up({"title": "Cible de la démolition invalide", "level": "danger"}, status=400)
+
+    if district['category'] == 'central_district':
+        return api_pop_up({"title": "Impossible de détruire la capitale de votre colonie sans l'abandonner", "level": "danger"}, status=400)
+
+    # Anti-cheat
+    if ObjectId(district['colony_id']) != ObjectId(params['colony_id']):
+        ...  # TODO incoherent district and colony ids, possible tentative of destroying other player district
+        return api_pop_up({"title": "Cible de la démolition invalide", "level": "danger"}, status=400)
+
+
+    delete_district(server, params['colony_id'], ObjectId(params['colony_id']))
+    return api_pop_up_and_redirect({"title": "Destruction en cours du district", "level": "success"}, status=302, redirect='/colony/?colony_id='+str(params['colony_id']))

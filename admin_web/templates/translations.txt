@@ -35,3 +35,16 @@ therefore it need to be manually declared here to get it detected
 {% trans "Cette colonie n'a plus d'espace pour un nouveau district de cette taille"%}
 {% trans "District en construction"%}
 
+{% trans "Cible de la démolition invalide"%}
+{% trans "Impossible de détruire la capitale de votre colonie sans l'abandonner%}
+{% trans "Destruction en cours du district"%}
+
+
+
+{% trans ""%}
+{% trans ""%}
+{% trans ""%}
+{% trans ""%}
+{% trans ""%}
+{% trans ""%}
+

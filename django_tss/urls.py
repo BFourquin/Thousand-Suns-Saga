@@ -42,6 +42,8 @@ urlpatterns = [
 
     # BUILDINGS & DISTRICTS
     path('api_build_district/', views_api_buildings.api_build_district),
+    path('api_delete_district/', views_api_buildings.api_delete_district),
+
 
 
     ####################################################################################################################
