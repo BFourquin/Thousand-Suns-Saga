@@ -27,8 +27,8 @@ The game server will be displayed on the public site
 """
 
 
-server_name = 'Alpha_test'
-excel_server_params = 'TSS.xlsx'
+server_name = 'Alpha_Boardgame'
+excel_server_params = 'TSS_boardgame.xlsx'
 
 language = 'international'  # 'fr' / 'en' / 'international'
 roleplay = 'HRP'  # 'RP' / 'HRP'

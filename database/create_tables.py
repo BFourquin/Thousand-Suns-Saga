@@ -27,6 +27,9 @@ def create_table(db_name, table_name, printing=True):
 
 def create_server_database(db_name):
 
+    if not 'TSS_' in db_name:
+        db_name = 'TSS_' + db_name
+
     # MAIN SERVER
 
     # in case it's the first time you deploy a server
