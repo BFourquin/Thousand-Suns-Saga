@@ -34,61 +34,70 @@
       <!-- Cycle Count -->
 
       <li class="nav-item dropdown">
-        <a class="nav-link" data-toggle="dropdown" href="#">
-          Cycle 25  
-          <i class="far {% if server_details.gameplay == 'saga' %} fa-calendar-days
-                        {% elif server_details.gameplay == 'skirmish' %} fa-calendar-days <!--fa-hourglass-half-->
-                        {% endif %}"></i>
-            
-          <span class="badge badge-warning right" style="font-size: 90%;">
-              10/{{server_details.active_users|length}}</span>
-
 
           {% if server_details.gameplay == 'skirmish' %}
-            <!--
-            <span class="badge badge-danger navbar-badge">10/{{server_details.active_users|length}}</span>-->
+          <button type="button" class="btn btn-block btn-default
+                                       {% if not dark_mode %}dark-mode{% endif %}"
+                  style="padding: 0; margin-top: -1px; margin-bottom: -1px;">
           {% endif %}
-        </a>
-        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
 
-          <a href="#" class="dropdown-item" style="text-align: center; padding-top: 1rem;">
-              <h6><i class="fas fa-check"></i>  {% trans "Terminer le cycle" %}</h6></a>
+            <a class="nav-link" data-toggle="dropdown" href="#">
+              Cycle 25  
+              <i class="far {% if server_details.gameplay == 'saga' %} fa-calendar-days
+                            {% elif server_details.gameplay == 'skirmish' %} fa-calendar-days <!--fa-hourglass-half-->
+                            {% endif %}"></i>
 
-          <div class="dropdown-divider"></div>
+              {% if server_details.gameplay == 'skirmish' %}
+                
+              <span class="badge right badge-warning"
+                    style="font-size: 90%;">
+                  1/{{server_details.active_users|length}}
+              </span>
+              {% endif %}
 
-          <a href="#" class="dropdown-item" style="text-align: center; padding-top: 1rem;">
-              <h6><i class="fas fa-moon"></i>  {% trans "Se marquer absent" %}</h6></a>
+            </a>
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
 
-          <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item" style="text-align: center; padding-top: 1rem;">
+                  <h6><i class="fas fa-check"></i>  {% trans "Terminer le cycle" %}</h6></a>
 
-          <span href="#" class="dropdown-item">
-            <!-- Message Start -->
-            <div class="media">
-              <div class="media-body">
-                <h3 class="dropdown-item-title">
-                  {% trans "En attente" %}
-                </h3>
-                <p class="text-sm">TODO</p>
-              </div>
+              <div class="dropdown-divider"></div>
+
+              <a href="#" class="dropdown-item" style="text-align: center; padding-top: 1rem;">
+                  <h6><i class="fas fa-moon"></i>  {% trans "Se marquer absent" %}</h6></a>
+
+              <div class="dropdown-divider"></div>
+
+              <span href="#" class="dropdown-item">
+                <!-- Message Start -->
+                <div class="media">
+                  <div class="media-body">
+                    <h3 class="dropdown-item-title">
+                      {% trans "En attente" %}
+                    </h3>
+                    <p class="text-sm">TODO</p>
+                  </div>
+                </div>
+                <!-- Message End -->
+              </span>
+              <div class="dropdown-divider"></div>
+              <span href="#" class="dropdown-item">
+                <!-- Message Start -->
+                <div class="media">
+                  <div class="media-body">
+                    <h3 class="dropdown-item-title">
+                      {% trans "Terminé" %}
+                    </h3>
+                    <p class="text-sm">TODO</p>
+                  </div>
+                </div>
+                <!-- Message End -->
+              </span>
+
             </div>
-            <!-- Message End -->
-          </span>
-          <div class="dropdown-divider"></div>
-          <span href="#" class="dropdown-item">
-            <!-- Message Start -->
-            <div class="media">
-              <div class="media-body">
-                <h3 class="dropdown-item-title">
-                  {% trans "Terminé" %}
-                </h3>
-                <p class="text-sm">TODO</p>
-              </div>
-            </div>
-            <!-- Message End -->
-          </span>
-
-        </div>
+        </button>
       </li>
+
 
       <!-- REMOVED Navbar Search -->
 
