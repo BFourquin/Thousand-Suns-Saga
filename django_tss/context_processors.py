@@ -20,14 +20,17 @@ def user_account(request):
 
     user_account = get_user_by_name(str(request.user))
     dark_mode = user_account['dark_mode'] if user_account else True
-    return {'user_account': user_account, 'dark_mode': dark_mode} if user_account else {'dark_mode': dark_mode}
+    return {'user_account': user_account,
+            'dark_mode': dark_mode} if user_account else {'dark_mode': dark_mode}
 
 
 
 def commandant_and_server(request):
 
     server, commandant = get_active_server_and_commandant_from_request(request)
-    return {'server': server, 'commandant': commandant}
+    return {'server': server,
+            'commandant': commandant,
+            'server_details': server_details.get_server_details(server)}
 
 
 
