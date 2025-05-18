@@ -40,7 +40,8 @@ def get_all_servers_details():
     return list(db.find({}))
 
 
-def create_server(server_name, status='test', admin_only_visibility=True, language='fr', roleplay='HRP'):
+def create_server(server_name, version, status='test', admin_only_visibility=True,
+                  language='fr', roleplay='HRP', gameplay='saga'):
 
     if get_server_details(server_name):
         raise Exception("'" + server_name + "' already exist.")
@@ -48,6 +49,8 @@ def create_server(server_name, status='test', admin_only_visibility=True, langua
         raise Exception("'" + status + "' is not valid as a server state.")
 
     server_details = {'server_name': server_name,
+                      'version': version,
+                      'gameplay': gameplay,
                       'status': status,
                       'admin_only_visibility': admin_only_visibility,
                       'creation_date': datetime.datetime.today(),

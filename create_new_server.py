@@ -30,13 +30,17 @@ The game server will be displayed on the public site
 server_name = 'Alpha_Boardgame'
 excel_server_params = 'TSS_boardgame.xlsx'
 
+version = 0.1
+gameplay = 'skirmish'  # 'saga' (main game) / 'skirmish' (boardgame)
+
 language = 'international'  # 'fr' / 'en' / 'international'
 roleplay = 'HRP'  # 'RP' / 'HRP'
+
 
 admin_only_visibility = False
 server_status = 'open'
 
-hide_visualisation = True
+hide_visualisation = True  # Map visualization at the end of the generation
 
 
 
@@ -75,8 +79,8 @@ if server_details.get_server_details(server_name):
 # SERVER DETAILS
 
 create_tables.create_server_database(server_name)
-server_details.create_server(server_name, status=server_status, admin_only_visibility=admin_only_visibility,
-                             language=language, roleplay=roleplay)
+server_details.create_server(server_name, version, status=server_status, admin_only_visibility=admin_only_visibility,
+                             language=language, roleplay=roleplay, gameplay=gameplay)
 
 
 # TECHNOLOGIES
