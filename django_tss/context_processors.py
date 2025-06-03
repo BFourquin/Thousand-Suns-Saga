@@ -3,6 +3,7 @@ from django.utils import translation
 
 from data import server_details
 from data.user import get_user_by_name
+from data.cycles import get_current_cycle
 from backend.utils import get_active_server_and_commandant_from_request
 
 
@@ -40,4 +41,14 @@ def localization(request):
         user_account = get_user_by_name(str(request.user))
         if user_account and 'language' in user_account:
             translation.activate(user_account['language'])
+    return {}
+
+
+def cycle_info(request):
+
+    if request.user and request.user != 'AnonymousUser':
+        user_account = get_user_by_name(str(request.user))
+
+        cycle = get_current_cycle(user_account['playing_on_server'])
+        return {'cycle_info': cycle}
     return {}
