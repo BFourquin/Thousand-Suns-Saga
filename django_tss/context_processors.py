@@ -46,8 +46,10 @@ def localization(request):
 
 def cycle_info(request):
 
-    if request.user and request.user != 'AnonymousUser':
+    if request.user:
         user_account = get_user_by_name(str(request.user))
+        if not user_account:
+            return {}
 
         cycle = get_current_cycle(user_account['playing_on_server'])
         return {'cycle_info': cycle}

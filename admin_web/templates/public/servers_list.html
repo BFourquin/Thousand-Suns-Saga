@@ -57,6 +57,9 @@
                       <th>
                            {% trans "Joueurs"%}
                       </th>
+                      <th>
+                           {% trans "Cycles"%}
+                      </th>
 
                       <th>
                            {% trans "Date d'ouverture"%}
@@ -117,6 +120,11 @@
                               <br/>
                               Morts : {{server.dead_commandants|length}}
                           </small>
+                      </td>
+
+                      <!-- Cycles -->
+                      <td>
+                          {{server.cycles.cycle_nb}}
                       </td>
 
 

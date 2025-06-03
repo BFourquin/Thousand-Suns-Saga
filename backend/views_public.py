@@ -1,18 +1,12 @@
 import datetime
 
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth import authenticate, login, logout
-from django.core.validators import validate_email
-from bokeh.plotting import figure
-from bokeh.embed import components
+from django.contrib.auth import authenticate, login
 
 
 from backend.utils import request_params, parameters_presents
 from data import server_details
+from data import cycles
 
 
 
@@ -25,6 +19,7 @@ def servers_list(request):
 
     servers = server_details.get_all_servers_details()
     for i in range(len(servers)):
+        servers[i]['cycles'] = cycles.get_current_cycle(servers[i]['server_name'])
         servers[i]['open_since_days'] = (datetime.datetime.now() - servers[i]['opening_date']).days
 
     servers = sorted(servers, key=lambda d: d['opening_date'], reverse=True)
