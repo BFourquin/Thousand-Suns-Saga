@@ -4,6 +4,7 @@ from django.utils import translation
 from data import server_details
 from data.user import get_user_by_name
 from data.cycles import get_current_cycle
+from data.commandant import get_commandant_by_object_id
 from backend.utils import get_active_server_and_commandant_from_request
 
 
@@ -48,9 +49,21 @@ def cycle_info(request):
 
     if request.user:
         user_account = get_user_by_name(str(request.user))
-        if not user_account:
+        if not user_account or 'playing_on_server' not in user_account or not user_account['playing_on_server']:
             return {}
 
-        cycle = get_current_cycle(user_account['playing_on_server'])
-        return {'cycle_info': cycle}
+        server_name = user_account['playing_on_server']
+        cycle = get_current_cycle(server_name)
+
+        commandants_cycle_playing = []
+        commandants_cycle_finished = []
+
+        for commandant_id in cycle['commandants_cycle_playing']:
+            commandants_cycle_playing.append(get_commandant_by_object_id(server_name, commandant_id))
+        for commandant_id in cycle['commandants_cycle_finished']:
+            commandants_cycle_finished.append(get_commandant_by_object_id(server_name, commandant_id))
+
+        return {'cycle_info': cycle,
+                'commandants_cycle_playing': commandants_cycle_playing,
+                'commandants_cycle_finished': commandants_cycle_finished}
     return {}
