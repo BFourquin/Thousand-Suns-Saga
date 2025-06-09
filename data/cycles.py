@@ -85,23 +85,28 @@ def pull_param_cycle(server, param, value):
 
 def mark_commandant_cycle_finished(server, commandant_id):
     pull_param_cycle(server, 'commandants_cycle_playing', commandant_id)
-    push_param_cycle(server, 'commandants_cycle_finished', commandant_id)
+    if not commandant_id in get_current_cycle(server)['commandants_cycle_finished']:
+        push_param_cycle(server, 'commandants_cycle_finished', commandant_id)
 
 def mark_commandant_cycle_playing(server, commandant_id):
     pull_param_cycle(server, 'commandants_cycle_finished', commandant_id)
-    push_param_cycle(server, 'commandants_cycle_playing', commandant_id)
+    if not commandant_id in get_current_cycle(server)['commandants_cycle_playing']:
+        push_param_cycle(server, 'commandants_cycle_playing', commandant_id)
 
 # Player declared absent : always display as cycle finished
 
 def mark_commandant_cycle_absent(server, commandant_id):
     pull_param_cycle(server, 'commandants_cycle_playing', commandant_id)
-    push_param_cycle(server, 'commandants_cycle_finished', commandant_id)
-    push_param_cycle(server, 'commandants_cycle_absent', commandant_id)
+    if not commandant_id in get_current_cycle(server)['commandants_cycle_playing']:
+        push_param_cycle(server, 'commandants_cycle_finished', commandant_id)
+    if not commandant_id in get_current_cycle(server)['commandants_cycle_absent']:
+        push_param_cycle(server, 'commandants_cycle_absent', commandant_id)
 
 def mark_commandant_cycle_present(server, commandant_id):
     pull_param_cycle(server, 'commandants_cycle_finished', commandant_id)
     pull_param_cycle(server, 'commandants_cycle_absent', commandant_id)
-    push_param_cycle(server, 'commandants_cycle_playing', commandant_id)
+    if not commandant_id in get_current_cycle(server)['commandants_cycle_playing']:
+        push_param_cycle(server, 'commandants_cycle_playing', commandant_id)
 
 
 ########################################################################################################################
@@ -115,6 +120,7 @@ def end_cycle(server_name):
 
 if __name__ == '__main__':
     # create_cycle_entry('Alpha_Boardgame')
-    mark_commandant_cycle_finished('Alpha_Boardgame', ObjectId('682a50b4be58ce0e09fdab34'))
+    mark_commandant_cycle_playing('Alpha_Boardgame', ObjectId('682a50b4be58ce0e09fdab34'))
+    #mark_commandant_cycle_finished('Alpha_Boardgame', ObjectId('682a50b4be58ce0e09fdab34'))
 
 
