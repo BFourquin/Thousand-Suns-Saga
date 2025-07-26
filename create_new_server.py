@@ -9,7 +9,7 @@ from database.load_technologies import load_technologies
 from database.load_resources import load_resources
 from database.load_buildings import load_buildings
 from database.db_connect import clients
-from data import server_details, statistics, starting_values
+from data import server_details, statistics, starting_values, cycles
 from geography import map_generator, mg_sectors
 from statistics import stats_geography
 
@@ -122,4 +122,7 @@ systems_types_global = stats_geography.statistics_systems_types_global(server_na
 statistics.set_statistics_category(server_name, "mg_systems_types_global", systems_types_global)
 print(systems_types_global)
 
+# OTHERS
+
+cycles.create_cycle_entry(server_name)
 

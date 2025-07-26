@@ -48,6 +48,8 @@ Template : AdminLTE
   > cd {project folder} \
   > python -m pip install -r requirements.txt
 
+Ask Iranis#8652 on Discord for the valid django_tss/settings.py file, or make one from django_tss/settings_opensource.py
+
 
 **MongoDB**
 
@@ -86,6 +88,8 @@ Ask Iranis#8652 on Discord for a valid config Excel,
 or create a new one from scratch with the exemple provided in TSS.xlsx
 
 Modify create_new_server.py with the appropriate server name and parameters and run the script.
+
+In django_tss/settings.py, add your new server name in the DATABASES dictionary
 
 ***
 ### TRANSLATION

@@ -2,6 +2,7 @@
 import datetime
 
 from database.db_connect import databases
+from data import commandant
 
 client = databases['TSS_main_server']
 db = client['server_details']
@@ -63,7 +64,7 @@ def create_server(server_name, version, status='test', admin_only_visibility=Tru
                       'active_users': [],
                       'previous_users': [],
                       'active_commandants': [],
-                      'previous_commandants': [],
+                      'dead_commandants': [],
                       }
 
     return db.insert_one(server_details)
@@ -75,6 +76,15 @@ def change_server_param(server_name, param, param_value):
 
 
 def delete_server_details(server_name):
+    # To be used only on test servers !
+
+    commandants_list = get_server_details(server_name)['active_commandants'] + \
+                       get_server_details(server_name)['dead_commandants']
+    for commandant_id in commandants_list:
+        commandant.delete_commandant(server_name, commandant_id)
+
+    db.delete_one({'server_name': server_name})
+
     return db.delete_one({'server_name': server_name})
 
 

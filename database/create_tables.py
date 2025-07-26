@@ -11,7 +11,7 @@ server_tables_names = ('commandants', 'starting_values', 'colonies',
                        'resources', 'resources_categories', 'resources_subcategories',
                        'ship_components', 'ship_designs', 'fleets', 'factions', 'coordinates', 'systems', 'sectors',
                        'map_generator', 'mg_sectors', 'mg_systems_types',  'mg_systems_compositions', 'mg_suns', 'mg_planets',
-                       'statistics', 'reports')
+                       'cycles', 'statistics', 'reports')
 
 
 
