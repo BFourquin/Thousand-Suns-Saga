@@ -35,49 +35,43 @@ Template : AdminLTE
 ### INSTALLATION
 
 
-**Web Server**
+**Python**
 
 - Install Python 3.11.9 (https://www.python.org/downloads/) \
   Add option "Add python.exe to PATH" in the installer
+
 
 - Get the project code from :
   > https://github.com/BFourquin/Thousand-Suns-Saga
 
 - Open a console and write
-  > cd {répertoire du projet} \
+  > cd {project folder} \
   > python -m pip install -r requirements.txt
 
 
 **MongoDB**
 
 - Install MongoDB (Community Edition) (https://www.mongodb.com/try/download/community) \
-  Include during installation MongoDB Compass \
+  Include during installation MongoDB Compass
+
 
 - Run the script {project folder}/database/create_tables.py
 
 
-**InfluxDB**
+**Django**
 
-(NOT YET IMPLEMENTED)
+- Open a console and write
+  > python manage.py makemigrations\
+  > python manage.py migrate
+  > python manage.py createsuperuser
 
-- Install InfluxDB Open Source v2.x (https://www.influxdata.com/downloads/)
-
-- Execute {project folder}/influxd.bat
-
-- Connect on the Influx interface at http://localhost:8086/ \
-  Fill the form for the admin account creation \
-  Keep the API token (/!\ can't be retrieved later)
-
-- Create a file token.txt at the following place : {project folder}/data/influxdb/token.txt \
-  Paste the admin account token in the file
-
+The last command will ask name and password to create your django admin account
 
 ***
 ### RUNNING THE WEBSERVER
 
 Run the following scripts :
 
-- influxd.bat
 - static_server.bat
 - runserver.bat
 
@@ -85,7 +79,13 @@ Run the following scripts :
 ***
 ### CREATE NEW GAME SERVERS
 
-TODO
+The game need a Excel configuration file with all the server configuration. \
+Every technology, building, resource and even the map geography generator have to be specified here.
+
+Ask Iranis#8652 on Discord for a valid config Excel, 
+or create a new one from scratch with the exemple provided in TSS.xlsx
+
+Modify create_new_server.py with the appropriate server name and parameters and run the script.
 
 ***
 ### TRANSLATION
@@ -94,6 +94,9 @@ The project use the integrated Django i18n associated with Rosetta as interface.
 In HTML templates, text to translate need to be in a trans tag as such > {% trans 'Bonjour!' %}
 
 The following command will search the project for text to translate > makemessages -l en --ignore=venv --ignore=README.md
+
+A few texts are generated on the API/backend side of the program and won't be discovered by the i18n script
+You can add them inside the following file : static/templates/public/translations.txt
 
 You can access the Rosetta interface to do the translation at > (you_site.com)/rosetta  \
 or via the default Django admin page
