@@ -55,7 +55,7 @@ def get_active_server_and_commandant_from_request(request):
     server = user['playing_on_server']
 
     commandant_id = user['playing_on_commandant']
-    commandant = get_commandant_by_object_id(server, commandant_id)
+    commandant = get_commandant_by_object_id(server, commandant_id)if commandant_id else None
     return server, commandant
 
 
