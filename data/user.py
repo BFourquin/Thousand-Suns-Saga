@@ -33,7 +33,7 @@ def create_user_extend(username):
                       'dead_accounts': [],
                       'banned_until': None,
                       'banned_reason': None,
-                      'language': 'En',
+                      'language': 'en',
                       'darkmode': True,
                       'playing_on_server': None,
                       'playing_on_commandant': None,
