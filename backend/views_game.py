@@ -8,6 +8,7 @@ import datetime
 
 
 import data.user
+from backend.decorators import add_cycle_info
 from backend.utils import request_params, parameters_presents, get_active_server_and_commandant_from_request
 from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator
 from data.user import get_user_by_name, get_user_by_object_id, update_user
@@ -18,7 +19,7 @@ from data.resources import get_all_resources_parameters, get_resources_categorie
 
 
 ########################################################################################################################
-# PUBLIC AREA
+# LOGGED NON-GAME AREA
 
 @login_required(login_url='/player_login/')
 def user_account(request):
@@ -137,6 +138,7 @@ def user_account(request):
 
 
 @login_required(login_url='/player_login/')
+@add_cycle_info
 def reports(request):
 
     params = request_params(request)
@@ -231,6 +233,7 @@ def reports(request):
 
 
 @login_required(login_url='/player_login/')
+@add_cycle_info
 def report(request):
 
     params = request_params(request)
@@ -255,6 +258,7 @@ def report(request):
 
 
 @login_required(login_url='/player_login/')
+@add_cycle_info
 def geography_system(request):
 
     params = request_params(request)
@@ -299,6 +303,7 @@ def geography_system(request):
 
 
 @login_required(login_url='/player_login/')
+@add_cycle_info
 def resources(request):
 
     params = request_params(request)

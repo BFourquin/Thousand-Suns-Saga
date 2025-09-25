@@ -1,0 +1,45 @@
+
+from functools import wraps
+
+from data.user import get_user_by_name
+from data.cycles import get_current_cycle
+from data.commandant import get_commandant_by_object_id
+
+
+def add_cycle_info(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        result = view_func(request, *args, **kwargs)
+
+        context_dict = {}
+        if getattr(request, "user", None):
+            user_account = get_user_by_name(str(request.user))
+            if user_account and user_account.get("playing_on_server"):
+                server_name = user_account["playing_on_server"]
+                cycle = get_current_cycle(server_name)
+
+                commandants_cycle_playing = []
+                commandants_cycle_finished = []
+
+                for commandant_id in cycle['commandants_cycle_playing']:
+                    commandants_cycle_playing.append(get_commandant_by_object_id(server_name, commandant_id))
+                for commandant_id in cycle['commandants_cycle_finished']:
+                    commandants_cycle_finished.append(get_commandant_by_object_id(server_name, commandant_id))
+                ratio_finished = len(commandants_cycle_playing) / len(commandants_cycle_finished) if commandants_cycle_finished else 0
+
+                context_dict = {
+                    "cycle_info": cycle,
+                    "commandants_cycle_playing": commandants_cycle_playing,
+                    "commandants_cycle_finished": commandants_cycle_finished,
+                    "ratio_finished": ratio_finished,
+                }
+
+                print(context_dict)
+
+        if isinstance(result, dict):
+            result.update(context_dict)
+        elif hasattr(result, "context_data"):
+            result.context_data.update(context_dict)
+
+        return result
+    return _wrapped_view

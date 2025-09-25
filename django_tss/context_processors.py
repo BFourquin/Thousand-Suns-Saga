@@ -43,38 +43,3 @@ def localization(request):
         if user_account and 'language' in user_account:
             translation.activate(user_account['language'])
     return {}
-
-
-
-def cycle_info(request):
-
-    # TODO prevent from running if in a public / admin page
-    """print(request.META['PATH_INFO'])
-    if 'admin' in request.META['PATH_INFO']:
-        return {}"""
-
-    # Ignore if not connected on a game page
-    if not request.user:
-        return {}
-
-    user_account = get_user_by_name(str(request.user))
-    if not user_account or 'playing_on_server' not in user_account or not user_account['playing_on_server']:
-        return {}
-
-    server_name = user_account['playing_on_server']
-    cycle = get_current_cycle(server_name)
-
-    commandants_cycle_playing = []
-    commandants_cycle_finished = []
-
-    for commandant_id in cycle['commandants_cycle_playing']:
-        commandants_cycle_playing.append(get_commandant_by_object_id(server_name, commandant_id))
-    for commandant_id in cycle['commandants_cycle_finished']:
-        commandants_cycle_finished.append(get_commandant_by_object_id(server_name, commandant_id))
-    ratio_finished = len(commandants_cycle_playing)/len(commandants_cycle_finished) if commandants_cycle_finished else 0
-
-    return {'cycle_info': cycle,
-            'commandants_cycle_playing': commandants_cycle_playing,
-            'commandants_cycle_finished': commandants_cycle_finished,
-            'ratio_finished': ratio_finished}
-

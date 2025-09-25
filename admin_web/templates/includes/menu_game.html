@@ -42,21 +42,27 @@
           {% endif %}
 
             <a class="nav-link" data-toggle="dropdown" href="#">
-              Cycle 25  
+              Cycle {{cycle_info.cycle_nb}}  
               <i class="far {% if server_details.gameplay == 'saga' %} fa-calendar-days
                             {% elif server_details.gameplay == 'skirmish' %} fa-calendar-days <!--fa-hourglass-half-->
                             {% endif %}"></i>
 
               {% if server_details.gameplay == 'skirmish' %}
                 
-              <span class="badge right badge-warning"
+              <span class="badge right badge
+                    {% if ratio_finished <= 0.25 %} -danger"
+                    {% elif ratio_finished <= 0.5 %} -warning"
+                    {% else %} -success"
+                    {% endif %}
+
                     style="font-size: 90%;">
-                  1/{{server_details.active_users|length}}
+                  {{commandants_cycle_playing|length}}/{{server_details.active_users|length}}
               </span>
               {% endif %}
 
             </a>
             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                {{cycle}}
 
               <a href="#" class="dropdown-item" style="text-align: center; padding-top: 1rem;">
                   <h6><i class="fas fa-check"></i>  {% trans "Marquer le cycle comme terminé" %}</h6></a>
