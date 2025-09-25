@@ -31,7 +31,7 @@ def add_cycle_info(view_func):
 
                 current_commandant_id = ObjectId(user_account['playing_on_commandant'])
                 current_commandant_finished = current_commandant_id in cycle['commandants_cycle_finished']
-                current_commandant_absent = current_commandant_id in cycle['commandants_cycle_finished']
+                current_commandant_absent = current_commandant_id in cycle['commandants_cycle_absent']
 
 
 
@@ -40,6 +40,8 @@ def add_cycle_info(view_func):
                     "commandants_cycle_playing": commandants_cycle_playing,
                     "commandants_cycle_finished": commandants_cycle_finished,
                     "ratio_finished": ratio_finished,
+                    "current_commandant_finished": current_commandant_finished,
+                    "current_commandant_absent": current_commandant_absent,
                 }
 
 

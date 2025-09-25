@@ -49,11 +49,7 @@
 
               {% if server_details.gameplay == 'skirmish' %}
                 
-              <span class="badge right badge
-                    {% if ratio_finished <= 0.25 %} -danger"
-                    {% elif ratio_finished <= 0.5 %} -warning"
-                    {% else %} -success"
-                    {% endif %}
+              <span class="badge right badge{% if ratio_finished >= 0.75 %}-danger"{% elif ratio_finished >= 0.5 %}-warning"{% else %} -success"{% endif %}
 
                     style="font-size: 90%;">
                   {{commandants_cycle_playing|length}}
@@ -69,7 +65,7 @@
 
 
               <a href="/cycle_monitoring/?commandant_cycle_status=commandant_cycle_finished" class="dropdown-item" style="text-align: center; padding-top: 1rem;">
-                  <h6><i class="fas fa-check"></i>  {% trans "Marquer le cycle comme terminé" %}</h6></a>
+                  <h6><i class="fas fa-check"></i>  {% trans "Prêt pour la fin de cycle" %}</h6></a>
 
               <div class="dropdown-divider"></div>
 

@@ -28,7 +28,63 @@
 
       <div class="container-fluid">
 
+        <!----------------------------------------------------------------------------------------------------------->
+        <!-- CYCLE INFOS AND ACTIONS -->
+        <!----------------------------------------------------------------------------------------------------------->
 
+        <div class="row">
+          <div class="col-lg-6">
+
+            {% if current_commandant_absent %}
+              <div class="alert alert-info">
+                <h5><i class="icon fas fa-moon"></i> {% trans "Vous êtes en mode absent." %}</h5>
+                {% trans "Si vous n'êtes plus disponible pour commander, le reste de la galaxie ne sera pas bloqué par votre inactivité." %}
+                {% trans "Tant que vous ne retirez pas le mode absent, vous serez systématiquement considéré comme ayant terminé votre cycle." %}
+              </div>
+            {% elif not current_commandant_finished %}
+              <div class="alert alert-danger">
+                <h5><i class="icon fas fa-hourglass-end"></i> {% trans "Vous n'êtes pas prêt pour le cycle suivant." %}</h5>
+                {% trans "Vous n'avez pas encore terminé de donner des ordres pour ce cycle. N'oubliez pas de signaler lorsque vous avez fini." %}
+                {% trans "Si vous prenez un temps déraisonnable, le Maître du Jeu peut forcer le passage de cycle, voire vous déclarer absent en cas d'abus." %}
+              </div>
+            {% elif current_commandant_finished %}
+              <div class="alert alert-success">
+                <h5><i class="icon fas fa-check"></i> {% trans "Vous êtes prêt pour le cycle suivant." %}</h5>
+                {% trans "Lorsque tous les autres commandants auront également terminé leur cycle, le maître du jeu passera au cycle suivant." %}
+                {% trans "Vous pouvez pendant ce temps continuer à donner des ordres, mais vous risquez d'être interrompu par le changement de cycle." %}
+              </div>
+            {% endif %}
+
+          </div>
+          <div class="col-lg-6">
+
+            {% if not current_commandant_finished %}
+              <button type="button" class="btn btn-block btn-outline-success btn-lg" style="height: 42%;"
+                      onclick="window.location.href='/cycle_monitoring/?commandant_cycle_status=commandant_cycle_finished';">
+                <i class="icon fas fa-check"></i> {% trans "Se déclarer prêt pour la fin de cycle" %}
+              </button>
+            {% else %}
+              <button type="button" class="btn btn-block btn-outline-warning btn-lg" style="height: 42%;"
+                      onclick="window.location.href='/cycle_monitoring/?commandant_cycle_status=commandant_cycle_playing';">
+                <i class="icon fas fa-hourglass-end"></i> {% trans "Se déclarer pas encore prêt pour la fin du cycle" %}
+              </button>
+            {% endif %}
+
+            {% if not current_commandant_absent %}
+              <button type="button" class="btn btn-block btn-outline-info btn-lg" style="height: 42%;"
+                      onclick="window.location.href='/cycle_monitoring/?commandant_cycle_presence=commandant_cycle_absent';">
+                <i class="icon fas fa-moon"></i> {% trans "Se mettre en mode absent" %}
+              </button>
+            {% else %}
+              <button type="button" class="btn btn-block btn-outline-info btn-lg" style="height: 42%;"
+                      onclick="window.location.href='/cycle_monitoring/?commandant_cycle_presence=commandant_cycle_present';">
+                <i class="icon fas fa-sun"></i> {% trans "Retirer le mode absent" %}
+              </button>
+            {% endif %}
+
+          </div>
+
+        </div>
 
 
         <!----------------------------------------------------------------------------------------------------------->

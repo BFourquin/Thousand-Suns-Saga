@@ -165,12 +165,14 @@ def cycle_monitoring(request):
             cycles.mark_commandant_cycle_finished(server, commandant['_id'])
         elif params['commandant_cycle_status'] == 'commandant_cycle_playing':
             cycles.mark_commandant_cycle_playing(server, commandant['_id'])
+        return HttpResponseRedirect(request.path_info)
 
     if 'commandant_cycle_presence' in params:
         if params['commandant_cycle_presence'] == 'commandant_cycle_absent':
             cycles.mark_commandant_cycle_absent(server, commandant['_id'])
         elif params['commandant_cycle_presence'] == 'commandant_cycle_present':
             cycles.mark_commandant_cycle_present(server, commandant['_id'])
+        return HttpResponseRedirect(request.path_info)
 
 
     # All needed cycles infos are already available in the decorator @add_cycle_info
