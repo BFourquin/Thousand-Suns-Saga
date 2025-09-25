@@ -1,6 +1,5 @@
-from django.shortcuts import render, redirect
-from django.http import JsonResponse
-from django.contrib.auth.models import User
+from django.template.response import TemplateResponse
+from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from bson.objectid import ObjectId
@@ -10,7 +9,7 @@ import datetime
 import data.user
 from backend.decorators import add_cycle_info
 from backend.utils import request_params, parameters_presents, get_active_server_and_commandant_from_request
-from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator
+from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator, cycles
 from data.user import get_user_by_name, get_user_by_object_id, update_user
 from data.report import get_commandant_reports, get_report_by_object_id, delete_report, change_report_status, \
     mark_all_reports_as_read, update_nb_unread_reports
@@ -48,8 +47,8 @@ def user_account(request):
 
     user = get_user_by_name(str(request.user))  # Get it again in case of parameter changed
 
-    return render(request, 'game/user_account.html', {'current_user': dict(user),
-                                                      'accounts': accounts, 'dead_accounts': dead_accounts})
+    return TemplateResponse(request, 'game/user_account.html',
+                            {'current_user': dict(user), 'accounts': accounts, 'dead_accounts': dead_accounts})
 
 
 
@@ -69,7 +68,7 @@ def create_commandant(request):
 
     server['open_since_days'] = (datetime.datetime.now() - server['opening_date']).days
 
-    return render(request, 'game/create_commandant.html', {'server': server})
+    return TemplateResponse(request, 'game/create_commandant.html', {'server': server})
 
 
 
@@ -129,12 +128,46 @@ def user_account(request):
 
     user = get_user_by_name(str(request.user))  # Get it again in case of parameter changed
 
-    return render(request, 'game/user_account.html', {'current_user': dict(user),
-                                                      'accounts': accounts, 'dead_accounts': dead_accounts})
+    return TemplateResponse(request, 'game/user_account.html',
+                            {'current_user': dict(user), 'accounts': accounts, 'dead_accounts': dead_accounts})
 
 
 ########################################################################################################################
-#  IN GAME AREA
+#  IN GAME AREA ########################################################################################################
+########################################################################################################################
+
+
+
+@login_required(login_url='/player_login/')
+@add_cycle_info
+def cycle_monitoring(request):
+
+    params = request_params(request)
+    server, commandant = get_active_server_and_commandant_from_request(request)
+
+    if not server or not commandant:
+        return redirect('/user_account/')
+
+    if 'commandant_cycle_status' in params:
+        if params['commandant_cycle_status'] == 'commandant_cycle_finished':
+            cycles.mark_commandant_cycle_finished(server, commandant['_id'])
+        elif params['commandant_cycle_status'] == 'commandant_cycle_playing':
+            cycles.mark_commandant_cycle_playing(server, commandant['_id'])
+
+    if 'commandant_cycle_presence' in params:
+        if params['commandant_cycle_presence'] == 'commandant_cycle_absent':
+            cycles.mark_commandant_cycle_absent(server, commandant['_id'])
+        elif params['commandant_cycle_presence'] == 'commandant_cycle_present':
+            cycles.mark_commandant_cycle_present(server, commandant['_id'])
+
+
+
+    # All needed cycles infos are already available in the decorator @add_cycle_info
+
+    return TemplateResponse(request, 'game/cycle_monitoring.html', {'server': server})
+
+
+########################################################################################################################
 
 
 @login_required(login_url='/player_login/')
@@ -224,11 +257,12 @@ def reports(request):
     page_number = params['page'] if 'page' in params else 1
     reports = paginator.get_page(page_number)
 
-    return render(request, 'game/reports.html', {'server': server, 'reports': reports,
-                                                 'nb_unread_reports': nb_unread_reports,
-                                                 'status': filter_status, 'category': filter_category,
-                                                 'search_text': search_text, 'page': page_number
-                                                 })
+    return TemplateResponse(request, 'game/reports.html',
+                            {'server': server, 'reports': reports,
+                             'nb_unread_reports': nb_unread_reports,
+                             'status': filter_status, 'category': filter_category,
+                             'search_text': search_text, 'page': page_number
+                             })
 
 
 
@@ -251,7 +285,7 @@ def report(request):
 
     change_report_status(server, params['report_id'], 'read')
 
-    return render(request, 'game/report.html', {'server': server, 'report': report})
+    return TemplateResponse(request, 'game/report.html', {'server': server, 'report': report})
 
 
 ########################################################################################################################
@@ -292,9 +326,10 @@ def geography_system(request):
     display_nb_coos_per_rows = len(system_coordinates)//nb_rows_display
 
 
-    return render(request, 'game/geography_system.html', {'server': server, 'system': system,
-                                                          'system_coordinates': system_coordinates,
-                                                          'display_nb_coos_per_rows': display_nb_coos_per_rows})
+    return TemplateResponse(request, 'game/geography_system.html',
+                            {'server': server, 'system': system,
+                             'system_coordinates': system_coordinates,
+                             'display_nb_coos_per_rows': display_nb_coos_per_rows})
 
 
 ########################################################################################################################
@@ -352,7 +387,7 @@ def resources(request):
     resources_categories = get_resources_categories(server)
     # resources_categories['name'] = resources_categories['name_fr']  # TODO auto-translation
 
-    return render(request, 'game/resources.html', {'server': server, 'resources': resources_table,
-                                                   'selected_category': selected_category,
-                                                   'resources_categories': resources_categories})
+    return TemplateResponse(request, 'game/resources.html',
+                            {'server': server, 'resources': resources_table,
+                             'selected_category': selected_category, 'resources_categories': resources_categories})
 

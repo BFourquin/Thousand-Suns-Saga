@@ -9,7 +9,7 @@ from data.commandant import get_commandant_by_object_id
 def add_cycle_info(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
-        result = view_func(request, *args, **kwargs)
+        response = view_func(request, *args, **kwargs)
 
         context_dict = {}
         if getattr(request, "user", None):
@@ -34,12 +34,10 @@ def add_cycle_info(view_func):
                     "ratio_finished": ratio_finished,
                 }
 
-                print(context_dict)
+        if hasattr(response, "context_data"):  # cas TemplateResponse
+            response.context_data.update(context_dict)
+        elif hasattr(response, "context"):    # cas rendu via render()
+            response.context.update(context_dict)
 
-        if isinstance(result, dict):
-            result.update(context_dict)
-        elif hasattr(result, "context_data"):
-            result.context_data.update(context_dict)
-
-        return result
+        return response
     return _wrapped_view

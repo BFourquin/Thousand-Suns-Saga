@@ -56,7 +56,7 @@ def update_cycle(server, param, value):
     client = databases['TSS_' + server]
     db = client['cycles']
 
-    cycle_id = get_current_cycle(server)['_id']
+    cycle_id = ObjectId(get_current_cycle(server)['_id'])
     db.update_one({"_id": cycle_id}, {"$set": {param: value}})
 
 
@@ -66,7 +66,7 @@ def push_param_cycle(server, param, value):
     client = databases['TSS_' + server]
     db = client['cycles']
 
-    cycle_id = get_current_cycle(server)['_id']
+    cycle_id = ObjectId(get_current_cycle(server)['_id'])
     db.update_one({"_id": cycle_id}, {"$push": {param: value}})
 
 
@@ -76,7 +76,7 @@ def pull_param_cycle(server, param, value):
     client = databases['TSS_' + server]
     db = client['cycles']
 
-    cycle_id = get_current_cycle(server)['_id']
+    cycle_id = ObjectId(get_current_cycle(server)['_id'])
     db.update_one({"_id": cycle_id}, {"$pull": {param: value}})
 
 

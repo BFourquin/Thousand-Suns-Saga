@@ -1,12 +1,10 @@
-from django.shortcuts import render, redirect
-from django.http import JsonResponse
-from django.contrib.auth.models import User
+from django.template.response import TemplateResponse
+from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from bson.objectid import ObjectId
-import datetime
 
-import data.user
+
+from backend.decorators import add_cycle_info
 from backend.utils import request_params, parameters_presents, get_active_server_and_commandant_from_request, get_language
 from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator
 from data.user import get_user_by_name, get_user_by_object_id, update_user
@@ -20,6 +18,7 @@ from data.resources import get_all_resources_parameters, get_resources_categorie
 
 
 @login_required(login_url='/player_login/')
+@add_cycle_info
 def colonies(request):
 
     params = request_params(request)
@@ -36,14 +35,16 @@ def colonies(request):
 
     colonies.append(colonies) # TODO remove, visual test
 
-    return render(request, 'game/colonies.html', {'server': server, 'colonies': colonies,
-                                                  'marker': filter_marker, 'category': filter_category,
-                                                  'search_text': search_text
-                                                  })
+    return TemplateResponse(request, 'game/colonies.html',
+                            {'server': server, 'colonies': colonies,
+                             'marker': filter_marker, 'category': filter_category,
+                             'search_text': search_text
+                             })
 
 
 
 @login_required(login_url='/player_login/')
+@add_cycle_info
 def colony(request):
 
     params = request_params(request)
@@ -73,9 +74,10 @@ def colony(request):
 
 
 
-    return render(request, 'game/colony.html', {'server': server, 'colony': colony_dict,
-                                                'districts': districts, 'filter_districts': filter_districts,
-                                                'buildable_districts': buildable_districts,
-                                                })
+    return TemplateResponse(request, 'game/colony.html',
+                            {'server': server, 'colony': colony_dict,
+                             'districts': districts, 'filter_districts': filter_districts,
+                             'buildable_districts': buildable_districts,
+                             })
 
 
