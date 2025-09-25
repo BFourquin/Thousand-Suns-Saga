@@ -1,5 +1,6 @@
 
 from functools import wraps
+from bson.objectid import ObjectId
 
 from data.user import get_user_by_name
 from data.cycles import get_current_cycle
@@ -25,7 +26,14 @@ def add_cycle_info(view_func):
                     commandants_cycle_playing.append(get_commandant_by_object_id(server_name, commandant_id))
                 for commandant_id in cycle['commandants_cycle_finished']:
                     commandants_cycle_finished.append(get_commandant_by_object_id(server_name, commandant_id))
-                ratio_finished = len(commandants_cycle_playing) / len(commandants_cycle_finished) if commandants_cycle_finished else 0
+                ratio_finished = len(commandants_cycle_finished) / (len(commandants_cycle_finished)+len(commandants_cycle_playing)) if commandants_cycle_finished else 0
+
+
+                current_commandant_id = ObjectId(user_account['playing_on_commandant'])
+                current_commandant_finished = current_commandant_id in cycle['commandants_cycle_finished']
+                current_commandant_absent = current_commandant_id in cycle['commandants_cycle_finished']
+
+
 
                 context_dict = {
                     "cycle_info": cycle,
@@ -33,6 +41,7 @@ def add_cycle_info(view_func):
                     "commandants_cycle_finished": commandants_cycle_finished,
                     "ratio_finished": ratio_finished,
                 }
+
 
         if hasattr(response, "context_data"):  # cas TemplateResponse
             response.context_data.update(context_dict)

@@ -19,8 +19,8 @@ def create_cycle_entry(server_name, last_cycle=None):
 
     cycle = {
         'cycle_nb': last_cycle['cycle_nb']+1 if last_cycle else 1,
-        'datetime_start' : datetime.datetime.now(),
-        'datetime_end' : None,
+        'datetime_start': datetime.datetime.now(),
+        'datetime_end': None,
 
         # Long-term version : daily passing of cycles
         'datetime_planned_end': None,  # TODO planned time for next cycle
@@ -28,7 +28,7 @@ def create_cycle_entry(server_name, last_cycle=None):
         # Boardgame version : manual passing of cycles
         'commandants_cycle_playing': [],
         'commandants_cycle_finished': [],
-        'commandants_cycle_absent': last_cycle['players_absent'] if last_cycle else [],
+        'commandants_cycle_absent': [],  # last_cycle['players_absent'] if last_cycle else [],
     }
 
     # Boardgame version : manual passing of cycles
@@ -119,6 +119,9 @@ def mark_commandant_cycle_present(server, commandant_id):
 def end_cycle(server_name):
 
     server = server_details.get_server_details(server_name)
+    create_cycle_entry(server_name, last_cycle=get_current_cycle(server_name))
+
+    # TODO all cycle events
 
 
 

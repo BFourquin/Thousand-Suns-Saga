@@ -1,5 +1,5 @@
 from django.template.response import TemplateResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from bson.objectid import ObjectId
@@ -148,6 +148,18 @@ def cycle_monitoring(request):
     if not server or not commandant:
         return redirect('/user_account/')
 
+    # Admin / MG display and actions
+    display_admin_and_gm_info = False
+
+    if request.user.is_authenticated and request.user.is_staff:  # TODO check if player is a game master for this server
+        display_admin_and_gm_info = True
+        if 'admin_action' in params and params['admin_action'] == 'end_cycle':
+            cycles.end_cycle(server)
+            return HttpResponseRedirect(request.path_info)
+
+
+    # Commandants status
+
     if 'commandant_cycle_status' in params:
         if params['commandant_cycle_status'] == 'commandant_cycle_finished':
             cycles.mark_commandant_cycle_finished(server, commandant['_id'])
@@ -160,10 +172,8 @@ def cycle_monitoring(request):
         elif params['commandant_cycle_presence'] == 'commandant_cycle_present':
             cycles.mark_commandant_cycle_present(server, commandant['_id'])
 
-    display_admin_and_gm_info = True
 
     # All needed cycles infos are already available in the decorator @add_cycle_info
-
     return TemplateResponse(request, 'game/cycle_monitoring.html', {'server': server, 'admin_or_gm_only': display_admin_and_gm_info})
 
 

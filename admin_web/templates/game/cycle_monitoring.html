@@ -27,6 +27,33 @@
         <!-- Corps central -->
 
       <div class="container-fluid">
+
+
+
+
+        <!----------------------------------------------------------------------------------------------------------->
+        <!-- END CYCLE (ADMIN BUTTON) -->
+        <!----------------------------------------------------------------------------------------------------------->
+
+        {% if ratio_finished != 1 %} <!-- Not all players have finished the cycle -->
+          <button type="button" style="margin-top: 20px;margin-bottom: 20px;"
+                  class="btn btn-block btn-outline-warning btn-lg"
+                  onclick="if(confirm('/!\\ {% trans "Tous les commandants ne sont pas encore prêts pour changer de cycle. Forcer la fin du cycle ?" %}'))
+                      {window.location.href='/cycle_monitoring/?admin_action=end_cycle';                      }
+                  ">
+            {% trans "[ADMIN/MG]" %} {% trans "Passer au cycle suivant" %}
+          </button>
+
+        {% else %} <!-- All players finished the cycle -->
+        <button type="button" style="margin-top: 20px;margin-bottom: 20px;"
+                class="btn btn-block btn-outline-success btn-lg"
+                onclick="window.location.href='/cycle_monitoring/?admin_action=end_cycle';">
+          {% trans "[ADMIN/MG]" %} {% trans "Passer au cycle suivant" %}
+        {% endif %}
+
+        </button>
+
+
         <div class="row">
 
 
@@ -78,8 +105,8 @@
                             {% trans "Dernière action :" %} ? minutes
                           </span>
                           <span class="d-block" style="font-size:14px;">
-                            <a href="#" style="color: red; text-decoration: underline;">
-                              {% trans "Passer en mode absent" %}
+                            <a href="#" class="text-warning" style="text-decoration: underline;">
+                              {% trans "Passer en mode absent" %} <!-- TODO absent mode -->
                             </a>
                           </span>
                         </div>

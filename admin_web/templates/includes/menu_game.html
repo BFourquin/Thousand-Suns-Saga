@@ -56,13 +56,17 @@
                     {% endif %}
 
                     style="font-size: 90%;">
-                  {{commandants_cycle_playing|length}}/{{server_details.active_users|length}}
+                  {{commandants_cycle_playing|length}}
+                  /
+                  {% with len_playing=commandants_cycle_playing|length %}{% with len_finished=commandants_cycle_finished|length %}{{ len_playing|add:len_finished }}{% endwith %} {% endwith %}
+
               </span>
               {% endif %}
 
             </a>
             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                 {{cycle}}
+
 
               <a href="/cycle_monitoring/?commandant_cycle_status=commandant_cycle_finished" class="dropdown-item" style="text-align: center; padding-top: 1rem;">
                   <h6><i class="fas fa-check"></i>  {% trans "Marquer le cycle comme terminé" %}</h6></a>
