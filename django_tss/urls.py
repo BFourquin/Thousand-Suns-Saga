@@ -70,6 +70,8 @@ urlpatterns = [
     path('create_commandant/', views_game.create_commandant, name='create_commandant'),
     path('commandant_login/', views_game.commandant_login, name='commandant_login'),
 
+    path('cycle_monitoring/', views_game.cycle_monitoring, name='cycle_monitoring'),
+
     path('resources/', views_game.resources, name='resources'),
 
     path('colonies/', views_game_colonies.colonies, name='colonies'),

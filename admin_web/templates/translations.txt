@@ -11,6 +11,7 @@ therefore it need to be manually declared here to get it detected
 {% trans "Compte TSS"%}
 {% trans "Rejoindre le serveur"%}
 
+{% trans "Cycle"%}
 
 {% trans "Rapports"%}
 
@@ -41,7 +42,7 @@ therefore it need to be manually declared here to get it detected
 
 
 
-{% trans ""%}
+
 {% trans ""%}
 {% trans ""%}
 {% trans ""%}

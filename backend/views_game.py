@@ -160,11 +160,11 @@ def cycle_monitoring(request):
         elif params['commandant_cycle_presence'] == 'commandant_cycle_present':
             cycles.mark_commandant_cycle_present(server, commandant['_id'])
 
-
+    display_admin_and_gm_info = True
 
     # All needed cycles infos are already available in the decorator @add_cycle_info
 
-    return TemplateResponse(request, 'game/cycle_monitoring.html', {'server': server})
+    return TemplateResponse(request, 'game/cycle_monitoring.html', {'server': server, 'admin_or_gm_only': display_admin_and_gm_info})
 
 
 ########################################################################################################################

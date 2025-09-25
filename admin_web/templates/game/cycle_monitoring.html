@@ -1,0 +1,176 @@
+
+{% load i18n %}
+{% load static %}
+
+
+{% include "includes/header.html" with title="Cycle" %}
+
+{% include "includes/menu_game.html" with page_title=_("Cycle") %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <!--<h1>{% trans ""%} </h1>-->
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+
+        <!--------------------------------------------------------------------------------------------------------->
+        <!-- Corps central -->
+
+      <div class="container-fluid">
+        <div class="row">
+
+
+          <!----------------------------------------------------------------------------------------------------------->
+          <!-- PLAYER NOT FINISHED -->
+          <!----------------------------------------------------------------------------------------------------------->
+
+          <div class="col-lg-6">
+
+            <div class="card card-primary card-outline">
+              <div class="card-header">
+                <h5 class="m-0">{% trans "Commandants n'ayant pas terminé leur cycle"%}
+                              (
+                              {{commandants_cycle_playing|length}}
+                              /
+                              {% with len_playing=commandants_cycle_playing|length %}{% with len_finished=commandants_cycle_finished|length %}{{ len_playing|add:len_finished }}{% endwith %} {% endwith %}
+                              )
+                </h5>
+              </div>
+
+                <div class="card-body">
+                  {% for commandant in commandants_cycle_finished %}
+
+                    <!-- Post -->
+                    <div class="post" style="border-bottom:0px;">
+                      <div class="user-block menu-separator row align-items-center" style="margin-top:5px; padding-bottom:10px; margin-bottom: 5px;">
+
+                        <!-- Avatar and flag -->
+                        <div class="col-12 col-md-2 d-flex align-items-center">
+                          <img class="img-bordered-sm me-2" src="{% static "" %}{{ commandant.flag }}"
+                               style="height:60px; width:60px;">
+                          <img class="img-bordered-sm" src="{% static "" %}{{ commandant.portrait }}"
+                               style="height:60px; width:60px; margin-left:10px;">
+                        </div>
+
+                        <!-- Commandant and civilisation names -->
+                        <div class="col-12 {% if admin_or_gm_only %}col-md-5{% else %}col-md-10{% endif %}  align-items-center">
+                          <span class="username d-block mb-2" style="font-size:18px;">
+                            {{ commandant.commandant_name }}
+                            <br/>
+                            {{ commandant.civilisation_name }}
+                          </span>
+                        </div>
+
+                        <!-- Admin/GM info -->
+                        {% if admin_or_gm_only %}
+                        <div class="col-12 col-md-5  align-items-center">
+                          <span class="d-block" style="font-size:14px;">
+                            {% trans "Dernière action :" %} ? minutes
+                          </span>
+                          <span class="d-block" style="font-size:14px;">
+                            <a href="#" style="color: red; text-decoration: underline;">
+                              {% trans "Passer en mode absent" %}
+                            </a>
+                          </span>
+                        </div>
+                        {% endif %}
+
+                      </div>
+                      <!-- /.user-block -->
+                    </div>
+                    <!-- /.post -->
+
+                  {% endfor %}
+                </div>
+
+            </div>
+          </div>
+          <!-- /.col-md-6 -->
+
+          <!----------------------------------------------------------------------------------------------------------->
+          <!-- PLAYER WAITING FOR NEXT TURN-->
+          <!----------------------------------------------------------------------------------------------------------->
+
+
+          <div class="col-lg-6">
+
+            <div class="card card-primary card-outline">
+              <div class="card-header">
+                <h5 class="m-0">{% trans "Commandants en attente du cycle suivant"%}
+                              (
+                              {{commandants_cycle_finished|length}}
+                              /
+                              {% with len_playing=commandants_cycle_playing|length %}{% with len_finished=commandants_cycle_finished|length %}{{ len_playing|add:len_finished }}{% endwith %} {% endwith %}
+                              )
+                </h5>
+              </div>
+
+                <div class="card-body">
+                  {% for commandant in commandants_cycle_finished %}
+
+                    <!-- Post -->
+                    <div class="post" style="border-bottom:0px;">
+                      <div class="user-block menu-separator row align-items-center" style="margin-top:5px; padding-bottom:10px; margin-bottom: 5px;">
+
+                        <!-- Avatar and flag -->
+                        <div class="col-12 col-md-2 d-flex align-items-center">
+                          <img class="img-bordered-sm me-2" src="{% static "" %}{{ commandant.flag }}"
+                               style="height:60px; width:60px;">
+                          <img class="img-bordered-sm" src="{% static "" %}{{ commandant.portrait }}"
+                               style="height:60px; width:60px; margin-left:10px;">
+                        </div>
+
+                        <!-- Commandant and civilisation names -->
+                        <div class="col-12 {% if admin_or_gm_only %}col-md-5{% else %}col-md-10{% endif %}  align-items-center">
+                          <span class="username d-block mb-2" style="font-size:18px;">
+                            {{ commandant.commandant_name }}
+                            <br/>
+                            {{ commandant.civilisation_name }}
+                          </span>
+                        </div>
+
+                        <!-- Admin/GM info -->
+                        {% if admin_or_gm_only %}
+                        <div class="col-12 col-md-5  align-items-center">
+                          <span class="d-block" style="font-size:14px;">
+                            {% trans "Terminé depuis :" %} ? minutes
+                          </span>
+                          <span class="d-block" style="font-size:14px;">
+                            {% trans "Dernière action :" %} ? minutes
+                          </span>
+                        </div>
+                        {% endif %}
+
+                      </div>
+                      <!-- /.user-block -->
+                    </div>
+                    <!-- /.post -->
+
+                  {% endfor %}
+                </div>
+
+            </div>
+          </div>
+          <!-- /.col-md-6 -->
+        </div>
+        <!-- /.row -->
+      </div>
+
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+</body>
+</html>
