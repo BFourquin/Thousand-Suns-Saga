@@ -33,11 +33,11 @@ def create_cycle_entry(server_name, last_cycle=None):
 
     # Boardgame version : manual passing of cycles
     for commandant_id in commandants_list:
-        if last_cycle and commandant_id in last_cycle['commandants_cycle_absent']:
-            cycle['commandants_cycle_absent'].append(commandant_id)
-            cycle['commandants_cycle_finished'].append(commandant_id)
+        if last_cycle and ObjectId(commandant_id) in last_cycle['commandants_cycle_absent']:
+            cycle['commandants_cycle_absent'].append(ObjectId(commandant_id))
+            cycle['commandants_cycle_finished'].append(ObjectId(commandant_id))
         else:
-            cycle['commandants_cycle_playing'].append(commandant_id)
+            cycle['commandants_cycle_playing'].append(ObjectId(commandant_id))
 
     db.insert_one(cycle)
 
@@ -84,11 +84,13 @@ def pull_param_cycle(server, param, value):
 # Boardgame version : manual passing of cycles
 
 def mark_commandant_cycle_finished(server, commandant_id):
+    commandant_id = ObjectId(commandant_id)
     pull_param_cycle(server, 'commandants_cycle_playing', commandant_id)
     if not commandant_id in get_current_cycle(server)['commandants_cycle_finished']:
         push_param_cycle(server, 'commandants_cycle_finished', commandant_id)
 
 def mark_commandant_cycle_playing(server, commandant_id):
+    commandant_id = ObjectId(commandant_id)
     pull_param_cycle(server, 'commandants_cycle_finished', commandant_id)
     if not commandant_id in get_current_cycle(server)['commandants_cycle_playing']:
         push_param_cycle(server, 'commandants_cycle_playing', commandant_id)
@@ -96,13 +98,15 @@ def mark_commandant_cycle_playing(server, commandant_id):
 # Player declared absent : always display as cycle finished
 
 def mark_commandant_cycle_absent(server, commandant_id):
+    commandant_id = ObjectId(commandant_id)
     pull_param_cycle(server, 'commandants_cycle_playing', commandant_id)
-    if not commandant_id in get_current_cycle(server)['commandants_cycle_playing']:
+    if not commandant_id in get_current_cycle(server)['commandants_cycle_finished']:
         push_param_cycle(server, 'commandants_cycle_finished', commandant_id)
     if not commandant_id in get_current_cycle(server)['commandants_cycle_absent']:
         push_param_cycle(server, 'commandants_cycle_absent', commandant_id)
 
 def mark_commandant_cycle_present(server, commandant_id):
+    commandant_id = ObjectId(commandant_id)
     pull_param_cycle(server, 'commandants_cycle_finished', commandant_id)
     pull_param_cycle(server, 'commandants_cycle_absent', commandant_id)
     if not commandant_id in get_current_cycle(server)['commandants_cycle_playing']:
