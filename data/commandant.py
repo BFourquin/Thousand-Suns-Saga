@@ -70,6 +70,9 @@ def create_commandant(server, user, commandant_name, civilisation_name):
             'civilisation_name': civilisation_name,
             'gender': 'm',  # TODO gender
 
+            'portrait': 'images/commandants/default_flag.jpg',
+            'flag': 'images/commandants/default_portrait.jpg',
+
             'server': server,
             'status': 'active',
             'user_id': user['_id'],
