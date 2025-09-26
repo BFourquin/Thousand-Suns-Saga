@@ -91,27 +91,27 @@
         <!-- END CYCLE (ADMIN BUTTON) -->
         <!----------------------------------------------------------------------------------------------------------->
 
-        {% if ratio_finished != 1 %} <!-- Not all players have finished the cycle -->
+        {% if display_admin_and_gm_info %}
+          {% if ratio_finished != 1 %} <!-- Not all players have finished the cycle -->
+            <button type="button" style="margin-top: 20px;margin-bottom: 20px;"
+                    class="btn btn-block btn-outline-warning btn-lg"
+                    onclick="if(confirm('/!\\ {% trans "Tous les commandants ne sont pas encore prêts pour changer de cycle. Forcer la fin du cycle ?" %}'))
+                        {window.location.href='/cycle_monitoring/?admin_action=end_cycle';                      }
+                    ">
+              {% trans "[ADMIN/MG]" %} {% trans "Passer au cycle suivant" %}
+            </button>
+
+          {% else %} <!-- All players finished the cycle -->
           <button type="button" style="margin-top: 20px;margin-bottom: 20px;"
-                  class="btn btn-block btn-outline-warning btn-lg"
-                  onclick="if(confirm('/!\\ {% trans "Tous les commandants ne sont pas encore prêts pour changer de cycle. Forcer la fin du cycle ?" %}'))
-                      {window.location.href='/cycle_monitoring/?admin_action=end_cycle';                      }
-                  ">
+                  class="btn btn-block btn-outline-success btn-lg"
+                  onclick="window.location.href='/cycle_monitoring/?admin_action=end_cycle';">
             {% trans "[ADMIN/MG]" %} {% trans "Passer au cycle suivant" %}
-          </button>
-
-        {% else %} <!-- All players finished the cycle -->
-        <button type="button" style="margin-top: 20px;margin-bottom: 20px;"
-                class="btn btn-block btn-outline-success btn-lg"
-                onclick="window.location.href='/cycle_monitoring/?admin_action=end_cycle';">
-          {% trans "[ADMIN/MG]" %} {% trans "Passer au cycle suivant" %}
+            </button>
+          {% endif %}
         {% endif %}
-
-        </button>
 
 
         <div class="row">
-
 
           <!----------------------------------------------------------------------------------------------------------->
           <!-- PLAYER NOT FINISHED -->
