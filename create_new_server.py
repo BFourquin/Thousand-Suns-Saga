@@ -33,8 +33,9 @@ excel_server_params = 'TSS_boardgame.xlsx'
 version = 0.1
 gameplay = 'skirmish'  # 'saga' (main game) / 'skirmish' (boardgame)
 
-language = 'international'  # 'fr' / 'en' / 'international'
 roleplay = 'HRP'  # 'RP' / 'HRP'
+language = 'international'  # 'fr' / 'en' / 'international'
+timezone = 'Europe/Paris'
 
 
 admin_only_visibility = False
@@ -80,7 +81,7 @@ if server_details.get_server_details(server_name):
 
 create_tables.create_server_database(server_name)
 server_details.create_server(server_name, version, status=server_status, admin_only_visibility=admin_only_visibility,
-                             language=language, roleplay=roleplay, gameplay=gameplay)
+                             language=language, roleplay=roleplay, gameplay=gameplay, timezone=timezone)
 
 
 # TECHNOLOGIES

@@ -1,5 +1,6 @@
 
 import datetime
+from dateutil import tz
 
 from database.db_connect import databases
 from data import commandant
@@ -14,6 +15,37 @@ server_status = ('open',  # users can create an account and play
                  'test',  # only superuser can create an account
                  'stop',  # the server is fixed in time at the end of the game, no new account or any order,
                  'dead')  # everything shut down
+
+
+def create_server(server_name, version, status='test', admin_only_visibility=True,
+                  language='fr', roleplay='HRP', gameplay='saga', timezone='Europe/Paris'):
+
+    if get_server_details(server_name):
+        raise Exception("'" + server_name + "' already exist.")
+    if status not in server_status:
+        raise Exception("'" + status + "' is not valid as a server state.")
+
+    server_details = {'server_name': server_name,
+                      'version': version,
+                      'gameplay': gameplay,
+                      'status': status,
+                      'admin_only_visibility': admin_only_visibility,
+                      'creation_date': datetime.datetime.today(),
+                      'opening_date': datetime.datetime.now(),
+                      'end_date': None,
+                      'language': language,
+                      'roleplay': roleplay,
+                      'allow_multiaccounts': False,
+
+                      'active_users': [],
+                      'previous_users': [],
+                      'active_commandants': [],
+                      'dead_commandants': [],
+
+                      'timezone': tz.gettz(timezone),
+                      }
+
+    return db.insert_one(server_details)
 
 
 def get_servers_names(open_servers=True, playable_servers=True, test_servers=True, old_servers=True, admin_visibility=False):
@@ -41,33 +73,8 @@ def get_all_servers_details():
     return list(db.find({}))
 
 
-def create_server(server_name, version, status='test', admin_only_visibility=True,
-                  language='fr', roleplay='HRP', gameplay='saga'):
-
-    if get_server_details(server_name):
-        raise Exception("'" + server_name + "' already exist.")
-    if status not in server_status:
-        raise Exception("'" + status + "' is not valid as a server state.")
-
-    server_details = {'server_name': server_name,
-                      'version': version,
-                      'gameplay': gameplay,
-                      'status': status,
-                      'admin_only_visibility': admin_only_visibility,
-                      'creation_date': datetime.datetime.today(),
-                      'opening_date': datetime.datetime.now(),
-                      'end_date': None,
-                      'language': language,
-                      'roleplay': roleplay,
-                      'allow_multiaccounts': False,
-
-                      'active_users': [],
-                      'previous_users': [],
-                      'active_commandants': [],
-                      'dead_commandants': [],
-                      }
-
-    return db.insert_one(server_details)
+def get_tz(server_name):
+    return tz.gettz(get_server_details(server_name)['timezone'])
 
 
 def change_server_param(server_name, param, param_value):
@@ -144,3 +151,4 @@ def set_dead_commandant(server_name, commandant_id):
 
 #create_server('test 2', status='stop', admin_only_visibility=True)
 #print(get_server_details('Alpha'))
+#db.update_one({"server_name": "Alpha_Boardgame"}, {"$push": {'timezone': 'Europe/Paris'}})
