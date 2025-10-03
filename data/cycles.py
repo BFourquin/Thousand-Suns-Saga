@@ -1,12 +1,13 @@
 
 import datetime
+from dateutil import tz
 from random import randint
 from bson.objectid import ObjectId
 
 from database.db_connect import databases
 from data import server_details
-from data.server_details import get_server_details
-from data.commandant import get_commandant_by_object_id
+from data.server_details import get_server_details, get_tz
+from data.commandant import get_commandant_by_object_id, update_commandant
 
 
 def create_cycle_entry(server_name, last_cycle=None):
@@ -88,12 +89,14 @@ def mark_commandant_cycle_finished(server, commandant_id):
     pull_param_cycle(server, 'commandants_cycle_playing', commandant_id)
     if not commandant_id in get_current_cycle(server)['commandants_cycle_finished']:
         push_param_cycle(server, 'commandants_cycle_finished', commandant_id)
+        update_commandant(server, commandant_id, 'time_cycle_finished', datetime.datetime.now(tz=get_tz(server)))
 
 def mark_commandant_cycle_playing(server, commandant_id):
     commandant_id = ObjectId(commandant_id)
     pull_param_cycle(server, 'commandants_cycle_finished', commandant_id)
     if not commandant_id in get_current_cycle(server)['commandants_cycle_playing']:
         push_param_cycle(server, 'commandants_cycle_playing', commandant_id)
+        update_commandant(server, commandant_id, 'time_cycle_finished', None)
 
 # Player declared absent : always display as cycle finished
 
@@ -104,6 +107,7 @@ def mark_commandant_cycle_absent(server, commandant_id):
         push_param_cycle(server, 'commandants_cycle_finished', commandant_id)
     if not commandant_id in get_current_cycle(server)['commandants_cycle_absent']:
         push_param_cycle(server, 'commandants_cycle_absent', commandant_id)
+        update_commandant(server, commandant_id, 'time_cycle_finished', None)
 
 def mark_commandant_cycle_present(server, commandant_id):
     commandant_id = ObjectId(commandant_id)
@@ -111,6 +115,7 @@ def mark_commandant_cycle_present(server, commandant_id):
     pull_param_cycle(server, 'commandants_cycle_absent', commandant_id)
     if not commandant_id in get_current_cycle(server)['commandants_cycle_playing']:
         push_param_cycle(server, 'commandants_cycle_playing', commandant_id)
+        update_commandant(server, commandant_id, 'time_cycle_finished', datetime.datetime.now(tz=get_tz(server)))
 
 
 ########################################################################################################################
@@ -120,6 +125,10 @@ def end_cycle(server_name):
 
     server = server_details.get_server_details(server_name)
     create_cycle_entry(server_name, last_cycle=get_current_cycle(server_name))
+
+    # Reset commandants' cycle status
+    for commandant_id in server['active_commandants']:
+        update_commandant(server, commandant_id, 'time_cycle_finished', None)
 
     # TODO all cycle events
 

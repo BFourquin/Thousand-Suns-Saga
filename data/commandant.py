@@ -99,7 +99,10 @@ def create_commandant(server, user, commandant_name, civilisation_name):
             'nb_unread_reports': 0,
 
             # Other
-            'tutorial_step': None}
+            'time_last_activity': None,
+            'time_cycle_finished': None,
+            'tutorial_step': None,
+        }
 
 
         db.insert_one(commandant)
