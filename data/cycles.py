@@ -93,10 +93,11 @@ def mark_commandant_cycle_finished(server, commandant_id):
 
 def mark_commandant_cycle_playing(server, commandant_id):
     commandant_id = ObjectId(commandant_id)
-    pull_param_cycle(server, 'commandants_cycle_finished', commandant_id)
-    if not commandant_id in get_current_cycle(server)['commandants_cycle_playing']:
-        push_param_cycle(server, 'commandants_cycle_playing', commandant_id)
-        update_commandant(server, commandant_id, 'time_cycle_finished', None)
+    if not commandant_id in get_current_cycle(server)['commandants_cycle_absent']:
+        pull_param_cycle(server, 'commandants_cycle_finished', commandant_id)
+        if not commandant_id in get_current_cycle(server)['commandants_cycle_playing']:
+            push_param_cycle(server, 'commandants_cycle_playing', commandant_id)
+            update_commandant(server, commandant_id, 'time_cycle_finished', None)
 
 # Player declared absent : always display as cycle finished
 
