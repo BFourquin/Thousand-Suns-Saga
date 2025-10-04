@@ -63,18 +63,30 @@
             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                 {{cycle}}
 
-
-              <a href="/cycle_monitoring/?commandant_cycle_status=commandant_cycle_finished" class="dropdown-item" style="text-align: center; padding-top: 1rem;">
-                  <h6><i class="fas fa-check"></i>  {% trans "Prêt pour la fin de cycle" %}</h6></a>
+              {% if not current_commandant_absent %}
+                {% if not current_commandant_finished %}
+                  <a href="/cycle_monitoring/?commandant_cycle_status=commandant_cycle_finished" class="dropdown-item" style="text-align: center; padding-top: 1rem;">
+                      <h6><i class="fas fa-check"></i>  {% trans "Passer prêt pour fin de cycle" %}</h6></a>
+                {% else %}
+                  <a href="/cycle_monitoring/?commandant_cycle_status=commandant_cycle_playing" class="dropdown-item" style="text-align: center; padding-top: 1rem;">
+                      <h6><i class="fas fa-xmark"></i>  {% trans "Passer non prêt pour fin du cycle" %}</h6></a>
+                {% endif %}
+              {% endif %}
 
               <div class="dropdown-divider"></div>
 
-              <a href="/cycle_monitoring/?commandant_cycle_presence=commandant_cycle_absent" class="dropdown-item" style="text-align: center; padding-top: 1rem;">
-                  <h6><i class="fas fa-moon"></i>  {% trans "Se marquer absent" %}</h6></a>
+              {% if not current_commandant_absent %}
+                <a href="/cycle_monitoring/?commandant_cycle_presence=commandant_cycle_absent" class="dropdown-item" style="text-align: center; padding-top: 1rem;">
+                    <h6><i class="fas fa-moon"></i>  {% trans "Se mettre en mode absent" %}</h6></a>
+              {% else %}
+                <a href="/cycle_monitoring/?commandant_cycle_presence=commandant_cycle_present" class="dropdown-item" style="text-align: center; padding-top: 1rem;">
+                    <h6><i class="fas fa-sun"></i>  {% trans "Retirer le mode absent" %}</h6></a>
+              {% endif %}
+
 
               <div class="dropdown-divider"></div>
 
-              <span href="#" class="dropdown-item">
+              <a href="/cycle_monitoring/" class="dropdown-item">
                 <!-- Message Start -->
                 <div class="media">
                   <div class="media-body">
@@ -82,14 +94,14 @@
                       {% trans "Cycle en cours" %}
                     </h3>
                     {% for comm_playing in commandants_cycle_playing %}
-                        <img src="{% static "" %}{{comm_playing.avatar}}" title="{{comm_playing.commandant_name}}" class="img-size-50">
+                        <img src="{% static "" %}{{comm_playing.portrait}}" title="{{comm_playing.commandant_name}}" class="img-size-50">
                     {% endfor %}
                   </div>
                 </div>
                 <!-- Message End -->
-              </span>
+              </a>
               <div class="dropdown-divider"></div>
-              <span href="#" class="dropdown-item">
+              <a href="/cycle_monitoring/" class="dropdown-item">
                 <!-- Message Start -->
                 <div class="media">
                   <div class="media-body">
@@ -97,12 +109,12 @@
                       {% trans "Cycle terminé" %}
                     </h3>
                     {% for comm_finished in commandants_cycle_finished %}
-                      <img src="{% static "" %}{{comm_finished.avatar}}" title="{{comm_finished.commandant_name}}" class="img-size-50">
+                      <img src="{% static "" %}{{comm_finished.portrait}}" title="{{comm_finished.commandant_name}}" class="img-size-50">
                     {% endfor %}
                   </div>
                 </div>
                 <!-- Message End -->
-              </span>
+              </a>
 
             </div>
         </button>
