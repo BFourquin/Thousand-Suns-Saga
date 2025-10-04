@@ -157,12 +157,17 @@
                         <!-- Admin/GM info -->
                         {% if display_admin_and_gm_info %}
                         <div class="col-12 col-md-5  align-items-center">
+
                           <span class="d-block" style="font-size:14px;">
-                            {% trans "Dernière action :" %} ? minutes
+                              {% trans "Dernière action :" %}
+                              <span class="timeago"
+                                    data-timestamp="{{ commandant.time_last_activity|date:'c' }}"
+                                    data-lang="{{ user.language }}"></span>
                           </span>
+
                           <span class="d-block" style="font-size:14px;">
                             <a href="/cycle_monitoring/?admin_mark_as_absent={{commandant.id}}" class="text-warning" style="text-decoration: underline;">
-                              {% trans "Passer en mode absent" %} <!-- TODO absent mode -->
+                              {% trans "Passer en mode absent" %}
                             </a>
                           </span>
                         </div>
@@ -225,16 +230,21 @@
                         <!-- Admin/GM info -->
                         {% if display_admin_and_gm_info %}
                         <div class="col-12 col-md-5  align-items-center">
-                          {{ commandant.time_cycle_finished|date:'c' }}
+
                           <span class="d-block" style="font-size:14px;">
                               {% trans "Terminé depuis :" %}
                               <span class="timeago"
                                     data-timestamp="{{ commandant.time_cycle_finished|date:'c' }}"
                                     data-lang="{{ user.language }}"></span>
                           </span>
+
                           <span class="d-block" style="font-size:14px;">
-                            {% trans "Dernière action :" %} ? minutes
+                              {% trans "Dernière action :" %}
+                              <span class="timeago"
+                                    data-timestamp="{{ commandant.time_last_activity|date:'c' }}"
+                                    data-lang="{{ user.language }}"></span>
                           </span>
+
                         </div>
                         {% endif %}
 

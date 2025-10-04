@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from bson.objectid import ObjectId
 
 
-from backend.decorators import add_cycle_info
+from backend.decorators import add_cycle_info, log_player_action
 from backend.utils import request_params, parameters_presents, get_active_server_and_commandant_from_request, get_language
 from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator
 from data.user import get_user_by_name, get_user_by_object_id, update_user
@@ -19,6 +19,7 @@ from data.resources import get_all_resources_parameters, get_resources_categorie
 
 @login_required(login_url='/player_login/')
 @add_cycle_info
+@log_player_action
 def colonies(request):
 
     params = request_params(request)
@@ -45,6 +46,7 @@ def colonies(request):
 
 @login_required(login_url='/player_login/')
 @add_cycle_info
+@log_player_action
 def colony(request):
 
     params = request_params(request)
