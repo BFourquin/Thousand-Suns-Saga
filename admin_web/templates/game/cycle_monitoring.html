@@ -146,7 +146,7 @@
                         </div>
 
                         <!-- Commandant and civilisation names -->
-                        <div class="col-12 {% if admin_or_gm_only %}col-md-5{% else %}col-md-10{% endif %}  align-items-center">
+                        <div class="col-12 {% if display_admin_and_gm_info %}col-md-5{% else %}col-md-10{% endif %}  align-items-center">
                           <span class="username d-block mb-2" style="font-size:18px;">
                             {{ commandant.commandant_name }}
                             <br/>
@@ -155,13 +155,13 @@
                         </div>
 
                         <!-- Admin/GM info -->
-                        {% if admin_or_gm_only %}
+                        {% if display_admin_and_gm_info %}
                         <div class="col-12 col-md-5  align-items-center">
                           <span class="d-block" style="font-size:14px;">
                             {% trans "Dernière action :" %} ? minutes
                           </span>
                           <span class="d-block" style="font-size:14px;">
-                            <a href="#" class="text-warning" style="text-decoration: underline;">
+                            <a href="/cycle_monitoring/?admin_mark_as_absent={{commandant.id}}" class="text-warning" style="text-decoration: underline;">
                               {% trans "Passer en mode absent" %} <!-- TODO absent mode -->
                             </a>
                           </span>
@@ -214,7 +214,7 @@
                         </div>
 
                         <!-- Commandant and civilisation names -->
-                        <div class="col-12 {% if admin_or_gm_only %}col-md-5{% else %}col-md-10{% endif %}  align-items-center">
+                        <div class="col-12 {% if display_admin_and_gm_info %}col-md-5{% else %}col-md-10{% endif %}  align-items-center">
                           <span class="username d-block mb-2" style="font-size:18px;">
                             {{ commandant.commandant_name }}
                             <br/>
@@ -223,7 +223,7 @@
                         </div>
 
                         <!-- Admin/GM info -->
-                        {% if admin_or_gm_only %}
+                        {% if display_admin_and_gm_info %}
                         <div class="col-12 col-md-5  align-items-center">
                           {{ commandant.time_cycle_finished|date:'c' }}
                           <span class="d-block" style="font-size:14px;">

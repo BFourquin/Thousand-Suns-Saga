@@ -156,6 +156,9 @@ def cycle_monitoring(request):
         if 'admin_action' in params and params['admin_action'] == 'end_cycle':
             cycles.end_cycle(server)
             return HttpResponseRedirect(request.path_info)
+        if 'admin_mark_as_absent' in params:
+            cycles.mark_commandant_cycle_absent(server, params['admin_mark_as_absent'])
+            return HttpResponseRedirect(request.path_info)
 
 
     # Commandants status
@@ -176,7 +179,7 @@ def cycle_monitoring(request):
 
 
     # All needed cycles infos are already available in the decorator @add_cycle_info
-    return TemplateResponse(request, 'game/cycle_monitoring.html', {'server': server, 'admin_or_gm_only': display_admin_and_gm_info})
+    return TemplateResponse(request, 'game/cycle_monitoring.html', {'server': server, 'display_admin_and_gm_info': display_admin_and_gm_info})
 
 
 ########################################################################################################################
