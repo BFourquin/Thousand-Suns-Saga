@@ -3,7 +3,7 @@
 {% load static %}
 
 
-{% include "includes/header.html" with title="Cycle" %}
+{% include "includes/head.html" with title="Cycle" %}
 
 {% include "includes/menu_game.html" with page_title=_("Cycle") %}  <!-- include body start -->
 
@@ -226,7 +226,7 @@
                         {% if admin_or_gm_only %}
                         <div class="col-12 col-md-5  align-items-center">
                           <span class="d-block" style="font-size:14px;">
-                            {% trans "Terminé depuis :" %} ? minutes
+                            {% trans "Terminé depuis :" %} {{commandant.time_cycle_finished}}
                           </span>
                           <span class="d-block" style="font-size:14px;">
                             {% trans "Dernière action :" %} ? minutes
