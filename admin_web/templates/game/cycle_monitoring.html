@@ -225,8 +225,12 @@
                         <!-- Admin/GM info -->
                         {% if admin_or_gm_only %}
                         <div class="col-12 col-md-5  align-items-center">
+                          {{ commandant.time_cycle_finished|date:'c' }}
                           <span class="d-block" style="font-size:14px;">
-                            {% trans "Terminé depuis :" %} {{commandant.time_cycle_finished}}
+                              {% trans "Terminé depuis :" %}
+                              <span class="timeago"
+                                    data-timestamp="{{ commandant.time_cycle_finished|date:'c' }}"
+                                    data-lang="{{ user.language }}"></span>
                           </span>
                           <span class="d-block" style="font-size:14px;">
                             {% trans "Dernière action :" %} ? minutes
@@ -254,6 +258,33 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+
+
+  <script>
+
+    // TIMERS SCRIPT
+    // /!\ Code ChatGPT
+
+    document.addEventListener("DOMContentLoaded", function() {
+        dayjs.extend(dayjs_plugin_relativeTime)
+        dayjs.extend(dayjs_plugin_utc)
+
+        // Récupérer la langue (fallback navigateur)
+        const userLang = document.querySelector('.timeago')?.dataset.lang || navigator.language.split('-')[0] || 'fr';
+        dayjs.locale(userLang);
+
+        function updateTimeago() {
+            document.querySelectorAll('.timeago').forEach(el => {
+                const ts = dayjs.utc(el.dataset.timestamp).local(); // UTC -> local
+                el.innerText = `${ts.fromNow()}`;                  // affichage relatif
+                el.title = ts.format("DD/MM/YYYY HH:mm");          // infobulle date exacte
+            })
+        }
+
+        updateTimeago()
+        setInterval(updateTimeago, 1000)
+    })
+  </script>
 
 </body>
 </html>
