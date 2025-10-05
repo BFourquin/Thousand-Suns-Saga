@@ -38,6 +38,7 @@ def get_all_buildings_types(server, language=None):
 
 
 def get_all_buildable_buildings_types(server, commandant, language=None):
+    # TODO /!\ copier coller des districts à vérifier !!!
 
     client = databases['TSS_' + server]
     db = client['buildings_types']

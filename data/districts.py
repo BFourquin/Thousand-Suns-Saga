@@ -108,7 +108,7 @@ def delete_district(server, district_id, refund_ratio=0.75):
 
     # Removal of the entry and it's references
     colonies.pull_param_colony(server, district['district_type'], 'districts', ObjectId(district_id))
-    db.remove_one({"_id": ObjectId(district_id)})
+    db.delete_one({"_id": ObjectId(district_id)})
 
 
     # RESOURCES REFUNDING (done after to prevent multiple refunding by spamming faster than DB deletion)
