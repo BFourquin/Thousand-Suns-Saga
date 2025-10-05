@@ -2,7 +2,7 @@
 from bson.objectid import ObjectId
 
 from database.db_connect import databases
-from data import colonies, districts_types
+from data import colonies, districts_types, buildings
 
 
 def get_district(server, id):
@@ -26,6 +26,30 @@ def set_district(server, district):
     db.insert_one(district)
 
 
+def update_district(server, district_id, param, value):
+    # Modifies an existing document or documents in a collection
+
+    client = databases['TSS_' + server]
+    db = client['districts']
+    db.update_one({"_id": ObjectId(district_id)}, {"$set": {param: value}})
+
+
+def push_param_district(server, district_id, param, value):
+    # Appends a specified value to an array
+
+    client = databases['TSS_' + server]
+    db = client['districts']
+    db.update_one({"_id": ObjectId(district_id)}, {"$push": {param: value}})
+
+
+def pull_param_district(server, district_id, param, value):
+    # Removes from an existing array all instances of a value or values that match a specified condition.
+
+    client = databases['TSS_' + server]
+    db = client['districts']
+    db.update_one({"_id": ObjectId(district_id)}, {"$pull": {param: value}})
+
+
 ########################################################################################################################
 
 
@@ -47,7 +71,7 @@ def create_district(server, colony_id, district_type, starting_buildings=None):
         'colony_id': ObjectId(colony_id),
         'district_type': district_type,
         'category': district_type_properties['category'],
-        'buildings': starting_buildings if starting_buildings else [],
+        'buildings_ids': starting_buildings if starting_buildings else [],
         'buildings_slots_free': district_type_properties['buildings_slots'],
         'buildings_slots_total': district_type_properties['buildings_slots'],
         'population': district_type_properties['build_population'],
@@ -102,3 +126,30 @@ def delete_district(server, district_id, refund_ratio=0.75):
         else:
             resources_refund[resource] = quantity * refund_ratio
 
+
+def recalculate_buildings_slots(server, district_id):
+    district = get_district(server, district_id)
+
+    slots_total = districts_types.get_district_type(server, district['district_type'])['districts_slots']
+    slots_occupied = len(district['buildings_ids'])
+
+
+    # TODO take into account future special buildings with different slots size
+    """
+    for building_id in district['buildings']:
+        building = buildings.get_building(server, building_id)
+
+        slots_total += buildings.get_building_type(server, building['building_type'])['buildings_slots']
+        if building['category'] != 'central_building':
+            slots_occupied += 1  
+
+    update_district(server, district_id, 'buildings_slots_total', slots_total)
+    update_district(server, district_id, 'buildings_slots_occupied', slots_occupied)
+    """
+
+    # TODO cheat log
+    if slots_occupied > slots_total:
+        ...
+        # cheat_log()
+
+    return slots_total, slots_occupied
