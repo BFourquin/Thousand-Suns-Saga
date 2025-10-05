@@ -157,77 +157,56 @@
             </div>
             <!-- /.card-header -->
 
-<div class="card-body p-0">
-  <div class="table-responsive mailbox-messages" style="padding-bottom: 5px;">
-    <table class="table table-striped" style="width: 100%; table-layout: fixed;">
-      <tbody>
+            <div class="card-body p-0">
 
-        {% for district in districts %}
-          {% if filter_districts == 'all' or filter_districts == district.category %}
+              <div class="table-responsive mailbox-messages" style="padding-bottom: 5px;">
+                <table class="table table-stripped" style="width: 100%; table-layout: auto;">
+                  <tbody>
 
-            <tr style="vertical-align: top;">
-              <!-- Colonne de gauche : bloc du district -->
-              <td style="width: 20%; text-align: center; border-right: 2px solid #ccc;">
+                    {% for district in districts %}
+                      {% if filter_districts == 'all' or filter_districts == district.category or filter_districts == 'available_place_district' and district.buildings_slots_free > 0 %}
 
-                <div class="district-container">
-                  <img src="{% static '' %}{{ district.illustration }}" class="district-img" alt="{{ district.name }}">
+                        <tr class="" style='white-space: nowrap;'>
 
-                  <div class="district-info">
-                    <b class="district-name">{{ district.name }}</b>
-                    <div class="district-controls">
-                      <a href="/colony/?colony_id={{ colony.id }}&district_delete={{ district.id }}" class="pills" title="{% trans 'Améliorer' %}">
-                        <i class="fas fa-up-long"></i></a>
-                      <a href="/colony/?colony_id={{ colony.id }}&district_upgrade={{ district.id }}" class="pills" title="{% trans 'Modifier' %}">
-                        <i class="fas fa-screwdriver-wrench"></i></a>
-                      <a href="/colony/?colony_id={{ colony.id }}&district_activation={{ district.id }}" class="pills" title="{% trans 'Activer' %}">
-                        <i class="fas fa-power-off"></i></a>
-                      <a href="/colony/?colony_id={{ colony.id }}&district_reorganize={{ district.id }}" class="pills" title="{% trans 'Réorganiser' %}">
-                        <i class="fas fa-arrows-turn-to-dots"></i></a>
-                      <a href="#modal-delete-district-{{ district.id }}" data-toggle="modal" data-target="#modal-delete-district-{{ district.id }}" class="pills" title="{% trans 'Détruire' %}">
-                        <i class="fas fa-trash-can"></i></a>
-                    </div>
-                  </div>
-                </div>
+                          <!-- District image and controls -->
+                          <td class="">
+                            <img class="large_img_without_td_padding" src="{% static ""%}{{district.illustration}}" style=""></td>
 
-              </td>
+                          <td class="" style="font-size: 20px; padding: 0.25rem; text-align: center;">
+                            <b style="font-size: 20px;">{{district.name}}</b>
+                            <br>
+                            <a href="/colony/?colony_id={{colony.id}}&district_delete={{district.id}}" class="pills">
+                              <span class="span_centering_icon" title="{% trans "Améliorer"%}"><i class="fas fa-up-long"></i></span></a>
+                            <a href="/colony/?colony_id={{colony.id}}&district_upgrade={{district.id}}" class="pills"><span class="span_centering_icon">
+                              <span class="span_centering_icon" title="{% trans "Modification"%}"><i class="fas fa-screwdriver-wrench"></i></span></a>
+                            <a href="/colony/?colony_id={{colony.id}}&district_activation={{district.id}}" class="pills"><span class="span_centering_icon">
+                              <span class="span_centering_icon" title="{% trans "Activation"%}"><i class="fas fa-power-off"></i></span></a>
+                            <a href="/colony/?colony_id={{colony.id}}&district_reorganize={{district.id}}" class="pills"><span class="span_centering_icon">
+                              <span class="span_centering_icon" title="{% trans "Réorganiser"%}"><i class="fas fa-arrows-turn-to-dots"></i></span></a>
+                            <a href="#modal-delete-district-{{district.id}}" class="pills"><span class="span_centering_icon"
+                               data-toggle="modal" data-target="#modal-delete-district-{{district.id}}">
+                              <span class="span_centering_icon" title="{% trans "Détruire"%}"><i class="fas fa-trash-can"></i></span></a>
+                          </td>
 
-              <!-- Colonne de droite : bâtiments -->
-              <td style="width: 80%; padding: 10px;">
-                <div class="buildings-grid">
+                          <!-- Buildings -->
+                          {% for building_id in "0123456789"  %}
+                          <td style="padding-left: 2px; padding-right: 2px;">
+                            <img class="large_img_without_td_padding" src="{% static ""%}{{district.illustration}}" style="">
+                            <!--<span>Mine de fer</span></td>-->
+                          {% endfor %}
 
-                  {% for building in district.buildings %}
-                    <div class="building-card">
-                      <img src="{% static '' %}{{ building.illustration }}" class="building-img" alt="{{ building.name }}">
-                      <div class="building-info">
-                        <span class="building-name">{{ building.name }}</span><br>
-                        <a href="/colony/?colony_id={{ colony.id }}&building_upgrade={{ building.id }}" class="pills" title="{% trans 'Améliorer' %}">
-                          <i class="fas fa-up-long"></i></a>
-                        <a href="/colony/?colony_id={{ colony.id }}&building_modify={{ building.id }}" class="pills" title="{% trans 'Modifier' %}">
-                          <i class="fas fa-screwdriver-wrench"></i></a>
-                        <a href="/colony/?colony_id={{ colony.id }}&building_activate={{ building.id }}" class="pills" title="{% trans 'Activer' %}">
-                          <i class="fas fa-power-off"></i></a>
-                        <a href="#modal-delete-building-{{ building.id }}" data-toggle="modal" data-target="#modal-delete-building-{{ building.id }}" class="pills" title="{% trans 'Détruire' %}">
-                          <i class="fas fa-trash-can"></i></a>
-                      </div>
-                    </div>
-                  {% endfor %}
+                          <!-- New building -->
+                          {% if district.buildings_slots_free > 25 %}
+                          <td class="">
+                            <i class="fa-regular fa-square-plus" style="font-size: 75px;"></i></td>
+                          {% endif %}
 
-                  {% if district.buildings_slots_free > 0 %}
-                    <div class="building-card building-new">
-                      <a href="/colony/?colony_id={{ colony.id }}&building_new={{ district.id }}" title="{% trans 'Construire un nouveau bâtiment' %}">
-                        <i class="fa-regular fa-square-plus"></i>
-                      </a>
-                    </div>
-                  {% endif %}
-                </div>
-              </td>
-            </tr>
+                        </tr>
 
-          {% elif filter_districts == 'available_place_district' and district.buildings_slots_free > 0 %}
-            <!-- même structure que ci-dessus, peut être dupliquée si besoin -->
-          {% endif %}
-        {% endfor %}
 
+
+                      {% endif %}
+                    {% endfor %}
 
                     {% if districts.0.free_districts_slots > 0 or True %}  <!-- TODO cacher la construction de nouveau district si aucun emplacement disponible ? -->
 

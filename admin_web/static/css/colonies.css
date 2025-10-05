@@ -1,0 +1,42 @@
+
+
+.district-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.district-img {
+  width: 180px;
+  height: auto;
+}
+
+.district-info {
+  margin-top: 5px;
+}
+
+.district-controls .pills {
+  margin: 0 4px;
+  color: #333;
+}
+
+.building-cell {
+  width: 10%;
+  vertical-align: top;
+  padding: 6px;
+}
+
+.building-img {
+  width: 90px;
+  height: auto;
+}
+
+.building-info {
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.building-name {
+  font-weight: 500;
+}
