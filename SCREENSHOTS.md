@@ -47,7 +47,13 @@ Game map with 10x10 sectors
 ![map.png](admin_web%2Fstatic%2Fimages%2Fpublic%2Fpre_alpha%2Fmap.png)
 Blue = starting sectors ; green = rich sector ; white = normal ; other = poor or particular shape
 ![map_with_sectors.png](admin_web%2Fstatic%2Fimages%2Fpublic%2Fpre_alpha%2Fmap_with_sectors.png)
+
 ***
 ### Reports
 ![reports_list.png](admin_web%2Fstatic%2Fimages%2Fpublic%2Fpre_alpha%2Freports_list.png)
 ![report.png](admin_web%2Fstatic%2Fimages%2Fpublic%2Fpre_alpha%2Freport.png)
+
+***
+### Technologies
+Technologies will be slightly randomized: the meta for the best ship and weapon designs will change not only from one game to another, but also as a single game progresses.
+![randomized techs.png](admin_web%2Fstatic%2Fimages%2Fpublic%2Fpre_alpha%2Frandomized%20techs.png)![tech level.png](admin_web%2Fstatic%2Fimages%2Fpublic%2Fpre_alpha%2Ftech%20level.png)
