@@ -14,6 +14,7 @@ from data.colonies import get_colonies_controlled_by_commandant, get_colony
 from data.districts import get_district
 from data.districts_types import get_district_type, get_all_districts_types, get_all_buildable_districts_types
 from data.resources import get_all_resources_parameters, get_resources_categories, get_resources_subcategories
+from data.buildings import get_buildings
 
 
 
@@ -71,7 +72,11 @@ def colony(request):
         district.update(get_district_type(server, district['district_type']))  # Global district values
         district['id'] = str(district['_id'])
         district['name'] = district['name_'+get_language(request)]
+        district['buildings'] = get_buildings(server, district['buildings_ids'], append_building_type=True)
         district['free_districts_slots'] = district['districts_slots'] - len(colony_dict['districts']) + 1
+
+        print(district['buildings'])
+
         districts.append(district)
 
 

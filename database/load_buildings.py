@@ -69,7 +69,7 @@ def load_buildings(excel_tech_path, sheet_resources_name, server_name, delete_ac
 
 
 if __name__ == '__main__':
-    load_buildings(excel_tech_path='../TSS.xlsx',
+    load_buildings(excel_tech_path='../TSS_boardgame.xlsx',
                    sheet_resources_name='Buildings',
-                   server_name='Alpha_test',
+                   server_name='Alpha_Boardgame',
                    delete_actual_buildings=True)

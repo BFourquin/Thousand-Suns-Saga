@@ -31,7 +31,7 @@
 
 
         <div class="card">
-          <div class="table-responsive mailbox-messages" style="padding-bottom: 5px;">
+          <div class="table-responsive" style="padding-bottom: 5px;">
             <table class="table table-striped" style="width: 100%; table-layout: auto;">
               <tbody>
 
@@ -193,24 +193,55 @@
 
               <!-- Colonne de droite : bâtiments -->
               <td style="width: 80%; padding: 10px;">
-                <div class="buildings-grid">
 
-                  {% for building in district.buildings %}
+                <div class="" style="
+                    display: grid !important;
+                    grid-template-columns: repeat(10, minmax(90px, 1fr));
+                    gap: 8px;">
+                    {% for building in district.buildings %}
+
                     <div class="building-card">
-                      <img src="{% static '' %}{{ building.illustration }}" class="building-img" alt="{{ building.name }}">
-                      <div class="building-info">
-                        <span class="building-name">{{ building.name }}</span><br>
-                        <a href="/colony/?colony_id={{ colony.id }}&building_upgrade={{ building.id }}" class="pills" title="{% trans 'Améliorer' %}">
-                          <i class="fas fa-up-long"></i></a>
-                        <a href="/colony/?colony_id={{ colony.id }}&building_modify={{ building.id }}" class="pills" title="{% trans 'Modifier' %}">
-                          <i class="fas fa-screwdriver-wrench"></i></a>
-                        <a href="/colony/?colony_id={{ colony.id }}&building_activate={{ building.id }}" class="pills" title="{% trans 'Activer' %}">
-                          <i class="fas fa-power-off"></i></a>
-                        <a href="#modal-delete-building-{{ building.id }}" data-toggle="modal" data-target="#modal-delete-building-{{ building.id }}" class="pills" title="{% trans 'Détruire' %}">
-                          <i class="fas fa-trash-can"></i></a>
-                      </div>
+
+                        <!-- NOM EN HAUT -->
+                        <div class="building-title">
+                            {{ building.name_fr }}
+                        </div>
+
+                        <!-- IMAGE PRINCIPALE -->
+                        <div class="building-image-container">
+                            <img src="{% static '' %}{{ building.building_type_data.illustration }}" class="building-img">
+                        </div>
+
+                        <!-- BARRES DE PROGRESSION -->
+                        <div class="building-metrics">
+
+                            <div class="usage-metric-row">
+                                <div class="usage-metric-bar">
+                                    <div class="usage-metric-fill" style="--value: max(3, {{ building.activation_percent }});"></div>
+                                </div>
+                                <i class="fas fa-power-off usage-metric-icon"></i>
+                            </div>
+
+                            <div class="usage-metric-row">
+                                <div class="usage-metric-bar">
+                                    <div class="usage-metric-fill" style="--value:  max(3, {{ building.last_cycle_productivity_percent }});"></div>
+                                </div>
+                                <i class="fas fa-right-from-bracket usage-metric-icon"></i>
+                            </div>
+
+                        </div>
+
+                        <!-- ACTIONS QUI REMONTENT AU SURVOL -->
+                        <div class="building-actions">
+                            <a href="/colony/?colony_id={{ colony.id }}&building_upgrade={{ building.id }}"><i class="fas fa-up-long"></i></a>
+                            <a href="/colony/?colony_id={{ colony.id }}&building_modify={{ building.id }}"><i class="fas fa-screwdriver-wrench"></i></a>
+                            <a href="/colony/?colony_id={{ colony.id }}&building_activate={{ building.id }}"><i class="fas fa-power-off"></i></a>
+                            <a href="#modal-delete-building-{{ building.id }}" data-toggle="modal"><i class="fas fa-trash-can"></i></a>
+                        </div>
+
                     </div>
-                  {% endfor %}
+
+                    {% endfor %}
 
                   {% if district.buildings_slots_free > 0 %}
                     <div class="building-card building-new">

@@ -12,10 +12,26 @@ def get_building(server, id):
     return db.find_one({"_id": ObjectId(id)})
 
 
-def get_all_buildings(server):
+def get_buildings(server, ids_list, append_building_type=False):
+
     client = databases['TSS_' + server]
     db = client['buildings']
-    return list(db.find())
+    ids = [ObjectId(_) for _ in ids_list]
+
+    if not append_building_type:
+        result = db.find({"_id": {"$in": ids}})
+
+    else:
+        result = db.aggregate([{"$match": {"_id": {"$in": [ObjectId(_) for _ in ids_list]}}},
+                               {"$lookup": {
+                                   "from": "buildings_types",
+                                   "localField": "building_type",
+                                   "foreignField": "internal_name",
+                                   "as": "building_type_data"
+                               }},
+                               {"$unwind": {"path": "$building_type_data", "preserveNullAndEmptyArrays": True}}
+                               ])
+    return list(result)
 
 
 def set_building(server, building):
@@ -95,7 +111,6 @@ def delete_building(server, building_id, refund_ratio=0.75):
 
 
 if __name__ == "__main__":
-    ...
     construct_building("Alpha_Boardgame", "688547b1529e0f1b4c48fb25", "farm_modern_agriculture")
     construct_building("Alpha_Boardgame", "688547b1529e0f1b4c48fb25", "water_pumping_station")
     construct_building("Alpha_Boardgame", "688547b1529e0f1b4c48fb25", "survival_industry")
@@ -103,8 +118,7 @@ if __name__ == "__main__":
     construct_building("Alpha_Boardgame", "688547b1529e0f1b4c48fb25", "goods_factory")
     construct_building("Alpha_Boardgame", "688547b1529e0f1b4c48fb25", "pharmaceutical_factory")
     construct_building("Alpha_Boardgame", "688547b1529e0f1b4c48fb25", "machine_tool_workshop")
-    builds = get_all_buildings("Alpha_Boardgame")
-    print(builds)
+
     #for build in builds:
     #    print(">>", build)
     #    delete_building("Alpha_Boardgame", build['_id'], refund_ratio=0)
