@@ -245,8 +245,24 @@
 
                   {% if district.buildings_slots_free > 0 %}
                     <div class="building-card building-new">
-                      <a href="/colony/?colony_id={{ colony.id }}&building_new={{ district.id }}" title="{% trans 'Construire un nouveau bâtiment' %}">
-                        <i class="fa-regular fa-square-plus"></i>
+                      <a href="/colony/?colony_id={{ colony.id }}&building_new={{ district.id }}"
+                         title="{% trans 'Construire un nouveau bâtiment' %}">
+
+
+                        <div class="building-new-content">
+                            <div class="building-new-slots">
+                                 {% if district.buildings_slots_free > 1 %}
+                                    {% trans "Places libres"%} :
+                                {% else %}
+                                    {% trans "Place libre"%} :
+                                {% endif %}
+                                {{ district.buildings_slots_free }} / {{ district.buildings_slots_total }}<br/>
+                            </div>
+
+                        <i class="fa-regular fa-square-plus building-new-icon"></i>
+
+                        </div>
+
                       </a>
                     </div>
                   {% endif %}

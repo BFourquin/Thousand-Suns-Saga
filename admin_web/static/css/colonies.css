@@ -155,3 +155,35 @@ td > .buildings-grid {
 .building-actions i:hover {
     color: #fff;
 }
+
+
+/* --- ICONE NOUVEAU BATIMENT --- */
+
+
+.building-new-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    gap: 10px;
+}
+
+.building-new-slots {
+    font-size: 16px;
+    line-height: 15px;
+    color: #e0e0e0;
+}
+
+.building-new-icon {
+    font-size: 48px; /* taille du + */
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    color: #e0e0e0;
+}
+
+.building-new:hover .building-new-icon {
+    transform: scale(1.15);
+    opacity: 0.8;
+}

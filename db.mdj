@@ -847,7 +847,7 @@
 									"top": 1269,
 									"width": 292.97705078125,
 									"height": 13,
-									"text": "building"
+									"text": "buildings"
 								},
 								{
 									"_type": "ERDColumnCompartmentView",
@@ -10230,7 +10230,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFLzntJC6EktCk="
 					},
-					"name": "building",
+					"name": "buildings",
 					"ownedElements": [
 						{
 							"_type": "ERDRelationship",
@@ -13312,7 +13312,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGUmUncMWRY1tc="
 							},
-							"name": "buildings",
+							"name": "buildings_ids",
 							"length": 0,
 							"foreignKey": true
 						},
