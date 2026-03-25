@@ -40,6 +40,14 @@ def set_building(server, building):
     db = client['buildings']
 
     db.insert_one(building)
+    
+
+def update_building(server, building_id, param, value):
+    # Modifies an existing document or documents in a collection
+
+    client = databases['TSS_' + server]
+    db = client['buildings']
+    db.update_one({"_id": building_id}, {"$set": {param: value}})
 
 
 ########################################################################################################################
@@ -107,6 +115,16 @@ def delete_building(server, building_id, refund_ratio=0.75):
         else:
             resources_refund[resource] = quantity * refund_ratio
             # TODO refund on destruction
+
+
+def set_activation_percent_building(server, building_id, activation_percent):
+
+    if activation_percent < 0:
+        activation_percent = 0
+    if activation_percent > 100:
+        activation_percent = 100
+
+    update_building(server, building_id, 'activation_percent', activation_percent)
 
 
 

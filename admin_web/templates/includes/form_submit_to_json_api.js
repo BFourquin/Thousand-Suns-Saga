@@ -26,7 +26,7 @@
       $(document).Toasts('create', toast)
     };
 
-    console.log("FORM ID = {{ form }}");
+    //console.log("FORM ID = {{ form }}");
 
     $(document).ready(function() {
 

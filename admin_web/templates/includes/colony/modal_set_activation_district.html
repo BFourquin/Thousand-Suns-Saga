@@ -1,0 +1,77 @@
+
+{% load i18n %}
+{% load static %}
+
+<div class="modal modal-default fade" id="modal-set-activation-district-{{district.id}}" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">{% trans "Définir l'activité des bâtiments ?"%}</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <form id="api_form_delete_district_{{district.id}}" method="POST">
+          {% csrf_token %}
+
+            <input type="hidden" id="server" name="server" value={{server_name}} />
+            <input type="hidden" id="colony_id" name="colony_id" value={{colony_id}} />
+            <input type="hidden" name="district_id" value="{{ district.id }}">
+
+            <div class="modal-body">
+              <table class="table table-stripped" style="width: 100%; table-layout: auto;>
+                  <tbody>
+                    <tr style="white-space: nowrap;">
+                      <td style="width: 0; border: none;">
+                        <img style="max-height: 10em;margin-bottom: -0.75em;" src="{% static ""%}{{district.illustration}}" style=""></td>
+
+                      <td style="font-size: 20px; text-align: center; vertical-align: middle; border: none;">
+                        <b style="font-size: 2em;"><i class="fas {{district.icon}}"></i>  {{district.name}}</b>
+                        <br>
+                        <span style="font-size: 1.1em;">{% trans "Le taux d'activité sera appliqué à tous les bâtiments appartenant au district."%}</span>
+
+                        <span>
+                            <input id="{{district.id}}_activation_percent" class="js-range-slider" type="text" name="activation_percent" value="">
+                        </span>
+
+                        <script>
+                          $(function () {
+
+                            /* ION SLIDER */
+                            $('#{{district.id}}_activation_percent').ionRangeSlider({
+                              min     : 0,
+                              max     : 100,
+                              from    : 100,
+                              type    : 'single',
+                              step    : 1,
+                              postfix : '%',
+                              prettify: false,
+                              hasGrid : true
+                            })
+                          })
+                        </script>
+
+                    </td>
+                  </tbody>
+              </table>
+
+            </div>
+
+
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-outline-light btn-default" data-dismiss="modal">{% trans "Annuler"%}</button>
+                <button type="submit" class="btn btn-outline-light">{% trans "Détruire"%}</button>
+            </div>
+
+          </form>
+
+        {% include "includes/form_submit_to_json_api.js" with form="api_form_delete_"|add:district.id api_url="api_delete_district" %}
+
+      </div>
+      <!-- /.modal-content -->
+
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+

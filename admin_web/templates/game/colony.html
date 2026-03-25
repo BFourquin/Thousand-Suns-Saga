@@ -166,7 +166,7 @@
           {% if filter_districts == 'all' or filter_districts == district.category %}
 
             <tr style="vertical-align: top;">
-              <!-- Colonne de gauche : bloc du district -->
+              <!-- Left column : district info -->
               <td style="width: 20%; text-align: center; border-right: 2px solid #ccc;">
 
                 <div class="district-container">
@@ -179,7 +179,7 @@
                         <i class="fas fa-up-long"></i></a>
                       <a href="/colony/?colony_id={{ colony.id }}&district_upgrade={{ district.id }}" class="pills" title="{% trans 'Modifier' %}">
                         <i class="fas fa-screwdriver-wrench"></i></a>
-                      <a href="/colony/?colony_id={{ colony.id }}&district_activation={{ district.id }}" class="pills" title="{% trans 'Activer' %}">
+                      <a href="#modal-set-activation-district-{{ colony.id }}" data-toggle="modal" data-target="#modal-set-activation-district-{{ district.id }}" class="pills" title="{% trans 'Activation' %}">
                         <i class="fas fa-power-off"></i></a>
                       <a href="/colony/?colony_id={{ colony.id }}&district_reorganize={{ district.id }}" class="pills" title="{% trans 'Réorganiser' %}">
                         <i class="fas fa-arrows-turn-to-dots"></i></a>
@@ -191,7 +191,7 @@
 
               </td>
 
-              <!-- Colonne de droite : bâtiments -->
+              <!-- Right : buildings list -->
               <td style="width: 80%; padding: 10px;">
 
                 <div class="" style="
@@ -202,17 +202,17 @@
 
                     <div class="building-card">
 
-                        <!-- NOM EN HAUT -->
+                        <!-- Building name -->
                         <div class="building-title">
                             {{ building.name_fr }}
                         </div>
 
-                        <!-- IMAGE PRINCIPALE -->
+                        <!-- Building illustration -->
                         <div class="building-image-container">
                             <img src="{% static '' %}{{ building.building_type_data.illustration }}" class="building-img">
                         </div>
 
-                        <!-- BARRES DE PROGRESSION -->
+                        <!-- Activation and productivity bars -->
                         <div class="building-metrics">
 
                             <div class="usage-metric-row">
@@ -231,7 +231,7 @@
 
                         </div>
 
-                        <!-- ACTIONS QUI REMONTENT AU SURVOL -->
+                        <!-- Actions panels -->
                         <div class="building-actions">
                             <a href="/colony/?colony_id={{ colony.id }}&building_upgrade={{ building.id }}"><i class="fas fa-up-long"></i></a>
                             <a href="/colony/?colony_id={{ colony.id }}&building_modify={{ building.id }}"><i class="fas fa-screwdriver-wrench"></i></a>
@@ -271,12 +271,11 @@
             </tr>
 
           {% elif filter_districts == 'available_place_district' and district.buildings_slots_free > 0 %}
-            <!-- même structure que ci-dessus, peut être dupliquée si besoin -->
+            <!-- TODO free slots filter -->
           {% endif %}
         {% endfor %}
 
-
-                    {% if districts.0.free_districts_slots > 0 or True %}  <!-- TODO cacher la construction de nouveau district si aucun emplacement disponible ? -->
+                    {% if districts.0.free_districts_slots > 0 %}
 
                       <tr class="" style='white-space: nowrap;'>
                         <td colspan="12">
@@ -301,6 +300,7 @@
 
                 <!-- Action buttons modals -->
                 {% for district in districts %}
+                  {% include "includes/colony/modal_set_activation_district.html" with server_name=server district=district colony_id=colony.id %}
                   {% include "includes/colony/modal_delete_district.html" with server_name=server district=district colony_id=colony.id %}
                 {% endfor%}
 
