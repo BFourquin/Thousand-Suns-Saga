@@ -3,9 +3,13 @@
 <script>
 
     function api_interaction(json) {
-      if (json.hasOwnProperty("popup")) {popup(json)}
-      if (json.hasOwnProperty("redirect")) {redirect(json)}
-    };
+      if (!json) {
+        console.error("JSON response invalid or empty");
+        return;
+      }
+      if (json.hasOwnProperty("popup")) { popup(json); }
+      if (json.hasOwnProperty("redirect")) { redirect(json); }
+    }
 
     function redirect(json) {
 

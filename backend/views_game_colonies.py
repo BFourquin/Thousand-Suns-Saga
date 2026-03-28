@@ -70,7 +70,7 @@ def colony(request):
     for district_id in colony_dict['districts']:
         district = get_district(server, district_id)  # Specific district info
         district.update(get_district_type(server, district['district_type']))  # Global district values
-        district['id'] = str(district['_id'])
+        district['id'] = str(district_id)
         district['name'] = district['name_'+get_language(request)]
         district['buildings'] = get_buildings(server, district['buildings_ids'], append_building_type=True)
         district['free_districts_slots'] = district['districts_slots'] - len(colony_dict['districts']) + 1

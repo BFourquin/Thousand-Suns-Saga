@@ -12,7 +12,7 @@
           </button>
         </div>
 
-        <form id="api_form_delete_district_{{district.id}}" method="POST">
+        <form id="api_form_district_set_activation_percent_{{district.id}}" method="POST">
           {% csrf_token %}
 
             <input type="hidden" id="server" name="server" value={{server_name}} />
@@ -46,8 +46,6 @@
                               type    : 'single',
                               step    : 1,
                               postfix : '%',
-                              prettify: false,
-                              hasGrid : true
                             })
                           })
                         </script>
@@ -61,12 +59,12 @@
 
             <div class="modal-footer justify-content-between">
                 <button type="button" class="btn btn-outline-light btn-default" data-dismiss="modal">{% trans "Annuler"%}</button>
-                <button type="submit" class="btn btn-outline-light">{% trans "Détruire"%}</button>
+                <button type="submit" class="btn btn-outline-light">{% trans "Appliquer"%}</button>
             </div>
 
           </form>
 
-        {% include "includes/form_submit_to_json_api.js" with form="api_form_delete_"|add:district.id api_url="api_delete_district" %}
+        {% include "includes/form_submit_to_json_api.js" with form="api_form_district_set_activation_percent_"|add:district.id api_url="api_district_set_activation_percent" %}
 
       </div>
       <!-- /.modal-content -->

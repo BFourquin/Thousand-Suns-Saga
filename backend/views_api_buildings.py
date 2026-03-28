@@ -68,12 +68,20 @@ def api_district_set_activation_percent(request):
     params = request_params(request)
     server, commandant = get_active_server_and_commandant_from_request(request)
 
+    activation_percent = params['activation_percent']
+    try:
+        activation_percent = int(activation_percent)
+    except ValueError:
+        return api_pop_up({"title": "Paramètre invalide", "body": activation_percent, "level": "danger"}, status=400)
+
+
     if not server or not commandant:
         return redirect('/user_account/')
     if 'colony_id' not in params or ObjectId(params['colony_id']) not in commandant['colonies']:
         return redirect('/colonies/')
     if 'district_id' not in params:
         return api_pop_up({"title": "Cible de l'action invalide", "level": "danger"}, status=400)
+
 
     db = databases['TSS_' + server]['districts']
     district = db.find_one({"_id": ObjectId(params['district_id'])})
@@ -84,11 +92,14 @@ def api_district_set_activation_percent(request):
     # Anti-cheat
     if ObjectId(district['colony_id']) != ObjectId(params['colony_id']):
         ...  # TODO incoherent district and colony ids, possible tentative of destroying other player district
-        return api_pop_up({"title": "Cible de la démolition invalide", "level": "danger"}, status=400)
+        return api_pop_up({"title": "Cible de l'action invalide", "level": "danger"}, status=400)
+    if not 0 <= activation_percent <= 100:
+        ...  # TODO form manipulation cheat
+        return api_pop_up({"title": "Paramètre invalide", "body": activation_percent, "level": "danger"}, status=400)
 
     for building_id in district['buildings_ids']:
-        set_activation_percent_building(server, building_id, params['activation_percent'])
-    return api_pop_up_and_redirect({"title": "Destruction en cours du district", "level": "success"}, status=302, redirect='/colony/?colony_id='+str(params['colony_id']))
+        set_activation_percent_building(server, building_id, activation_percent)
+    return api_pop_up_and_redirect({"title": "Application du taux d'activation", "level": "success"}, status=302, redirect='/colony/?colony_id='+str(params['colony_id']))
 
 
 @login_required(login_url='/player_login/')
@@ -96,6 +107,8 @@ def api_delete_district(request):
 
     params = request_params(request)
     server, commandant = get_active_server_and_commandant_from_request(request)
+
+    print("DELETE > ", params)
 
     if not server or not commandant:
         return redirect('/user_account/')
