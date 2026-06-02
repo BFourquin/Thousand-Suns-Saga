@@ -132,5 +132,5 @@ def api_delete_district(request):
         return api_pop_up({"title": "Cible de la démolition invalide", "level": "danger"}, status=400)
 
     # TODO if recycling, long order instead of instantaneous
-    delete_district(server, params['colony_id'], ObjectId(params['colony_id']))
+    delete_district(server, params['district_id'])
     return api_pop_up_and_redirect({"title": "Destruction en cours du district", "level": "success"}, status=302, redirect='/colony/?colony_id='+str(params['colony_id']))

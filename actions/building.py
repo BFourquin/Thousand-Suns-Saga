@@ -1,0 +1,7 @@
+
+
+# FUNCTIONALITIES MANAGED BY API (/backend/views_api_buildings) :
+
+# BUILD
+# DELETE
+# SET ACTIVATION PERCENT

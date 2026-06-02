@@ -75,8 +75,6 @@ def colony(request):
         district['buildings'] = get_buildings(server, district['buildings_ids'], append_building_type=True)
         district['free_districts_slots'] = district['districts_slots'] - len(colony_dict['districts']) + 1
 
-        print(district['buildings'])
-
         districts.append(district)
 
 

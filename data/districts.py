@@ -107,16 +107,17 @@ def delete_district(server, district_id, refund_ratio=0.75):
     # TODO check if destruction is valid
 
     # Removal of the entry and it's references
-    colonies.pull_param_colony(server, district['district_type'], 'districts', ObjectId(district_id))
+    colonies.pull_param_colony(server, district['_id'], 'districts', ObjectId(district_id))
     db.delete_one({"_id": ObjectId(district_id)})
 
 
     # RESOURCES REFUNDING (done after to prevent multiple refunding by spamming faster than DB deletion)
     resources_refund = {}
 
-    # Buildings cost refunds
-    for building in district['buildings']:
+    # Buildings destruction and cost refunds
+    for building in district['buildings_ids']:
         ...  # TODO building refund on deletion
+
 
     # District cost refund
     district_type = districts_types.get_district_type(server, district['district_type'])
