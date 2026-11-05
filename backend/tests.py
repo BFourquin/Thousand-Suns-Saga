@@ -48,7 +48,7 @@ class ApiRoutesTests(SimpleTestCase):
     @patch('backend.views_api_user.user_mail_already_used', return_value=False)
     @patch('backend.views_api_user.user_name_exist', return_value=False)
     def test_create_user_success(self, _name, _mail, create):
-        response = call('/create_user/', data={'username': 'new_player', 'email': 'a@example.com', 'password': 'pw'})
+        response = call('/create_user/', data={'username': 'new_player', 'email': 'a@example.com', 'password': 'Xq7!vLp2mZ'})
         self.assertJson(response, 200, '/player_login/')
         create.assert_called_once()
 

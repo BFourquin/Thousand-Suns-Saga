@@ -18,6 +18,8 @@
         <br><br>ADMIN AUTHENTIFICATION
         <br><br>
 
+        {% if login_error %}<p>{{ login_error }}</p>{% endif %}
+
         <form method="post"  role="form" action="/admin_login/#">
             {% csrf_token %}
             <br><br><input type="text" name="username" placeholder="Utilisateur">

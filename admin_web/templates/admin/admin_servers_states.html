@@ -101,7 +101,8 @@
 
                       <!-- Status -->
                       <td>
-                        <form action="/admin_servers_states_edit/" method="GET" id="{{server.server_name}}_status">
+                        <form action="/admin_servers_states_edit/" method="POST" id="{{server.server_name}}_status">
+                            {% csrf_token %}
                             <input type="hidden" id="server_name" name="server_name" value="{{server.server_name}}">
                             <input type="hidden" id="type" name="type" value="status">
                             <select class="custom-select" style="max-width:100px;"
@@ -118,7 +119,8 @@
 
                       <!-- Visibilité -->
                       <td>
-                        <form action="/admin_servers_states_edit/" method="GET" id="{{server.server_name}}_visibility">
+                        <form action="/admin_servers_states_edit/" method="POST" id="{{server.server_name}}_visibility">
+                            {% csrf_token %}
                             <input type="hidden" id="server_name" name="server_name" value="{{server.server_name}}">
                             <input type="hidden" id="type" name="type" value="admin_only_visibility">
                             <select class="custom-select" style="max-width:100px;"
@@ -152,7 +154,8 @@
 
                                             <!-- Multicomptes -->
                       <td>
-                        <form action="/admin_servers_states_edit/" method="GET" id="{{server.server_name}}_allow_multiaccounts">
+                        <form action="/admin_servers_states_edit/" method="POST" id="{{server.server_name}}_allow_multiaccounts">
+                            {% csrf_token %}
                             <input type="hidden" id="server_name" name="server_name" value="{{server.server_name}}">
                             <input type="hidden" id="type" name="type" value="allow_multiaccounts">
                             <select class="custom-select" style="max-width:100px;"

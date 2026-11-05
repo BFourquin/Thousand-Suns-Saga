@@ -3,30 +3,31 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth import authenticate, login, logout
+from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
+from django.views.decorators.http import require_POST
+from django.contrib.auth import login
 from django.core.validators import validate_email
 from bokeh.plotting import figure
 from bokeh.embed import components
 
 
-from backend.utils import request_params, parameters_presents
+from backend.login import throttled_authenticate
+from backend.utils import request_params
 from data import server_details, user, technology, sectors, systems, coordinates, map_generator
 
 
 def admin_login(request):
 
-    params = request_params(request)
+    login_error = None
 
-    if parameters_presents(('username', 'password'), params):
-
-        username = params['username']
-        password = params['password']
-        user = authenticate(username=username, password=password)
-        if user is not None and user.is_superuser and user.is_active:
+    if request.method == 'POST':
+        user, login_error = throttled_authenticate(request)
+        if user is not None and user.is_superuser:
             login(request, user)
             return redirect('admin_main_dashboard')
 
-    return render(request, 'admin/admin_login.html')
+    return render(request, 'admin/admin_login.html', {'login_error': login_error})
 
 
 @staff_member_required(login_url='/admin_login/')
@@ -88,6 +89,7 @@ def admin_servers_states(request):
     return render(request, 'admin/admin_servers_states.html', {'servers_details': server_details.get_all_servers_details()})
 
 
+@require_POST
 @staff_member_required(login_url='/admin_login/')
 def admin_servers_states_edit(request):
     params = request_params(request)
@@ -131,9 +133,7 @@ def admin_geography(request):
         for entry in geography_table:
             for key, value in entry.items():
                 if key in ('_id', 'seed', 'sector_id', 'system_id'):
-                    entry[key] = '<a href="' \
-                                 '?server_name_selected=' + server + \
-                                 '&target=' + str(value) + '">' + str(value) + '</a>'
+                    entry[key] = format_html('<a href="?server_name_selected={}&target={}">{}</a>', server, value, value)
 
 
         return geography_table
@@ -151,15 +151,9 @@ def admin_geography(request):
         for geo in geo_table_cluttered:
             geo_uncluttered = geo.copy()
             if 'system_coordinates' in geo_uncluttered:
-                geo_uncluttered['system_coordinates'] = str(geo['system_coordinates']).replace("{'", '')\
-                                                                                    .replace("': '", ' : ')\
-                                                                                    .replace("', '", '<br>')\
-                                                                                    .replace("'}", '')
-                for seed in geo['system_coordinates'].keys():
-                    geo_uncluttered['system_coordinates'] = geo_uncluttered['system_coordinates'].replace(seed,
-                                    '<a href="' \
-                                    '?server_name_selected=' + server + \
-                                    '&target=' + seed + '">' + seed + '</a>')
+                geo_uncluttered['system_coordinates'] = format_html_join(
+                    mark_safe('<br>'), '<a href="?server_name_selected={}&target={}">{}</a> : {}',
+                    ((server, seed, seed, name) for seed, name in geo['system_coordinates'].items()))
 
             systems_table.append(geo_uncluttered)
         return systems_table
@@ -202,7 +196,6 @@ def admin_geography(request):
             geography_table = []
             for coo_seed in parent_table['system_coordinates'].keys():
                 geography_table.append(coordinates.get_coordinate(server, coo_seed))
-            print(geography_table)
             geography_table = unclutter_geography_table(geography_table)
 
             if 'system_coordinates' in parent_table:

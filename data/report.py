@@ -34,10 +34,13 @@ def create_report(server, owner_id, report_type, args={}, sender=None, sender_im
         raise e
 
 
-def get_report_by_object_id(server, _id):
+def get_report_by_object_id(server, _id, owner_id):
+    if not ObjectId.is_valid(_id):
+        return None
+
     client = databases['TSS_' + server]
     db = client['report']
-    return db.find_one({'_id': ObjectId(_id)})
+    return db.find_one({'_id': ObjectId(_id), 'owner': owner_id})
 
 
 def get_commandant_reports(server, commandant_id, filter_status=None, filter_category=None, search_text=None):
@@ -79,24 +82,20 @@ def get_commandant_reports(server, commandant_id, filter_status=None, filter_cat
 
 
 
-def change_report_status(server, report_id, status):
+def change_report_status(server, report_id, owner_id, status):
     client = databases['TSS_' + server]
     db = client['report']
-    db.update_one({"_id": ObjectId(report_id)}, {"$set": {'status': status}})
+    db.update_one({"_id": ObjectId(report_id), 'owner': owner_id}, {"$set": {'status': status}})
 
 
-def delete_report(server, report_id):
+def delete_report(server, report_id, owner_id):
 
     client = databases['TSS_' + server]
     db = client['report']
-
-    report = get_report_by_object_id(server, report_id)
 
     # Remove reference from the owning commandant's reports list
-    commandant_id = report['owner']
-    pull_param_commandant(server, commandant_id, 'reports', report_id)
-
-    db.delete_one({"_id": ObjectId(report_id)})
+    if db.find_one_and_delete({"_id": ObjectId(report_id), 'owner': owner_id}):
+        pull_param_commandant(server, owner_id, 'reports', ObjectId(report_id))
 
 
 ########################################################################################################################
@@ -106,7 +105,7 @@ def mark_all_reports_as_read(server, commandant_id, category=None):
 
     reports = get_commandant_reports(server, commandant_id, filter_status='unread', filter_category=category)[0]
     for report in reports:
-        change_report_status(server, report['_id'], 'read')
+        change_report_status(server, report['_id'], commandant_id, 'read')
 
 
 def unread_reports_counting(server, commandant_id, reports_list=None):
@@ -137,6 +136,5 @@ def unread_reports_counting(server, commandant_id, reports_list=None):
 def update_nb_unread_reports(server, commandant_id):
 
     reports_list = get_commandant_reports(server, commandant_id)[0]
-    print(reports_list)
     nb_unread_reports = sum(1 for report in reports_list if report.get('status') == 'unread')
     update_commandant(server, commandant_id, 'nb_unread_reports', nb_unread_reports)

@@ -21,6 +21,8 @@
     <div class="card-body">
       <p class="login-box-msg">Connexion à votre compte utilisateur</p>
 
+      {% if login_error %}<div class="alert alert-danger">{{ login_error }}</div>{% endif %}
+
       <form action="/player_login/" method="post">
         {% csrf_token %}
 

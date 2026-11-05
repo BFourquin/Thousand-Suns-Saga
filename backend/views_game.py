@@ -2,6 +2,7 @@ from django.template.response import TemplateResponse
 from django.shortcuts import redirect, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from bson.errors import InvalidId
 from bson.objectid import ObjectId
 import datetime
 
@@ -25,17 +26,20 @@ from data.resources import get_all_resources_parameters, get_resources_categorie
 def user_account(request):
 
     user = get_user_by_name(str(request.user))
-    params = request_params(request)
 
-    if 'language' in params and params['language'] in ('fr', 'en'):
-        data.user.update_user(user, 'language', params['language'])
+    if request.method == 'POST':
+        params = request.POST
 
-    if 'dark_mode' in params and params['dark_mode'] in ('true', 'false'):
-        darkmode = params['dark_mode'] == 'true'
-        data.user.update_user(user, 'dark_mode', darkmode)
+        if 'language' in params and params['language'] in ('fr', 'en'):
+            data.user.update_user(user, 'language', params['language'])
 
-    if 'theme' in params and data.themes.is_valid_theme(params['theme']):
-        data.user.update_user(user, 'theme', params['theme'])
+        if 'dark_mode' in params and params['dark_mode'] in ('true', 'false'):
+            data.user.update_user(user, 'dark_mode', params['dark_mode'] == 'true')
+
+        if 'theme' in params and data.themes.is_valid_theme(params['theme']):
+            data.user.update_user(user, 'theme', params['theme'])
+
+        return redirect('/user_account/')
 
     accounts = []
     for account_id in user['accounts']:
@@ -43,13 +47,11 @@ def user_account(request):
         if account:
             accounts.append(account)
 
-    dead_accounts = user['dead_accounts']
+    dead_accounts = []
     for account_id in user['dead_accounts']:
         dead_account = data.commandant.get_commandant_from_any_server(_id=account_id)
         if dead_account:
             dead_accounts.append(dead_account)
-
-    user = get_user_by_name(str(request.user))  # Get it again in case of parameter changed
 
     return TemplateResponse(request, 'game/user_account.html',
                             {'current_user': dict(user), 'accounts': accounts, 'dead_accounts': dead_accounts,
@@ -63,7 +65,6 @@ def create_commandant(request):
     params = request_params(request)
 
     if not 'server_name' in params:
-        print(params)
         return redirect('/user_account/')
 
     server = server_details.get_server_details(params['server_name'])
@@ -106,41 +107,6 @@ def commandant_login(request):
     return redirect('/geography_system/', {'system_id': commandant['native_system']})
 
 
-@login_required(login_url='/player_login/')
-def user_account(request):
-
-    user = get_user_by_name(str(request.user))
-    params = request_params(request)
-
-    if 'language' in params and params['language'] in ('fr', 'en'):
-        data.user.update_user(user, 'language', params['language'])
-
-    if 'dark_mode' in params and params['dark_mode'] in ('true', 'false'):
-        darkmode = params['dark_mode'] == 'true'
-        data.user.update_user(user, 'dark_mode', darkmode)
-
-    if 'theme' in params and data.themes.is_valid_theme(params['theme']):
-        data.user.update_user(user, 'theme', params['theme'])
-
-    accounts = []
-    for account_id in user['accounts']:
-        account = data.commandant.get_commandant_from_any_server(_id=account_id)
-        if account:
-            accounts.append(account)
-
-    dead_accounts = user['dead_accounts']
-    for account_id in user['dead_accounts']:
-        dead_account = data.commandant.get_commandant_from_any_server(_id=account_id)
-        if dead_account:
-            dead_accounts.append(dead_account)
-
-    user = get_user_by_name(str(request.user))  # Get it again in case of parameter changed
-
-    return TemplateResponse(request, 'game/user_account.html',
-                            {'current_user': dict(user), 'accounts': accounts, 'dead_accounts': dead_accounts,
-                             'themes': data.themes.themes_for_template()})
-
-
 ########################################################################################################################
 #  IN GAME AREA ########################################################################################################
 ########################################################################################################################
@@ -163,6 +129,7 @@ def cycle_monitoring(request):
 
     if request.user.is_authenticated and request.user.is_staff:  # TODO check if player is a game master for this server
         display_admin_and_gm_info = True
+    if display_admin_and_gm_info and request.method == 'POST':
         if 'admin_action' in params and params['admin_action'] == 'end_cycle':
             cycles.end_cycle(server)
             return HttpResponseRedirect(request.path_info)
@@ -173,14 +140,14 @@ def cycle_monitoring(request):
 
     # Commandants status
 
-    if 'commandant_cycle_status' in params:
+    if request.method == 'POST' and 'commandant_cycle_status' in params:
         if params['commandant_cycle_status'] == 'commandant_cycle_finished':
             cycles.mark_commandant_cycle_finished(server, commandant['_id'])
         elif params['commandant_cycle_status'] == 'commandant_cycle_playing':
             cycles.mark_commandant_cycle_playing(server, commandant['_id'])
         return HttpResponseRedirect(request.path_info)
 
-    if 'commandant_cycle_presence' in params:
+    if request.method == 'POST' and 'commandant_cycle_presence' in params:
         if params['commandant_cycle_presence'] == 'commandant_cycle_absent':
             cycles.mark_commandant_cycle_absent(server, commandant['_id'])
         elif params['commandant_cycle_presence'] == 'commandant_cycle_present':
@@ -206,7 +173,7 @@ def reports(request):
     if not server or not commandant:
         return redirect('/user_account/')
 
-    if 'action' in params:
+    if request.method == 'POST' and 'action' in params:
 
         # Mark all as read global button
         if params['action'] == 'mark_all_as_read':
@@ -224,24 +191,23 @@ def reports(request):
                 try:
                     # Delete button
                     if params['action'] == 'delete':
-                        delete_report(server, report_id)
+                        delete_report(server, report_id, commandant['_id'])
 
                     # Read button
                     if params['action'] == 'read':
-                        change_report_status(server, report_id, 'read')
+                        change_report_status(server, report_id, commandant['_id'], 'read')
                     # Unread button
                     if params['action'] == 'unread':
-                        change_report_status(server, report_id, 'unread')
+                        change_report_status(server, report_id, commandant['_id'], 'unread')
 
                     # Archive button
                     if params['action'] == 'archive':
-                        print(report_id)
-                        change_report_status(server, report_id, 'archived')
+                        change_report_status(server, report_id, commandant['_id'], 'archived')
                     # Unarchive button
                     if params['action'] == 'unarchive':
-                        change_report_status(server, report_id, 'read')
+                        change_report_status(server, report_id, commandant['_id'], 'read')
 
-                except TypeError:  # Report not existing (already deleted):
+                except InvalidId:
                     continue
 
         update_nb_unread_reports(server, commandant['_id'])
@@ -306,11 +272,11 @@ def report(request):
     if not 'report_id' in params:
         return redirect('/reports/')
 
-    report = get_report_by_object_id(server, params['report_id'])
+    report = get_report_by_object_id(server, params['report_id'], commandant['_id'])
     if not report:
         return redirect('/reports/')
 
-    change_report_status(server, params['report_id'], 'read')
+    change_report_status(server, params['report_id'], commandant['_id'], 'read')
 
     return TemplateResponse(request, 'game/report.html', {'server': server, 'report': report})
 

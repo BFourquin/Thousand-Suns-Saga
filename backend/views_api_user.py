@@ -1,3 +1,6 @@
+from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.views.decorators.http import require_POST
 
@@ -38,6 +41,11 @@ def create_user(request):
     # ##### PASSWORD ######
     if not 'password' in params:
         return api_pop_up({"title": "Aucun mot de passe spécifié", "level": "danger"}, status=400)
+
+    try:
+        validate_password(params['password'], user=User(username=params['username'], email=params['email']))
+    except ValidationError as e:
+        return api_pop_up({"title": "Mot de passe trop faible", "body": ' '.join(e.messages), "level": "danger"}, status=400)
 
     user = create_user_and_user_extend(params['username'], params['email'], params['password'])
     return api_pop_up_and_redirect({"title": "Compte créé", "level": "success"}, status=200, redirect='/player_login/')

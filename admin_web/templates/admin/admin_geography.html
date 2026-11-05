@@ -33,14 +33,12 @@
 
                 <div class="card-body">
                     <dl class="row">
-                        {% autoescape off %}
                             {% for parent in parent_table %}
                                 {% for key, value in parent.items %}
                                     <dt class="col-sm-4">{{key}}</dt>
                                     <dd class="col-sm-8">{{value}}</dd>
                                 {% endfor %}
                             {% endfor %}
-                        {% endautoescape %}
                     </dl>
                 </div>
             </div>
@@ -94,7 +92,6 @@
                   </tr>
               </thead>
               <tbody>
-                {% autoescape off %}
                   {% for element in geography_table %}
                       <tr>
                           {% for var in element.values %}
@@ -103,7 +100,6 @@
 
                       </tr>
                   {% endfor %}
-                {% endautoescape %}
               </tbody>
               <tfoot>
                   <tr>

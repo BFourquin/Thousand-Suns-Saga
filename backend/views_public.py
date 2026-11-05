@@ -1,10 +1,10 @@
 import datetime
 
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import login
 
 
-from backend.utils import request_params, parameters_presents
+from backend.login import throttled_authenticate
 from data import server_details
 from data import cycles
 
@@ -36,38 +36,18 @@ def servers_list(request):
 
 def player_login(request):
 
-    params = request_params(request)
+    login_error = None
 
-    if parameters_presents(('username', 'password'), params):
-
-        username = params['username']
-        password = params['password']
-        user = authenticate(username=username, password=password)
-        if user is not None and user.is_active:
+    if request.method == 'POST':
+        user, login_error = throttled_authenticate(request)
+        if user is not None:
             login(request, user)
             return redirect('/user_account/')
 
-    return render(request, 'public/player_login.html')
+    return render(request, 'public/player_login.html', {'login_error': login_error})
 
 
 
 def player_register(request):
-
-    params = request_params(request)
-
-    if parameters_presents(('username', 'password'), params):
-
-        email = params['email']
-        username = params['username']
-        password = params['password']
-
-        # TODO Verification by email
-
-        user = authenticate(username=username, password=password)
-
-        if user is not None and user.is_active:
-            login(request, user)
-            return redirect('player_register')
-
+    # The form is sent to the JSON API create_user by includes/form_submit_to_json_api.js
     return render(request, 'public/player_register.html')
-
