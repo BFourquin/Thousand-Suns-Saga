@@ -1,0 +1,30 @@
+/* THEME "Minimaliste" : sombre neutre epure, un seul accent indigo */
+
+body[data-theme="minimal"] {
+    --tss-bg: #0b0b0f;
+    --tss-bg-dim: rgba(8, 8, 12, 0.90);
+    --tss-surface: #14141a;
+    --tss-surface-2: #1c1c24;
+    --tss-border: rgba(255, 255, 255, 0.08);
+    --tss-text: #f1f1f5;
+    --tss-text-muted: #9a9aab;
+    --tss-accent: #7c6cff;
+    --tss-accent-text: #a79bff;
+    --tss-accent-contrast: #ffffff;
+    --tss-sidebar-bg: #0f0f14;
+    --tss-sidebar-active: #1c1c24;
+    --tss-radius: 12px;
+    --tss-glow: none;
+    --tss-font-body: 'Manrope', 'Segoe UI', sans-serif;
+    --tss-font-title: 'Manrope', 'Segoe UI', sans-serif;
+}
+
+body[data-theme="minimal"] .card { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); border-color: transparent; overflow: hidden; }
+body[data-theme="minimal"] .card-header { background-color: transparent; border-bottom-color: var(--tss-border); }
+body[data-theme="minimal"] .card-title { font-weight: 700; }
+body[data-theme="minimal"] .content-header h1,
+body[data-theme="minimal"] .content-header h2 { font-weight: 700; letter-spacing: -0.02em; }
+body[data-theme="minimal"] .btn { border-radius: 10px; font-weight: 600; }
+body[data-theme="minimal"] .form-control { border-radius: 10px; }
+body[data-theme="minimal"] .main-sidebar .nav-sidebar > .nav-item > .nav-link { border-left-color: transparent !important; border-radius: 10px; margin: 2px 6px; }
+body[data-theme="minimal"] .main-sidebar .nav-sidebar > .nav-item > .nav-link.active { background-color: var(--tss-accent); color: var(--tss-accent-contrast); }

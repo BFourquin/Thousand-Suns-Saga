@@ -155,3 +155,19 @@
     }
 }
 
+
+/* Theme picker (account preferences) */
+.theme-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.75rem; }
+.theme-picker .theme-option { margin: 0; cursor: pointer; }
+.theme-picker input { position: absolute; opacity: 0; pointer-events: none; }
+.theme-picker .theme-card {
+    display: block; padding: 0.6rem; border: 2px solid rgba(128, 128, 128, 0.4); border-radius: 6px;
+    transition: border-color 0.15s, transform 0.15s;
+}
+.theme-picker .theme-option:hover .theme-card { transform: translateY(-1px); }
+.theme-picker input:checked + .theme-card { border-color: #2de2e6; box-shadow: 0 0 0 1px #2de2e6; }
+.theme-picker input:focus-visible + .theme-card { outline: 2px solid #fff; outline-offset: 2px; }
+.theme-picker .theme-swatches { display: flex; height: 28px; border-radius: 4px; overflow: hidden; margin-bottom: 0.4rem; outline: 1px solid rgba(255, 255, 255, 0.25); outline-offset: -1px; }
+.theme-picker .theme-swatches span { flex: 1; }
+.theme-picker .theme-name { display: block; font-weight: 600; font-size: 0.9rem; line-height: 1.2; }
+.theme-picker .theme-desc { display: block; font-size: 0.75rem; opacity: 0.7; }

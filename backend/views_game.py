@@ -7,6 +7,7 @@ import datetime
 
 
 import data.user
+import data.themes
 from backend.decorators import add_cycle_info, log_player_action
 from backend.utils import request_params, parameters_presents, get_active_server_and_commandant_from_request
 from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator, cycles
@@ -33,6 +34,9 @@ def user_account(request):
         darkmode = params['dark_mode'] == 'true'
         data.user.update_user(user, 'dark_mode', darkmode)
 
+    if 'theme' in params and data.themes.is_valid_theme(params['theme']):
+        data.user.update_user(user, 'theme', params['theme'])
+
     accounts = []
     for account_id in user['accounts']:
         account = data.commandant.get_commandant_from_any_server(_id=account_id)
@@ -48,7 +52,8 @@ def user_account(request):
     user = get_user_by_name(str(request.user))  # Get it again in case of parameter changed
 
     return TemplateResponse(request, 'game/user_account.html',
-                            {'current_user': dict(user), 'accounts': accounts, 'dead_accounts': dead_accounts})
+                            {'current_user': dict(user), 'accounts': accounts, 'dead_accounts': dead_accounts,
+                             'themes': data.themes.themes_for_template()})
 
 
 
@@ -114,6 +119,9 @@ def user_account(request):
         darkmode = params['dark_mode'] == 'true'
         data.user.update_user(user, 'dark_mode', darkmode)
 
+    if 'theme' in params and data.themes.is_valid_theme(params['theme']):
+        data.user.update_user(user, 'theme', params['theme'])
+
     accounts = []
     for account_id in user['accounts']:
         account = data.commandant.get_commandant_from_any_server(_id=account_id)
@@ -129,7 +137,8 @@ def user_account(request):
     user = get_user_by_name(str(request.user))  # Get it again in case of parameter changed
 
     return TemplateResponse(request, 'game/user_account.html',
-                            {'current_user': dict(user), 'accounts': accounts, 'dead_accounts': dead_accounts})
+                            {'current_user': dict(user), 'accounts': accounts, 'dead_accounts': dead_accounts,
+                             'themes': data.themes.themes_for_template()})
 
 
 ########################################################################################################################

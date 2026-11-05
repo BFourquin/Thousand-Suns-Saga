@@ -3,6 +3,7 @@ from django.utils import translation
 
 from data import server_details
 from data.user import get_user_by_name
+from data.themes import get_theme_or_default
 from data.cycles import get_current_cycle
 from data.commandant import get_commandant_by_object_id
 from backend.utils import get_active_server_and_commandant_from_request
@@ -21,9 +22,15 @@ def servers_details(request):
 def user_account(request):
 
     user_account = get_user_by_name(str(request.user))
-    dark_mode = user_account['dark_mode'] if user_account else True
-    return {'user_account': user_account,
-            'dark_mode': dark_mode} if user_account else {'dark_mode': dark_mode}
+    theme = get_theme_or_default(user_account.get('theme') if user_account else None)
+
+    # Every theme but the classic one is a dark theme
+    dark_mode = (user_account['dark_mode'] if user_account else True) if theme == 'classic' else True
+
+    context = {'dark_mode': dark_mode, 'theme': theme}
+    if user_account:
+        context['user_account'] = user_account
+    return context
 
 
 

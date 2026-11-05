@@ -1,0 +1,44 @@
+/* THEME "Industriel" : graphite + orange securite, dense et utilitaire */
+
+body[data-theme="industrial"] {
+    --tss-bg: #16181d;
+    --tss-bg-dim: rgba(10, 11, 14, 0.82);
+    --tss-surface: #20242b;
+    --tss-surface-2: #2a2f38;
+    --tss-border: #424853;
+    --tss-text: #eceef1;
+    --tss-text-muted: #9ea6b2;
+    --tss-accent: #ff6a1a;
+    --tss-accent-text: #ff8a47;
+    --tss-accent-contrast: #140700;
+    --tss-warn: #ffd400;
+    --tss-sidebar-bg: #121418;
+    --tss-sidebar-active: #2a2f38;
+    --tss-radius: 0;
+    --tss-border-width: 2px;
+    --tss-title-transform: uppercase;
+    --tss-title-spacing: 0.05em;
+    --tss-brand-size: 1rem;
+    --tss-brand-spacing: 0.02em;
+    --tss-font-body: 'Barlow', 'Segoe UI', sans-serif;
+    --tss-font-title: 'Barlow Condensed', 'Barlow', sans-serif;
+    --tss-font-mono: 'Roboto Mono', Consolas, monospace;
+}
+
+/* Hazard-stripe band under card headers */
+body[data-theme="industrial"] .card-header {
+    border-bottom: 0;
+    position: relative;
+    padding-bottom: calc(0.75rem + 6px);
+}
+body[data-theme="industrial"] .card-header::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0; height: 6px;
+    background: repeating-linear-gradient(-45deg, var(--tss-warn) 0 8px, #15171b 8px 16px);
+    opacity: 0.85;
+}
+body[data-theme="industrial"] .card-title { font-weight: 700; font-size: 1.2rem; }
+body[data-theme="industrial"] .btn { text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+body[data-theme="industrial"] .main-sidebar .nav-sidebar > .nav-item > .nav-link { border-left-width: 4px; }
+body[data-theme="industrial"] .table td, body[data-theme="industrial"] .table th { padding: 0.5rem 0.65rem; }

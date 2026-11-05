@@ -2,7 +2,8 @@
 {% load static %}
 {% load i18n %}
 
-<body class="hold-transition sidebar-mini layout-boxed layout-fixed
+<body data-theme="{{ theme|default:'classic' }}"
+      class="hold-transition sidebar-mini layout-boxed layout-fixed
              {% if dark_mode %} dark-mode {% endif %}"
       style="background-image: url({% static 'images/background-space.jpg'%});
              background-size: cover; background-repeat: no-repeat; background-attachment: fixed;">
@@ -128,7 +129,7 @@
   <!-- /.navbar -->
 
   <!-- Main Sidebar Container -->
-  <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-color: #333f50;">
+  <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-color: var(--tss-sidebar-bg, #333f50);">
     <!-- Brand Logo -->
     <a href="/user_account/" class="brand-link">
       <img src={% static "images/logo/TSS-logo-white.png" %} class="brand-image">
