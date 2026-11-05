@@ -36,10 +36,10 @@
         </div>
 
         <div class="card-body p-0">
-            <form  id="create_user" action="/create_user/" method="POST">
+            <form  id="create_user" action="/create_user/" method="POST" data-api-url="create_user">
                 {% csrf_token %}
 
-                <div class="card-body" style="max-width: 300px">
+                <div class="card-body u-max-width-300px">
 
                   <div class="form-group"><input name="username" id="username" class="form-control" placeholder="Nom du compte" autocomplete="off"></div>
 
@@ -53,7 +53,6 @@
                   <button type="submit" class="btn btn-primary">Créer le compte</button>
                 </div>
 
-                {% include "includes/form_submit_to_json_api.js" with form="create_user" %}
             </form>
 
         </div>
@@ -68,7 +67,7 @@
           </div>
           <!-- /.card-header -->
           <div class="card-body">
-            <table id="DataTable" class="table table-bordered table-hover">
+            <table id="DataTable" data-datatable data-hidden-columns="0,2,4,6,7,9,10,14,15,16" class="table table-bordered table-hover">
               <thead>
                   <tr>
                     {% for column_name in user_accounts.0.keys %}
@@ -106,23 +105,5 @@
   </div>
 
 
-<script>
-  $(function () {
-    var table = $("#DataTable").DataTable({
-      "responsive": true,
-      "lengthChange": true,
-      "pageLength": 50,
-      "autoWidth": false,
-      "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
-      "columnDefs":[{ targets: [0,2,4,6,7,9,10,14,15,16], visible: false }],
-    }).buttons().container().appendTo('#DataTable_wrapper .col-md-6:eq(0)');
-  });
-
-  // Redirect to user account page on row click
-  $('tr[data-href]').on("click", function() {
-    document.location = $(this).data('href');
-    });
-
-</script>
 </body>
 </html>

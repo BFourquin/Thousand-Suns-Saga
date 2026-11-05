@@ -35,11 +35,11 @@
           </div>
         </div>
         <div class="card-body p-0">
-            <br><span style="margin-left: 80px;">open : users can create an account and play</span>
-            <br><span style="margin-left: 80px;">close : users can play but not create new accounts</span>
-            <br><span style="margin-left: 80px;">test : only superuser can create an account</span>
-            <br><span style="margin-left: 80px;">stop : the server is fixed in time at the end of the game, no new account or any order,</span>
-            <br><span style="margin-left: 80px;">dead : everything shut down</span>
+            <br><span class="u-margin-left-80px">open : users can create an account and play</span>
+            <br><span class="u-margin-left-80px">close : users can play but not create new accounts</span>
+            <br><span class="u-margin-left-80px">test : only superuser can create an account</span>
+            <br><span class="u-margin-left-80px">stop : the server is fixed in time at the end of the game, no new account or any order,</span>
+            <br><span class="u-margin-left-80px">dead : everything shut down</span>
             <br><br>
         </div>
        </div>
@@ -47,7 +47,7 @@
       <!------------------------------------------------------------------------------------------------------------>
       <!-- ACTIVE SERVERS -->
 
-      <div class="card" style="margin-top: 40px;">
+      <div class="card u-margin-top-40px">
         <div class="card-header">
           <h3 class="card-title">Serveurs de jeu</h3>
 
@@ -61,17 +61,17 @@
           <table class="table table-striped projects">
               <thead>
                   <tr>
-                      <th style="width: 1%">
+                      <th class="u-width-1pct">
                           #
                       </th>
                       <th>
                           Nom du serveur
                       </th>
 
-                      <th style="width: 125px;" class="text-center">
+                      <th class="text-center u-width-125px">
                           Status
                       </th>
-                      <th style="width: 125px;" class="text-center">
+                      <th class="text-center u-width-125px">
                           Visibilité
                       </th>
                       <th>
@@ -80,7 +80,7 @@
                       <th>
                           Joueurs
                       </th>
-                       <th style="width: 145px;" class="text-center">
+                       <th class="text-center u-width-145px">
                           Multicompte
                        </th>
                   </tr>
@@ -90,11 +90,11 @@
 
                   <tr>
                       <td>
-                          <span style="font-size: 1.3em;">#</span>
+                          <span class="u-font-size-1-3em">#</span>
                       </td>
                       <!-- Nom du serveur -->
                       <td>
-                          <span style="font-size: 2em;">
+                          <span class="u-font-size-2em">
                               {{server.server_name}}
                           </span>
                       </td>
@@ -105,9 +105,9 @@
                             {% csrf_token %}
                             <input type="hidden" id="server_name" name="server_name" value="{{server.server_name}}">
                             <input type="hidden" id="type" name="type" value="status">
-                            <select class="custom-select" style="max-width:100px;"
+                            <select class="custom-select u-max-width-100px"
                                     name="value" id="value"
-                                    onchange="this.form.submit()" form="{{server.server_name}}_status">
+                                    data-autosubmit form="{{server.server_name}}_status">
                               <option {% if server.status == 'open' %} selected="selected" {% endif %} value="open">open</option>
                               <option {% if server.status == 'close' %} selected="selected" {% endif %} value="close">close</option>
                               <option {% if server.status == 'test' %} selected="selected" {% endif %} value="test">test</option>
@@ -123,9 +123,9 @@
                             {% csrf_token %}
                             <input type="hidden" id="server_name" name="server_name" value="{{server.server_name}}">
                             <input type="hidden" id="type" name="type" value="admin_only_visibility">
-                            <select class="custom-select" style="max-width:100px;"
+                            <select class="custom-select u-max-width-100px"
                                     name="value" id="value"
-                                    onchange="this.form.submit()" form="{{server.server_name}}_visibility">
+                                    data-autosubmit form="{{server.server_name}}_visibility">
                               <option {% if server.admin_only_visibility %} selected="selected" {% endif %} value="true">admin</option>
                               <option {% if not server.admin_only_visibility %} selected="selected" {% endif %} value="false">tous</option>
                             </select>
@@ -158,9 +158,9 @@
                             {% csrf_token %}
                             <input type="hidden" id="server_name" name="server_name" value="{{server.server_name}}">
                             <input type="hidden" id="type" name="type" value="allow_multiaccounts">
-                            <select class="custom-select" style="max-width:100px;"
+                            <select class="custom-select u-max-width-100px"
                                     name="value" id="value"
-                                    onchange="this.form.submit()" form="{{server.server_name}}_allow_multiaccounts">
+                                    data-autosubmit form="{{server.server_name}}_allow_multiaccounts">
                               <option {% if server.allow_multiaccounts %} selected="selected" {% endif %} value="true">autorisé</option>
                               <option {% if not server.allow_multiaccounts %} selected="selected" {% endif %} value="false">interdit</option>
                             </select>

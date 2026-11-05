@@ -93,6 +93,7 @@ urlpatterns = [
 
     path('admin_user_accounts/', views_admin.admin_user_accounts, name='admin_user_accounts'),
     path('admin_user_details/', views_admin.admin_user_details, name='admin_user_details'),
+    path('admin_player_control/', views_admin.admin_player_control, name='admin_player_control'),
 
     # ADMIN SERVER SPECIFIC INTERFACE
     path('admin_servers_states/', views_admin.admin_servers_states, name='admin_servers_states'),
@@ -100,9 +101,6 @@ urlpatterns = [
 
     path('admin_geography/', views_admin.admin_geography, name='admin_geography'),
     path('admin_technology/', views_admin.admin_technology, name='admin_technology'),
-
-
-    path('test_hijack/', views_admin.test_hijack, name='test_hijack'),
 
 
     ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

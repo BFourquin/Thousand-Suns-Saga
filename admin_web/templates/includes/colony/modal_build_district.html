@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load static %}
 
-<div class="modal fade" id="modal-build-district" style="display: none;" aria-hidden="true">
+<div class="modal fade u-display-none" id="modal-build-district" aria-hidden="true">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
@@ -15,7 +15,7 @@
 
 
         <div class="modal-body">
-          <table class="table table-stripped" style="width: 100%; table-layout: auto;">
+          <table class="table table-stripped u-width-100pct-table-layout-auto">
 
             <thead>
                   <tr>
@@ -30,53 +30,53 @@
               <tbody>
                 {% for district in buildable_districts %}
 
-                <form id="api_form_build_{{district.internal_name}}" method="POST">
+                <form id="api_form_build_{{district.internal_name}}" method="POST" data-api-url="api_build_district">
                   {% csrf_token %}
                   <input type="hidden" id="server" name="server" value={{server_name}} />
                   <input type="hidden" id="colony_id" name="colony_id" value={{colony_id}} />
                   <input type="hidden" name="district_type" value="{{ district.internal_name }}">
 
-                    <tr class="" style='white-space: nowrap;'>
+                    <tr class="u-white-space-nowrap">
 
-                      <td class="mailbox-date" style="width: 0;">
-                        <img class="large_img_without_td_padding" src="{% static ""%}{{district.illustration}}" style=""></td>
+                      <td class="mailbox-date u-width-0">
+                        <img class="large_img_without_td_padding" src="{% static ""%}{{district.illustration}}"></td>
 
-                      <td class="mailbox-subject" style="font-size: 20px; text-align: center; vertical-align: middle;">
-                        <b style="font-size: 25px;"><i class="fas {{district.icon}}"></i></b>
+                      <td class="mailbox-subject u-font-size-20px-text-align-center-vertical-align-middle">
+                        <b class="u-font-size-25px"><i class="fas {{district.icon}}"></i></b>
                         <br>
-                        <b style="font-size: 20px;">{{district.name}}</b>
+                        <b class="u-font-size-20px">{{district.name}}</b>
                       </td>
 
-                      <td class="" style="vertical-align: middle; padding-top:0; padding-bottom: 0px;">
+                      <td class="u-vertical-align-middle-padding-top-0-padding-bottom-0px">
                         {% for resource in district.build_cost.values %}
                           <span style="color: {% if resource.enough_stockpiles %} #28a745 {% else %} #dc3545 {% endif %} ; line-height: 2rem;"
                                 title="{{resource.name}} &#013; {% trans "Stock"%} : {{resource.commandant_storage}} ">
-                            <img class="img_without_td_padding" src="{% static ""%}{{resource.illustration}}" style="max-width: 2rem;">
+                            <img class="img_without_td_padding u-max-width-2rem" src="{% static ""%}{{resource.illustration}}">
                             {{resource.quantity}} {{resource.unit_notation}}
                           </span>
                           {% if not forloop.last %}<br>{% endif%}
                         {% endfor %}
                       </td>
 
-                      <td class="" style="vertical-align: middle; padding-top:0; padding-bottom: 0px;">
+                      <td class="u-vertical-align-middle-padding-top-0-padding-bottom-0px">
                         {% for resource in district.maintenance.values %}
                           <span style="color: {% if resource.enough_stockpiles %} #28a745 {% else %} #dc3545 {% endif %} ; line-height: 2rem;"
                                 title="{{resource.name}} &#013; {% trans "Stock"%} : {{resource.commandant_storage}} ">
-                            <img class="img_without_td_padding" src="{% static ""%}{{resource.illustration}}" style="max-width: 2rem;">
+                            <img class="img_without_td_padding u-max-width-2rem" src="{% static ""%}{{resource.illustration}}">
                             {{resource.quantity}} {{resource.unit_notation}}
                           </span>
                           {% if not forloop.last %}<br>{% endif%}
                         {% endfor %}
                       </td>
 
-                      <td class="" style="vertical-align: middle;">
+                      <td class="u-vertical-align-middle">
                         <span>{{district.buildings_slots}} {% trans "bâtiments"%}</span><br>
                         {% if district.districts_slots > 0 %}
                         <span>{{district.districts_slots}} {% trans "districts"%}</span><br>
                         {% endif %}
                       </td>
 
-                      <td class="" style="vertical-align: middle;">
+                      <td class="u-vertical-align-middle">
 
                         <button type="submit" class="btn {% if district.enough_stockpiles %} btn-primary ">
                                                          {% else %} btn-danger disabled "> {% endif %}
@@ -85,7 +85,6 @@
 
                     </tr>
                   </form>
-                  {% include "includes/form_submit_to_json_api.js" with form="api_form_build_"|add:district.internal_name api_url="api_build_district" %}
 
                 {% endfor %}
               </tbody>

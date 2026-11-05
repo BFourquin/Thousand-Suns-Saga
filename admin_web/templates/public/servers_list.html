@@ -27,7 +27,7 @@
       <!-- ACTIVE SERVERS -->
 
 
-      <div class="card" style="margin-top: 40px;">
+      <div class="card u-margin-top-40px">
         <div class="card-header">
           <h3 class="card-title">{% trans "Serveurs de jeu"%}</h3>
 
@@ -41,7 +41,7 @@
           <table class="table table-striped projects">
               <thead>
                   <tr>
-                      <th style="width: 1%">
+                      <th class="u-width-1pct">
                           #
                       </th>
                       <th>
@@ -78,11 +78,11 @@
 
                   <tr>
                       <td>
-                          <span style="font-size: 1.3em;">#</span>
+                          <span class="u-font-size-1-3em">#</span>
                       </td>
                       <!-- Nom du serveur -->
                       <td>
-                          <span style="font-size: 2em;">
+                          <span class="u-font-size-2em">
                               {{server.server_name}}
                           </span>
                       </td>
@@ -91,17 +91,17 @@
                       <td>
                           <span>
                               {% if server.language == 'fr' %}
-                                <img src="{% static "images/flags/fr.svg"%}"style="width: 30px; margin-right: 5px;">
+                                <img src="{% static "images/flags/fr.svg"%}" class="u-width-30px-margin-right-5px">
                                 {% trans "Français"%}
                               {% endif %}
 
                               {% if server.language == 'en' %}
-                                <img src="{% static "images/flags/en.svg"%}"style="width: 30px; margin-right: 5px;">
+                                <img src="{% static "images/flags/en.svg"%}" class="u-width-30px-margin-right-5px">
                                 {% trans "Anglais"%}
                               {% endif %}
 
                               {% if server.language == 'international' %}
-                                <img src="{% static "images/flags/international.svg"%}"style="width: 30px; margin-right: 5px;">
+                                <img src="{% static "images/flags/international.svg"%}" class="u-width-30px-margin-right-5px">
                                 {% trans "International"%}
                               {% endif %}
 
@@ -116,9 +116,9 @@
                       <!-- Joueurs -->
                       <td>
                           <small>
-                              Actifs : {{server.active_commandants|length}}
+                              {% trans "Actifs :" %} {{server.active_commandants|length}}
                               <br/>
-                              Morts : {{server.dead_commandants|length}}
+                              {% trans "Morts :" %} {{server.dead_commandants|length}}
                           </small>
                       </td>
 

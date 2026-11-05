@@ -1,9 +1,10 @@
+{% load static %}
+{% load i18n %}
+{% get_current_language as current_language %}
+{% trans "Une erreur est survenue, veuillez réessayer" as error_message %}
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ current_language }}" data-error-message="{{ error_message }}">
 <head>
-
-    {% load static %}
-    {% load i18n %}
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -17,7 +18,7 @@
 
 
     {% if title %}
-    <title>{% blocktranslate %} {{title}} {% endblocktranslate %}</title>
+    <title>{{ title }}</title>
     {% else %}
     <title>TSS</title>
     {% endif %}
@@ -31,41 +32,17 @@
 
     <!-- ADMINLTE 3 -->
 
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link rel="stylesheet" href="{% static "css/fonts.css" %}" >
     <link rel="stylesheet" href="{% static "libraries/fontawesome-free/css/all.min.css" %}" >
-    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <link rel="stylesheet" href="{% static "dist/css/adminlte.css" %}" >  <!-- was adminlte.min.css -->
+    <link rel="stylesheet" href="{% static "css/utilities.css" %}" >
 
 
     <!-- USER THEME (selected in the account preferences) -->
     {% if theme and theme != 'classic' %}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    {% if theme == 'console' %}
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Rajdhani:wght@500;600;700&display=swap">
-    {% elif theme == 'atlas' %}
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
-    {% elif theme == 'industrial' %}
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Roboto+Mono:wght@400;600&display=swap">
-    {% elif theme == 'minimal' %}
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap">
-    {% endif %}
     <link rel="stylesheet" href="{% static "css/themes/theme_base.css" %}" >
-    <link rel="stylesheet" href="{% static "css/themes/theme_" %}{{ theme }}.css" >
+    <link rel="stylesheet" href="{% static 'css/themes/theme_'|add:theme|add:'.css' %}" >
     {% endif %}
-
-
-    <!-- BOKEH -->
-    <!--
-    <link href="http://cdn.pydata.org/bokeh/release/bokeh-2.4.1.min.css" rel="stylesheet" type="text/css">
-    <link href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-2.4.1.min.css" rel="stylesheet" type="text/css">
-    -->
-
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.1.min.js"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.4.1.min.js"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.4.1.min.js"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-api-2.4.1.min.js"></script>
-    {{ script | safe }}
 
 
     <!----------------------------------------------------------------------------------------------------------------->
@@ -95,15 +72,18 @@
     <script src="{% static "libraries/datatables-buttons/js/buttons.colVis.min.js" %}" ></script>
 
     <!-- Timers -->
-    <script src="https://cdn.jsdelivr.net/npm/dayjs/dayjs.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/dayjs/plugin/relativeTime.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/dayjs/plugin/utc.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/dayjs/locale/fr.js" defer></script>
+    <script src="{% static 'libraries/dayjs/dayjs.min.js' %}" defer></script>
+    <script src="{% static 'libraries/dayjs/plugin/relativeTime.js' %}" defer></script>
+    <script src="{% static 'libraries/dayjs/plugin/utc.js' %}" defer></script>
+    <script src="{% static 'libraries/dayjs/locale/fr.js' %}" defer></script>
     <script src="{% static 'js/timers.js' %}" defer></script>
 
     <!-- Range sliders -->
     <script src="{% static "libraries/ion-rangeslider/js/ion.rangeSlider.min.js" %}" ></script>
     <link rel="stylesheet" href="{% static 'libraries/ion-rangeslider/css/ion.rangeSlider.min.css' %}">
+
+    <!-- Behaviours declared with data attributes in the templates -->
+    <script src="{% static 'js/tss.js' %}" ></script>
 
 </head>
 

@@ -74,16 +74,12 @@
 
             {% if target == "map" %}
 
-              <img src="{% static "" %}images/server_specific/{{request.GET.server_name_selected}}/map/map.png"
-                             style="height: 100%; padding: 30px;
-                             display: block; margin-left: auto; margin-right: auto;">
-              <img src="{% static "" %}images/server_specific/{{request.GET.server_name_selected}}/map/map_with_sectors.png"
-                             style="height: 100%; padding: 30px;
-                             display: block; margin-left: auto; margin-right: auto;">
+              <img src="{% static "" %}images/server_specific/{{request.GET.server_name_selected}}/map/map.png" class="u-height-100pct-padding-30px-display-block-margin-left-auto-margin-right-auto">
+              <img src="{% static "" %}images/server_specific/{{request.GET.server_name_selected}}/map/map_with_sectors.png" class="u-height-100pct-padding-30px-display-block-margin-left-auto-margin-right-auto">
 
             {% else %}
 
-            <table id="DataTable" class="table table-bordered table-hover">
+            <table id="DataTable" data-datatable class="table table-bordered table-hover">
               <thead>
                   <tr>
                     {% for column_name in geography_table.0.keys %}
@@ -133,18 +129,5 @@
   </div>
 
 
-<script>
-  $(function () {
-    var table = $("#DataTable").DataTable({
-      "responsive": true,
-      "lengthChange": true,
-      "pageLength": 50,
-      "autoWidth": false,
-      "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
-      "columnDefs":[{ targets: [], visible: false }],
-    }).buttons().container().appendTo('#DataTable_wrapper .col-md-6:eq(0)');
-  });
-
-</script>
 </body>
 </html>

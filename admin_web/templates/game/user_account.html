@@ -46,22 +46,21 @@
                     {% for account in accounts %}
 
                       <!-- Post -->
-                      <div class="post" style=" margin-top:20px; border-bottom: 0px">
-                        <div class="user-block" style="margin-top: 30px;">
-                          <img class=" img-bordered-sm" src="{% static ""%}{{account.flag}}"
-                               style="height: 150px; width: 150px; margin-right: 30px;">
-                          <img class=" img-bordered-sm" src="{% static ""%}{{account.portrait}}"
-                               style="height: 150px; width: 150px; margin-right: 30px;">
+                      <div class="post u-margin-top-20px-border-bottom-0px" >
+                        <div class="user-block u-margin-top-30px" >
+                          <img class="img-bordered-sm u-height-150px-width-150px-margin-right-30px" src="{% static ""%}{{account.flag}}"
+                               >
+                          <img class="img-bordered-sm u-height-150px-width-150px-margin-right-30px" src="{% static ""%}{{account.portrait}}"
+                               >
 
-                          <span class="username" style="margin-bottom: 10px;">
-                            <span class="description" style="font-size: 25px;">
+                          <span class="username u-margin-bottom-10px" >
+                            <span class="description u-font-size-25px" >
                               <a href="/commandant_login/?server={{account.server}}&commandant_id={{account.id}}" >
-                                <!--<i class="fa-solid fa-arrow-right-to-bracket" style="border: 0.5px solid #4f5962;></i>-->
                                 {{account.civilisation_name}} / {{account.commandant_name}}
 
                               </a>
                             </span>
-                            <span class="description" style="font-size: 25px;">[Serveur {{account.server}}]</span>
+                            <span class="description u-font-size-25px" >[{% trans "Serveur" %} {{account.server}}]</span>
                           </span>
                           <span class="description">{% trans "Statut:"%} {{account.commandant_name}}</span>
                           <span class="description">{% trans "Date de création:"%} {{account.creation_date}}</span>
@@ -74,22 +73,21 @@
                     {% endfor %}
 
                     <!-- Post -->
-                    <div class="post" style=" margin-top:20px; border-bottom: 0px">
-                      <div class="user-block" style="margin-top: 30px;">
-                        <img class=" img-bordered-sm" src="{% static "images/SAO.jpg"%}" alt="user image"
-                             style="height: 150px; width: 150px; margin-right: 30px;">
-                        <img class=" img-bordered-sm" src="{% static "images/Aurelia.png"%}" alt="user image"
-                             style="height: 150px; width: 150px; margin-right: 30px;">
+                    <div class="post u-margin-top-20px-border-bottom-0px" >
+                      <div class="user-block u-margin-top-30px" >
+                        <img class="img-bordered-sm u-height-150px-width-150px-margin-right-30px" src="{% static "images/SAO.jpg"%}" alt="user image"
+                             >
+                        <img class="img-bordered-sm u-height-150px-width-150px-margin-right-30px" src="{% static "images/Aurelia.png"%}" alt="user image"
+                             >
 
-                        <span class="username" style="margin-bottom: 10px;">
-                          <span class="description" style="font-size: 25px;">
+                        <span class="username u-margin-bottom-10px" >
+                          <span class="description u-font-size-25px" >
                             <a href="#" >
-                              <!--<i class="fa-solid fa-arrow-right-to-bracket" style="border: 0.5px solid #4f5962;></i>-->
                               Empire de Siravedra / Aurélia de Siravedra
                               
                             </a>
                           </span>
-                          <span class="description" style="font-size: 25px;">[Serveur Alpha]</span>
+                          <span class="description u-font-size-25px" >[Serveur Alpha]</span>
                         </span>
                         <span class="description">{% trans "Statut:"%}</span>
                         <span class="description">{% trans "Date de création:"%}</span>
@@ -102,18 +100,18 @@
 
 
                     <!-- Post -->
-                    <div class="post" style=" margin-top:20px; border-bottom: 0px">
-                      <div class="user-block" style="margin-top: 30px;">
-                        <img class=" img-bordered-sm" src="{% static "images/SAO.jpg"%}" alt="user image"
-                             style="height: 150px; width: 150px; margin-right: 30px;">
-                        <img class=" img-bordered-sm" src="{% static "images/Wandrille.jpg"%}" alt="user image"
-                             style="height: 150px; width: 150px; margin-right: 30px;">
+                    <div class="post u-margin-top-20px-border-bottom-0px" >
+                      <div class="user-block u-margin-top-30px" >
+                        <img class="img-bordered-sm u-height-150px-width-150px-margin-right-30px" src="{% static "images/SAO.jpg"%}" alt="user image"
+                             >
+                        <img class="img-bordered-sm u-height-150px-width-150px-margin-right-30px" src="{% static "images/Wandrille.jpg"%}" alt="user image"
+                             >
 
-                        <span class="username" style="margin-bottom: 10px;">
-                          <span class="description" style="font-size: 25px;">
+                        <span class="username u-margin-bottom-10px" >
+                          <span class="description u-font-size-25px" >
                             <a href="#" >Empire de Siravedra / Wandrille Corgat</a>
                           </span>
-                          <span class="description" style="font-size: 25px;">[Serveur Alpha]</span>
+                          <span class="description u-font-size-25px" >[Serveur Alpha]</span>
                         </span>
                         <span class="description">{% trans "Status:"%}</span>
                         <span class="description">{% trans "Date de création:"%}</span>
@@ -126,8 +124,8 @@
 
 
                     <!-- Post -->
-                    <div class="post" style=" margin-top:20px; border-bottom: 0px">
-                      <div class="user-block" style="margin-top: 30px;">
+                    <div class="post u-margin-top-20px-border-bottom-0px" >
+                      <div class="user-block u-margin-top-30px" >
 
                         <a href="/servers_list/" class="btn btn-block btn-primary">{% trans "Rejoindre un nouveau serveur"%}</a>
 
@@ -348,7 +346,7 @@
 
                     <li class="list-group-item">
                       <b>{% trans "Langue"%}</b>
-                      <select name="language" class="form-control float-right" style="max-width: 150px;" onchange="this.form.submit()">
+                      <select name="language" class="form-control float-right u-max-width-150px"  data-autosubmit>
                             <option value="fr" {% if current_user.language == 'fr' %} selected="selected" {% endif %}>Français</option>
                             <option value="en" {% if current_user.language == 'en' %} selected="selected" {% endif %} >English</option>
                       </select>
@@ -360,7 +358,7 @@
                         {% for t in themes %}
                         <label class="theme-option">
                           <input type="radio" name="theme" value="{{ t.id }}" {% if theme == t.id %}checked{% endif %}
-                                 onchange="this.form.submit()">
+                                 data-autosubmit>
                           <span class="theme-card">
                             <span class="theme-swatches">
                               {% for color in t.swatches %}<span style="background: {{ color }};"></span>{% endfor %}
@@ -376,7 +374,7 @@
                     {% if theme == 'classic' %}
                     <li class="list-group-item">
                       <b>{% trans "Affichage"%}</b>
-                      <select name="dark_mode" class="form-control float-right" style="max-width: 150px;" onchange="this.form.submit()">
+                      <select name="dark_mode" class="form-control float-right u-max-width-150px"  data-autosubmit>
                             <option value="true" {% if current_user.dark_mode %} selected="selected" {% endif %}>{% trans "Mode sombre"%}</option>
                             <option value="false" {% if not current_user.dark_mode %} selected="selected" {% endif %}>{% trans "Mode clair"%}</option>
                       </select>

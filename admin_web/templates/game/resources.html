@@ -31,7 +31,7 @@
 
                 <!-- ALL CATEGORIES -->
                 <label class="btn btn-app text-center {% if selected_category == 'all' %}btn-secondary{% else %}btn-default{% endif %}"
-                         onclick="window.location.href='?selected_category=all'">
+                         data-href="?selected_category=all">
                     <i class="fas fa-infinity"></i>
                     <input type="radio" name="options" id="all" autocomplete="off" {% if selected_category == 'all' %}checked{% endif %}>
                     {% trans "Tout" %}
@@ -40,10 +40,10 @@
                 <!-- SPECIFIC CATEGORY -->
                 {% for category in resources_categories %}
                 <label class="btn btn-app text-center {% if selected_category == category.internal_name %}btn-secondary{% else %}btn-default{% endif %}"
-                       onclick="window.location.href='?selected_category={{ category.internal_name }}'">
+                       data-href="?selected_category={{ category.internal_name }}">
                     <i class="fas {{ category.icon }}"></i>
                     <input type="radio" name="options" id="{{ category.internal_name }}" autocomplete="off" {% if selected_category == category.internal_name %}checked{% endif %}>
-                    {{ category.name_fr }}
+                    {{ category.name }}
                 </label>
                 {% endfor %}
             </div>
@@ -56,7 +56,7 @@
 
                 <!-- SHORTAGE -->
                 <label class="btn btn-app text-center {% if selected_category == 'shortage' %}btn-secondary{% else %}btn-default{% endif %}"
-                       onclick="window.location.href='?selected_category=shortage'">
+                       data-href="?selected_category=shortage">
                   <i class="fas fa-square-xmark"></i>
                   <input type="radio" name="options" id="shortage" autocomplete="off" {% if selected_category == 'shortage' %}checked{% endif %}>
                   {% trans "Pénurie" %}
@@ -64,7 +64,7 @@
 
                 <!-- DECREASE -->
                 <label class="btn btn-app text-center {% if selected_category == 'decrease' %}btn-secondary{% else %}btn-default{% endif %}"
-                       onclick="window.location.href='?selected_category=decrease'">
+                       data-href="?selected_category=decrease">
                   <i class="fas fa-square-caret-down"></i>
                   <input type="radio" name="options" id="decrease" autocomplete="off" {% if selected_category == 'decrease' %}checked{% endif %}>
                   {% trans "En baisse" %}
@@ -72,7 +72,7 @@
 
                 <!-- DECREASE -->
                 <label class="btn btn-app text-center {% if selected_category == 'not_sefl_sufficiant' %}btn-secondary{% else %}btn-default{% endif %}"
-                       onclick="window.location.href='?selected_category=not_sefl_sufficiant'">
+                       data-href="?selected_category=not_sefl_sufficiant">
                   <i class="fas fa-square-poll-vertical"></i>
                   <input type="radio" name="options" id="not_sefl_sufficiant" autocomplete="off" {% if selected_category == 'not_sefl_sufficiant' %}checked{% endif %}>
                   {% trans "Non autosuffisant" %}
@@ -80,7 +80,7 @@
 
                 <!-- UNSOLD -->
                 <label class="btn btn-app text-center {% if selected_category == 'full_storage' %}btn-secondary{% else %}btn-default{% endif %}"
-                       onclick="window.location.href='?selected_category=full_storage'">
+                       data-href="?selected_category=full_storage">
                   <i class="fas fa-square-minus"></i>
                   <input type="radio" name="options" id="full_storage" autocomplete="off" {% if selected_category == 'full_storage' %}checked{% endif %}>
                   {% trans "Plein" %}
@@ -98,7 +98,7 @@
                 <h3 class="card-title">Fixed Header Table</h3>
 
                 <div class="card-tools">
-                  <div class="input-group input-group-sm" style="width: 150px;">
+                  <div class="input-group input-group-sm u-width-150px">
                     <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
 
                     <div class="input-group-append">
@@ -112,7 +112,7 @@
               -->
 
               <!-- /.card-header -->
-              <div class="card-body table-responsive p-0" style="height: 78vh;">
+              <div class="card-body table-responsive p-0 u-height-78vh">
                 <table class="table table-head-fixed text-nowrap">
                   <thead>
                     <tr>
@@ -130,7 +130,7 @@
                   <tbody>
                     {% for resource in resources %}
                       <tr>
-                        <td><img class="img_without_td_padding" src="{% static ""%}{{resource.icon}}" style="">
+                        <td><img class="img_without_td_padding" src="{% static ""%}{{resource.icon}}">
                             {{resource.name}}
                         </td>
                         <td>{{resource.stock}} T</td>

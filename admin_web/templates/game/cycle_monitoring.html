@@ -62,24 +62,24 @@
 
             {% if not current_commandant_finished %}
               <button type="submit" form="cycle_action_form" name="commandant_cycle_status" value="commandant_cycle_finished"
-                      class="btn btn-block btn-outline-success btn-lg" style="height: 42%;">
+                      class="btn btn-block btn-outline-success btn-lg u-height-42pct">
                 <i class="icon fas fa-check"></i> {% trans "Se déclarer prêt pour la fin de cycle" %}
               </button>
             {% else %}
               <button type="submit" form="cycle_action_form" name="commandant_cycle_status" value="commandant_cycle_playing"
-                      class="btn btn-block btn-outline-warning btn-lg" style="height: 42%;">
+                      class="btn btn-block btn-outline-warning btn-lg u-height-42pct">
                 <i class="icon fas fa-hourglass-end"></i> {% trans "Se déclarer pas encore prêt pour la fin du cycle" %}
               </button>
             {% endif %}
 
             {% if not current_commandant_absent %}
               <button type="submit" form="cycle_action_form" name="commandant_cycle_presence" value="commandant_cycle_absent"
-                      class="btn btn-block btn-outline-info btn-lg" style="height: 42%;">
+                      class="btn btn-block btn-outline-info btn-lg u-height-42pct">
                 <i class="icon fas fa-moon"></i> {% trans "Se mettre en mode absent" %}
               </button>
             {% else %}
               <button type="submit" form="cycle_action_form" name="commandant_cycle_presence" value="commandant_cycle_present"
-                      class="btn btn-block btn-outline-info btn-lg" style="height: 42%;">
+                      class="btn btn-block btn-outline-info btn-lg u-height-42pct">
                 <i class="icon fas fa-sun"></i> {% trans "Retirer le mode absent" %}
               </button>
             {% endif %}
@@ -96,16 +96,16 @@
         {% if display_admin_and_gm_info %}
           {% if ratio_finished != 1 %} <!-- Not all players have finished the cycle -->
             <button type="submit" form="cycle_action_form" name="admin_action" value="end_cycle"
-                    style="margin-top: 20px;margin-bottom: 20px;"
-                    class="btn btn-block btn-outline-warning btn-lg"
-                    onclick="return confirm('/!\\ {% trans "Tous les commandants ne sont pas encore prêts pour changer de cycle. Forcer la fin du cycle ?" %}');">
+                   
+                    class="btn btn-block btn-outline-warning btn-lg u-margin-top-20px-margin-bottom-20px"
+                    data-confirm="/!\ {% trans 'Tous les commandants ne sont pas encore prêts pour changer de cycle. Forcer la fin du cycle ?' %}">
               {% trans "[ADMIN/MG]" %} {% trans "Passer au cycle suivant" %}
             </button>
 
           {% else %} <!-- All players finished the cycle -->
           <button type="submit" form="cycle_action_form" name="admin_action" value="end_cycle"
-                  style="margin-top: 20px;margin-bottom: 20px;"
-                  class="btn btn-block btn-outline-success btn-lg">
+                 
+                  class="btn btn-block btn-outline-success btn-lg u-margin-top-20px-margin-bottom-20px">
             {% trans "[ADMIN/MG]" %} {% trans "Passer au cycle suivant" %}
             </button>
           {% endif %}
@@ -135,20 +135,20 @@
                   {% for commandant in commandants_cycle_playing %}
 
                     <!-- Post -->
-                    <div class="post" style="border-bottom:0px;">
-                      <div class="user-block menu-separator row align-items-center" style="margin-top:5px; padding-bottom:10px; margin-bottom: 5px;">
+                    <div class="post u-border-bottom-0px">
+                      <div class="user-block menu-separator row align-items-center u-margin-top-5px-padding-bottom-10px-margin-bottom-5px">
 
                         <!-- Avatar and flag -->
                         <div class="col-12 col-md-2 d-flex align-items-center">
-                          <img class="img-bordered-sm me-2" src="{% static "" %}{{ commandant.flag }}"
-                               style="height:60px; width:60px;">
-                          <img class="img-bordered-sm" src="{% static "" %}{{ commandant.portrait }}"
-                               style="height:60px; width:60px; margin-left:10px;">
+                          <img class="img-bordered-sm me-2 u-height-60px-width-60px" src="{% static "" %}{{ commandant.flag }}"
+                              >
+                          <img class="img-bordered-sm u-height-60px-width-60px-margin-left-10px" src="{% static "" %}{{ commandant.portrait }}"
+                              >
                         </div>
 
                         <!-- Commandant and civilisation names -->
                         <div class="col-12 {% if display_admin_and_gm_info %}col-md-5{% else %}col-md-10{% endif %}  align-items-center">
-                          <span class="username d-block mb-2" style="font-size:18px;">
+                          <span class="username d-block mb-2 u-font-size-18px">
                             {{ commandant.commandant_name }}
                             <br/>
                             {{ commandant.civilisation_name }}
@@ -159,16 +159,16 @@
                         {% if display_admin_and_gm_info %}
                         <div class="col-12 col-md-5  align-items-center">
 
-                          <span class="d-block" style="font-size:14px;">
+                          <span class="d-block u-font-size-14px">
                               {% trans "Dernière action :" %}
                               <span class="timeago"
                                     data-timestamp="{{ commandant.time_last_activity|date:'c' }}"
                                     data-lang="{{ user.language }}"></span>
                           </span>
 
-                          <span class="d-block" style="font-size:14px;">
+                          <span class="d-block u-font-size-14px">
                             <button type="submit" form="cycle_action_form" name="admin_mark_as_absent" value="{{commandant.id}}"
-                                    class="btn btn-link p-0 text-warning" style="text-decoration: underline; font-size: inherit;">
+                                    class="btn btn-link p-0 text-warning u-text-decoration-underline-font-size-inherit">
                               {% trans "Passer en mode absent" %}
                             </button>
                           </span>
@@ -209,20 +209,20 @@
                   {% for commandant in commandants_cycle_finished %}
 
                     <!-- Post -->
-                    <div class="post" style="border-bottom:0px;">
-                      <div class="user-block menu-separator row align-items-center" style="margin-top:5px; padding-bottom:10px; margin-bottom: 5px;">
+                    <div class="post u-border-bottom-0px">
+                      <div class="user-block menu-separator row align-items-center u-margin-top-5px-padding-bottom-10px-margin-bottom-5px">
 
                         <!-- Avatar and flag -->
                         <div class="col-12 col-md-2 d-flex align-items-center">
-                          <img class="img-bordered-sm me-2" src="{% static "" %}{{ commandant.flag }}"
-                               style="height:60px; width:60px;">
-                          <img class="img-bordered-sm" src="{% static "" %}{{ commandant.portrait }}"
-                               style="height:60px; width:60px; margin-left:10px;">
+                          <img class="img-bordered-sm me-2 u-height-60px-width-60px" src="{% static "" %}{{ commandant.flag }}"
+                              >
+                          <img class="img-bordered-sm u-height-60px-width-60px-margin-left-10px" src="{% static "" %}{{ commandant.portrait }}"
+                              >
                         </div>
 
                         <!-- Commandant and civilisation names -->
                         <div class="col-12 {% if display_admin_and_gm_info %}col-md-5{% else %}col-md-10{% endif %}  align-items-center">
-                          <span class="username d-block mb-2" style="font-size:18px;">
+                          <span class="username d-block mb-2 u-font-size-18px">
                             {{ commandant.commandant_name }}
                             <br/>
                             {{ commandant.civilisation_name }}
@@ -233,14 +233,14 @@
                         {% if display_admin_and_gm_info %}
                         <div class="col-12 col-md-5  align-items-center">
 
-                          <span class="d-block" style="font-size:14px;">
+                          <span class="d-block u-font-size-14px">
                               {% trans "Terminé depuis :" %}
                               <span class="timeago"
                                     data-timestamp="{{ commandant.time_cycle_finished|date:'c' }}"
                                     data-lang="{{ user.language }}"></span>
                           </span>
 
-                          <span class="d-block" style="font-size:14px;">
+                          <span class="d-block u-font-size-14px">
                               {% trans "Dernière action :" %}
                               <span class="timeago"
                                     data-timestamp="{{ commandant.time_last_activity|date:'c' }}"
@@ -272,31 +272,6 @@
   <!-- /.content-wrapper -->
 
 
-  <script>
-
-    // TIMERS SCRIPT
-    // /!\ Code ChatGPT
-
-    document.addEventListener("DOMContentLoaded", function() {
-        dayjs.extend(dayjs_plugin_relativeTime)
-        dayjs.extend(dayjs_plugin_utc)
-
-        // Récupérer la langue (fallback navigateur)
-        const userLang = document.querySelector('.timeago')?.dataset.lang || navigator.language.split('-')[0] || 'fr';
-        dayjs.locale(userLang);
-
-        function updateTimeago() {
-            document.querySelectorAll('.timeago').forEach(el => {
-                const ts = dayjs.utc(el.dataset.timestamp).local(); // UTC -> local
-                el.innerText = `${ts.fromNow()}`;                  // affichage relatif
-                el.title = ts.format("DD/MM/YYYY HH:mm");          // infobulle date exacte
-            })
-        }
-
-        updateTimeago()
-        setInterval(updateTimeago, 1000)
-    })
-  </script>
 
 </body>
 </html>

@@ -303,13 +303,13 @@
                     </div>
                   </div>
 
-                <div class="table-responsive mailbox-messages" style="padding-bottom: 5px;">
+                <div class="table-responsive mailbox-messages u-padding-bottom-5px">
                   <table class="table table-hover table-striped">
                     <tbody>
 
                     {% for report in reports %}
 
-                      <tr class="{{report.status}}{% if dark_mode %}-dark{% endif %}" style="white-space: nowrap;">
+                      <tr class="{{report.status}}{% if dark_mode %}-dark{% endif %} u-white-space-nowrap">
                         <td>
                           <div class="icheck-primary">
                             <input type="checkbox" name="reports[]" value="{{report.id}}" id="{{report.id}}">
@@ -321,19 +321,19 @@
                         <td class="mailbox-date">{{report.datetime}}</td>
 
 
-                        <td class="mailbox-date pointer_cursor" onclick="window.location='/report/?report_id={{report.id}}';">
-                          <img class="img_without_td_padding" src="{% static ""%}{{report.illustration}}" style=""></td>
+                        <td class="mailbox-date pointer_cursor" data-href="/report/?report_id={{report.id}}">
+                          <img class="img_without_td_padding" src="{% static ""%}{{report.illustration}}"></td>
 
                         {% if not report.sender %}  <!-- No originating commandant mentioned, take all remaining place-->
-                          <td class="mailbox-subject text-ellipsis pointer_cursor" colspan="3" onclick="window.location='/report/?report_id={{report.id}}';">
+                          <td class="mailbox-subject text-ellipsis pointer_cursor" colspan="3" data-href="/report/?report_id={{report.id}}">
                             <b>{{report.title}}</b> - {{report.message}}></td>
 
                         {% else %} <!-- Let place for the reference of commandant originating the report-->
                           <td class="mailbox-subject text-ellipsis"><b>{{report.title}}</b> - {{report.message}}></td>
 
                           <td class="mailbox-name"><a href='/commandant_info/?pseudo="{{report.sender}}"'>{{report.sender_name}}</a></td>
-                          <td class="mailbox-date" style="padding-right: 0px;"><a href='/commandant_info/?pseudo="{{report.sender}}"'>
-                            <img class="img_without_td_padding" src="{% static ""%}{{report.sender_image}}" style=""></a></td>
+                          <td class="mailbox-date u-padding-right-0px"><a href='/commandant_info/?pseudo="{{report.sender}}"'>
+                            <img class="img_without_td_padding" src="{% static ""%}{{report.sender_image}}"></a></td>
                         {% endif %}
 
                       </tr>
@@ -406,66 +406,6 @@
   </div>
   <!-- /.content-wrapper -->
 
-<script>
-  $(function () {
-    //Enable check and uncheck all functionality
-    $('.checkbox-toggle').click(function () {
-      var clicks = $(this).data('clicks')
-      if (clicks) {
-        //Uncheck all checkboxes
-        $('.mailbox-messages input[type=\'checkbox\']').prop('checked', false)
-        $('.checkbox-toggle .far.fa-check-square').removeClass('fa-check-square').addClass('fa-square')
-      } else {
-        //Check all checkboxes
-        $('.mailbox-messages input[type=\'checkbox\']').prop('checked', true)
-        $('.checkbox-toggle .far.fa-square').removeClass('fa-square').addClass('fa-check-square')
-      }
-      $(this).data('clicks', !clicks)
-    })
-
-    //Handle starring for font awesome
-    $('.mailbox-star').click(function (e) {
-      e.preventDefault()
-      //detect type
-      var $this = $(this).find('a > i')
-      var fa    = $this.hasClass('fa')
-
-      //Switch states
-      if (fa) {
-        $this.toggleClass('fa-star')
-        $this.toggleClass('fa-star-o')
-      }
-    })
-  })
-
-// Keep current page parameters when following a filter link
-$("a[rel~='keep-params']").click(function(e) {
-    e.preventDefault();
-
-    // Get the current URL parameters
-    var currentParams = new URLSearchParams(window.location.search);
-
-    // Get the URL of the clicked link
-    var href = $(this).attr('href');
-    var url = new URL(href, window.location.origin);
-
-    // Get the parameters from the link
-    var linkParams = new URLSearchParams(url.search);
-
-    // Merge parameters, avoiding duplicates
-    linkParams.forEach(function(value, key) {
-        currentParams.set(key, value); // Replace the parameter if it already exists
-    });
-
-    // Build the final URL
-    var dest = url.origin + url.pathname + '?' + currentParams.toString();
-
-    // Short timeout to overcome browser bugs
-    window.setTimeout(function() {
-        window.location.href = dest;}, 100);
-});
-
-</script>
 
 </body>
 </html>

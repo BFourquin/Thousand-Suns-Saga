@@ -1,3 +1,4 @@
+from django.utils.translation import gettext as _
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
@@ -22,30 +23,30 @@ def create_user(request):
 
     # ##### USERNAME ######
     if not 'username' in params:
-        return api_pop_up({"title": "Aucun nom d'utilisateur spécifié", "level": "danger"}, status=400)
+        return api_pop_up({"title": _("Aucun nom d'utilisateur spécifié"), "level": "danger"}, status=400)
     if user_name_exist(params['username']):
-        return api_pop_up({"title": "Ce nom de compte est déjà pris", "level": "danger"}, status=400)
+        return api_pop_up({"title": _("Ce nom de compte est déjà pris"), "level": "danger"}, status=400)
     if not 5 < len(params['username']) < 25:
-        return api_pop_up({"title": "Votre pseudo doit faire entre 5 et 25 caractères", "level": "danger"}, status=400)
+        return api_pop_up({"title": _("Votre pseudo doit faire entre 5 et 25 caractères"), "level": "danger"}, status=400)
 
     # ##### EMAIL ######
     if not 'email' in params:
-        return api_pop_up({"title": "Aucun email spécifié", "level": "danger"}, status=400)
+        return api_pop_up({"title": _("Aucun email spécifié"), "level": "danger"}, status=400)
     try:
         validate_email(params['email'])  # Only check if it's an email format, not if it really exist
     except:
-        return api_pop_up({"title": "Adresse email non valide", "level": "danger"}, status=400)
+        return api_pop_up({"title": _("Adresse email non valide"), "level": "danger"}, status=400)
     if user_mail_already_used(params['email']):
-        return api_pop_up({"title": "Un compte est déjà lié à cette adresse mail", "level": "danger"}, status=400)
+        return api_pop_up({"title": _("Un compte est déjà lié à cette adresse mail"), "level": "danger"}, status=400)
 
     # ##### PASSWORD ######
     if not 'password' in params:
-        return api_pop_up({"title": "Aucun mot de passe spécifié", "level": "danger"}, status=400)
+        return api_pop_up({"title": _("Aucun mot de passe spécifié"), "level": "danger"}, status=400)
 
     try:
         validate_password(params['password'], user=User(username=params['username'], email=params['email']))
     except ValidationError as e:
-        return api_pop_up({"title": "Mot de passe trop faible", "body": ' '.join(e.messages), "level": "danger"}, status=400)
+        return api_pop_up({"title": _("Mot de passe trop faible"), "body": ' '.join(e.messages), "level": "danger"}, status=400)
 
     user = create_user_and_user_extend(params['username'], params['email'], params['password'])
-    return api_pop_up_and_redirect({"title": "Compte créé", "level": "success"}, status=200, redirect='/player_login/')
+    return api_pop_up_and_redirect({"title": _("Compte créé"), "level": "success"}, status=200, redirect='/player_login/')

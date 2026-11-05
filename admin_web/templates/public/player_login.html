@@ -15,11 +15,11 @@
   <!-- /.login-logo -->
   <div class="card card-outline card-primary">
     <div class="card-header text-center">
-      <img src="{% static "images/logo/TSS-logo-white.png" %}" style="width: 70%; margin: 30px;"/>
-      <a href="/public_lobby/" class="h1" style="font-size: 3.5rem">THOUSAND SUNS SAGA</a>
+      <img src="{% static "images/logo/TSS-logo-white.png" %}" class="u-width-70pct-margin-30px" />
+      <a href="/public_lobby/" class="h1 u-font-size-3-5rem">THOUSAND SUNS SAGA</a>
     </div>
     <div class="card-body">
-      <p class="login-box-msg">Connexion à votre compte utilisateur</p>
+      <p class="login-box-msg">{% trans "Connexion à votre compte utilisateur" %}</p>
 
       {% if login_error %}<div class="alert alert-danger">{{ login_error }}</div>{% endif %}
 
@@ -27,7 +27,7 @@
         {% csrf_token %}
 
         <div class="input-group mb-3">
-          <input name="username" type="text" class="form-control" placeholder="Utilisateur">
+          <input name="username" type="text" class="form-control" placeholder="{% trans 'Utilisateur' %}">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-user"></span>
@@ -35,7 +35,7 @@
           </div>
         </div>
         <div class="input-group mb-3">
-          <input name="password" type="password" class="form-control" placeholder="Mot de passe">
+          <input name="password" type="password" class="form-control" placeholder="{% trans 'Mot de passe' %}">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
@@ -44,15 +44,15 @@
         </div>
 
         <div class="text-center mt-2 mb-3">
-            <button type="submit" class="btn btn-primary btn-block">Connexion</button>
+            <button type="submit" class="btn btn-primary btn-block">{% trans "Connexion" %}</button>
         </div>
       </form>
 
       <p class="mb-1">
-        <a href="/forgot_password/">Mot de passe oublié</a>
+        <a href="/forgot_password/">{% trans "Mot de passe oublié" %}</a>
       </p>
       <p class="mb-0">
-        <a href="/player_register/" class="text-center">Créer un compte utilisateur</a>
+        <a href="/player_register/" class="text-center">{% trans "Créer un compte utilisateur" %}</a>
       </p>
     </div>
     <!-- /.card-body -->

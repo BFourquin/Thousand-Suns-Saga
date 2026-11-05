@@ -8,8 +8,7 @@
             <i class="right fas fa-angle-left"></i>
         </p>
     </a>
-    <ul class="nav nav-treeview"
-        {% if request.GET.server_name_selected != server_name %} style="display:none" {% endif %}>
+    <ul class="nav nav-treeview{% if request.GET.server_name_selected != server_name %} u-display-none{% endif %}">
 
 
         <li class="nav-item">

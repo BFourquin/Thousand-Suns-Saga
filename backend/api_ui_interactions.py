@@ -1,6 +1,7 @@
 
 from functools import wraps
 
+from django.utils.translation import gettext as _
 from django.http import JsonResponse
 
 
@@ -41,7 +42,7 @@ def api_login_required(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return api_pop_up_and_redirect({"title": "Session expirée, veuillez vous reconnecter", "level": "warning"},
+            return api_pop_up_and_redirect({"title": _("Session expirée, veuillez vous reconnecter"), "level": "warning"},
                                            status=401, redirect='/player_login/')
         return view_func(request, *args, **kwargs)
     return wrapper

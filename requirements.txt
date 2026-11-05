@@ -29,6 +29,7 @@ py
 pymongo
 pyparsing
 pytest
+python-dateutil
 pytz
 PyYAML
 six

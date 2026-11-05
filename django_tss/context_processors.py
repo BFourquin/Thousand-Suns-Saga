@@ -1,6 +1,4 @@
 
-from django.utils import translation
-
 from data import server_details
 from data.themes import get_theme_or_default
 from backend.utils import get_active_server_and_commandant_from_request, get_request_user
@@ -32,12 +30,3 @@ def commandant_and_server(request):
     return {'server': server,
             'commandant': commandant,
             'server_details': server_details.get_server_details(server) if server else None}
-
-
-
-def localization(request):
-
-    user_account = get_request_user(request)
-    if user_account and 'language' in user_account:
-        translation.activate(user_account['language'])
-    return {}

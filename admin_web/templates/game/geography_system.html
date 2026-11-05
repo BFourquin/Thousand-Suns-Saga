@@ -28,7 +28,7 @@
           <!--------------------------------------------------------------------------------------------------------->
           <!-- Corps central -->
 
-          <div class="card card-secondary" style="min-width:40%;">
+          <div class="card card-secondary u-min-width-40pct">
               <div class="card-header">
                 <h3 class="card-title">{% trans "Coordonnées"%}</h3>
               </div>
@@ -36,28 +36,28 @@
                 <div class="row">
                   <div class="col-5">
                     {% trans "Code cartographique : "%}
-                    <input type="text" class="form-control" value="{{system.id}}" style="max-width: 160px;">
+                    <input type="text" class="form-control u-max-width-160px" value="{{system.id}}">
                   </div>
                   <button type="button" class="icon_button btn btn-block btn-default ">
                     <i class="fa-solid fa-magnifying-glass"></i>
                   </button>
 
                 </div>
-                <span style="min-height:10px; display: inline-block;"></span>
+                <span class="u-min-height-10px-display-inline-block"></span>
                 <div class="row">
 
 
                   <div class="col-4">
                     {% trans "Secteur : "%}
-                    <input type="text" class="form-control" value="{{system.sector_id}}" style="max-width: 120px;">
+                    <input type="text" class="form-control u-max-width-120px" value="{{system.sector_id}}">
                   </div>
                   <div class="col-3">
                     {% trans "Latitude : "%}
-                    <input type="text" class="form-control" value="{{system.pos_y}}" style="max-width: 60px;">
+                    <input type="text" class="form-control u-max-width-60px" value="{{system.pos_y}}">
                   </div>
                   <div class="col-3">
                     {% trans "Longitude : "%}
-                    <input type="text" class="form-control" value="{{system.pos_x}}" style="max-width: 60px;">
+                    <input type="text" class="form-control u-max-width-60px" value="{{system.pos_x}}">
                   </div>
                   <button type="button" class="icon_button btn btn-block btn-default ">
                     <i class="fa-solid fa-magnifying-glass"></i>
@@ -98,17 +98,17 @@
                             <!-- /.card-header -->
                             <div class="card-body">
                               <dl>
-                                <dt><img class=" img-bordered-sm" src='{% static "" %}{{coo.image}}' alt="user image"
-                                    style="width: min(100%, 400px); margin-right: 30px;"></dt>
+                                <dt><img class="img-bordered-sm u-width-min-100pct-400px-margin-right-30px" src='{% static "" %}{{coo.image}}' alt="user image"
+                                   ></dt>
 
                                 <dt>
-                                  <span class="" style="margin-bottom: 10px; font-size: 25px; text-align:center;"><a href="#" >
+                                  <span class="u-margin-bottom-10px-font-size-25px-text-align-center"><a href="#" >
                                     <!--<i class="fa-solid fa-arrow-right-to-bracket" style="border: 0.5px solid #4f5962;></i>-->
                                     {{coo.sys_coordinate}}. {{coo.name}}
                                   </a></span>
                                 </dt>
 
-                                <dt><span class="description" style="font-size: 20px; color:#6c757d;">{{coo.type}} {{coo.subtype}}</span></dt>
+                                <dt><span class="description u-font-size-20px-color-6c757d">{{coo.type}} {{coo.subtype}}</span></dt>
 
                                 <dt>{% trans "Colonies"%}</dt>
                                 <dd></dd>

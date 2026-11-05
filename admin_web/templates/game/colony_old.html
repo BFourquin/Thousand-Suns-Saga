@@ -31,8 +31,8 @@
 
 
         <div class="card">
-          <div class="table-responsive mailbox-messages" style="padding-bottom: 5px;">
-            <table class="table table-striped" style="width: 100%; table-layout: auto;">
+          <div class="table-responsive mailbox-messages u-padding-bottom-5px">
+            <table class="table table-striped u-width-100pct-table-layout-auto">
               <tbody>
 
                 <tr class="background-img-colony{% if dark_mode %}-dark{% endif %}"
@@ -40,11 +40,11 @@
                            background: url("{% static ""%}images/colony_landscape.png") no-repeat right center;
                            background-size: cover; '>
 
-                  <td class="align-bottom" style="max-width: 15rem;">
-                    <img class="rem15_large_img_without_td_padding" src="{% static ""%}{{colony.coordinate_image}}" style=""></td>
+                  <td class="align-bottom u-max-width-15rem">
+                    <img class="rem15_large_img_without_td_padding" src="{% static ""%}{{colony.coordinate_image}}"></td>
 
-                  <td class="align-bottom" style="font-size: 20px; text-align: center;">
-                    <b style="font-size: 35px;">{{colony.name}}</b>
+                  <td class="align-bottom u-font-size-20px-text-align-center">
+                    <b class="u-font-size-35px">{{colony.name}}</b>
                     <br>
                     <i class="fas fa-landmark"></i>
                     {% if colony.markers %} <br> {% endif %}
@@ -116,7 +116,7 @@
 
                   <form id="report-form" method="POST" action="/colonies/?category={{category}}&marker={{marker}}">
                     {% csrf_token %}
-                    <span class="card-title nav-pills" style="padding-top: 0.2rem;}">
+                    <span class="card-title nav-pills u-padding-top-0-2rem">
 
                       {% trans "Filtrer par types"%} :  
 
@@ -159,21 +159,21 @@
 
             <div class="card-body p-0">
 
-              <div class="table-responsive mailbox-messages" style="padding-bottom: 5px;">
-                <table class="table table-stripped" style="width: 100%; table-layout: auto;">
+              <div class="table-responsive mailbox-messages u-padding-bottom-5px">
+                <table class="table table-stripped u-width-100pct-table-layout-auto">
                   <tbody>
 
                     {% for district in districts %}
                       {% if filter_districts == 'all' or filter_districts == district.category or filter_districts == 'available_place_district' and district.buildings_slots_free > 0 %}
 
-                        <tr class="" style='white-space: nowrap;'>
+                        <tr class="u-white-space-nowrap">
 
                           <!-- District image and controls -->
                           <td class="">
-                            <img class="large_img_without_td_padding" src="{% static ""%}{{district.illustration}}" style=""></td>
+                            <img class="large_img_without_td_padding" src="{% static ""%}{{district.illustration}}"></td>
 
-                          <td class="" style="font-size: 20px; padding: 0.25rem; text-align: center;">
-                            <b style="font-size: 20px;">{{district.name}}</b>
+                          <td class="u-font-size-20px-padding-0-25rem-text-align-center">
+                            <b class="u-font-size-20px">{{district.name}}</b>
                             <br>
                             <a href="/colony/?colony_id={{colony.id}}&district_delete={{district.id}}" class="pills">
                               <span class="span_centering_icon" title="{% trans "Améliorer"%}"><i class="fas fa-up-long"></i></span></a>
@@ -190,15 +190,15 @@
 
                           <!-- Buildings -->
                           {% for building_id in "0123456789"  %}
-                          <td style="padding-left: 2px; padding-right: 2px;">
-                            <img class="large_img_without_td_padding" src="{% static ""%}{{district.illustration}}" style="">
+                          <td class="u-padding-left-2px-padding-right-2px">
+                            <img class="large_img_without_td_padding" src="{% static ""%}{{district.illustration}}">
                             <!--<span>Mine de fer</span></td>-->
                           {% endfor %}
 
                           <!-- New building -->
                           {% if district.buildings_slots_free > 25 %}
                           <td class="">
-                            <i class="fa-regular fa-square-plus" style="font-size: 75px;"></i></td>
+                            <i class="fa-regular fa-square-plus u-font-size-75px"></i></td>
                           {% endif %}
 
                         </tr>
@@ -210,7 +210,7 @@
 
                     {% if districts.0.free_districts_slots > 0 or True %}  <!-- TODO cacher la construction de nouveau district si aucun emplacement disponible ? -->
 
-                      <tr class="" style='white-space: nowrap;'>
+                      <tr class="u-white-space-nowrap">
                         <td colspan="12">
                           <button type="button" class="btn btn{% if dark_mode %}-outline{% endif %}-secondary btn-block btn-flat"
                                   data-toggle="modal" data-target="#modal-build-district">

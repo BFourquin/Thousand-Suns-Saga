@@ -327,6 +327,7 @@ def resources(request, server, commandant):
     params = request_params(request)
 
     selected_category = params['selected_category'] if 'selected_category' in params else 'all'
+    language = get_request_user(request)['language']
 
 
     resources_declaration = get_all_resources_parameters(server)
@@ -348,7 +349,7 @@ def resources(request, server, commandant):
 
 
         resources_table.append({
-            'name': resource['name_' + 'fr'],  # TODO translation
+            'name': resource['name_' + language],
             'icon': resource['icon'],
             'stock': commandant['resources'][resource_name] if resource_name in commandant['resources'] else 0,
             'max_storage': 20000,
@@ -363,8 +364,9 @@ def resources(request, server, commandant):
             'effect': '',
         })
 
-    resources_categories = get_resources_categories(server)
-    # resources_categories['name'] = resources_categories['name_fr']  # TODO auto-translation
+    resources_categories = list(get_resources_categories(server))
+    for category in resources_categories:
+        category['name'] = category['name_' + language]
 
     return TemplateResponse(request, 'game/resources.html',
                             {'server': server, 'resources': resources_table,
