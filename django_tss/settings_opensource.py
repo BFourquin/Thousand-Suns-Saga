@@ -84,16 +84,16 @@ WSGI_APPLICATION = 'django_tss.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-def mongodb_settings(name):
-    return None  # /!\ ASK ADMIN FOR THE REAL SETTINGS FILE /!\
-
-
 DATABASES = {
-    'default': mongodb_settings('TSS_main_server'),
-    'Alpha': mongodb_settings('TSS_Alpha'),
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'TSS_main_server',
+        'USER': 'admin',
+        'PASSWORD': None,  # /!\ ASK ADMIN FOR THE REAL SETTINGS FILE /!\
+        'HOST': 'localhost',
+        'PORT': '5432',
+    },
 }
-
-from database import db_connect  # Connect to all databases
 
 
 # Password validation

@@ -1,23 +1,21 @@
 
 import ast
 import pylightxl as xl
-from database.db_connect import databases
+from backend.models import BuildingType, DistrictType
 
 
 def load_buildings(excel_tech_path, sheet_resources_name, server_name, delete_actual_buildings):
 
-    client = databases['TSS_' + server_name]
-
     if delete_actual_buildings:
-        client['buildings_types'].delete_many({})
-        client['districts_types'].delete_many({})
+        BuildingType.objects.filter(server=server_name).delete()
+        DistrictType.objects.filter(server=server_name).delete()
 
     with open(excel_tech_path, 'rb') as f:
         xldb = xl.readxl(f)
 
 
         # DISTRICTS DECLARATION
-        db = client['districts_types']
+        model = DistrictType
 
         for row in xldb.ws(ws=sheet_resources_name).rows:
 
@@ -34,9 +32,9 @@ def load_buildings(excel_tech_path, sheet_resources_name, server_name, delete_ac
 
                 # DISTRICTS DECLARATION
 
-                # Change DB for sub-categories section
+                # Change table for sub-categories section
                 if row[0] == '> BUILDINGS':
-                    db = client['buildings_types']
+                    model = BuildingType
                     continue
 
                 districts_cat = {}
@@ -64,12 +62,4 @@ def load_buildings(excel_tech_path, sheet_resources_name, server_name, delete_ac
                 districts_cat.pop('', None)  # Remove empty rows
 
                 print(districts_cat)
-                db.insert_one(districts_cat)
-
-
-
-if __name__ == '__main__':
-    load_buildings(excel_tech_path='../TSS_boardgame.xlsx',
-                   sheet_resources_name='Buildings',
-                   server_name='Alpha_Boardgame',
-                   delete_actual_buildings=True)
+                model.objects.create(server_id=server_name, internal_name=districts_cat['internal_name'], data=districts_cat)

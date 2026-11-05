@@ -1,33 +1,22 @@
 
 from data.names import localized_name
-from bson.objectid import ObjectId
-
-from database.db_connect import collection
-
-
-def get_district_type_by_id(server, id, language=None):
-
-    db = collection(server, 'districts_types')
-    district = db.find_one({"_id": ObjectId(id)})
-
-    if language:
-        district['name'] = localized_name(district, language)
-    return district
+from backend.models import DistrictType
 
 
 def get_district_type(server, internal_name, language=None):
 
-    db = collection(server, 'districts_types')
-    district = db.find_one({"internal_name": internal_name})
+    district = DistrictType.objects.filter(server=server, internal_name=internal_name).first()
+    if not district:
+        return None
 
+    district = district.as_dict()
     if language:
         district['name'] = localized_name(district, language)
     return district
 
 
 def get_all_districts_types(server, language=None):
-    db = collection(server, 'districts_types')
-    districts = list(db.find())
+    districts = [district.as_dict() for district in DistrictType.objects.filter(server=server).order_by('id')]
 
     if language:
         for i in range(len(districts)):
@@ -37,8 +26,7 @@ def get_all_districts_types(server, language=None):
 
 def get_all_buildable_districts_types(server, commandant, language=None):
 
-    db = collection(server, 'districts_types')
-    districts = list(db.find())
+    districts = get_all_districts_types(server)
 
     # Remove unconstructibles districts
     for district in districts[:]:  # Duplicate districts list to iterate correctly while removing entries

@@ -1,34 +1,23 @@
 
-from database.db_connect import collection
+from django.db import transaction
+
+from backend.models import Resource, StartingValues
 
 
 def create_starting_values(server, start_type='default_land_colony', remove_previous=False):
 
-    db = collection(server, 'starting_values')
-
     # Remove previous values
     if remove_previous:
-        db.delete_many({})
+        StartingValues.objects.filter(server=server).delete()
 
-    starting_values = {
-        'start_type': start_type,
-        'available_native_planets': [],
-        'starting_resources': starting_values_ressources(server, start_type='default_land_colony'),
-        'starting_capital': {},
-        'starting_territories': {},
-        'starting_ressources': {},
-        'starting_modifiers': {},
-        'starting_factions': {},
-        'starting_technologies': {},
-    }
-
-    db.insert_one(starting_values)
+    StartingValues.objects.create(server_id=server, start_type=start_type,
+                                  starting_resources=starting_values_ressources(server, start_type='default_land_colony'))
 
 
-
-def get_starting_values(server, start_type='default_land_colony'):
-    db = collection(server, 'starting_values')
-    return db.find_one({'start_type': start_type})
+def get_starting_values(server, start_type='default_land_colony', lock=False):
+    rows = StartingValues.objects.select_for_update() if lock else StartingValues.objects
+    starting_values = rows.filter(server=server, start_type=start_type).first()
+    return starting_values.as_dict() if starting_values else None
 
 
 ########################################################################################################################
@@ -36,38 +25,35 @@ def get_starting_values(server, start_type='default_land_colony'):
 
 
 def get_available_native_planets(server):
-    db = collection(server, 'starting_values')
-    return db.find_one()['available_native_planets']
+    return StartingValues.objects.filter(server=server).first().available_native_planets
 
 
+@transaction.atomic
 def add_available_native_planets(server, planet_seed):
-    db = collection(server, 'starting_values')
-    db.update_one({}, {"$push": {'available_native_planets': planet_seed}})
+    starting_values = StartingValues.objects.select_for_update().filter(server=server).first()
+    starting_values.available_native_planets.append(planet_seed)
+    starting_values.save(update_fields=['available_native_planets'])
 
 
+@transaction.atomic
 def remove_available_native_planets(server, planet_seed):
-    db = collection(server, 'starting_values')
-    db.update_one({}, {"$pull": {'available_native_planets': planet_seed}})
+    starting_values = StartingValues.objects.select_for_update().filter(server=server).first()
+    starting_values.available_native_planets = [seed for seed in starting_values.available_native_planets if seed != planet_seed]
+    starting_values.save(update_fields=['available_native_planets'])
 
 
 ########################################################################################################################
 # #### STARTING RESOURCES ##############################################################################################
 
 def starting_values_ressources(server, start_type='default_land_colony'):
-    resources = collection(server, 'resources').find({})
 
     starting_resources = {}
 
-    for resource in resources:
+    for resource in Resource.objects.filter(server=server):
+        resource = resource.as_dict()
         if resource['available_from_start'] in ('True', 'true'):
             resource_name = resource['internal_name']
             quantity = resource['start_quantity'] if resource['start_quantity'] else 0
             starting_resources[resource_name] = quantity
 
     return starting_resources
-
-
-########################################################################################################################
-
-if __name__ == '__main__':
-    create_starting_values('Alpha_test', remove_previous=True)

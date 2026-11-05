@@ -2,20 +2,19 @@ from django.template.response import TemplateResponse
 from django.shortcuts import redirect, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from bson.errors import InvalidId
-from bson.objectid import ObjectId
-import datetime
+from django.utils import timezone
 
 
 import data.user
 import data.themes
+from backend.models import to_id
 from backend.decorators import add_cycle_info, log_player_action, commandant_required
 from backend.utils import request_params, parameters_presents, get_request_user
 from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator, cycles
-from data.report import get_commandant_reports, get_report_by_object_id, delete_report, change_report_status, \
+from data.report import get_commandant_reports, get_report, delete_report, change_report_status, \
     mark_all_reports_as_read, update_nb_unread_reports
 from data.colonies import get_colonies_controlled_by_commandant, get_colonies_at_coordinates
-from data.commandant import get_commandants_by_object_ids
+from data.commandant import get_commandants
 from data.resources import get_all_resources_parameters, get_resources_categories, get_resources_subcategories
 from data.names import localized_name
 
@@ -44,13 +43,13 @@ def user_account(request):
 
     accounts = []
     for account_id in user['accounts']:
-        account = data.commandant.get_commandant_from_any_server(_id=account_id)
+        account = data.commandant.get_commandant_from_any_server(account_id)
         if account:
             accounts.append(account)
 
     dead_accounts = []
     for account_id in user['dead_accounts']:
-        dead_account = data.commandant.get_commandant_from_any_server(_id=account_id)
+        dead_account = data.commandant.get_commandant_from_any_server(account_id)
         if dead_account:
             dead_accounts.append(dead_account)
 
@@ -73,7 +72,7 @@ def create_commandant(request):
     if not server:
         return redirect('servers_list')
 
-    server['open_since_days'] = (datetime.datetime.now() - server['opening_date']).days
+    server['open_since_days'] = (timezone.now() - server['opening_date']).days
 
     return TemplateResponse(request, 'game/create_commandant.html', {'server': server})
 
@@ -90,15 +89,14 @@ def commandant_login(request):
     user = get_request_user(request)
     commandant_id = params['commandant_id']
     server_name = params['server']
-    server = data.server_details.get_server_details('TSS_'+server_name)
 
-    if ObjectId(commandant_id) not in user['accounts']:
+    if to_id(commandant_id) not in user['accounts']:
         # Check if suspicious connection to another player's commandant
-        if data.commandant.get_commandant_by_object_id(server_name, commandant_id):
+        if data.commandant.get_commandant(server_name, commandant_id):
             ... # TODO log suspicious use to another player's commandant
         return redirect('/user_account/')
 
-    commandant = data.commandant.get_commandant_by_object_id(server_name, commandant_id)
+    commandant = data.commandant.get_commandant(server_name, commandant_id)
     if not commandant:
         return redirect('/user_account/')
 
@@ -140,16 +138,16 @@ def cycle_monitoring(request, server, commandant):
 
     if request.method == 'POST' and 'commandant_cycle_status' in params:
         if params['commandant_cycle_status'] == 'commandant_cycle_finished':
-            cycles.mark_commandant_cycle_finished(server, commandant['_id'])
+            cycles.mark_commandant_cycle_finished(server, commandant['id'])
         elif params['commandant_cycle_status'] == 'commandant_cycle_playing':
-            cycles.mark_commandant_cycle_playing(server, commandant['_id'])
+            cycles.mark_commandant_cycle_playing(server, commandant['id'])
         return HttpResponseRedirect(request.path_info)
 
     if request.method == 'POST' and 'commandant_cycle_presence' in params:
         if params['commandant_cycle_presence'] == 'commandant_cycle_absent':
-            cycles.mark_commandant_cycle_absent(server, commandant['_id'])
+            cycles.mark_commandant_cycle_absent(server, commandant['id'])
         elif params['commandant_cycle_presence'] == 'commandant_cycle_present':
-            cycles.mark_commandant_cycle_present(server, commandant['_id'])
+            cycles.mark_commandant_cycle_present(server, commandant['id'])
         return HttpResponseRedirect(request.path_info)
 
 
@@ -172,8 +170,8 @@ def reports(request, server, commandant):
 
         # Mark all as read global button
         if params['action'] == 'mark_all_as_read':
-            mark_all_reports_as_read(server, commandant['_id'], params['category'] if 'category' in params else 'all')
-            update_nb_unread_reports(server, commandant['_id'])
+            mark_all_reports_as_read(server, commandant['id'], params['category'] if 'category' in params else 'all')
+            update_nb_unread_reports(server, commandant['id'])
             return redirect('/reports/')
 
         if 'reports[]' in params:
@@ -183,36 +181,32 @@ def reports(request, server, commandant):
                 params['reports[]'] = [params['reports[]']]
 
             for report_id in params['reports[]']:
-                try:
-                    # Delete button
-                    if params['action'] == 'delete':
-                        delete_report(server, report_id, commandant['_id'])
+                # Delete button
+                if params['action'] == 'delete':
+                    delete_report(server, report_id, commandant['id'])
 
-                    # Read button
-                    if params['action'] == 'read':
-                        change_report_status(server, report_id, commandant['_id'], 'read')
-                    # Unread button
-                    if params['action'] == 'unread':
-                        change_report_status(server, report_id, commandant['_id'], 'unread')
+                # Read button
+                if params['action'] == 'read':
+                    change_report_status(server, report_id, commandant['id'], 'read')
+                # Unread button
+                if params['action'] == 'unread':
+                    change_report_status(server, report_id, commandant['id'], 'unread')
 
-                    # Archive button
-                    if params['action'] == 'archive':
-                        change_report_status(server, report_id, commandant['_id'], 'archived')
-                    # Unarchive button
-                    if params['action'] == 'unarchive':
-                        change_report_status(server, report_id, commandant['_id'], 'read')
+                # Archive button
+                if params['action'] == 'archive':
+                    change_report_status(server, report_id, commandant['id'], 'archived')
+                # Unarchive button
+                if params['action'] == 'unarchive':
+                    change_report_status(server, report_id, commandant['id'], 'read')
 
-                except InvalidId:
-                    continue
-
-        update_nb_unread_reports(server, commandant['_id'])
+        update_nb_unread_reports(server, commandant['id'])
 
 
     filter_category = params['category'] if 'category' in params else 'all'
     filter_status = params['status'] if 'status' in params else 'not_archived'
     search_text = params['search_text'] if 'search_text' in params else None
 
-    reports, nb_unread_reports = get_commandant_reports(server, commandant['_id'],
+    reports, nb_unread_reports = get_commandant_reports(server, commandant['id'],
                                                         filter_status=filter_status, filter_category=filter_category,
                                                         search_text=search_text)
 
@@ -264,11 +258,11 @@ def report(request, server, commandant):
     if not 'report_id' in params:
         return redirect('/reports/')
 
-    report = get_report_by_object_id(server, params['report_id'], commandant['_id'])
+    report = get_report(server, params['report_id'], commandant['id'])
     if not report:
         return redirect('/reports/')
 
-    change_report_status(server, params['report_id'], commandant['_id'], 'read')
+    change_report_status(server, params['report_id'], commandant['id'], 'read')
 
     return TemplateResponse(request, 'game/report.html', {'server': server, 'report': report})
 
@@ -299,26 +293,24 @@ def geography_system(request, server, commandant):
     system_not_found = system_searched and system is None
     if system is None:
         system = systems.get_system_by_seed(server, commandant['native_system'])
-    system['id'] = system['_id']
 
     system_coordinates = [coordinates.add_display_info(coordinate)
                           for coordinate in coordinates.get_coordinates_of_system(server, system)]
-    coordinates_by_id = {coordinate['_id']: coordinate for coordinate in system_coordinates}
+    coordinates_by_id = {coordinate['id']: coordinate for coordinate in system_coordinates}
     for coordinate in system_coordinates:
         coordinate['colonies'] = []
 
     # Who is settled on each coordinate
     colonies = get_colonies_at_coordinates(server, list(coordinates_by_id))
-    owners = {owner['_id']: owner for owner in
-              get_commandants_by_object_ids(server, [colony['owner'] for colony in colonies])}
+    owners = {owner['id']: owner for owner in
+              get_commandants(server, [colony['owner'] for colony in colonies])}
 
     for colony in colonies:
         owner = owners.get(colony['owner'], {})
-        colony['id'] = colony['_id']
-        colony['is_mine'] = colony['owner'] == commandant['_id']
+        colony['is_mine'] = colony['owner'] == commandant['id']
         colony['owner_name'] = owner.get('commandant_name', '')
         colony['civilisation_name'] = owner.get('civilisation_name', '')
-        located_on = coordinates_by_id[str(colony['coordinate'])]
+        located_on = coordinates_by_id[colony['coordinate']]
         located_on['colonies'].append(colony)
         located_on['has_my_colony'] = located_on.get('has_my_colony') or colony['is_mine']
 

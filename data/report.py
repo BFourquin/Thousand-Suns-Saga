@@ -1,52 +1,30 @@
 
+from django.db import transaction
 
-import datetime
-from random import randint
-from bson.objectid import ObjectId
-
-from database.db_connect import collection
+from backend.models import Report, to_id
 from data.report_generator import generate_report
-from data.commandant import get_commandant_by_object_id, push_param_commandant, pull_param_commandant, update_commandant
+from data.commandant import update_commandant
 
 
 
 
+@transaction.atomic
 def create_report(server, owner_id, report_type, args={}, sender=None, sender_image=None):
 
-    try:
-        db = collection(server, 'report')
+    Report.objects.create(**generate_report(server, owner_id, report_type, args, sender, sender_image))
 
-        report = generate_report(server, owner_id, report_type, args, sender, sender_image)
-
-        result = db.insert_one(report)
-        id = result.inserted_id
-        db.update_one({"_id": id}, {"$set": {'id': id}})  # Add id field (django template can't read '_id')
-
-        # Add to commandant reports list
-        push_param_commandant(server, owner_id, 'reports', id)
-
-        # Recount unread reports
-        update_nb_unread_reports(server, owner_id)
-
-    except Exception as e:
-        # TODO logs wrong reports
-        raise e
+    # Recount unread reports
+    update_nb_unread_reports(server, owner_id)
 
 
-def get_report_by_object_id(server, _id, owner_id):
-    if not ObjectId.is_valid(_id):
-        return None
-
-    db = collection(server, 'report')
-    return db.find_one({'_id': ObjectId(_id), 'owner': owner_id})
+def get_report(server, id, owner_id):
+    report = Report.objects.filter(id=to_id(id), owner=owner_id).first()
+    return report.as_dict() if report else None
 
 
 def get_commandant_reports(server, commandant_id, filter_status=None, filter_category=None, search_text=None):
 
-    db = collection(server, 'report')
-
-    reports_id_list = get_commandant_by_object_id(server, commandant_id)['reports']
-    reports_list = list(db.find({'_id': {'$in': reports_id_list}}))
+    reports_list = [report.as_dict() for report in Report.objects.filter(owner=commandant_id).order_by('id')]
     unread_reports_count = unread_reports_counting(server, commandant_id, reports_list)
 
     # Filters and search
@@ -80,17 +58,11 @@ def get_commandant_reports(server, commandant_id, filter_status=None, filter_cat
 
 
 def change_report_status(server, report_id, owner_id, status):
-    db = collection(server, 'report')
-    db.update_one({"_id": ObjectId(report_id), 'owner': owner_id}, {"$set": {'status': status}})
+    Report.objects.filter(id=to_id(report_id), owner=owner_id).update(status=status)
 
 
 def delete_report(server, report_id, owner_id):
-
-    db = collection(server, 'report')
-
-    # Remove reference from the owning commandant's reports list
-    if db.find_one_and_delete({"_id": ObjectId(report_id), 'owner': owner_id}):
-        pull_param_commandant(server, owner_id, 'reports', ObjectId(report_id))
+    Report.objects.filter(id=to_id(report_id), owner=owner_id).delete()
 
 
 ########################################################################################################################
@@ -100,7 +72,7 @@ def mark_all_reports_as_read(server, commandant_id, category=None):
 
     reports = get_commandant_reports(server, commandant_id, filter_status='unread', filter_category=category)[0]
     for report in reports:
-        change_report_status(server, report['_id'], commandant_id, 'read')
+        change_report_status(server, report['id'], commandant_id, 'read')
 
 
 def unread_reports_counting(server, commandant_id, reports_list=None):
@@ -129,7 +101,5 @@ def unread_reports_counting(server, commandant_id, reports_list=None):
 
 
 def update_nb_unread_reports(server, commandant_id):
-
-    reports_list = get_commandant_reports(server, commandant_id)[0]
-    nb_unread_reports = sum(1 for report in reports_list if report.get('status') == 'unread')
+    nb_unread_reports = Report.objects.filter(owner=commandant_id, status='unread').count()
     update_commandant(server, commandant_id, 'nb_unread_reports', nb_unread_reports)

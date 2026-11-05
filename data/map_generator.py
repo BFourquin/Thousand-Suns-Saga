@@ -1,6 +1,5 @@
 
-
-from database.db_connect import collection
+from backend.models import MapGeneratorParameter
 
 
 def get_seed_type(seed):
@@ -17,36 +16,28 @@ def get_seed_type(seed):
         raise Exception(str(seed) + ' is not a recognized seed length')
 
 
-def set_map_generator_parameters(server, map_generator_params, mg_type=None):
+def set_map_generator_parameters(server, map_generator_params, mg_type='global'):
 
-    db = collection(server, 'mg_' + mg_type if mg_type else 'map_generator')
-
-    db.delete_many({})
+    MapGeneratorParameter.objects.filter(server=server, mg_type=mg_type).delete()
 
     for param in map_generator_params:
-        db.insert_one(param)
+        MapGeneratorParameter.objects.create(server_id=server, mg_type=mg_type, data=param)
 
 
 def get_map_generator_parameters(server, mg_type=None):
 
     if not mg_type or mg_type == 'global':
-        return collection(server, 'map_generator').find_one({})
-    return list(collection(server, 'mg_' + mg_type).find({}))
+        return MapGeneratorParameter.objects.filter(server=server, mg_type='global').first().as_dict()
+    return [param.as_dict() for param in MapGeneratorParameter.objects.filter(server=server, mg_type=mg_type).order_by('id')]
 
 
 def get_mg_params_sector_type(server, sector_type):
-
-    db = collection(server, 'mg_sectors')
-    return db.find_one({'sector_type': sector_type})
+    return MapGeneratorParameter.objects.filter(server=server, mg_type='sectors', data__sector_type=sector_type).first().as_dict()
 
 
 def get_mg_system_type(server, system_type):
-
-    db = collection(server, 'mg_systems_types')
-    return db.find_one({'system_type': system_type})
+    return MapGeneratorParameter.objects.filter(server=server, mg_type='systems_types', data__system_type=system_type).first().as_dict()
 
 
 def get_mg_system_composition(server, solar_type):
-
-    db = collection(server, 'mg_systems_compositions')
-    return db.find_one({'solar_type': solar_type})
+    return MapGeneratorParameter.objects.filter(server=server, mg_type='systems_compositions', data__solar_type=solar_type).first().as_dict()

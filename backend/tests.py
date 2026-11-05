@@ -2,21 +2,26 @@ import inspect
 import json
 from unittest.mock import MagicMock, patch
 
-from bson.objectid import ObjectId
-from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth.models import AnonymousUser, User
 from django.core.cache import cache
-from django.test import Client, RequestFactory, SimpleTestCase
+from django.db import IntegrityError, transaction
+from django.test import Client, RequestFactory, SimpleTestCase, TestCase
 from django.urls import Resolver404, resolve
+from django.utils import timezone
 
 from backend import views_game
 from backend.decorators import commandant_required
 from backend.login import LOGIN_MAX_FAILURES_PER_ACCOUNT, throttled_authenticate
+from backend.models import Building, Colony, Commandant, Coordinate, District, DistrictType, Report, Server, StartingValues, to_id
 from backend.utils import commandant_owns_colony
 from data import server_details
-from data.commandant import commandant_name_taken
+from data import cycles
+from data.commandant import civilisation_name_taken, commandant_name_taken, create_commandant
 from data.coordinates import get_coordinate_image
-from data.report import change_report_status, get_report_by_object_id
-from data.resources import pay_resources
+from data.districts import create_district, delete_district
+from data.errors import GameError
+from data.report import change_report_status, delete_report, get_report
+from data.resources import add_resources, pay_resources
 
 API_LOGGED_URLS = ['/api_create_commandant/', '/api_build_district/', '/api_delete_district/',
                    '/api_district_set_activation_percent/']
@@ -92,12 +97,12 @@ class ApiCreateCommandantTests(SimpleTestCase):
 
 class ApiDistrictsTests(SimpleTestCase):
 
-    colony_id = ObjectId()
-    commandant_id = ObjectId()
+    colony_id = 11
+    commandant_id = 22
 
     def active(self):
         return patch('backend.views_api_buildings.get_active_server_and_commandant_from_request',
-                     return_value=('S', {'_id': self.commandant_id, 'colonies': [self.colony_id]}))
+                     return_value=('S', {'id': self.commandant_id, 'colonies': [self.colony_id]}))
 
     @patch('backend.views_api_buildings.get_active_server_and_commandant_from_request', return_value=(None, None))
     def test_no_active_commandant_answers_json(self, _active):
@@ -108,15 +113,15 @@ class ApiDistrictsTests(SimpleTestCase):
 
     def test_foreign_colony_answers_json(self):
         with self.active():
-            response = call('/api_delete_district/', data={'colony_id': str(ObjectId())}, user=player())
+            response = call('/api_delete_district/', data={'colony_id': '999'}, user=player())
         self.assertEqual(json.loads(response.content)['redirect'], '/colonies/')
         self.assertEqual(response.status_code, 400)
 
     @patch('backend.views_api_buildings.delete_district')
-    @patch('backend.views_api_buildings.databases')
-    def test_delete_success(self, databases, delete):
-        district_id = str(ObjectId())
-        databases['TSS_S']['districts'].find_one.return_value = {'category': 'industry', 'colony_id': self.colony_id}
+    @patch('backend.views_api_buildings.get_district')
+    def test_delete_success(self, get_district, delete):
+        district_id = '33'
+        get_district.return_value = {'category': 'industry', 'colony': self.colony_id}
         with self.active():
             response = call('/api_delete_district/', user=player(),
                             data={'colony_id': str(self.colony_id), 'district_id': district_id})
@@ -166,7 +171,7 @@ class GameViewsTests(SimpleTestCase):
     def commandant_view(self, view, url, method='get', data=None):
         request = getattr(RequestFactory(), method)(url, data or {})
         request.user = player()
-        return inspect.unwrap(view)(request, 'S', {'_id': ObjectId(), 'colonies': []})
+        return inspect.unwrap(view)(request, 'S', {'id': 1, 'colonies': []})
 
     @patch('backend.decorators.get_active_server_and_commandant_from_request', return_value=(None, None))
     def test_commandant_required_redirects(self, _active):
@@ -176,10 +181,9 @@ class GameViewsTests(SimpleTestCase):
         view.assert_not_called()
 
     def test_colony_ownership(self):
-        colony_id = ObjectId()
-        commandant = {'colonies': [colony_id]}
-        self.assertTrue(commandant_owns_colony(commandant, str(colony_id)))
-        self.assertFalse(commandant_owns_colony(commandant, str(ObjectId())))
+        commandant = {'colonies': [5]}
+        self.assertTrue(commandant_owns_colony(commandant, '5'))
+        self.assertFalse(commandant_owns_colony(commandant, '6'))
         self.assertFalse(commandant_owns_colony(commandant, 'invalid'))
         self.assertFalse(commandant_owns_colony(commandant, None))
 
@@ -195,7 +199,7 @@ class GameViewsTests(SimpleTestCase):
     @patch('backend.views_game.get_commandant_reports', return_value=([], {}))
     @patch('backend.views_game.delete_report')
     def test_report_actions_need_a_post_and_keep_the_owner(self, delete, _reports, _update):
-        report_id = str(ObjectId())
+        report_id = '7'
         self.commandant_view(views_game.reports, f'/reports/?action=delete&reports[]={report_id}')
         delete.assert_not_called()
         self.commandant_view(views_game.reports, '/reports/', 'post', {'action': 'delete', 'reports[]': report_id})
@@ -203,24 +207,24 @@ class GameViewsTests(SimpleTestCase):
         self.assertEqual(len(delete.call_args[0]), 3)
 
 
-@patch('backend.views_game.get_commandants_by_object_ids')
+@patch('backend.views_game.get_commandants')
 @patch('backend.views_game.get_colonies_at_coordinates', return_value=[])
 @patch('backend.views_game.coordinates.get_coordinates_of_system')
 @patch('backend.views_game.systems')
 class SystemMapTests(SimpleTestCase):
 
-    star = {'_id': '100', 'type': 'star', 'subtype': 'G', 'name': 'Delea'}
-    planet = {'_id': '101', 'type': 'telluric', 'subtype': 'native', 'name': 'Danus'}
+    star = {'id': '100', 'type': 'star', 'subtype': 'G', 'name': 'Delea'}
+    planet = {'id': '101', 'type': 'telluric', 'subtype': 'native', 'name': 'Danus'}
 
     def view(self, url):
         request = RequestFactory().get(url)
         request.user = player()
-        self.commandant = {'_id': ObjectId(), 'colonies': [], 'native_system': 'home'}
+        self.commandant = {'id': 1, 'colonies': [], 'native_system': 'home'}
         return inspect.unwrap(views_game.geography_system)(request, 'S', self.commandant)
 
     def test_unknown_system_falls_back_on_the_native_one(self, systems, get_coordinates, _colonies, _owners):
         get_coordinates.return_value = [dict(self.star)]
-        systems.get_system_by_seed.side_effect = lambda server, seed: {'_id': seed} if seed == 'home' else None
+        systems.get_system_by_seed.side_effect = lambda server, seed: {'id': seed} if seed == 'home' else None
         context = self.view('/geography_system/?system_id=999').context_data
         self.assertTrue(context['system_not_found'])
         self.assertEqual(context['system']['id'], 'home')
@@ -231,11 +235,10 @@ class SystemMapTests(SimpleTestCase):
         systems.get_system_by_position.assert_called_once_with('S', '1001', '065', '047')
 
     def test_colonies_land_on_their_coordinate(self, systems, get_coordinates, colonies, owners):
-        # Colonies store the coordinate as an int, coordinates their id as a str
         get_coordinates.return_value = [dict(self.star), dict(self.planet)]
-        owner = ObjectId()
-        colonies.return_value = [{'_id': ObjectId(), 'name': 'Siravedra', 'coordinate': 101, 'owner': owner}]
-        owners.return_value = [{'_id': owner, 'commandant_name': 'Kyu', 'civilisation_name': 'Entente'}]
+        owner = 2
+        colonies.return_value = [{'id': 3, 'name': 'Siravedra', 'coordinate': '101', 'owner': owner}]
+        owners.return_value = [{'id': owner, 'commandant_name': 'Kyu', 'civilisation_name': 'Entente'}]
         star, planet = self.view('/geography_system/').context_data['system_coordinates']
         self.assertEqual(star['colonies'], [])
         self.assertEqual(planet['colonies'][0]['owner_name'], 'Kyu')
@@ -246,56 +249,17 @@ class CoordinateImageTests(SimpleTestCase):
 
     @patch('data.coordinates.images_in_folder', side_effect=lambda folder: [folder + '/a.png', folder + '/b.png'])
     def test_image_is_stable_and_follows_habitability(self, _images):
-        native = {'_id': '101', 'type': 'telluric', 'subtype': 'native'}
+        native = {'id': '101', 'type': 'telluric', 'subtype': 'native'}
         self.assertEqual(get_coordinate_image(native), get_coordinate_image(native))
         self.assertRegex(get_coordinate_image(native), '^telluric/(habitable|ocean)/')
 
     @patch('data.coordinates.images_in_folder', return_value=[])
     def test_no_image_falls_back_on_the_placeholder(self, _images):
-        coordinate = {'_id': '100', 'type': 'star', 'subtype': 'G'}
+        coordinate = {'id': '100', 'type': 'star', 'subtype': 'G'}
         self.assertEqual(get_coordinate_image(coordinate), 'images/placeholder/star.png')
 
 
-class DataLayerTests(SimpleTestCase):
-
-    def test_commandant_name_is_searched_on_every_server(self):
-        free_server, taken_server = MagicMock(), MagicMock()
-        free_server['commandants'].find_one.return_value = None
-        taken_server['commandants'].find_one.return_value = {'commandant_name': 'Paullus'}
-        with patch('data.commandant.databases', {'TSS_A': free_server, 'TSS_B': taken_server}):
-            self.assertTrue(commandant_name_taken('PAULLUS'))
-        collation = free_server['commandants'].find_one.call_args[1]['collation'].document
-        self.assertEqual(collation['strength'], 2)  # Case insensitive
-        taken_server['commandants'].find_one.return_value = None
-        with patch('data.commandant.databases', {'TSS_A': free_server, 'TSS_B': taken_server}):
-            self.assertFalse(commandant_name_taken('Paullus'))
-
-    @patch('data.resources.collection')
-    def test_payment_is_a_single_conditional_query(self, collection):
-        commandant_id = ObjectId()
-        collection.return_value.update_one.return_value.modified_count = 1
-        self.assertTrue(pay_resources('S', commandant_id, {'steel': 100, 'food': 0}))
-        collection.return_value.update_one.assert_called_once_with(
-            {'_id': commandant_id, 'resources.steel': {'$gte': 100}}, {'$inc': {'resources.steel': -100}})
-
-    @patch('data.resources.collection')
-    def test_payment_refused_when_nothing_matches(self, collection):
-        collection.return_value.update_one.return_value.modified_count = 0
-        self.assertFalse(pay_resources('S', ObjectId(), {'steel': 100}))
-
-    @patch('data.resources.collection')
-    def test_nothing_to_pay(self, collection):
-        self.assertTrue(pay_resources('S', ObjectId(), {}))
-        collection.assert_not_called()
-
-    @patch('data.report.collection')
-    def test_report_queries_filter_on_the_owner(self, collection):
-        report_id, owner = ObjectId(), ObjectId()
-        change_report_status('S', report_id, owner, 'read')
-        self.assertEqual(collection.return_value.update_one.call_args[0][0], {'_id': report_id, 'owner': owner})
-        self.assertIsNone(get_report_by_object_id('S', 'invalid', owner))
-        get_report_by_object_id('S', report_id, owner)
-        collection.return_value.find_one.assert_called_once_with({'_id': report_id, 'owner': owner})
+class ServersMenuTests(SimpleTestCase):
 
     @patch('data.server_details.get_servers_names', return_value=['Alpha'])
     def test_servers_menu_is_cached_until_refreshed(self, names):
@@ -307,3 +271,157 @@ class DataLayerTests(SimpleTestCase):
         server_details.refresh_servers_menu()
         server_details.get_servers_menu()
         self.assertGreater(names.call_count, calls)
+
+
+class GameRulesTests(TestCase):
+    # On the real database : these rules rely on its constraints and row locks
+
+    def setUp(self):
+        self.user = User.objects.create_user('player', 'p@example.com', 'x')
+        self.server = self.make_server('S')
+        self.commandant = self.make_commandant(self.server, 'Paullus', 'Empire', resources={'steel': 100})
+        self.colony = Colony.objects.create(name='Home', owner=self.commandant, controller=self.commandant,
+                                            coordinate='100100000005505001', colony_type='start')
+        for name, category, slots in (('central', 'central_district', 1), ('mine', 'mining', 0)):
+            DistrictType.objects.create(server=self.server, internal_name=name, data={
+                'internal_name': name, 'category': category, 'districts_slots': slots, 'buildings_slots': 5,
+                'build_population': 10, 'hp': 100, 'build_cost': {'steel': 40}})
+
+    def make_server(self, name):
+        return Server.objects.create(server_name=name, version=1, gameplay='saga', status='open', language='fr', roleplay='HRP',
+                                     creation_date=timezone.now(), opening_date=timezone.now(), timezone='Europe/Paris')
+
+    def make_commandant(self, server, name, civilisation, resources=None):
+        return Commandant.objects.create(server=server, user=self.user, commandant_name=name, civilisation_name=civilisation,
+                                         creation_date=timezone.now(), resources=resources or {})
+
+    def stock(self):
+        return Commandant.objects.get(id=self.commandant.id).resources['steel']
+
+    def test_ids_from_requests(self):
+        self.assertEqual(to_id('12'), 12)
+        for invalid in ('abc', '-1', '1 OR 1=1', '', None):
+            self.assertIsNone(to_id(invalid))
+        self.assertIsNone(get_report('S', 'abc', self.commandant.id))
+        self.assertIsNone(get_report('S', '9' * 40, self.commandant.id))
+
+    def test_commandant_name_is_unique_on_every_server_whatever_the_case(self):
+        other = self.make_server('Other')
+        self.assertTrue(commandant_name_taken('PAULLUS'))
+        self.assertFalse(commandant_name_taken('Someone'))
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            self.make_commandant(other, 'PAULLUS', 'Other civilisation')
+
+    def test_civilisation_name_is_unique_by_server(self):
+        other = self.make_server('Other')
+        self.assertTrue(civilisation_name_taken('S', 'EMPIRE'))
+        self.assertFalse(civilisation_name_taken('Other', 'EMPIRE'))
+        self.make_commandant(other, 'Second', 'Empire')
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            self.make_commandant(self.server, 'Third', 'EMPIRE')
+
+    def test_payment(self):
+        self.assertTrue(pay_resources('S', self.commandant.id, {'steel': 60, 'food': 0}))
+        self.assertEqual(self.stock(), 40)
+        self.assertFalse(pay_resources('S', self.commandant.id, {'steel': 41}))
+        self.assertFalse(pay_resources('S', self.commandant.id, {'gold': 1}))
+        self.assertEqual(self.stock(), 40)
+        self.assertTrue(pay_resources('S', self.commandant.id, {}))
+        self.assertFalse(pay_resources('Other', self.commandant.id, {'steel': 1}))
+        add_resources('S', self.commandant.id, {'steel': 5, 'gold': 2})
+        self.assertEqual(Commandant.objects.get(id=self.commandant.id).resources, {'steel': 45, 'gold': 2})
+
+    def test_report_of_another_commandant_is_out_of_reach(self):
+        other = self.make_commandant(self.server, 'Second', 'Other')
+        report = Report.objects.create(owner=self.commandant, category='other', category_icon='x', datetime=timezone.now(),
+                                       tss_calendar=timezone.now(), title='t', message='m')
+        self.assertIsNone(get_report('S', report.id, other.id))
+        change_report_status('S', report.id, other.id, 'read')
+        delete_report('S', report.id, other.id)
+        self.assertEqual(Report.objects.get(id=report.id).status, 'unread')
+        change_report_status('S', report.id, self.commandant.id, 'read')
+        self.assertEqual(get_report('S', str(report.id), self.commandant.id)['status'], 'read')
+
+    def test_district_slots(self):
+        self.assertTrue(create_district('S', self.colony.id, 'central'))
+        self.assertEqual(Colony.objects.get(id=self.colony.id).districts_slots_total, 1)
+        self.assertTrue(create_district('S', self.colony.id, 'mine'))
+        self.assertFalse(create_district('S', self.colony.id, 'mine'))
+        self.assertEqual(self.colony.districts.count(), 2)
+        self.assertEqual(Colony.objects.get(id=self.colony.id).districts_slots_occupied, 1)
+
+    def test_deleting_a_district_refunds_once_and_removes_its_buildings(self):
+        create_district('S', self.colony.id, 'central')
+        create_district('S', self.colony.id, 'mine')
+        district = self.colony.districts.get(category='mining')
+        Building.objects.create(building_type='b', home_district=district)
+        self.assertTrue(delete_district('S', self.commandant.id, district.id))
+        self.assertFalse(delete_district('S', self.commandant.id, district.id))
+        self.assertEqual(self.stock(), 130)  # 75 % of 40
+        self.assertFalse(Building.objects.exists())
+        self.assertEqual(Colony.objects.get(id=self.colony.id).districts_slots_occupied, 0)
+
+    def test_deleting_a_server_removes_all_its_content(self):
+        create_district('S', self.colony.id, 'central')
+        Server.objects.filter(pk='S').delete()
+        for model in (Commandant, Colony, District, DistrictType):
+            self.assertFalse(model.objects.exists(), model)
+
+    def test_cycles(self):
+        cycles.create_cycle_entry('S')
+        commandant_id = self.commandant.id
+        self.assertEqual(cycles.get_current_cycle('S')['commandants_cycle_playing'], [commandant_id])
+        cycles.mark_commandant_cycle_finished('S', commandant_id)
+        cycle = cycles.get_current_cycle('S')
+        self.assertEqual((cycle['commandants_cycle_playing'], cycle['commandants_cycle_finished']), ([], [commandant_id]))
+        self.assertIsNotNone(Commandant.objects.get(id=commandant_id).time_cycle_finished)
+        cycles.mark_commandant_cycle_absent('S', str(commandant_id))
+        cycles.end_cycle('S')
+        cycle = cycles.get_current_cycle('S')
+        self.assertEqual(cycle['cycle_nb'], 2)
+        self.assertEqual(cycle['commandants_cycle_absent'], [commandant_id])
+        self.assertEqual(cycle['commandants_cycle_playing'], [])
+        self.assertIsNone(Commandant.objects.get(id=commandant_id).time_cycle_finished)
+
+
+class CreateCommandantTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user('player', 'p@example.com', 'x')
+        Server.objects.create(server_name='S', version=1, gameplay='saga', status='open', language='fr', roleplay='HRP',
+                              creation_date=timezone.now(), opening_date=timezone.now(), timezone='Europe/Paris')
+        self.planets = [100100000005505001, 100100000007905001]
+        StartingValues.objects.create(server_id='S', start_type='default_land_colony', available_native_planets=self.planets,
+                                      starting_resources={'steel': 10})
+        DistrictType.objects.create(server_id='S', internal_name='district_territory', data={
+            'category': 'central_district', 'districts_slots': 3, 'buildings_slots': 5, 'build_population': 10, 'hp': 100})
+        for planet in self.planets:
+            Coordinate.objects.create(server_id='S', seed=str(planet), type='telluric', sector_id='1', system_id='1',
+                                      sys_y=1, sys_x=1, sys_coordinate=1, name='Planet')
+
+    def test_creation_links_everything_and_takes_the_planet(self):
+        create_commandant('S', 'player', 'Paullus', 'Empire')
+        commandant = Commandant.objects.get().as_dict()
+        self.assertEqual(commandant['resources'], {'steel': 10})
+        self.assertEqual(commandant['nb_unread_reports'], 1)
+        self.assertEqual(Colony.objects.get().as_dict()['districts_slots_total'], 3)
+        left = StartingValues.objects.get().available_native_planets
+        self.assertEqual(len(left), 1)
+        self.assertNotIn(int(commandant['native_planet']), left)
+        self.assertEqual(server_details.get_server_details('S')['active_commandants'], [commandant['id']])
+        self.assertEqual(server_details.get_server_details('S')['active_users'], [self.user.id])
+
+    def test_taken_name_is_a_game_error_and_changes_nothing(self):
+        create_commandant('S', 'player', 'Paullus', 'Empire')
+        with self.assertRaises(GameError):
+            create_commandant('S', 'player', 'PAULLUS', 'Other')
+        self.assertEqual(Commandant.objects.count(), 1)
+        self.assertEqual(len(StartingValues.objects.get().available_native_planets), 1)
+
+    def test_failure_midway_leaves_nothing(self):
+        with patch('data.report.generate_report', side_effect=ValueError):
+            with self.assertRaises(ValueError):
+                create_commandant('S', 'player', 'Paullus', 'Empire')
+        self.assertFalse(Commandant.objects.exists())
+        self.assertFalse(Colony.objects.exists())
+        self.assertEqual(len(StartingValues.objects.get().available_native_planets), 2)

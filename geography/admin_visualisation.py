@@ -102,7 +102,3 @@ def display_sectors(server, display_sector_types=True, auto_close_visualisation=
                 running = False
 
         time.sleep(0.5)
-
-
-if __name__ == '__main__':
-    display_sectors('Alpha', display_sector_types=False, auto_close_visualisation=True)

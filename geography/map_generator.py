@@ -3,6 +3,7 @@ import os
 import random
 from datetime import datetime
 
+from backend.models import Coordinate, Sector, StartingValues, System
 from data import map_generator
 from geography import mg_sectors, solar, planet
 from stats import stats_geography
@@ -83,43 +84,8 @@ def load_map_generator_parameters(server_name, excel_path):
 
 
 def remove_past_generation(server):
-    from database.db_connect import databases
-
-    for category in ('sectors', 'systems', 'coordinates'):
-        databases['TSS_' + server][category].delete_many({})
+    for model in (Sector, System, Coordinate):
+        model.objects.filter(server=server).delete()
 
     # These planets don't exist anymore
-    databases['TSS_' + server]['starting_values'].update_many({}, {'$set': {'available_native_planets': []}})
-
-
-if __name__ == '__main__':
-
-    project_path = os.path.dirname(__file__)
-    excel_path = os.path.abspath(project_path + '/../../TSS.xlsx')
-    server_name = 'Alpha'
-
-    remove_past_generation(server_name)
-
-    load_map_generator_parameters(server_name, excel_path)
-
-    mg_sectors.generate_sectors(server_name)
-
-    print(stats_geography.statistics_systems_types_per_sector(server_name))
-    print(stats_geography.statistics_systems_types_global(server_name))
-
-
-
-# Speed comparison between system generation and querying in DB
-
-    from mg_system_composition import generate_system
-    from data import systems
-
-    start = datetime.now()
-    generate_system(server_name, '1003000000094080')
-    end = datetime.now()
-    print(end-start)
-
-    start = datetime.now()
-    systems.get_system_by_seed(server_name, '1003000000094080')
-    end = datetime.now()
-    print(end-start)
+    StartingValues.objects.filter(server=server).update(available_native_planets=[])

@@ -1,22 +1,19 @@
 from data.names import localized_name
 
-from bson.objectid import ObjectId
+from django.db import transaction
 
-from data.commandant import get_commandant_by_object_id, update_commandant
-from database.db_connect import collection
+from backend.models import Commandant, Resource, ResourceCategory, ResourceSubcategory
+from data.commandant import get_commandant
 
 
 
 def get_all_resources_parameters(server_name):
-    db = collection(server_name, 'resources')
-
-    return db.find({})
+    return [resource.as_dict() for resource in Resource.objects.filter(server=server_name).order_by('id')]
 
 
 def get_resource_parameters(server_name, resource_name):
-    db = collection(server_name, 'resources')
-
-    return db.find_one({'internal_name': resource_name})
+    resource = Resource.objects.filter(server=server_name, internal_name=resource_name).first()
+    return resource.as_dict() if resource else None
 
 
 def add_infos_to_resources_dict(server_name, resources_dict, commandant=None, language=None):
@@ -42,22 +39,18 @@ def add_infos_to_resources_dict(server_name, resources_dict, commandant=None, la
 
 
 def get_resources_categories(server_name):
-    db = collection(server_name, 'resources_categories')
-
-    return db.find({})
+    return [category.as_dict() for category in ResourceCategory.objects.filter(server=server_name).order_by('id')]
 
 
 def get_resources_subcategories(server_name):
-    db = collection(server_name, 'resources_subcategories')
-
-    return db.find({})
+    return [category.as_dict() for category in ResourceSubcategory.objects.filter(server=server_name).order_by('id')]
 
 
 ########################################################################################################################
 
 
 def check_enough_resource(server, commandant_id, resource, quantity):
-    commandant = get_commandant_by_object_id(server, commandant_id)
+    commandant = get_commandant(server, commandant_id)
 
     if resource not in commandant['resources']:
         return False
@@ -65,7 +58,7 @@ def check_enough_resource(server, commandant_id, resource, quantity):
 
 
 def check_enough_resources_dict(server, commandant_id, resources_dict, return_missing_details=False):
-    commandant = get_commandant_by_object_id(server, commandant_id)
+    commandant = get_commandant(server, commandant_id)
 
     enough_resources = True
     missing_resources = {}
@@ -77,45 +70,34 @@ def check_enough_resources_dict(server, commandant_id, resources_dict, return_mi
     return (enough_resources, missing_resources) if return_missing_details else enough_resources
 
 
-def resource_change(server, commandant_id, resource, quantity, allow_negative=False):
-    commandant = get_commandant_by_object_id(server, commandant_id)
-
-    if resource not in commandant['resources']:
-        return False
-
-    if allow_negative or commandant['resources'][resource] + quantity > 0:
-        commandant['resources'][resource] += quantity
-        update_commandant(server, commandant_id,
-                          'resources.'+resource,
-                          commandant['resources'][resource])
-        return True
-    return False
-
-
 ########################################################################################################################
 
 
+@transaction.atomic
 def pay_resources(server, commandant_id, cost):
-    # Check and debit in a single query : two simultaneous orders can't spend the same stock
+    # The commandant is locked between the check and the debit : two simultaneous orders can't spend the same stock
 
     cost = {resource: quantity for resource, quantity in cost.items() if quantity > 0}
     if not cost:
         return True
 
-    query = {'_id': ObjectId(commandant_id)}
+    commandant = Commandant.objects.select_for_update().filter(server=server, id=commandant_id).first()
+    if not commandant or any(commandant.resources.get(resource, 0) < quantity for resource, quantity in cost.items()):
+        return False
+
     for resource, quantity in cost.items():
-        query['resources.' + resource] = {'$gte': quantity}
-
-    db = collection(server, 'commandants')
-    result = db.update_one(query, {'$inc': {'resources.' + resource: -quantity for resource, quantity in cost.items()}})
-    return result.modified_count == 1
+        commandant.resources[resource] -= quantity
+    commandant.save(update_fields=['resources'])
+    return True
 
 
+@transaction.atomic
 def add_resources(server, commandant_id, gains):
     if gains:
-        db = collection(server, 'commandants')
-        db.update_one({'_id': ObjectId(commandant_id)},
-                      {'$inc': {'resources.' + resource: quantity for resource, quantity in gains.items()}})
+        commandant = Commandant.objects.select_for_update().get(server=server, id=commandant_id)
+        for resource, quantity in gains.items():
+            commandant.resources[resource] = commandant.resources.get(resource, 0) + quantity
+        commandant.save(update_fields=['resources'])
 
 
 ########################################################################################################################

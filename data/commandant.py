@@ -1,130 +1,62 @@
-import datetime
 from random import randint
-from bson.objectid import ObjectId
-from django.utils.translation import gettext as _
-from pymongo.collation import Collation
 
-from database.db_connect import databases, collection, update_field, push_field, pull_field
+from django.db import IntegrityError, transaction
+from django.utils import timezone
+from django.utils.translation import gettext as _
+
+from backend.models import Commandant, to_id
 from data.errors import GameError
-from data import server_details
 from data import starting_values as sv
-from data.user import get_user_by_name, update_user, pull_param_user
+from data.user import get_user_by_name
 from actions import colonize
 from backend import utils
 
 
-def valid_commandant_creation(server, user, pseudo,
-                              admin_override=False, game_wide_pseudo_restriction=True):
-
-    client = databases['TSS_' + server]
-
-    # Server authorize new accounts
-    if server['status'] != 'open' and not user['is_superuser']:
-        return False, "Ce serveur n'autorise pas de nouveaux joueurs"
-
-    # Server is not full
-    if not sv.get_starting_values(server)['available_native_planets'] :
-        return False, "Ce serveur ne possède plus de places disponibles"
-
-
-    # Iterate all commandants in the server
-    for commandant in client['commandant'].find_many({}):
-
-        # Name already taken
-        if commandant['pseudo'].lower() == pseudo.lower():
-            return False, 'Un commandant porte déjà ce nom'
-
-        # Owner already have an account
-        if commandant['user_id'] == user['_id'] \
-                and not server['allow_multiaccounts'] \
-                and not user['is_superuser']:
-            return False, 'Vous possédez déjà un compte'
-
-    # Can't take name of a previous commandant, even from previous server
-    if game_wide_pseudo_restriction:
-        for server_name in server_details.get_servers_names():
-            try:
-                client = databases['TSS_' + server_name]
-                for commandant in client['commandant'].find_many({}):
-                    if commandant['pseudo'].lower() == pseudo.lower():
-                        return False, 'Un commandant porte déjà ce nom'
-            except:
-                ... # TODO
-
-
-
+@transaction.atomic
 def create_commandant(server, user, commandant_name, civilisation_name):
 
-    db = collection(server, 'commandants')
-
     user = get_user_by_name(user)
-    starting_values = sv.get_starting_values(server)
+
+    # Locked until the end of the transaction : two new players can't take the same planet
+    starting_values = sv.get_starting_values(server, lock=True)
 
     if not starting_values['available_native_planets']:
         raise GameError(_("Ce serveur ne possède plus de places disponibles"))
 
     starting_planet_id = starting_values['available_native_planets'][randint(0, len(starting_values['available_native_planets'])-1)]
 
-    commandant = {
+    try:
+        commandant = Commandant.objects.create(
 
-        # Account parameters
-        'id': None,  # Get it later
-        'commandant_name': commandant_name,
-        'civilisation_name': civilisation_name,
-        'gender': 'm',  # TODO gender
+            # Account parameters
+            commandant_name=commandant_name,
+            civilisation_name=civilisation_name,
+            gender='m',  # TODO gender
 
-        'portrait': 'images/commandants/default_flag.jpg',
-        'flag': 'images/commandants/default_portrait.jpg',
+            portrait='images/commandants/default_flag.jpg',
+            flag='images/commandants/default_portrait.jpg',
 
-        'server': server,
-        'status': 'active',
-        'user_id': user['_id'],
-        'user_name': user['username'],
-        'creation_date': datetime.datetime.now(),
+            server_id=server,
+            status='active',
+            user_id=user['id'],
+            creation_date=timezone.now(),
 
-        # Starting position
-        'native_entente': None,  # TODO native_faction
-        'native_sector': utils.info_from_seed(starting_planet_id)['sector_id'],
-        'native_system': utils.info_from_seed(starting_planet_id)['system_id'],
-        'native_planet': starting_planet_id,
+            # Starting position
+            native_entente=None,  # TODO native_faction
+            native_sector=utils.info_from_seed(starting_planet_id)['sector_id'],
+            native_system=utils.info_from_seed(starting_planet_id)['system_id'],
+            native_planet=starting_planet_id,
 
-        # Empire and allegiances
-        'capital': None,
-        'colonies': [],
-        'resources': starting_values['starting_resources'],
-        'technologies': starting_values['starting_technologies'],
-        'player_modifiers': starting_values['starting_modifiers'],
-        'owned_ship_designs': [],
-        'orientations': {},
-
-        # Reports
-        'reports': [],
-        'nb_unread_reports': 0,
-
-        # Other
-        'time_last_activity': None,
-        'time_cycle_finished': None,
-        'tutorial_step': None,
-    }
-
-
-    db.insert_one(commandant)
-
-    # Add commandant reference to user
-    commandant_id = get_commandant_by_name(server, commandant_name)['_id']
-    accounts = user['accounts']
-    accounts.append(commandant_id)
-    update_user(user, 'accounts', accounts)
-
-    update_commandant(server, commandant_id, 'id', commandant_id)  # Add id field (django template can't read '_id')
-
-    # Add commandant and user references to server_details
-    server_details.add_active_user(server, user['_id'])
-    server_details.add_active_commandant(server, commandant_id)
-
+            # Empire and allegiances
+            resources=starting_values['starting_resources'],
+            technologies=starting_values['starting_technologies'],
+            player_modifiers=starting_values['starting_modifiers'],
+        )
+    except IntegrityError:  # A simultaneous creation took the name after the check of the view
+        raise GameError(_("Ce nom de commandant est déjà pris"))
 
     # Starting colony
-    colonize.colonize(server, commandant_id,
+    colonize.colonize(server, commandant.id,
                       fleet_id=None,
                       coordinate_seed=starting_planet_id,
                       colony_name=None,
@@ -134,86 +66,43 @@ def create_commandant(server, user, commandant_name, civilisation_name):
 
     # Welcome and tutorial report
     from data.report import create_report  # Placed here to prevent circular import
-    create_report(server, commandant_id, 'welcome_on_TSS')
+    create_report(server, commandant.id, 'welcome_on_TSS')
 
 
 def commandant_name_taken(name):
-    # Case insensitive, on every server declared in the settings
-    # shortcut: no index can span several databases, two simultaneous creations can still collide,
-    # a table of the names in the main database would close it (with the PostgreSQL migration, a unique constraint)
-    return any(db['commandants'].find_one({'commandant_name': name}, collation=Collation(locale='fr', strength=2))
-               for db in databases.values())
+    # Case insensitive, on every server
+    return Commandant.objects.filter(commandant_name__iexact=name).exists()
 
 
 def civilisation_name_taken(server, name):
     # Case insensitive, on this server only
-    # shortcut: no unique index, two simultaneous creations can still collide, add the index when indexes are created
-    return bool(collection(server, 'commandants').find_one({'civilisation_name': name}, collation=Collation(locale='fr', strength=2)))
+    return Commandant.objects.filter(server=server, civilisation_name__iexact=name).exists()
 
 
-def get_commandant_by_object_id(server, _id):
-    db = collection(server, 'commandants')
-    return db.find_one({'_id': ObjectId(_id)})
+def get_commandant(server, id):
+    commandant = Commandant.objects.filter(server=server, id=to_id(id)).first()
+    return commandant.as_dict() if commandant else None
 
 
-def get_commandants_by_object_ids(server, ids):
-    return list(collection(server, 'commandants').find({'_id': {'$in': ids}}))
+def get_commandants(server, ids):
+    return [commandant.as_dict() for commandant in Commandant.objects.filter(server=server, id__in=ids)]
 
 
 def get_commandant_by_name(server, name):
-    db = collection(server, 'commandants')
-    return db.find_one({'commandant_name': name})
+    commandant = Commandant.objects.filter(server=server, commandant_name=name).first()
+    return commandant.as_dict() if commandant else None
 
 
-def get_commandant_from_any_server(name=None, _id=None):
-
-    from django_tss.settings import DATABASES
-    for db_name in DATABASES.keys():
-        if db_name == 'default':
-            continue
-
-        try:
-            db = collection(db_name, 'commandants')
-        except:
-            continue
-
-        if name:
-            result = db.find_one({'commandant_name': name})
-            if result:
-                return result
-
-        if _id:
-            result = db.find_one({'_id': ObjectId(_id)})
-            if result:
-                return result
+def get_commandant_from_any_server(id):
+    commandant = Commandant.objects.filter(id=id).first()
+    return commandant.as_dict() if commandant else None
 
 
 def update_commandant(server, commandant_id, param, value):
-    update_field(server, 'commandants', commandant_id, param, value)
-
-
-def push_param_commandant(server, commandant_id, param, value):
-    push_field(server, 'commandants', commandant_id, param, value)
-
-
-def pull_param_commandant(server, commandant_id, param, value):
-    pull_field(server, 'commandants', commandant_id, param, value)
+    Commandant.objects.filter(server=server, id=commandant_id).update(**{param: value})
 
 
 def delete_commandant(server, commandant_id):
-    # /!\ TEST AND ADMIN ACTION ONLY (removal of the commandant and any mention in user account)
+    # /!\ TEST AND ADMIN ACTION ONLY (removal of the commandant and of everything belonging to it)
     # Use commandant_death() instead for normal endgame or death of a player
-
-    db = collection(server, 'commandants')
-
-    commandant = get_commandant_by_object_id(server, commandant_id)
-    user = get_user_by_name(commandant['user_name'])
-
-    pull_param_user(user, 'accounts', ObjectId(commandant_id))  # Remove reference from user table
-    db.delete_one({"_id": ObjectId(commandant_id)})
-
-
-
-if __name__ == '__main__':
-    server = 'Alpha_test'
-    delete_commandant(server, get_commandant_by_name(server, 'Paullus Beneradane')['_id'])
+    Commandant.objects.filter(server=server, id=commandant_id).delete()

@@ -1,18 +1,14 @@
 
 import pylightxl as xl
-from database.db_connect import databases
+from backend.models import Resource, ResourceCategory, ResourceSubcategory
 
 
 def load_resources(excel_tech_path, sheet_resources_name, server_name, delete_actual_resources):
 
-    client = databases['TSS_' + server_name]
-
-
-    db = client['resources']
     if delete_actual_resources:
-        db.delete_many({})
-        client['resources_categories'].delete_many({})
-        client['resources_subcategories'].delete_many({})
+        Resource.objects.filter(server=server_name).delete()
+        ResourceCategory.objects.filter(server=server_name).delete()
+        ResourceSubcategory.objects.filter(server=server_name).delete()
 
     with open(excel_tech_path, 'rb') as f:
         xldb = xl.readxl(f)
@@ -39,12 +35,12 @@ def load_resources(excel_tech_path, sheet_resources_name, server_name, delete_ac
                 resources.pop('', None)  # Remove empty rows
 
                 print(row)
-                db.insert_one(resources)
+                Resource.objects.create(server_id=server_name, internal_name=resources['internal_name'], data=resources)
 
 
         # CATEGORY AND SUB-CATEGORY DECLARATION
 
-        db = client['resources_categories']
+        model = ResourceCategory
 
         for row in xldb.ws(ws=sheet_resources_name+'_categories').rows:
 
@@ -59,9 +55,9 @@ def load_resources(excel_tech_path, sheet_resources_name, server_name, delete_ac
                     titles = row
                     continue
 
-                # Change DB for sub-categories section
+                # Change table for sub-categories section
                 if row[0] == '> SUB CATEGORY':
-                    db = client['resources_subcategories']
+                    model = ResourceSubcategory
                     continue
 
                 resources_cat = {}
@@ -70,13 +66,4 @@ def load_resources(excel_tech_path, sheet_resources_name, server_name, delete_ac
                 resources_cat.pop('', None)  # Remove empty rows
 
                 print(row)
-                db.insert_one(resources_cat)
-
-
-
-if __name__ == '__main__':
-    load_resources(excel_tech_path='../TSS.xlsx',
-                   sheet_resources_name='Resources',
-
-                   server_name='Alpha_test',
-                   delete_actual_resources=True)
+                model.objects.create(server_id=server_name, internal_name=resources_cat['internal_name'], data=resources_cat)

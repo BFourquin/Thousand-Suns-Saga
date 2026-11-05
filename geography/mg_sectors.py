@@ -9,7 +9,6 @@ from geography import mg_systems_placement
 def generate_sector_basic_values(pos_y, pos_x, seed):
 
     new_sector = {
-        "_id": seed,
         "pos_y": pos_y,
         "pos_x": pos_x,
         "seed": seed,

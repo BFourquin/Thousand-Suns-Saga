@@ -1,46 +1,28 @@
 
-from bson.objectid import ObjectId
-
-from database.db_connect import collection, update_field
+from backend.models import Building, BuildingType, to_id
 from data import colonies, buildings_types, districts
 
 
 def get_building(server, id):
-
-    db = collection(server, 'buildings')
-    return db.find_one({"_id": ObjectId(id)})
-
-
-def get_buildings(server, ids_list, append_building_type=False):
-
-    db = collection(server, 'buildings')
-    ids = [ObjectId(_) for _ in ids_list]
-
-    if not append_building_type:
-        result = db.find({"_id": {"$in": ids}})
-
-    else:
-        result = db.aggregate([{"$match": {"_id": {"$in": [ObjectId(_) for _ in ids_list]}}},
-                               {"$lookup": {
-                                   "from": "buildings_types",
-                                   "localField": "building_type",
-                                   "foreignField": "internal_name",
-                                   "as": "building_type_data"
-                               }},
-                               {"$unwind": {"path": "$building_type_data", "preserveNullAndEmptyArrays": True}}
-                               ])
-    return list(result)
+    building = Building.objects.filter(home_district__colony__owner__server=server, id=to_id(id)).first()
+    return building.as_dict() if building else None
 
 
-def set_building(server, building):
+def get_district_buildings(server, district_id, append_building_type=False):
 
-    db = collection(server, 'buildings')
+    buildings = [building.as_dict() for building in Building.objects.filter(home_district=district_id).order_by('id')]
 
-    db.insert_one(building)
-    
+    if append_building_type:
+        types = BuildingType.objects.filter(server=server, internal_name__in={b['building_type'] for b in buildings})
+        types = {building_type.internal_name: building_type.as_dict() for building_type in types}
+        for building in buildings:
+            building['building_type_data'] = types.get(building['building_type'])
+
+    return buildings
+
 
 def update_building(server, building_id, param, value):
-    update_field(server, 'buildings', building_id, param, value)
+    Building.objects.filter(home_district__colony__owner__server=server, id=building_id).update(**{param: value})
 
 
 ########################################################################################################################
@@ -48,11 +30,8 @@ def update_building(server, building_id, param, value):
 
 def construct_building(server, district_id, building_type):
 
-    db = collection(server, 'buildings')
-
     home_district = districts.get_district(server, district_id)
     building_type_properties = buildings_types.get_building_type(server, building_type)
-    print(building_type_properties)
 
     # Check if slot available for a new building
     if home_district['buildings_slots_free'] < 1:
@@ -60,39 +39,25 @@ def construct_building(server, district_id, building_type):
     # Resources
     # TODO
 
-    building = {
-        'name_fr': building_type_properties['name_fr'],
-        'name_en': building_type_properties['name_en'],
-        'building_type': building_type,
-        'home_district': ObjectId(district_id),
-        'local_modifiers': [],
-        'player_modifiers': [],
-        'faction_modifiers': [],
-        'activation_percent': 100,
-        'last_cycle_missing_resources': {},
-        'last_cycle_production': 0,
-        'last_cycle_productivity_percent': 0,
-    }
-
-    building_id = db.insert_one(building).inserted_id
-    districts.push_param_district(server, district_id, 'buildings_ids', ObjectId(building_id))  # Add to district's list of buildings
+    Building.objects.create(
+        name_fr=building_type_properties['name_fr'],
+        name_en=building_type_properties['name_en'],
+        building_type=building_type,
+        home_district_id=district_id,
+    )
     districts.recalculate_buildings_slots(server, district_id)
 
 
 def delete_building(server, building_id, refund_ratio=0.75):
 
-    db = collection(server, 'buildings')
-
-    building = db.find_one({"_id": ObjectId(building_id)})
+    building = get_building(server, building_id)
     if not building:
         return False
 
 
     # TODO check if destruction is valid
 
-    # Removal of the entry and it's references
-    districts.pull_param_district(server, building['home_district'], 'buildings_ids', ObjectId(building_id))
-    db.delete_one({"_id": ObjectId(building_id)})
+    Building.objects.filter(id=building_id).delete()
 
 
     # RESOURCES REFUNDING (done after to prevent multiple refunding by spamming faster than DB deletion)
@@ -116,18 +81,3 @@ def set_activation_percent_building(server, building_id, activation_percent):
         activation_percent = 100
 
     update_building(server, building_id, 'activation_percent', activation_percent)
-
-
-
-if __name__ == "__main__":
-    construct_building("Alpha_Boardgame", "688547b1529e0f1b4c48fb25", "farm_modern_agriculture")
-    construct_building("Alpha_Boardgame", "688547b1529e0f1b4c48fb25", "water_pumping_station")
-    construct_building("Alpha_Boardgame", "688547b1529e0f1b4c48fb25", "survival_industry")
-    construct_building("Alpha_Boardgame", "688547b1529e0f1b4c48fb25", "survival_factory")
-    construct_building("Alpha_Boardgame", "688547b1529e0f1b4c48fb25", "goods_factory")
-    construct_building("Alpha_Boardgame", "688547b1529e0f1b4c48fb25", "pharmaceutical_factory")
-    construct_building("Alpha_Boardgame", "688547b1529e0f1b4c48fb25", "machine_tool_workshop")
-
-    #for build in builds:
-    #    print(">>", build)
-    #    delete_building("Alpha_Boardgame", build['_id'], refund_ratio=0)

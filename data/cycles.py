@@ -1,78 +1,63 @@
+from django.db import transaction
+from django.utils import timezone
 
-import datetime
-from dateutil import tz
-from random import randint
-from bson.objectid import ObjectId
-
-from database.db_connect import collection, update_field, push_field, pull_field
-from data import server_details
-from data.server_details import get_server_details, get_tz
-from data.commandant import get_commandant_by_object_id, update_commandant
+from backend.models import Commandant, Cycle, to_id
+from data.server_details import get_tz
+from data.commandant import update_commandant
 
 
 def create_cycle_entry(server_name, last_cycle=None):
 
-    db = collection(server_name, 'cycles')
-
-    server = get_server_details(server_name)
-    commandants_list = server['active_commandants']
-
-    cycle = {
-        'cycle_nb': last_cycle['cycle_nb']+1 if last_cycle else 1,
-        'datetime_start': datetime.datetime.now(),
-        'datetime_end': None,
-
-        # Long-term version : daily passing of cycles
-        'datetime_planned_end': None,  # TODO planned time for next cycle
-
-        # Boardgame version : manual passing of cycles
-        'commandants_cycle_playing': [],
-        'commandants_cycle_finished': [],
-        'commandants_cycle_absent': [],  # last_cycle['players_absent'] if last_cycle else [],
-    }
+    cycle = Cycle.objects.create(server_id=server_name,
+                                 cycle_nb=last_cycle['cycle_nb']+1 if last_cycle else 1,
+                                 datetime_start=timezone.now())
 
     # Boardgame version : manual passing of cycles
-    for commandant_id in commandants_list:
-        if last_cycle and ObjectId(commandant_id) in last_cycle['commandants_cycle_absent']:
-            cycle['commandants_cycle_absent'].append(ObjectId(commandant_id))
-            cycle['commandants_cycle_finished'].append(ObjectId(commandant_id))
+    for commandant_id in active_commandants(server_name).values_list('id', flat=True):
+        if last_cycle and commandant_id in last_cycle['commandants_cycle_absent']:
+            cycle.commandants_cycle_absent.add(commandant_id)
+            cycle.commandants_cycle_finished.add(commandant_id)
         else:
-            cycle['commandants_cycle_playing'].append(ObjectId(commandant_id))
+            cycle.commandants_cycle_playing.add(commandant_id)
 
-    db.insert_one(cycle)
+
+def active_commandants(server_name):
+    return Commandant.objects.filter(server=server_name, status='active')
+
+
+def current_cycle_row(server_name):
+    return Cycle.objects.filter(server=server_name).order_by('-cycle_nb').first()
 
 
 def get_current_cycle(server_name):
-
-    db = collection(server_name, 'cycles')
-
-    return db.find_one({}, sort=[('cycle_nb', -1)])
+    cycle = current_cycle_row(server_name)
+    return cycle.as_dict() if cycle else None
 
 
 def update_cycle(server, param, value):
-    update_field(server, 'cycles', get_current_cycle(server)['_id'], param, value)
+    Cycle.objects.filter(id=current_cycle_row(server).id).update(**{param: value})
 
 
 def push_param_cycle(server, param, value):
-    push_field(server, 'cycles', get_current_cycle(server)['_id'], param, value)
+    getattr(current_cycle_row(server), param).add(value)
 
 
 def pull_param_cycle(server, param, value):
-    pull_field(server, 'cycles', get_current_cycle(server)['_id'], param, value)
+    getattr(current_cycle_row(server), param).remove(value)
 
 
 ########################################################################################################################
 # Boardgame version : manual passing of cycles
 
 def mark_commandant_cycle_finished(server, commandant_id):
-    commandant_id = ObjectId(commandant_id)
+    commandant_id = to_id(commandant_id)
     pull_param_cycle(server, 'commandants_cycle_playing', commandant_id)
     if not commandant_id in get_current_cycle(server)['commandants_cycle_finished']:
         push_param_cycle(server, 'commandants_cycle_finished', commandant_id)
-        update_commandant(server, commandant_id, 'time_cycle_finished', datetime.datetime.now(tz=get_tz(server)))
+        update_commandant(server, commandant_id, 'time_cycle_finished', timezone.now())
 
 def mark_commandant_cycle_playing(server, commandant_id):
-    commandant_id = ObjectId(commandant_id)
+    commandant_id = to_id(commandant_id)
     if not commandant_id in get_current_cycle(server)['commandants_cycle_absent']:
         pull_param_cycle(server, 'commandants_cycle_finished', commandant_id)
         if not commandant_id in get_current_cycle(server)['commandants_cycle_playing']:
@@ -82,7 +67,7 @@ def mark_commandant_cycle_playing(server, commandant_id):
 # Player declared absent : always display as cycle finished
 
 def mark_commandant_cycle_absent(server, commandant_id):
-    commandant_id = ObjectId(commandant_id)
+    commandant_id = to_id(commandant_id)
     pull_param_cycle(server, 'commandants_cycle_playing', commandant_id)
     if not commandant_id in get_current_cycle(server)['commandants_cycle_finished']:
         push_param_cycle(server, 'commandants_cycle_finished', commandant_id)
@@ -91,33 +76,23 @@ def mark_commandant_cycle_absent(server, commandant_id):
         update_commandant(server, commandant_id, 'time_cycle_finished', None)
 
 def mark_commandant_cycle_present(server, commandant_id):
-    commandant_id = ObjectId(commandant_id)
+    commandant_id = to_id(commandant_id)
     pull_param_cycle(server, 'commandants_cycle_finished', commandant_id)
     pull_param_cycle(server, 'commandants_cycle_absent', commandant_id)
     if not commandant_id in get_current_cycle(server)['commandants_cycle_playing']:
         push_param_cycle(server, 'commandants_cycle_playing', commandant_id)
-        update_commandant(server, commandant_id, 'time_cycle_finished', datetime.datetime.now(tz=get_tz(server)))
+        update_commandant(server, commandant_id, 'time_cycle_finished', timezone.now())
 
 
 ########################################################################################################################
 
 
+@transaction.atomic
 def end_cycle(server_name):
 
-    server = server_details.get_server_details(server_name)
     create_cycle_entry(server_name, last_cycle=get_current_cycle(server_name))
 
     # Reset commandants' cycle status
-    for commandant_id in server['active_commandants']:
-        update_commandant(server, commandant_id, 'time_cycle_finished', None)
+    active_commandants(server_name).update(time_cycle_finished=None)
 
     # TODO all cycle events
-
-
-
-if __name__ == '__main__':
-    # create_cycle_entry('Alpha_Boardgame')
-    mark_commandant_cycle_playing('Alpha_Boardgame', ObjectId('682a50b4be58ce0e09fdab34'))
-    #mark_commandant_cycle_finished('Alpha_Boardgame', ObjectId('682a50b4be58ce0e09fdab34'))
-
-

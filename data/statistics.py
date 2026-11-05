@@ -1,5 +1,5 @@
 
-from database.db_connect import collection
+from backend.models import Statistic
 
 mg_stats_buffer = {}  # Used as alternative to write many thousand times updates in the DB
 
@@ -19,11 +19,10 @@ Statistics have one entry for each stats_category :
 def get_statistics_category(server, stats_category):
     """Get a whole stats_category"""
 
-    db = collection(server, 'statistics')
-    stats_entry = db.find_one({"stats_category": stats_category})
+    stats_entry = Statistic.objects.filter(server=server, stats_category=stats_category).first()
 
     if stats_entry:
-        return stats_entry["stats"]
+        return stats_entry.stats
 
 
 def get_statistic(server, stats_category, stat_name):
@@ -35,11 +34,7 @@ def get_statistic(server, stats_category, stat_name):
     
 
 def set_statistics_category(server, stats_category, stats):
-
-    db = collection(server, 'statistics')
-
-    db.delete_one({"stats_category": stats_category})
-    db.insert_one({"stats_category": stats_category, "stats": stats})
+    Statistic.objects.update_or_create(server_id=server, stats_category=stats_category, defaults={'stats': stats})
 
 
 def set_statistic(server, stats_category, stat_name, stat_value):

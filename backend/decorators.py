@@ -1,18 +1,17 @@
 
 from functools import wraps
-from bson.objectid import ObjectId
 from django.shortcuts import redirect
 from django.utils import timezone
 
 from data.cycles import get_current_cycle
-from data.commandant import get_commandants_by_object_ids, update_commandant
+from data.commandant import get_commandants, update_commandant
 from backend.utils import get_active_server_and_commandant_from_request, get_request_user
 
 
 def log_player_action(view_func):
     """
     Décorateur pour enregistrer le moment où un joueur déclenche une action.
-    - Met à jour le champ time_cycle_finished dans MongoDB
+    - Met à jour le champ time_last_activity du commandant
     - Prépare la collecte des infos pour un log complet (TODO)
     """
 
@@ -25,10 +24,10 @@ def log_player_action(view_func):
             server, commandant = get_active_server_and_commandant_from_request(request)
 
             if server and commandant:
-                update_commandant(server, commandant['_id'], "time_last_activity", now)
+                update_commandant(server, commandant['id'], "time_last_activity", now)
 
         # --- TODO ---
-        # Enregistrer dans MongoDB ou autre :
+        # Enregistrer en base ou autre :
         # - user_id
         # - méthode HTTP
         # - path
@@ -61,7 +60,7 @@ def add_cycle_info(view_func):
                 server_name = user_account["playing_on_server"]
                 cycle = get_current_cycle(server_name)
 
-                commandants = {commandant['_id']: commandant for commandant in get_commandants_by_object_ids(
+                commandants = {commandant['id']: commandant for commandant in get_commandants(
                     server_name, cycle['commandants_cycle_playing'] + cycle['commandants_cycle_finished'])}
 
                 commandants_cycle_playing = [commandants[_id] for _id in cycle['commandants_cycle_playing'] if _id in commandants]
@@ -69,7 +68,7 @@ def add_cycle_info(view_func):
                 ratio_finished = len(commandants_cycle_finished) / (len(commandants_cycle_finished)+len(commandants_cycle_playing)) if commandants_cycle_finished else 0
 
 
-                current_commandant_id = ObjectId(user_account['playing_on_commandant'])
+                current_commandant_id = user_account['playing_on_commandant']
                 current_commandant_finished = current_commandant_id in cycle['commandants_cycle_finished']
                 current_commandant_absent = current_commandant_id in cycle['commandants_cycle_absent']
 

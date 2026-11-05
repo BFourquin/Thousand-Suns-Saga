@@ -4,7 +4,7 @@ from functools import lru_cache
 
 from django.utils.translation import gettext_lazy as _
 
-from database.db_connect import collection
+from backend.models import Coordinate
 from django_tss.settings import BASE_DIR, STATIC_ROOT
 
 
@@ -37,7 +37,6 @@ SUBTYPE_NAMES = {
 
 
 def add_display_info(coordinate):
-    coordinate['id'] = coordinate['_id']
     coordinate['image'] = get_coordinate_image(coordinate)
     coordinate['type_name'] = TYPE_NAMES.get(coordinate['type'], coordinate['type'])
     coordinate['subtype_name'] = SUBTYPE_NAMES.get(coordinate['subtype'], '')  # 'standard' deserves no mention
@@ -64,33 +63,25 @@ def get_coordinate_image(coordinate):
     images = [image for folder in folders for image in images_in_folder(folder)]
     if not images:
         return 'images/placeholder/' + coordinate['type'] + '.png'
-    return random.Random(int(coordinate['_id'])).choice(images)
+    return random.Random(int(coordinate['id'])).choice(images)
 
 
 def get_coordinates_of_system(server, system):
     # All the coordinates of a system in a single query, sorted from the star to the outer orbits
-    db = collection(server, 'coordinates')
-    return list(db.find({"_id": {"$in": list(system['system_coordinates'].keys())}}).sort('sys_coordinate', 1))
+    rows = Coordinate.objects.filter(server=server, seed__in=system['system_coordinates'].keys()).order_by('sys_coordinate')
+    return [coordinate.as_dict() for coordinate in rows]
 
 
 def get_coordinate(server, seed):
-
-    db = collection(server, 'coordinates')
-    return db.find_one({"_id": str(seed)})
+    coordinate = Coordinate.objects.filter(server=server, seed=str(seed)).first()
+    return coordinate.as_dict() if coordinate else None
 
 
 def get_all_coordinates(server):
-    db = collection(server, 'coordinates')
-    return list(db.find())
+    return [coordinate.as_dict() for coordinate in Coordinate.objects.filter(server=server).order_by('seed')]
 
 
 def set_coordinate(server, coordinate):
-
-    db = collection(server, 'coordinates')
-
-    # Will remove previous entry if one exist
-    previous_coordinate = get_coordinate(server, coordinate['_id'])
-    if previous_coordinate:
-        db.delete_one(previous_coordinate)
-
-    db.insert_one(coordinate)
+    # Will replace previous entry if one exist
+    Coordinate.objects.update_or_create(server_id=server, seed=coordinate['seed'],
+                                        defaults={k: v for k, v in coordinate.items() if k not in ('id', 'seed')})

@@ -1,33 +1,22 @@
 
 from data.names import localized_name
-from bson.objectid import ObjectId
-
-from database.db_connect import collection
-
-
-def get_building_type_by_id(server, id, language=None):
-
-    db = collection(server, 'buildings_types')
-    building = db.find_one({"_id": ObjectId(id)})
-
-    if language:
-        building['name'] = localized_name(building, language)
-    return building
+from backend.models import BuildingType
 
 
 def get_building_type(server, internal_name, language=None):
 
-    db = collection(server, 'buildings_types')
-    building = db.find_one({"internal_name": internal_name})
+    building = BuildingType.objects.filter(server=server, internal_name=internal_name).first()
+    if not building:
+        return None
 
+    building = building.as_dict()
     if language:
         building['name'] = localized_name(building, language)
     return building
 
 
 def get_all_buildings_types(server, language=None):
-    db = collection(server, 'buildings_types')
-    buildings = list(db.find())
+    buildings = [building.as_dict() for building in BuildingType.objects.filter(server=server).order_by('id')]
 
     if language:
         for i in range(len(buildings)):
@@ -38,8 +27,7 @@ def get_all_buildings_types(server, language=None):
 def get_all_buildable_buildings_types(server, commandant, language=None):
     # TODO /!\ copier coller des districts à vérifier !!!
 
-    db = collection(server, 'buildings_types')
-    buildings = list(db.find())
+    buildings = get_all_buildings_types(server)
 
     # Remove unconstructibles buildings
     for building in buildings[:]:  # Duplicate buildings list to iterate correctly while removing entries

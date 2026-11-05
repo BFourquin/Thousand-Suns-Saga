@@ -26,7 +26,7 @@
 ### TECHNICAL STACK
 
 Language : Python / HTML / JS  \
-Databse : MongoDB / Influx V2 \
+Database : PostgreSQL \
 Framework : Django  \
 Template : AdminLTE
 
@@ -51,20 +51,21 @@ Template : AdminLTE
 Ask Iranis#8652 on Discord for the valid django_tss/settings.py file, or make one from django_tss/settings_opensource.py
 
 
-**MongoDB**
+**PostgreSQL**
 
-- Install MongoDB (Community Edition) (https://www.mongodb.com/try/download/community) \
-  Include during installation MongoDB Compass
+- Install PostgreSQL (https://www.postgresql.org/download/)
 
 
-- Run the script {project folder}/database/create_tables.py
+- Create the role and the database, with the user and password of your django_tss/settings.py : \
+  (CREATEDB is only there to let `manage.py test` create its test database)
+  > psql -U postgres -c "CREATE ROLE admin LOGIN CREATEDB PASSWORD 'your_password'" \
+  > psql -U postgres -c "CREATE DATABASE \"TSS_main_server\" OWNER admin TEMPLATE template0 ENCODING 'UTF8'"
 
 
 **Django**
 
 - Open a console and write
-  > python manage.py makemigrations\
-  > python manage.py migrate
+  > python manage.py migrate \
   > python manage.py createsuperuser
 
 The last command will ask name and password to create your django admin account
@@ -89,7 +90,14 @@ or create a new one from scratch with the exemple provided in TSS.xlsx
 
 Modify create_new_server.py with the appropriate server name and parameters and run the script.
 
-In django_tss/settings.py, add your new server name in the DATABASES dictionary
+All the game servers live in the same PostgreSQL database.
+
+***
+### MIGRATING AN OLD MONGODB DATABASE
+
+Once the steps above are done, on an empty database (MongoDB must be running, it is only read) :
+> python -m pip install pymongo \
+> python database/import_from_mongo.py
 
 ***
 ### TRANSLATION

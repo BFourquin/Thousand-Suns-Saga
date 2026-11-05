@@ -1,20 +1,19 @@
 
-from database.db_connect import collection
+from backend.models import Sector
 
 
 def get_sector(server, y, x):
-    db = collection(server, 'sectors')
-    return db.find_one({"pos_y": y, "pos_x": x})
+    sector = Sector.objects.filter(server=server, pos_y=y, pos_x=x).first()
+    return sector.as_dict() if sector else None
 
 
 def get_all_sectors(server):
-    db = collection(server, 'sectors')
-    return list(db.find())
+    return [sector.as_dict() for sector in Sector.objects.filter(server=server).order_by('seed')]
 
 
 def get_sector_by_seed(server, seed):
-    db = collection(server, 'sectors')
-    return db.find_one({"_id": str(seed)})
+    sector = Sector.objects.filter(server=server, seed=str(seed)).first()
+    return sector.as_dict() if sector else None
 
 
 def get_direct_neighbours_sectors(server, y, x):
@@ -40,12 +39,6 @@ def get_diagonal_neighbours_sectors(server, y, x):
 
 
 def set_sector(server, sector):
-
-    db = collection(server, 'sectors')
-
-    # Will remove previous entry if one exist
-    previous_sector = get_sector(server, sector["pos_y"], sector["pos_x"])
-    if previous_sector:
-        db.delete_one(previous_sector)
-
-    db.insert_one(sector)
+    # Will replace previous entry if one exist
+    Sector.objects.update_or_create(server_id=server, seed=sector['seed'],
+                                    defaults={k: v for k, v in sector.items() if k not in ('id', 'seed')})

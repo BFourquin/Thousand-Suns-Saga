@@ -1,14 +1,17 @@
 
+import os
 import sys
-import random
-from datetime import datetime
 
-from django_tss.settings import DATABASES, mongodb_settings
-from database import create_tables
+import django
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_tss.settings')
+django.setup()
+
+from django.db import transaction
+
 from database.load_technologies import load_technologies
 from database.load_resources import load_resources
 from database.load_buildings import load_buildings
-from database.db_connect import clients
 from data import server_details, statistics, starting_values, cycles
 from geography import map_generator, mg_sectors
 from stats import stats_geography
@@ -46,42 +49,25 @@ hide_visualisation = True  # Map visualization at the end of the generation
 
 
 
-# Manual addition in settings database declarations necessary
-if server_name not in DATABASES:
-    print("/!\\ Before creating a new server, please declare the following line in django_tss.settings.DATABASES :\n"
-          "'"+server_name+"': mongodb_settings('"+server_name+"'),")
-    sys.exit()
-
-
-#
 if server_details.get_server_details(server_name):
 
     # Test server, don't care about deleting it
     if server_name == 'Alpha_test':
-        try:
-            clients['TSS_' + server_name].drop_database('TSS_' + server_name)
-        except KeyError:
-            ...
         server_details.delete_server_details(server_name)
 
     else:
         print("/!\\ "+server_name+" already exist ! Do you want to remove the previous server ? (Y/n)")
         if input() in ('Y', 'y'):
-            clients['TSS_' + server_name].drop_database('TSS_' + server_name)
             server_details.delete_server_details(server_name)
         else:
             print('Server creation canceled')
             sys.exit()
 
 
-#db_connect(mongodb_settings('TSS_' + server_name))
-
-
 # SERVER DETAILS
 
-create_tables.create_server_database(server_name)
 server_details.create_server(server_name, version, status=server_status, admin_only_visibility=admin_only_visibility,
-                             language=language, roleplay=roleplay, gameplay=gameplay, timezone=timezone)
+                             language=language, roleplay=roleplay, gameplay=gameplay, timezone_name=timezone)
 
 
 # TECHNOLOGIES
@@ -111,7 +97,8 @@ map_generator.remove_past_generation(server_name)
 
 map_generator.load_map_generator_parameters(server_name, excel_server_params)
 
-mg_sectors.generate_sectors(server_name, hide_visualisation)
+with transaction.atomic():  # A single commit instead of one per row : much faster, and no half generated map
+    mg_sectors.generate_sectors(server_name, hide_visualisation)
 
 # STATISTICS
 

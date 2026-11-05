@@ -1,6 +1,5 @@
 
-
-from database.db_connect import collection
+from backend.models import System
 
 
 # ######################################################################################################################
@@ -13,63 +12,31 @@ def info_from_seed(seed):
     return sector_id, pos_y, pos_x
 
 
-def remove_redundant_info(system):
-    # TODO Remove easily calculable data ?
-    #for info in ('seed', 'sector_id', 'pos_y', 'pos_x'):
-    #    if info in system:
-    #        del system[info]
-    return system
-
-
-def recreate_redundant_info(system):
-    # TODO Remove easily calculable data ?
-    #system['seed'] = system['_id']
-    #system['sector_id'], system['pos_y'], system['pos_x'] = info_from_seed(system['seed'])
-    return system
-
 # ######################################################################################################################
 
 
 def get_system_by_seed(server, seed):
-    db = collection(server, 'systems')
-
-    system = db.find_one({"_id": str(seed)})
-    system = recreate_redundant_info(system) if system is not None else None
-    return system
+    system = System.objects.filter(server=server, seed=str(seed)).first()
+    return system.as_dict() if system else None
 
 
 def get_system_by_position(server, sector_id, y, x):
-    db = collection(server, 'systems')
-
-    system = db.find_one({"sector_id": sector_id, "pos_y": y, "pos_x": x})
-    system = recreate_redundant_info(system) if system is not None else None
-    return system
+    system = System.objects.filter(server=server, sector_id=sector_id, pos_y=y, pos_x=x).first()
+    return system.as_dict() if system else None
 
 
 def get_systems_in_sector(server, sector_id):
-    db = collection(server, 'systems')
-
-    systems = list(db.find({"sector_id": str(sector_id)}))
-    #system = recreate_redundant_info(system) if system is not None else None
-    #print(systems)
-    return systems
+    return [system.as_dict() for system in System.objects.filter(server=server, sector_id=str(sector_id)).order_by('seed')]
 
 
 def get_all_systems(server):
-    db = collection(server, 'systems')
-
-    return list(db.find())
+    return [system.as_dict() for system in System.objects.filter(server=server).order_by('seed')]
 
 
 def set_system(server, system):
-
-    db = collection(server, 'systems')
-
-    # Will remove previous entry if one exist
-    previous_system = get_system_by_seed(server, system["_id"])
-    if previous_system:
-        db.delete_one(previous_system)
-
-    system['sector_id'], system['pos_y'], system['pos_x'] = info_from_seed(system['_id'])
-    system = remove_redundant_info(system) if system is not None else None
-    db.insert_one(system)
+    # Will replace previous entry if one exist
+    sector_id, pos_y, pos_x = info_from_seed(system['seed'])
+    System.objects.update_or_create(server_id=server, seed=system['seed'],
+                                    defaults={'system_type': system['system_type'],
+                                              'system_coordinates': system['system_coordinates'],
+                                              'sector_id': sector_id, 'pos_y': pos_y, 'pos_x': pos_x})

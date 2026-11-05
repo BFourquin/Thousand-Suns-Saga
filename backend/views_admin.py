@@ -19,7 +19,7 @@ from bokeh.embed import components
 
 from backend.login import throttled_authenticate
 from backend.utils import request_params
-from database.db_connect import PaginatedCollection
+from backend.models import Coordinate, Sector, System
 from data import server_details, user, technology, sectors, systems, coordinates, map_generator
 
 logger = logging.getLogger(__name__)
@@ -91,7 +91,6 @@ def log_hijack_ended(sender, hijacker, hijacked, **kwargs):
 def admin_user_details(request):
     id = request_params(request)['id']
     user_account = user.get_user_by_id(id)
-    user_account['objectid'] = user_account['_id']
     return render(request, 'admin/admin_user_details.html', {'user': user_account})
 
 
@@ -121,6 +120,7 @@ def admin_servers_states_edit(request):
 ########################################################################################################################
 
 GEOGRAPHY_PAGE_SIZE = 100
+GEOGRAPHY_TABLES = {'sectors': Sector, 'systems': System, 'coordinates': Coordinate}
 
 
 @staff_member_required(login_url='/admin_login/')
@@ -149,7 +149,7 @@ def admin_geography(request):
         # Search all geography table's seeds and inject html link to it
         for entry in geography_table:
             for key, value in entry.items():
-                if key in ('_id', 'seed', 'sector_id', 'system_id'):
+                if key in ('id', 'seed', 'sector_id', 'system_id'):
                     entry[key] = format_html('<a href="?server_name_selected={}&amp;target={}">{}</a>', server, value, value)
 
 
@@ -178,9 +178,10 @@ def admin_geography(request):
     # #### GLOBAL LISTS #### #
 
     geography_page = None
-    if params['target'] in ("sectors", "systems", "coordinates"):
-        geography_page = Paginator(PaginatedCollection(server, params['target']), GEOGRAPHY_PAGE_SIZE).get_page(params.get('page'))
-        geography_table = geography_page.object_list
+    if params['target'] in GEOGRAPHY_TABLES:
+        rows = GEOGRAPHY_TABLES[params['target']].objects.filter(server=server).order_by('seed')
+        geography_page = Paginator(rows, GEOGRAPHY_PAGE_SIZE).get_page(params.get('page'))
+        geography_table = [row.as_dict() for row in geography_page.object_list]
 
     if params['target'] == "sectors":
         geography_table = unclutter_sectors_table(geography_table)
@@ -190,7 +191,7 @@ def admin_geography(request):
 
 
     # #### SPECIFIC LIST #### #
-    # Search according to _id (seed) and display every sub-elements presents in it
+    # Search according to the seed and display every sub-elements presents in it
 
     parent_table, parent_seed, seed_type = None, None, None
     if params['target'].isnumeric():

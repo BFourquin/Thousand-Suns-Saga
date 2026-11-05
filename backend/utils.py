@@ -1,8 +1,7 @@
 
 import random
 
-from bson.objectid import ObjectId
-
+from backend.models import to_id
 from data.user import get_user_by_name
 
 
@@ -55,13 +54,13 @@ def get_request_user(request):
 
 
 def get_active_server_and_commandant_from_request(request):
-    from data.commandant import get_commandant_by_object_id
+    from data.commandant import get_commandant
 
     if not hasattr(request, 'tss_active_commandant'):
         user = get_request_user(request)
         server = user['playing_on_server'] if user else None
         commandant_id = user['playing_on_commandant'] if user else None
-        commandant = get_commandant_by_object_id(server, commandant_id) if commandant_id else None
+        commandant = get_commandant(server, commandant_id) if commandant_id else None
         request.tss_active_commandant = (server, commandant)
 
     return request.tss_active_commandant
@@ -72,7 +71,7 @@ def get_language(request):
 
 
 def commandant_owns_colony(commandant, colony_id):
-    return ObjectId.is_valid(colony_id) and ObjectId(colony_id) in commandant['colonies']
+    return to_id(colony_id) in commandant['colonies']
 
 
 ########################################################################################################################

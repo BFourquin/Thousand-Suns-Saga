@@ -1,25 +1,24 @@
 
-from datetime import datetime
+from django.utils import timezone
 
-from data.commandant import get_commandant_by_object_id
-from data.user import get_user_by_object_id
+from data.commandant import get_commandant
+from data.user import get_user_by_id
 
 
 def generate_report(server, owner_id, report_type, args={}, sender=None, sender_image=None):
 
-    commandant = get_commandant_by_object_id(server, owner_id)
-    user = get_user_by_object_id(commandant['user_id'])
+    commandant = get_commandant(server, owner_id)
+    user = get_user_by_id(commandant['user'])
     lang = user['language']
 
     # Default values for report
     report = {
-        'id': None,
         'status': 'unread',  # 'unread' | 'read' | 'archived'
-        'owner': owner_id,
+        'owner_id': owner_id,
         'category': 'other',
         'category_icon': 'fa-file-alt',
-        'datetime': datetime.now(),
-        'tss_calendar': datetime.now(),#.strftime(),  # TODO tss_calendar
+        'datetime': timezone.now(),
+        'tss_calendar': timezone.now(),#.strftime(),  # TODO tss_calendar
         'illustration': None,
         'title': '',
         'message': '',

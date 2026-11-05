@@ -32,7 +32,7 @@ def generate_system(server, seed, system_type=None):
         system_type = random_pick_system_type(server, sector_type, seed)
 
     new_system = {
-        "_id": str(seed),
+        "seed": str(seed),
         "system_type": system_type,
         "system_coordinates": {},
     }  # Some values like pos_y, pos_x, sector_seed will be auto-added when querying db

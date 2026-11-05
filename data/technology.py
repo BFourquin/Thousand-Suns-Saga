@@ -1,6 +1,6 @@
 
 
-from database.db_connect import collection
+from backend.models import Technology
 
 
 tech_types = ['general theory',
@@ -26,6 +26,4 @@ def tech(internal_name, name, tech_type, description, tech_level, modifiers, pri
 
 
 def get_all_technologies(server_name):
-    db = collection(server_name, 'technologies')
-
-    return db.find({})
+    return [technology.as_dict() for technology in Technology.objects.filter(server=server_name).order_by('id')]

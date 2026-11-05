@@ -1,7 +1,6 @@
-import datetime
-
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
+from django.utils import timezone
 
 
 from backend.login import throttled_authenticate
@@ -23,7 +22,7 @@ def servers_list(request):
     servers = server_details.get_all_servers_details()
     for i in range(len(servers)):
         servers[i]['cycles'] = cycles.get_current_cycle(servers[i]['server_name'])
-        servers[i]['open_since_days'] = (datetime.datetime.now() - servers[i]['opening_date']).days
+        servers[i]['open_since_days'] = (timezone.now() - servers[i]['opening_date']).days
 
     servers = sorted(servers, key=lambda d: d['opening_date'], reverse=True)
 
