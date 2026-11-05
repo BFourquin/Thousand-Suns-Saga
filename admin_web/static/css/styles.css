@@ -171,3 +171,6 @@
 .theme-picker .theme-swatches span { flex: 1; }
 .theme-picker .theme-name { display: block; font-weight: 600; font-size: 0.9rem; line-height: 1.2; }
 .theme-picker .theme-desc { display: block; font-size: 0.75rem; opacity: 0.7; }
+
+/* Font Awesome 7 gives icons a fixed width by default : the layouts here, like .btn-app icons displayed as blocks, expect their natural width */
+:root { --fa-width: auto; }
