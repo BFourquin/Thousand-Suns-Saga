@@ -1,10 +1,20 @@
+import inspect
 import json
 from unittest.mock import MagicMock, patch
 
 from bson.objectid import ObjectId
 from django.contrib.auth.models import AnonymousUser
+from django.core.cache import cache
 from django.test import Client, RequestFactory, SimpleTestCase
 from django.urls import Resolver404, resolve
+
+from backend import views_game
+from backend.decorators import commandant_required
+from backend.login import LOGIN_MAX_FAILURES_PER_ACCOUNT, throttled_authenticate
+from backend.utils import commandant_owns_colony
+from data import server_details
+from data.report import change_report_status, get_report_by_object_id
+from data.resources import pay_resources
 
 API_LOGGED_URLS = ['/api_create_commandant/', '/api_build_district/', '/api_delete_district/',
                    '/api_district_set_activation_percent/']
@@ -109,3 +119,123 @@ class ApiDistrictsTests(SimpleTestCase):
                             data={'colony_id': str(self.colony_id), 'district_id': district_id})
         self.assertEqual(response.status_code, 200)
         delete.assert_called_once_with('S', self.commandant_id, district_id)
+
+
+class LoginThrottleTests(SimpleTestCase):
+
+    def setUp(self):
+        cache.clear()
+
+    def attempt(self, password='wrong', username='player'):
+        request = RequestFactory().post('/player_login/', {'username': username, 'password': password})
+        return throttled_authenticate(request)
+
+    @patch('backend.login.authenticate', return_value=None)
+    def test_account_is_blocked_after_too_many_failures(self, authenticate):
+        for _ in range(LOGIN_MAX_FAILURES_PER_ACCOUNT):
+            self.assertEqual(self.attempt()[0], None)
+        calls = authenticate.call_count
+        self.attempt(password='right')
+        self.assertEqual(authenticate.call_count, calls)
+
+    @patch('backend.login.authenticate', return_value=None)
+    def test_another_account_is_not_blocked(self, authenticate):
+        for _ in range(LOGIN_MAX_FAILURES_PER_ACCOUNT):
+            self.attempt()
+        calls = authenticate.call_count
+        self.attempt(username='someone_else')
+        self.assertEqual(authenticate.call_count, calls + 1)
+
+    def test_success_resets_the_failures_of_the_account(self):
+        with patch('backend.login.authenticate', return_value=None):
+            for _ in range(LOGIN_MAX_FAILURES_PER_ACCOUNT - 1):
+                self.attempt()
+        with patch('backend.login.authenticate', return_value='user'):
+            self.assertEqual(self.attempt(password='right'), ('user', None))
+        with patch('backend.login.authenticate', return_value=None) as authenticate:
+            self.attempt()
+            self.attempt()
+        self.assertEqual(authenticate.call_count, 2)
+
+
+class GameViewsTests(SimpleTestCase):
+
+    def commandant_view(self, view, url, method='get', data=None):
+        request = getattr(RequestFactory(), method)(url, data or {})
+        request.user = player()
+        return inspect.unwrap(view)(request, 'S', {'_id': ObjectId(), 'colonies': []})
+
+    @patch('backend.decorators.get_active_server_and_commandant_from_request', return_value=(None, None))
+    def test_commandant_required_redirects(self, _active):
+        request = RequestFactory().get('/')
+        view = MagicMock()
+        self.assertEqual(commandant_required(view)(request).status_code, 302)
+        view.assert_not_called()
+
+    def test_colony_ownership(self):
+        colony_id = ObjectId()
+        commandant = {'colonies': [colony_id]}
+        self.assertTrue(commandant_owns_colony(commandant, str(colony_id)))
+        self.assertFalse(commandant_owns_colony(commandant, str(ObjectId())))
+        self.assertFalse(commandant_owns_colony(commandant, 'invalid'))
+        self.assertFalse(commandant_owns_colony(commandant, None))
+
+    @patch('backend.views_game.cycles')
+    def test_cycle_actions_need_a_post(self, cycles):
+        url = '/cycle_monitoring/?commandant_cycle_status=commandant_cycle_finished'
+        self.commandant_view(views_game.cycle_monitoring, url)
+        cycles.mark_commandant_cycle_finished.assert_not_called()
+        self.commandant_view(views_game.cycle_monitoring, '/cycle_monitoring/', 'post', {'commandant_cycle_status': 'commandant_cycle_finished'})
+        cycles.mark_commandant_cycle_finished.assert_called_once()
+
+    @patch('backend.views_game.update_nb_unread_reports')
+    @patch('backend.views_game.get_commandant_reports', return_value=([], {}))
+    @patch('backend.views_game.delete_report')
+    def test_report_actions_need_a_post_and_keep_the_owner(self, delete, _reports, _update):
+        report_id = str(ObjectId())
+        self.commandant_view(views_game.reports, f'/reports/?action=delete&reports[]={report_id}')
+        delete.assert_not_called()
+        self.commandant_view(views_game.reports, '/reports/', 'post', {'action': 'delete', 'reports[]': report_id})
+        self.assertEqual(delete.call_args[0][1], report_id)
+        self.assertEqual(len(delete.call_args[0]), 3)
+
+
+class DataLayerTests(SimpleTestCase):
+
+    @patch('data.resources.collection')
+    def test_payment_is_a_single_conditional_query(self, collection):
+        commandant_id = ObjectId()
+        collection.return_value.update_one.return_value.modified_count = 1
+        self.assertTrue(pay_resources('S', commandant_id, {'steel': 100, 'food': 0}))
+        collection.return_value.update_one.assert_called_once_with(
+            {'_id': commandant_id, 'resources.steel': {'$gte': 100}}, {'$inc': {'resources.steel': -100}})
+
+    @patch('data.resources.collection')
+    def test_payment_refused_when_nothing_matches(self, collection):
+        collection.return_value.update_one.return_value.modified_count = 0
+        self.assertFalse(pay_resources('S', ObjectId(), {'steel': 100}))
+
+    @patch('data.resources.collection')
+    def test_nothing_to_pay(self, collection):
+        self.assertTrue(pay_resources('S', ObjectId(), {}))
+        collection.assert_not_called()
+
+    @patch('data.report.collection')
+    def test_report_queries_filter_on_the_owner(self, collection):
+        report_id, owner = ObjectId(), ObjectId()
+        change_report_status('S', report_id, owner, 'read')
+        self.assertEqual(collection.return_value.update_one.call_args[0][0], {'_id': report_id, 'owner': owner})
+        self.assertIsNone(get_report_by_object_id('S', 'invalid', owner))
+        get_report_by_object_id('S', report_id, owner)
+        collection.return_value.find_one.assert_called_once_with({'_id': report_id, 'owner': owner})
+
+    @patch('data.server_details.get_servers_names', return_value=['Alpha'])
+    def test_servers_menu_is_cached_until_refreshed(self, names):
+        cache.clear()
+        server_details.get_servers_menu()
+        calls = names.call_count
+        server_details.get_servers_menu()
+        self.assertEqual(names.call_count, calls)
+        server_details.refresh_servers_menu()
+        server_details.get_servers_menu()
+        self.assertGreater(names.call_count, calls)

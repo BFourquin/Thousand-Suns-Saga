@@ -9,6 +9,8 @@
              background-size: cover; background-repeat: no-repeat; background-attachment: fixed;">
 
 
+{% include "includes/hijack_banner.html" %}
+
 <div class="wrapper">
   <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-dark">
@@ -38,8 +40,8 @@
 
           {% if server_details.gameplay == 'skirmish' %}
           <button type="button" class="btn btn-block btn-default
-                                       {% if not dark_mode %}dark-mode{% endif %}"
-                  style="padding: 0; margin-top: -1px; margin-bottom: -1px;">
+                                       {% if not dark_mode %}dark-mode{% endif %} u-padding-0-margin-top-1px-margin-bottom-1px"
+                 >
           {% endif %}
 
             <a class="nav-link" data-toggle="dropdown" href="#">
@@ -50,9 +52,9 @@
 
               {% if server_details.gameplay == 'skirmish' %}
                 
-              <span class="badge right badge{% if ratio_finished >= 0.75 %}-danger"{% elif ratio_finished >= 0.5 %}-warning"{% else %} -success"{% endif %}
+              <span class="badge right badge{% if ratio_finished >= 0.75 %}-danger{% elif ratio_finished >= 0.5 %}-warning{% else %}-success{% endif %} u-font-size-90pct"
 
-                    style="font-size: 90%;">
+                   >
                   {{commandants_cycle_playing|length}}
                   /
                   {% with len_playing=commandants_cycle_playing|length %}{% with len_finished=commandants_cycle_finished|length %}{{ len_playing|add:len_finished }}{% endwith %} {% endwith %}
@@ -66,10 +68,10 @@
 
               {% if not current_commandant_absent %}
                 {% if not current_commandant_finished %}
-                  <a href="/cycle_monitoring/?commandant_cycle_status=commandant_cycle_finished" class="dropdown-item" style="text-align: center; padding-top: 1rem;">
+                  <a href="/cycle_monitoring/?commandant_cycle_status=commandant_cycle_finished" class="dropdown-item u-text-align-center-padding-top-1rem">
                       <h6><i class="fas fa-check"></i>  {% trans "Passer prêt pour fin de cycle" %}</h6></a>
                 {% else %}
-                  <a href="/cycle_monitoring/?commandant_cycle_status=commandant_cycle_playing" class="dropdown-item" style="text-align: center; padding-top: 1rem;">
+                  <a href="/cycle_monitoring/?commandant_cycle_status=commandant_cycle_playing" class="dropdown-item u-text-align-center-padding-top-1rem">
                       <h6><i class="fas fa-xmark"></i>  {% trans "Passer non prêt pour fin du cycle" %}</h6></a>
                 {% endif %}
               {% endif %}
@@ -77,10 +79,10 @@
               <div class="dropdown-divider"></div>
 
               {% if not current_commandant_absent %}
-                <a href="/cycle_monitoring/?commandant_cycle_presence=commandant_cycle_absent" class="dropdown-item" style="text-align: center; padding-top: 1rem;">
+                <a href="/cycle_monitoring/?commandant_cycle_presence=commandant_cycle_absent" class="dropdown-item u-text-align-center-padding-top-1rem">
                     <h6><i class="fas fa-moon"></i>  {% trans "Se mettre en mode absent" %}</h6></a>
               {% else %}
-                <a href="/cycle_monitoring/?commandant_cycle_presence=commandant_cycle_present" class="dropdown-item" style="text-align: center; padding-top: 1rem;">
+                <a href="/cycle_monitoring/?commandant_cycle_presence=commandant_cycle_present" class="dropdown-item u-text-align-center-padding-top-1rem">
                     <h6><i class="fas fa-sun"></i>  {% trans "Retirer le mode absent" %}</h6></a>
               {% endif %}
 
@@ -91,7 +93,7 @@
                 <!-- Message Start -->
                 <div class="media">
                   <div class="media-body">
-                    <h3 class="dropdown-item-title" style="margin-bottom: 0.5rem;">
+                    <h3 class="dropdown-item-title u-margin-bottom-0-5rem">
                       {% trans "Cycle en cours" %}
                     </h3>
                     {% for comm_playing in commandants_cycle_playing %}
@@ -106,7 +108,7 @@
                 <!-- Message Start -->
                 <div class="media">
                   <div class="media-body">
-                    <h3 class="dropdown-item-title" style="margin-bottom: 0.5rem;">
+                    <h3 class="dropdown-item-title u-margin-bottom-0-5rem">
                       {% trans "Cycle terminé" %}
                     </h3>
                     {% for comm_finished in commandants_cycle_finished %}
@@ -129,7 +131,7 @@
   <!-- /.navbar -->
 
   <!-- Main Sidebar Container -->
-  <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-color: var(--tss-sidebar-bg, #333f50);">
+  <aside class="main-sidebar sidebar-dark-primary elevation-4 u-background-color-var-tss-sidebar-bg-333f50">
     <!-- Brand Logo -->
     <a href="/user_account/" class="brand-link">
       <img src={% static "images/logo/TSS-logo-white.png" %} class="brand-image">

@@ -1,0 +1,72 @@
+
+{% load static %}
+{% load hijack %}
+
+{% include "includes/head.html" with title="TSS Admin : Contrôle des comptes" %}
+
+{% include "includes/menu_admin.html" %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Contrôle des comptes joueurs</h1>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Se connecter à la place d'un joueur. Chaque prise de contrôle est journalisée.</h3>
+          </div>
+          <div class="card-body">
+            <table id="DataTable" data-datatable class="table table-bordered table-hover">
+              <thead>
+                  <tr>
+                    <th>Compte</th>
+                    <th>E-mail</th>
+                    <th>Rôle</th>
+                    <th>Actif</th>
+                    <th>Dernière connexion</th>
+                    <th>Inscription</th>
+                    <th></th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for player in players %}
+                      <tr>
+                          <td>{{player.username}}</td>
+                          <td>{{player.email}}</td>
+                          <td>{% if player.is_superuser %}Superadmin{% elif player.is_staff %}Staff{% else %}Joueur{% endif %}</td>
+                          <td>{{player.is_active|yesno:"Oui,Non"}}</td>
+                          <td>{{player.last_login|date:'d/m/Y H:i'}}</td>
+                          <td>{{player.date_joined|date:'d/m/Y H:i'}}</td>
+                          <td>
+                            {% if request.user|can_hijack:player %}
+                              <form action="{% url 'hijack:acquire' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="user_pk" value="{{player.pk}}">
+                                <input type="hidden" name="next" value="/user_account/">
+                                <button type="submit" class="btn btn-warning btn-sm"><i class="fas fa-user-secret"></i> Prendre le contrôle</button>
+                              </form>
+                            {% endif %}
+                          </td>
+                      </tr>
+                  {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+    </section>
+    <!-- /.content -->
+  </div>
+
+</body>
+</html>

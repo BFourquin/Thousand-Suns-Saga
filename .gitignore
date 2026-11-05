@@ -2,6 +2,9 @@
 # Project and database critical infos and passwords
 settings.py
 
+# Readable copy of the Excel files, generated for Claude
+.claude/excel_export/
+
 # Excel cache files
 ~$TSS.xlsx
 ~$TSS_boardgame.xlsx

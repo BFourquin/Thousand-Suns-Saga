@@ -1,3 +1,6 @@
+import logging
+
+from django.dispatch import receiver
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib.auth.models import User
@@ -9,6 +12,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth import login
 from django.core.validators import validate_email
 from django.core.paginator import Paginator
+from hijack.signals import hijack_started, hijack_ended
 from bokeh.plotting import figure
 from bokeh.embed import components
 
@@ -17,6 +21,8 @@ from backend.login import throttled_authenticate
 from backend.utils import request_params
 from database.db_connect import PaginatedCollection
 from data import server_details, user, technology, sectors, systems, coordinates, map_generator
+
+logger = logging.getLogger(__name__)
 
 
 def admin_login(request):
@@ -56,15 +62,6 @@ def admin_main_dashboard(request):
 
 
 
-def test_hijack(request):
-
-    from django.contrib.auth.models import User
-
-    target = User.objects.get(id=2)
-
-    return render(request, 'admin/test_hijack.html', {'another_user': target})
-
-
 ########################################################################################################################
 # GENERAL ADMINISTRATION PAGES
 ########################################################################################################################
@@ -73,6 +70,21 @@ def test_hijack(request):
 @staff_member_required(login_url='/admin_login/')
 def admin_user_accounts(request):
     return render(request, 'admin/admin_user_accounts.html', {'user_accounts': user.get_all_users(strify=True)})
+
+
+@staff_member_required(login_url='/admin_login/')
+def admin_player_control(request):
+    return render(request, 'admin/admin_player_control.html', {'players': User.objects.order_by('username')})
+
+
+@receiver(hijack_started)
+def log_hijack_started(sender, hijacker, hijacked, **kwargs):
+    logger.warning('Hijack : %s takes control of the account of %s', hijacker.username, hijacked.username)
+
+
+@receiver(hijack_ended)
+def log_hijack_ended(sender, hijacker, hijacked, **kwargs):
+    logger.warning('Hijack : %s gives back the account of %s', hijacker.username, hijacked.username)
 
 
 @staff_member_required(login_url='/admin_login/')
@@ -138,7 +150,7 @@ def admin_geography(request):
         for entry in geography_table:
             for key, value in entry.items():
                 if key in ('_id', 'seed', 'sector_id', 'system_id'):
-                    entry[key] = format_html('<a href="?server_name_selected={}&target={}">{}</a>', server, value, value)
+                    entry[key] = format_html('<a href="?server_name_selected={}&amp;target={}">{}</a>', server, value, value)
 
 
         return geography_table
@@ -157,7 +169,7 @@ def admin_geography(request):
             geo_uncluttered = geo.copy()
             if 'system_coordinates' in geo_uncluttered:
                 geo_uncluttered['system_coordinates'] = format_html_join(
-                    mark_safe('<br>'), '<a href="?server_name_selected={}&target={}">{}</a> : {}',
+                    mark_safe('<br>'), '<a href="?server_name_selected={}&amp;target={}">{}</a> : {}',
                     ((server, seed, seed, name) for seed, name in geo['system_coordinates'].items()))
 
             systems_table.append(geo_uncluttered)

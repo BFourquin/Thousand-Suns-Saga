@@ -1,0 +1,9 @@
+{% load i18n %}
+{% if request.user.is_hijacked %}
+<form action="{% url 'hijack:release' %}" method="POST" class="alert alert-warning mb-0 text-center">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="/admin_player_control/">
+  <i class="fas fa-user-secret"></i> {% trans "Vous contrôlez le compte de" %} <strong>{{ request.user.username }}</strong>
+  <button type="submit" class="btn btn-dark btn-sm ml-2">{% trans "Reprendre mon compte" %}</button>
+</form>
+{% endif %}
