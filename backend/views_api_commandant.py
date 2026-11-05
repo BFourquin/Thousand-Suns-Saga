@@ -1,13 +1,9 @@
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.core.validators import validate_email
+from django.views.decorators.http import require_POST
 
 
 from backend.utils import request_params
-from data.user import user_name_exist, create_user_and_user_extend, get_user_by_name, get_user_by_object_id
-from backend.api_ui_interactions import api_pop_up, api_pop_up_and_redirect
+from data.user import user_name_exist
+from backend.api_ui_interactions import api_pop_up, api_pop_up_and_redirect, api_login_required
 from data import server_details, commandant
 
 
@@ -28,10 +24,20 @@ def api_can_join_server(request):
 
 
 
+@require_POST
+@api_login_required
 def api_create_commandant(request):
 
     params = request_params(request)
-    user = get_user_by_name(params['user'])
+
+    # ##### SERVER ######
+    server = server_details.get_server_details(params.get('server'))
+    if not server:
+        return api_pop_up({"title": "Ce serveur n'existe pas", "level": "danger"}, status=400)
+
+    if server['status'] != 'open' and not request.user.is_superuser:
+        return api_pop_up({"title": "Ce serveur n'accepte pas de nouveaux joueurs", "level": "danger"}, status=400)
+
 
     # ##### USERNAME ######
     if not 'commandant_name' in params:
@@ -55,7 +61,7 @@ def api_create_commandant(request):
         return api_pop_up({"title": "Votre nom de civilisation doit faire entre 5 et 40 caractères", "level": "danger"}, status=400)
 
 
-    feedback = commandant.create_commandant(params['server'], params['user'],
+    feedback = commandant.create_commandant(server['server_name'], request.user.username,
                                             params['commandant_name'],
                                             params['civilisation_name'])
 
@@ -63,23 +69,5 @@ def api_create_commandant(request):
     if not feedback == 'created':
         return api_pop_up({"title": str(feedback), "level": "danger"}, status=400)
 
-    return api_pop_up_and_redirect({"title": "Compte créé", "level": "success"}, status=302, redirect='/user_account/')
+    return api_pop_up_and_redirect({"title": "Compte créé", "level": "success"}, status=200, redirect='/user_account/')
 
-
-
-def get_commandant(request):
-
-    params = request_params(request)
-    user = None
-
-    if 'id' in params:
-        user = get_user_by_object_id(params['id'])
-    if 'username' in params:
-        user = get_user_by_name(params['username'])
-
-    if not user:
-        return JsonResponse({"error": "Compte inexistant."}, status=400)
-
-    user['_id'] = str(user['_id'])  # ObjectId is not serializable
-    del user['password']  # Don't communicate the password hash...
-    return JsonResponse({'user': user}, status=200)

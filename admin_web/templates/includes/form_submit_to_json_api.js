@@ -2,10 +2,14 @@
 
 <script>
 
+    // Toasts built in AdminLTE : https://adminlte.io/docs/3.0/javascript/toasts.html
+    var popup_class_level = {'success': 'bg-success', 'info': 'bg-info', 'warning': 'bg-warning', 'danger': 'bg-danger'};
+
     function api_interaction(json) {
-      if (!json) {
+      // Anything but JSON (server error, CSRF refusal, network failure...) : the player still has to be told
+      if (!json || typeof json !== 'object') {
         console.error("JSON response invalid or empty");
-        return;
+        json = {"popup": true, "level": "danger", "title": "Une erreur est survenue, veuillez réessayer"};
       }
       if (json.hasOwnProperty("popup")) { popup(json); }
       if (json.hasOwnProperty("redirect")) { redirect(json); }
@@ -21,7 +25,7 @@
     function popup(json) {
 
       var toast = {}
-      if (json.hasOwnProperty("class")) {toast['class'] = json.class;}
+      if (popup_class_level.hasOwnProperty(json.level)) {toast['class'] = popup_class_level[json.level];}
       if (json.hasOwnProperty("title")) {toast['title'] = json.title;}
       if (json.hasOwnProperty("subtitle")) {toast['subtitle'] = json.subtitle;}
       if (json.hasOwnProperty("body")) {toast['body'] = json.body;}
@@ -40,8 +44,7 @@
                 url: {% if api_url %}'/{{api_url}}/'{% else %}'/{{form}}/'{% endif %},
                 data: $(this).serialize(),
                 type: 'POST',
-                done: function(data) {api_interaction(data.responseJSON)},
-                // error: function(data) {alert('[Erreur ' + data.status + '] ' + data.responseJSON.message)}
+                success: function(data) {api_interaction(data)},
                 error: function(data) {api_interaction(data.responseJSON)}
             })
         });

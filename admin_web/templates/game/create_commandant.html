@@ -47,7 +47,6 @@
             <form id="api_create_commandant" method="POST">
               {% csrf_token %}
                <input type="hidden" id="server" name="server" value={{server.server_name}} />
-               <input type="hidden" id="user" name="user" value={{user.username}} />
 
               <div class="form-group">
                 <label for="commandant_name">{% trans "Nom de votre commandant"%}</label>

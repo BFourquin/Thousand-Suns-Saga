@@ -34,11 +34,9 @@ urlpatterns = [
 
     # USERS
     path('create_user/', views_api_user.create_user),
-    path('get_user/', views_api_user.get_user),
 
     # COMMANDANTS
     path('api_create_commandant/', views_api_commandant.api_create_commandant),
-    path('get_commandant/', views_api_commandant.get_commandant),
 
     # BUILDINGS & DISTRICTS
     path('api_build_district/', views_api_buildings.api_build_district),

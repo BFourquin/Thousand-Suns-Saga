@@ -1,4 +1,6 @@
 
+from functools import wraps
+
 from django.http import JsonResponse
 
 
@@ -13,24 +15,10 @@ from django.http import JsonResponse
 
 
 def api_pop_up(response, status):
-    # Based on "Toasts Examples built in AdminLTE"
-    # https://adminlte.io/docs/3.0/javascript/toasts.html
+    # Optionals parameters : "level", "title", "subtitle", "body", "autohide", "delay"
+    # Their display is managed by includes/form_submit_to_json_api.js
 
     response['popup'] = True
-
-    # Optionals parameters : "level", "title", "subtitle", "body", "autohide", "delay", "icon", "image"
-
-    # Message level
-    popup_class_level = {'success': 'bg-success', 'info': 'bg-info', 'warning': 'bg-warning', 'danger': 'bg-danger'}
-    if 'level' in response and response['level'] in popup_class_level:
-        response['class'] = popup_class_level[response['level']]
-
-    # Default hiding:
-    if not 'autohide' in response:
-        response['autohide'] = True
-    if not 'delay' in response:
-        response['delay'] = 3000
-
     return JsonResponse(response, status=status)
 
 
@@ -41,3 +29,19 @@ def api_pop_up(response, status):
 def api_pop_up_and_redirect(response, status, redirect):
     response['redirect'] = redirect
     return api_pop_up(response, status)
+
+
+########################################################################################################################
+# AUTHENTICATION
+
+
+def api_login_required(view_func):
+    # login_required would redirect to an HTML page, unreadable by the AJAX caller
+
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return api_pop_up_and_redirect({"title": "Session expirée, veuillez vous reconnecter", "level": "warning"},
+                                           status=401, redirect='/player_login/')
+        return view_func(request, *args, **kwargs)
+    return wrapper

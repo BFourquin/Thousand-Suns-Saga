@@ -1,13 +1,10 @@
-from django.shortcuts import render, redirect
-from django.http import JsonResponse
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from bson.objectid import ObjectId
 
 
 from database.db_connect import databases
 from backend.utils import request_params, get_active_server_and_commandant_from_request
-from backend.api_ui_interactions import api_pop_up, api_pop_up_and_redirect
+from backend.api_ui_interactions import api_pop_up, api_pop_up_and_redirect, api_login_required
 from data.resources import check_enough_resources_dict
 from data.colonies import check_available_district_slot, recalculate_districts_slots
 from data.districts import create_district, delete_district
@@ -15,16 +12,26 @@ from data.buildings import set_activation_percent_building
 
 
 
-@login_required(login_url='/player_login/')
+def no_active_commandant():
+    return api_pop_up_and_redirect({"title": "Aucun commandant actif", "level": "warning"}, status=400, redirect='/user_account/')
+
+
+def invalid_colony():
+    return api_pop_up_and_redirect({"title": "Colonie invalide", "level": "danger"}, status=400, redirect='/colonies/')
+
+
+
+@require_POST
+@api_login_required
 def api_build_district(request):
 
     params = request_params(request)
     server, commandant = get_active_server_and_commandant_from_request(request)
 
     if not server or not commandant:
-        return redirect('/user_account/')
+        return no_active_commandant()
     if 'colony_id' not in params or ObjectId(params['colony_id']) not in commandant['colonies']:
-        return redirect('/colonies/')
+        return invalid_colony()
 
     # Get district type
 
@@ -58,11 +65,12 @@ def api_build_district(request):
     # TODO buildings locked by tech
 
     create_district(server, params['colony_id'], district_type['internal_name'])
-    return api_pop_up_and_redirect({"title": "District en construction", "level": "success"}, status=302, redirect='/colony/?colony_id='+str(params['colony_id']))
+    return api_pop_up_and_redirect({"title": "District en construction", "level": "success"}, status=200, redirect='/colony/?colony_id='+str(params['colony_id']))
 
 
 
-@login_required(login_url='/player_login/')
+@require_POST
+@api_login_required
 def api_district_set_activation_percent(request):
 
     params = request_params(request)
@@ -72,13 +80,13 @@ def api_district_set_activation_percent(request):
     try:
         activation_percent = int(activation_percent)
     except ValueError:
-        return api_pop_up({"title": "Paramètre invalide", "body": activation_percent, "level": "danger"}, status=400)
+        return api_pop_up({"title": "Paramètre invalide", "level": "danger"}, status=400)
 
 
     if not server or not commandant:
-        return redirect('/user_account/')
+        return no_active_commandant()
     if 'colony_id' not in params or ObjectId(params['colony_id']) not in commandant['colonies']:
-        return redirect('/colonies/')
+        return invalid_colony()
     if 'district_id' not in params:
         return api_pop_up({"title": "Cible de l'action invalide", "level": "danger"}, status=400)
 
@@ -99,21 +107,20 @@ def api_district_set_activation_percent(request):
 
     for building_id in district['buildings_ids']:
         set_activation_percent_building(server, building_id, activation_percent)
-    return api_pop_up_and_redirect({"title": "Application du taux d'activation", "level": "success"}, status=302, redirect='/colony/?colony_id='+str(params['colony_id']))
+    return api_pop_up_and_redirect({"title": "Application du taux d'activation", "level": "success"}, status=200, redirect='/colony/?colony_id='+str(params['colony_id']))
 
 
-@login_required(login_url='/player_login/')
+@require_POST
+@api_login_required
 def api_delete_district(request):
 
     params = request_params(request)
     server, commandant = get_active_server_and_commandant_from_request(request)
 
-    print("DELETE > ", params)
-
     if not server or not commandant:
-        return redirect('/user_account/')
+        return no_active_commandant()
     if 'colony_id' not in params or ObjectId(params['colony_id']) not in commandant['colonies']:
-        return redirect('/colonies/')
+        return invalid_colony()
     if 'district_id' not in params:
         return api_pop_up({"title": "Cible de la démolition invalide", "level": "danger"}, status=400)
 
@@ -133,4 +140,4 @@ def api_delete_district(request):
 
     # TODO if recycling, long order instead of instantaneous
     delete_district(server, params['district_id'])
-    return api_pop_up_and_redirect({"title": "Destruction en cours du district", "level": "success"}, status=302, redirect='/colony/?colony_id='+str(params['colony_id']))
+    return api_pop_up_and_redirect({"title": "Destruction en cours du district", "level": "success"}, status=200, redirect='/colony/?colony_id='+str(params['colony_id']))

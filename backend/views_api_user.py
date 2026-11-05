@@ -1,11 +1,8 @@
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
 from django.core.validators import validate_email
+from django.views.decorators.http import require_POST
 
 from backend.api_ui_interactions import api_pop_up, api_pop_up_and_redirect
-from data.user import user_name_exist, create_user_and_user_extend, get_user_by_name, get_user_by_object_id, user_mail_already_used
+from data.user import user_name_exist, create_user_and_user_extend, user_mail_already_used
 
 
 def request_params(request):
@@ -15,6 +12,7 @@ def request_params(request):
     return params
 
 
+@require_POST
 def create_user(request):
 
     params = request_params(request)
@@ -22,7 +20,6 @@ def create_user(request):
     # ##### USERNAME ######
     if not 'username' in params:
         return api_pop_up({"title": "Aucun nom d'utilisateur spécifié", "level": "danger"}, status=400)
-    print(params['username'], user_name_exist(params['username']), get_user_by_name(params['username']))
     if user_name_exist(params['username']):
         return api_pop_up({"title": "Ce nom de compte est déjà pris", "level": "danger"}, status=400)
     if not 5 < len(params['username']) < 25:
@@ -43,22 +40,4 @@ def create_user(request):
         return api_pop_up({"title": "Aucun mot de passe spécifié", "level": "danger"}, status=400)
 
     user = create_user_and_user_extend(params['username'], params['email'], params['password'])
-    return api_pop_up_and_redirect({"title": "Compte créé", "level": "success"}, status=302, redirect='/player_login/')
-
-
-def get_user(request):
-
-    params = request_params(request)
-    user = None
-
-    if 'id' in params:
-        user = get_user_by_object_id(params['id'])
-    if 'username' in params:
-        user = get_user_by_name(params['username'])
-
-    if not user:
-        return api_pop_up({"title": "Compte inexistant", "level": "danger"}, status=400)
-
-    user['_id'] = str(user['_id'])  # ObjectId is not serializable
-    del user['password']  # Don't communicate the password hash...
-    return JsonResponse({'user': user}, status=200)
+    return api_pop_up_and_redirect({"title": "Compte créé", "level": "success"}, status=200, redirect='/player_login/')
