@@ -99,9 +99,18 @@ def new_colony(server, commandant_id, colony_name, coordinate, colony_type, cent
 # DISTRICTS SLOTS
 
 
-def check_available_district_slot(server, colony_id, nb_slots):
-    slots_total, slots_occupied = recalculate_districts_slots(server, colony_id)
-    return nb_slots <= slots_total - slots_occupied
+def add_district_if_slot_free(server, colony_id, district_id):
+    # Check and add in a single query : two simultaneous builds can't take the same slot
+    # The central district doesn't use a slot, hence the + 1
+    # TODO take into account future special districts with different slots size
+
+    client = databases['TSS_' + server]
+    db = client['colonies']
+
+    result = db.update_one({"_id": ObjectId(colony_id),
+                            "$expr": {"$lt": [{"$size": "$districts"}, {"$add": ["$districts_slots_total", 1]}]}},
+                           {"$push": {"districts": ObjectId(district_id)}})
+    return result.modified_count == 1
 
 
 def recalculate_districts_slots(server, colony_id):

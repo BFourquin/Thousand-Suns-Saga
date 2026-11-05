@@ -2,9 +2,9 @@ from django.views.decorators.http import require_POST
 
 
 from backend.utils import request_params
-from data.user import user_name_exist
 from backend.api_ui_interactions import api_pop_up, api_pop_up_and_redirect, api_login_required
 from data import server_details, commandant
+from data.errors import GameError
 
 
 def api_can_join_server(request):
@@ -43,7 +43,7 @@ def api_create_commandant(request):
     if not 'commandant_name' in params:
         return api_pop_up({"title": "Aucun nom de commandant spécifié", "level": "danger"}, status=400)
 
-    if user_name_exist(params['commandant_name']):
+    if commandant.commandant_field_taken(server['server_name'], 'commandant_name', params['commandant_name']):
         return api_pop_up({"title": "Ce nom de commandant est déjà pris", "level": "danger"}, status=400)
 
     if not 5 <= len(params['commandant_name']) <= 25:
@@ -54,20 +54,19 @@ def api_create_commandant(request):
     if not 'civilisation_name' in params:
         return api_pop_up({"title": "Aucun nom de civilisation spécifié", "level": "danger"}, status=400)
 
-    if user_name_exist(params['civilisation_name']):
+    if commandant.commandant_field_taken(server['server_name'], 'civilisation_name', params['civilisation_name']):
         return api_pop_up({"title": "Ce nom de civilisation est déjà pris", "level": "danger"}, status=400)
 
     if not 5 <= len(params['civilisation_name']) <= 40:
         return api_pop_up({"title": "Votre nom de civilisation doit faire entre 5 et 40 caractères", "level": "danger"}, status=400)
 
 
-    feedback = commandant.create_commandant(server['server_name'], request.user.username,
-                                            params['commandant_name'],
-                                            params['civilisation_name'])
-
-
-    if not feedback == 'created':
-        return api_pop_up({"title": str(feedback), "level": "danger"}, status=400)
+    try:
+        commandant.create_commandant(server['server_name'], request.user.username,
+                                     params['commandant_name'],
+                                     params['civilisation_name'])
+    except GameError as e:
+        return api_pop_up({"title": str(e), "level": "danger"}, status=400)
 
     return api_pop_up_and_redirect({"title": "Compte créé", "level": "success"}, status=200, redirect='/user_account/')
 

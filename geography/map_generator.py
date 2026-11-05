@@ -85,8 +85,11 @@ def load_map_generator_parameters(server_name, excel_path):
 def remove_past_generation(server):
     from database.db_connect import databases
 
-    for category in ('sectors', 'systems', 'planets'):
+    for category in ('sectors', 'systems', 'coordinates'):
         databases['TSS_' + server][category].delete_many({})
+
+    # These planets don't exist anymore
+    databases['TSS_' + server]['starting_values'].update_many({}, {'$set': {'available_native_planets': []}})
 
 
 if __name__ == '__main__':

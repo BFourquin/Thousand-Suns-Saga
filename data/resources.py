@@ -1,4 +1,5 @@
 
+from bson.objectid import ObjectId
 
 from data.commandant import get_commandant_by_object_id, update_commandant
 from database.db_connect import databases
@@ -92,6 +93,32 @@ def resource_change(server, commandant_id, resource, quantity, allow_negative=Fa
                           commandant['resources'][resource])
         return True
     return False
+
+
+########################################################################################################################
+
+
+def pay_resources(server, commandant_id, cost):
+    # Check and debit in a single query : two simultaneous orders can't spend the same stock
+
+    cost = {resource: quantity for resource, quantity in cost.items() if quantity > 0}
+    if not cost:
+        return True
+
+    query = {'_id': ObjectId(commandant_id)}
+    for resource, quantity in cost.items():
+        query['resources.' + resource] = {'$gte': quantity}
+
+    db = databases['TSS_' + server]['commandants']
+    result = db.update_one(query, {'$inc': {'resources.' + resource: -quantity for resource, quantity in cost.items()}})
+    return result.modified_count == 1
+
+
+def add_resources(server, commandant_id, gains):
+    if gains:
+        db = databases['TSS_' + server]['commandants']
+        db.update_one({'_id': ObjectId(commandant_id)},
+                      {'$inc': {'resources.' + resource: quantity for resource, quantity in gains.items()}})
 
 
 ########################################################################################################################

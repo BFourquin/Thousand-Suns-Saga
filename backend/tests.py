@@ -53,8 +53,8 @@ class ApiRoutesTests(SimpleTestCase):
         create.assert_called_once()
 
 
-@patch('backend.views_api_commandant.user_name_exist', return_value=False)
-@patch('backend.views_api_commandant.commandant.create_commandant', return_value='created')
+@patch('backend.views_api_commandant.commandant.commandant_field_taken', return_value=False)
+@patch('backend.views_api_commandant.commandant.create_commandant')
 @patch('backend.views_api_commandant.server_details.get_server_details')
 class ApiCreateCommandantTests(SimpleTestCase):
 
@@ -80,10 +80,11 @@ class ApiCreateCommandantTests(SimpleTestCase):
 class ApiDistrictsTests(SimpleTestCase):
 
     colony_id = ObjectId()
+    commandant_id = ObjectId()
 
     def active(self):
         return patch('backend.views_api_buildings.get_active_server_and_commandant_from_request',
-                     return_value=('S', {'_id': ObjectId(), 'colonies': [self.colony_id]}))
+                     return_value=('S', {'_id': self.commandant_id, 'colonies': [self.colony_id]}))
 
     @patch('backend.views_api_buildings.get_active_server_and_commandant_from_request', return_value=(None, None))
     def test_no_active_commandant_answers_json(self, _active):
@@ -107,4 +108,4 @@ class ApiDistrictsTests(SimpleTestCase):
             response = call('/api_delete_district/', user=player(),
                             data={'colony_id': str(self.colony_id), 'district_id': district_id})
         self.assertEqual(response.status_code, 200)
-        delete.assert_called_once_with('S', district_id)
+        delete.assert_called_once_with('S', self.commandant_id, district_id)

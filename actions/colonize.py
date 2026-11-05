@@ -1,5 +1,8 @@
 
+from django.utils.translation import gettext as _
+
 from data import colonies, districts, coordinates, starting_values
+from data.errors import GameError
 
 
 def check_if_colonisable(commandant, coordinate_seed):
@@ -15,7 +18,7 @@ def colonize(server, commandant_id, fleet_id, coordinate_seed, colony_type, cent
     if not admin_force_action:  # Bypass checks and needing a colonizer ship if admin action
 
         if not check_if_colonisable(commandant_id, coordinate_seed):
-            return 'Planet is not colonisable'  # TODO translation
+            raise GameError(_("Cette planète n'est pas colonisable"))
 
         # TODO check the fleet has a colonizer ship
         # TODO remove the colonizer ship

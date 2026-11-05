@@ -5,8 +5,7 @@ from bson.objectid import ObjectId
 from database.db_connect import databases
 from backend.utils import request_params, get_active_server_and_commandant_from_request
 from backend.api_ui_interactions import api_pop_up, api_pop_up_and_redirect, api_login_required
-from data.resources import check_enough_resources_dict
-from data.colonies import check_available_district_slot, recalculate_districts_slots
+from data.resources import check_enough_resources_dict, pay_resources, add_resources
 from data.districts import create_district, delete_district
 from data.buildings import set_activation_percent_building
 
@@ -55,16 +54,22 @@ def api_build_district(request):
         return api_pop_up({"title": "Ressources manquantes pour la construction", "level": "danger", "body": missing_details}, status=400)
 
 
-    # Check building slot
-
-    if not check_available_district_slot(server, params['colony_id'], 1):  # TODO take into account future special districts with different slots size
-        return api_pop_up({"title": "Cette colonie n'a plus d'espace pour un nouveau district de cette taille", "level": "danger"}, status=400)
-
-
     # Check needed technologies unlocked
     # TODO buildings locked by tech
 
-    create_district(server, params['colony_id'], district_type['internal_name'])
+    if not pay_resources(server, commandant['_id'], district_type['build_cost']):
+        return api_pop_up({"title": "Ressources manquantes pour la construction", "level": "danger"}, status=400)
+
+    try:
+        created = create_district(server, params['colony_id'], district_type['internal_name'])
+    except Exception:
+        add_resources(server, commandant['_id'], district_type['build_cost'])
+        raise
+
+    if not created:
+        add_resources(server, commandant['_id'], district_type['build_cost'])
+        return api_pop_up({"title": "Cette colonie n'a plus d'espace pour un nouveau district de cette taille", "level": "danger"}, status=400)
+
     return api_pop_up_and_redirect({"title": "District en construction", "level": "success"}, status=200, redirect='/colony/?colony_id='+str(params['colony_id']))
 
 
@@ -139,5 +144,5 @@ def api_delete_district(request):
         return api_pop_up({"title": "Cible de la démolition invalide", "level": "danger"}, status=400)
 
     # TODO if recycling, long order instead of instantaneous
-    delete_district(server, params['district_id'])
+    delete_district(server, commandant['_id'], params['district_id'])
     return api_pop_up_and_redirect({"title": "Destruction en cours du district", "level": "success"}, status=200, redirect='/colony/?colony_id='+str(params['colony_id']))

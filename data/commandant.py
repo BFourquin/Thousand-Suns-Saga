@@ -1,8 +1,11 @@
 import datetime
 from random import randint
 from bson.objectid import ObjectId
+from django.utils.translation import gettext as _
+from pymongo.collation import Collation
 
 from database.db_connect import databases
+from data.errors import GameError
 from data import server_details
 from data import starting_values as sv
 from data.user import get_user_by_name, update_user, pull_param_user
@@ -52,92 +55,94 @@ def valid_commandant_creation(server, user, pseudo,
 
 def create_commandant(server, user, commandant_name, civilisation_name):
 
-    try:
+    client = databases['TSS_' + server]
+    db = client['commandants']
 
-        client = databases['TSS_' + server]
-        db = client['commandants']
+    user = get_user_by_name(user)
+    starting_values = sv.get_starting_values(server)
 
-        user = get_user_by_name(user)
-        starting_values = sv.get_starting_values(server)
+    if not starting_values['available_native_planets']:
+        raise GameError(_("Ce serveur ne possède plus de places disponibles"))
 
-        starting_planet_id = starting_values['available_native_planets'][randint(0, len(starting_values['available_native_planets'])-1)]
+    starting_planet_id = starting_values['available_native_planets'][randint(0, len(starting_values['available_native_planets'])-1)]
 
-        commandant = {
+    commandant = {
 
-            # Account parameters
-            'id': None,  # Get it later
-            'commandant_name': commandant_name,
-            'civilisation_name': civilisation_name,
-            'gender': 'm',  # TODO gender
+        # Account parameters
+        'id': None,  # Get it later
+        'commandant_name': commandant_name,
+        'civilisation_name': civilisation_name,
+        'gender': 'm',  # TODO gender
 
-            'portrait': 'images/commandants/default_flag.jpg',
-            'flag': 'images/commandants/default_portrait.jpg',
+        'portrait': 'images/commandants/default_flag.jpg',
+        'flag': 'images/commandants/default_portrait.jpg',
 
-            'server': server,
-            'status': 'active',
-            'user_id': user['_id'],
-            'user_name': user['username'],
-            'creation_date': datetime.datetime.now(),
+        'server': server,
+        'status': 'active',
+        'user_id': user['_id'],
+        'user_name': user['username'],
+        'creation_date': datetime.datetime.now(),
 
-            # Starting position
-            'native_entente': None,  # TODO native_faction
-            'native_sector': utils.info_from_seed(starting_planet_id)['sector_id'],
-            'native_system': utils.info_from_seed(starting_planet_id)['system_id'],
-            'native_planet': starting_planet_id,
+        # Starting position
+        'native_entente': None,  # TODO native_faction
+        'native_sector': utils.info_from_seed(starting_planet_id)['sector_id'],
+        'native_system': utils.info_from_seed(starting_planet_id)['system_id'],
+        'native_planet': starting_planet_id,
 
-            # Empire and allegiances
-            'capital': None,
-            'colonies': [],
-            'resources': starting_values['starting_resources'],
-            'technologies': starting_values['starting_technologies'],
-            'player_modifiers': starting_values['starting_modifiers'],
-            'owned_ship_designs': [],
-            'orientations': {},
+        # Empire and allegiances
+        'capital': None,
+        'colonies': [],
+        'resources': starting_values['starting_resources'],
+        'technologies': starting_values['starting_technologies'],
+        'player_modifiers': starting_values['starting_modifiers'],
+        'owned_ship_designs': [],
+        'orientations': {},
 
-            # Reports
-            'reports': [],
-            'nb_unread_reports': 0,
+        # Reports
+        'reports': [],
+        'nb_unread_reports': 0,
 
-            # Other
-            'time_last_activity': None,
-            'time_cycle_finished': None,
-            'tutorial_step': None,
-        }
-
-
-        db.insert_one(commandant)
-
-        # Add commandant reference to user
-        commandant_id = get_commandant_by_name(server, commandant_name)['_id']
-        accounts = user['accounts']
-        accounts.append(commandant_id)
-        update_user(user, 'accounts', accounts)
-
-        update_commandant(server, commandant_id, 'id', commandant_id)  # Add id field (django template can't read '_id')
-
-        # Add commandant and user references to server_details
-        server_details.add_active_user(server, user['_id'])
-        server_details.add_active_commandant(server, commandant_id)
+        # Other
+        'time_last_activity': None,
+        'time_cycle_finished': None,
+        'tutorial_step': None,
+    }
 
 
-        # Starting colony
-        colonize.colonize(server, commandant_id,
-                          fleet_id=None,
-                          coordinate_seed=starting_planet_id,
-                          colony_name=None,
-                          colony_type='starting_colony',
-                          central_district_type='district_territory',
-                          admin_force_action=True)
+    db.insert_one(commandant)
 
-        # Welcome and tutorial report
-        from data.report import create_report  # Placed here to prevent circular import
-        create_report(server, commandant_id, 'welcome_on_TSS')
+    # Add commandant reference to user
+    commandant_id = get_commandant_by_name(server, commandant_name)['_id']
+    accounts = user['accounts']
+    accounts.append(commandant_id)
+    update_user(user, 'accounts', accounts)
 
-        return 'created'
+    update_commandant(server, commandant_id, 'id', commandant_id)  # Add id field (django template can't read '_id')
 
-    except Exception as e:
-        raise e
-    #    return e
+    # Add commandant and user references to server_details
+    server_details.add_active_user(server, user['_id'])
+    server_details.add_active_commandant(server, commandant_id)
+
+
+    # Starting colony
+    colonize.colonize(server, commandant_id,
+                      fleet_id=None,
+                      coordinate_seed=starting_planet_id,
+                      colony_name=None,
+                      colony_type='starting_colony',
+                      central_district_type='district_territory',
+                      admin_force_action=True)
+
+    # Welcome and tutorial report
+    from data.report import create_report  # Placed here to prevent circular import
+    create_report(server, commandant_id, 'welcome_on_TSS')
+
+
+def commandant_field_taken(server, field, value):
+    # Case insensitive search of a commandant_name or civilisation_name
+    # shortcut: no unique index, two simultaneous creations can still collide, add the index when indexes are created
+    client = databases['TSS_' + server]
+    return bool(client['commandants'].find_one({field: value}, collation=Collation(locale='fr', strength=2)))
 
 
 def get_commandant_by_object_id(server, _id):

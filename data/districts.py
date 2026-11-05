@@ -54,17 +54,16 @@ def pull_param_district(server, district_id, param, value):
 
 
 def create_district(server, colony_id, district_type, starting_buildings=None):
+    # Return False if the colony has no free slot for it
 
     client = databases['TSS_' + server]
     db = client['districts']
 
     district_type_properties = districts_types.get_district_type(server, district_type)
+    is_central = district_type_properties['category'] == 'central_district'
 
-    # Check if slot available for a new district
-    if district_type_properties['category'] != 'central_district':
-        colonies.check_available_district_slot(server, colony_id, 1)  # TODO take into account future special districts with different slots size
     # Central district : they define how many districts slots you have
-    else:
+    if is_central:
         colonies.update_colony(server, colony_id, 'districts_slots_total', district_type_properties['districts_slots'])
 
     district = {
@@ -88,44 +87,42 @@ def create_district(server, colony_id, district_type, starting_buildings=None):
         'damages': 0,
     }
 
-
     district_id = db.insert_one(district).inserted_id
-    colonies.push_param_colony(server, colony_id, 'districts', ObjectId(district_id))  # Add to colony's list of districts
+
+    if is_central:
+        colonies.push_param_colony(server, colony_id, 'districts', district_id)
+    elif not colonies.add_district_if_slot_free(server, colony_id, district_id):
+        db.delete_one({"_id": district_id})
+        return False
+
     colonies.recalculate_districts_slots(server, colony_id)
+    return True
 
 
-def delete_district(server, district_id, refund_ratio=0.75):
+def delete_district(server, commandant_id, district_id, refund_ratio=0.75):
+    from data.resources import add_resources  # Placed here to prevent circular import
 
     client = databases['TSS_' + server]
     db = client['districts']
 
-    district = db.find_one({"_id": ObjectId(district_id)})
+    # Single query : spamming the request can't refund the same district twice
+    district = db.find_one_and_delete({"_id": ObjectId(district_id)})
     if not district:
         return False
 
-
     # TODO check if destruction is valid
 
-    # Removal of the entry and it's references
-    colonies.pull_param_colony(server, district['_id'], 'districts', ObjectId(district_id))
-    db.delete_one({"_id": ObjectId(district_id)})
+    # Removal of it's references
+    colonies.pull_param_colony(server, district['colony_id'], 'districts', ObjectId(district_id))
+    colonies.recalculate_districts_slots(server, district['colony_id'])
 
-
-    # RESOURCES REFUNDING (done after to prevent multiple refunding by spamming faster than DB deletion)
-    resources_refund = {}
-
-    # Buildings destruction and cost refunds
-    for building in district['buildings_ids']:
-        ...  # TODO building refund on deletion
-
+    # TODO destruction and refund of the district's buildings, once constructing them has a cost
 
     # District cost refund
     district_type = districts_types.get_district_type(server, district['district_type'])
-    for resource, quantity in district_type.items():
-        if resource in resources_refund:
-            resources_refund[resource] += quantity * refund_ratio
-        else:
-            resources_refund[resource] = quantity * refund_ratio
+    add_resources(server, commandant_id,
+                  {resource: int(quantity * refund_ratio) for resource, quantity in district_type['build_cost'].items()})
+    return True
 
 
 def recalculate_buildings_slots(server, district_id):
