@@ -1,6 +1,8 @@
 
 import random
 
+from bson.objectid import ObjectId
+
 from data.user import get_user_by_name
 
 
@@ -44,25 +46,33 @@ def parameters_presents(params, request_params):
     return True
 
 
+def get_request_user(request):
+    # Loaded once per request : views, decorators and context processors all need it
+
+    if not hasattr(request, 'tss_user'):
+        request.tss_user = get_user_by_name(request.user.username) if request.user.is_authenticated else None
+    return request.tss_user
+
+
 def get_active_server_and_commandant_from_request(request):
     from data.commandant import get_commandant_by_object_id
 
-    user = get_user_by_name(str(request.user))
+    if not hasattr(request, 'tss_active_commandant'):
+        user = get_request_user(request)
+        server = user['playing_on_server'] if user else None
+        commandant_id = user['playing_on_commandant'] if user else None
+        commandant = get_commandant_by_object_id(server, commandant_id) if commandant_id else None
+        request.tss_active_commandant = (server, commandant)
 
-    if not user:
-        return None, None
-
-    server = user['playing_on_server']
-
-    commandant_id = user['playing_on_commandant']
-    commandant = get_commandant_by_object_id(server, commandant_id)if commandant_id else None
-    return server, commandant
+    return request.tss_active_commandant
 
 
 def get_language(request):
-    user = get_user_by_name(str(request.user))
-    language = user['language']
-    return language
+    return get_request_user(request)['language']
+
+
+def commandant_owns_colony(commandant, colony_id):
+    return ObjectId.is_valid(colony_id) and ObjectId(colony_id) in commandant['colonies']
 
 
 ########################################################################################################################

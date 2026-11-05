@@ -1,53 +1,38 @@
 
 from bson.objectid import ObjectId
 
-from database.db_connect import databases
+from database.db_connect import collection, update_field, push_field, pull_field
 from data import colonies, districts_types, buildings
 
 
 def get_district(server, id):
 
-    client = databases['TSS_' + server]
-    db = client['districts']
+    db = collection(server, 'districts')
     return db.find_one({"_id": ObjectId(id)})
 
 
 def get_all_districts(server):
-    client = databases['TSS_' + server]
-    db = client['districts']
+    db = collection(server, 'districts')
     return list(db.find())
 
 
 def set_district(server, district):
 
-    client = databases['TSS_' + server]
-    db = client['districts']
+    db = collection(server, 'districts')
 
     db.insert_one(district)
 
 
 def update_district(server, district_id, param, value):
-    # Modifies an existing document or documents in a collection
-
-    client = databases['TSS_' + server]
-    db = client['districts']
-    db.update_one({"_id": ObjectId(district_id)}, {"$set": {param: value}})
+    update_field(server, 'districts', district_id, param, value)
 
 
 def push_param_district(server, district_id, param, value):
-    # Appends a specified value to an array
-
-    client = databases['TSS_' + server]
-    db = client['districts']
-    db.update_one({"_id": ObjectId(district_id)}, {"$push": {param: value}})
+    push_field(server, 'districts', district_id, param, value)
 
 
 def pull_param_district(server, district_id, param, value):
-    # Removes from an existing array all instances of a value or values that match a specified condition.
-
-    client = databases['TSS_' + server]
-    db = client['districts']
-    db.update_one({"_id": ObjectId(district_id)}, {"$pull": {param: value}})
+    pull_field(server, 'districts', district_id, param, value)
 
 
 ########################################################################################################################
@@ -56,8 +41,7 @@ def pull_param_district(server, district_id, param, value):
 def create_district(server, colony_id, district_type, starting_buildings=None):
     # Return False if the colony has no free slot for it
 
-    client = databases['TSS_' + server]
-    db = client['districts']
+    db = collection(server, 'districts')
 
     district_type_properties = districts_types.get_district_type(server, district_type)
     is_central = district_type_properties['category'] == 'central_district'
@@ -102,8 +86,7 @@ def create_district(server, colony_id, district_type, starting_buildings=None):
 def delete_district(server, commandant_id, district_id, refund_ratio=0.75):
     from data.resources import add_resources  # Placed here to prevent circular import
 
-    client = databases['TSS_' + server]
-    db = client['districts']
+    db = collection(server, 'districts')
 
     # Single query : spamming the request can't refund the same district twice
     district = db.find_one_and_delete({"_id": ObjectId(district_id)})

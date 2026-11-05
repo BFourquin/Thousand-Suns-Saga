@@ -1,11 +1,10 @@
 from django.template.response import TemplateResponse
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
-from bson.objectid import ObjectId
 
 
-from backend.decorators import add_cycle_info, log_player_action
-from backend.utils import request_params, parameters_presents, get_active_server_and_commandant_from_request, get_language
+from backend.decorators import add_cycle_info, log_player_action, commandant_required
+from backend.utils import request_params, get_language, commandant_owns_colony
 from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator
 from data.user import get_user_by_name, get_user_by_object_id, update_user
 from data.report import get_commandant_reports, get_report_by_object_id, delete_report, change_report_status, \
@@ -21,13 +20,10 @@ from data.buildings import get_buildings
 @login_required(login_url='/player_login/')
 @add_cycle_info
 @log_player_action
-def colonies(request):
+@commandant_required
+def colonies(request, server, commandant):
 
     params = request_params(request)
-    server, commandant = get_active_server_and_commandant_from_request(request)
-
-    if not server or not commandant:
-        return redirect('/user_account/')
 
     filter_category = params['category'] if 'category' in params else 'all'
     filter_marker = params['marker'] if 'marker' in params else 'all'
@@ -48,15 +44,11 @@ def colonies(request):
 @login_required(login_url='/player_login/')
 @add_cycle_info
 @log_player_action
-def colony(request):
+@commandant_required
+def colony(request, server, commandant):
 
     params = request_params(request)
-    server, commandant = get_active_server_and_commandant_from_request(request)
-
-
-    if not server or not commandant:
-        return redirect('/user_account/')
-    if 'colony_id' not in params or ObjectId(params['colony_id']) not in commandant['colonies']:
+    if not commandant_owns_colony(commandant, params.get('colony_id')):
         return redirect('/colonies/')
 
     filter_districts = params['filter_districts'] if 'filter_districts' in params else 'all'

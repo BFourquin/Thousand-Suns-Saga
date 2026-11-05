@@ -1,6 +1,6 @@
 
 
-from database.db_connect import databases
+from database.db_connect import collection
 
 
 tech_types = ['general theory',
@@ -26,7 +26,6 @@ def tech(internal_name, name, tech_type, description, tech_level, modifiers, pri
 
 
 def get_all_technologies(server_name):
-    client = databases['TSS_' + server_name]
-    db = client['technologies']
+    db = collection(server_name, 'technologies')
 
     return db.find({})

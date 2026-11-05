@@ -1,12 +1,17 @@
 
 import datetime
 from dateutil import tz
+from django.core.cache import cache
 
 from database.db_connect import databases
 from data import commandant
 
 client = databases['TSS_main_server']
 db = client['server_details']
+
+
+SERVERS_MENU_CACHE_KEY = 'servers_menu'
+SERVERS_MENU_CACHE_SECONDS = 5 * 60
 
 
 # SERVER STATUS :
@@ -63,6 +68,20 @@ def get_servers_names(open_servers=True, playable_servers=True, test_servers=Tru
                 servers_list.append(server['server_name'])
 
     return servers_list
+
+
+def get_servers_menu():
+    # Displayed by the menu of every page, so kept in cache instead of being read at each request
+    # shortcut: the default cache is per process, each worker refreshes on its own within SERVERS_MENU_CACHE_SECONDS
+    return cache.get_or_set(SERVERS_MENU_CACHE_KEY, lambda: {
+        'game_servers': get_servers_names(open_servers=True, playable_servers=True, test_servers=False, old_servers=False, admin_visibility=True),
+        'test_servers': get_servers_names(open_servers=False, playable_servers=False, test_servers=True, old_servers=False, admin_visibility=True),
+        'old_servers': get_servers_names(open_servers=False, playable_servers=False, test_servers=False, old_servers=True, admin_visibility=True),
+    }, SERVERS_MENU_CACHE_SECONDS)
+
+
+def refresh_servers_menu():
+    cache.delete(SERVERS_MENU_CACHE_KEY)
 
 
 def get_server_details(server_name):

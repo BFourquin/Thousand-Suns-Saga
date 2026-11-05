@@ -110,6 +110,18 @@
               </tfoot>
             </table>
 
+            {% if geography_page.has_other_pages %}
+              <div class="mt-3">
+                {% if geography_page.has_previous %}
+                  <a class="btn btn-default btn-sm" href="?server_name_selected={{request.GET.server_name_selected}}&target={{target}}&page={{geography_page.previous_page_number}}"><i class="fas fa-chevron-left"></i></a>
+                {% endif %}
+                {{geography_page.number}} / {{geography_page.paginator.num_pages}}
+                {% if geography_page.has_next %}
+                  <a class="btn btn-default btn-sm" href="?server_name_selected={{request.GET.server_name_selected}}&target={{target}}&page={{geography_page.next_page_number}}"><i class="fas fa-chevron-right"></i></a>
+                {% endif %}
+              </div>
+            {% endif %}
+
           {% endif %}
 
           </div>

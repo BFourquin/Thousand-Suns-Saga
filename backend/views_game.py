@@ -9,10 +9,9 @@ import datetime
 
 import data.user
 import data.themes
-from backend.decorators import add_cycle_info, log_player_action
-from backend.utils import request_params, parameters_presents, get_active_server_and_commandant_from_request
+from backend.decorators import add_cycle_info, log_player_action, commandant_required
+from backend.utils import request_params, parameters_presents, get_request_user
 from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator, cycles
-from data.user import get_user_by_name, get_user_by_object_id, update_user
 from data.report import get_commandant_reports, get_report_by_object_id, delete_report, change_report_status, \
     mark_all_reports_as_read, update_nb_unread_reports
 from data.colonies import get_colonies_controlled_by_commandant
@@ -25,7 +24,7 @@ from data.resources import get_all_resources_parameters, get_resources_categorie
 @login_required(login_url='/player_login/')
 def user_account(request):
 
-    user = get_user_by_name(str(request.user))
+    user = get_request_user(request)
 
     if request.method == 'POST':
         params = request.POST
@@ -86,7 +85,7 @@ def commandant_login(request):
     if not parameters_presents(('server', 'commandant_id'), params):
         return redirect('/user_account/')
 
-    user = get_user_by_name(str(request.user))
+    user = get_request_user(request)
     commandant_id = params['commandant_id']
     server_name = params['server']
     server = data.server_details.get_server_details('TSS_'+server_name)
@@ -116,13 +115,10 @@ def commandant_login(request):
 @login_required(login_url='/player_login/')
 @add_cycle_info
 @log_player_action
-def cycle_monitoring(request):
+@commandant_required
+def cycle_monitoring(request, server, commandant):
 
     params = request_params(request)
-    server, commandant = get_active_server_and_commandant_from_request(request)
-
-    if not server or not commandant:
-        return redirect('/user_account/')
 
     # Admin / MG display and actions
     display_admin_and_gm_info = False
@@ -165,13 +161,10 @@ def cycle_monitoring(request):
 @login_required(login_url='/player_login/')
 @add_cycle_info
 @log_player_action
-def reports(request):
+@commandant_required
+def reports(request, server, commandant):
 
     params = request_params(request)
-    server, commandant = get_active_server_and_commandant_from_request(request)
-
-    if not server or not commandant:
-        return redirect('/user_account/')
 
     if request.method == 'POST' and 'action' in params:
 
@@ -261,13 +254,10 @@ def reports(request):
 @login_required(login_url='/player_login/')
 @add_cycle_info
 @log_player_action
-def report(request):
+@commandant_required
+def report(request, server, commandant):
 
     params = request_params(request)
-    server, commandant = get_active_server_and_commandant_from_request(request)
-
-    if not server or not commandant:
-        return redirect('/user_account/')
 
     if not 'report_id' in params:
         return redirect('/reports/')
@@ -287,13 +277,10 @@ def report(request):
 @login_required(login_url='/player_login/')
 @add_cycle_info
 @log_player_action
-def geography_system(request):
+@commandant_required
+def geography_system(request, server, commandant):
 
     params = request_params(request)
-    server, commandant = get_active_server_and_commandant_from_request(request)
-
-    if not server or not commandant:
-        return redirect('/user_account/')
 
     # TODO check if commandant has vision on the system
 
@@ -334,13 +321,10 @@ def geography_system(request):
 @login_required(login_url='/player_login/')
 @add_cycle_info
 @log_player_action
-def resources(request):
+@commandant_required
+def resources(request, server, commandant):
 
     params = request_params(request)
-    server, commandant = get_active_server_and_commandant_from_request(request)
-
-    if not server or not commandant:
-        return redirect('/user_account/')
 
     selected_category = params['selected_category'] if 'selected_category' in params else 'all'
 

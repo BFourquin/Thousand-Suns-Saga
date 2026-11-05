@@ -1,11 +1,10 @@
 
-from database.db_connect import databases
+from database.db_connect import collection
 
 
 def create_starting_values(server, start_type='default_land_colony', remove_previous=False):
 
-    client = databases['TSS_' + server]
-    db = client['starting_values']
+    db = collection(server, 'starting_values')
 
     # Remove previous values
     if remove_previous:
@@ -28,8 +27,7 @@ def create_starting_values(server, start_type='default_land_colony', remove_prev
 
 
 def get_starting_values(server, start_type='default_land_colony'):
-    client = databases['TSS_' + server]
-    db = client['starting_values']
+    db = collection(server, 'starting_values')
     return db.find_one({'start_type': start_type})
 
 
@@ -38,20 +36,17 @@ def get_starting_values(server, start_type='default_land_colony'):
 
 
 def get_available_native_planets(server):
-    client = databases['TSS_' + server]
-    db = client['starting_values']
+    db = collection(server, 'starting_values')
     return db.find_one()['available_native_planets']
 
 
 def add_available_native_planets(server, planet_seed):
-    client = databases['TSS_' + server]
-    db = client['starting_values']
+    db = collection(server, 'starting_values')
     db.update_one({}, {"$push": {'available_native_planets': planet_seed}})
 
 
 def remove_available_native_planets(server, planet_seed):
-    client = databases['TSS_' + server]
-    db = client['starting_values']
+    db = collection(server, 'starting_values')
     db.update_one({}, {"$pull": {'available_native_planets': planet_seed}})
 
 
@@ -59,8 +54,7 @@ def remove_available_native_planets(server, planet_seed):
 # #### STARTING RESOURCES ##############################################################################################
 
 def starting_values_ressources(server, start_type='default_land_colony'):
-    client = databases['TSS_' + server]
-    resources = client['resources'].find({})
+    resources = collection(server, 'resources').find({})
 
     starting_resources = {}
 

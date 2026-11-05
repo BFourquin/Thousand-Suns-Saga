@@ -1,13 +1,12 @@
 
 from bson.objectid import ObjectId
 
-from database.db_connect import databases
+from database.db_connect import collection
 
 
 def get_district_type_by_id(server, id, language=None):
 
-    client = databases['TSS_' + server]
-    db = client['districts_types']
+    db = collection(server, 'districts_types')
     district = db.find_one({"_id": ObjectId(id)})
 
     if language:
@@ -17,8 +16,7 @@ def get_district_type_by_id(server, id, language=None):
 
 def get_district_type(server, internal_name, language=None):
 
-    client = databases['TSS_' + server]
-    db = client['districts_types']
+    db = collection(server, 'districts_types')
     district = db.find_one({"internal_name": internal_name})
 
     if language:
@@ -27,8 +25,7 @@ def get_district_type(server, internal_name, language=None):
 
 
 def get_all_districts_types(server, language=None):
-    client = databases['TSS_' + server]
-    db = client['districts_types']
+    db = collection(server, 'districts_types')
     districts = list(db.find())
 
     if language:
@@ -39,8 +36,7 @@ def get_all_districts_types(server, language=None):
 
 def get_all_buildable_districts_types(server, commandant, language=None):
 
-    client = databases['TSS_' + server]
-    db = client['districts_types']
+    db = collection(server, 'districts_types')
     districts = list(db.find())
 
     # Remove unconstructibles districts

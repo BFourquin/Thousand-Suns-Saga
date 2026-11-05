@@ -1,13 +1,12 @@
 
 from bson.objectid import ObjectId
 
-from database.db_connect import databases
+from database.db_connect import collection
 
 
 def get_building_type_by_id(server, id, language=None):
 
-    client = databases['TSS_' + server]
-    db = client['buildings_types']
+    db = collection(server, 'buildings_types')
     building = db.find_one({"_id": ObjectId(id)})
 
     if language:
@@ -17,8 +16,7 @@ def get_building_type_by_id(server, id, language=None):
 
 def get_building_type(server, internal_name, language=None):
 
-    client = databases['TSS_' + server]
-    db = client['buildings_types']
+    db = collection(server, 'buildings_types')
     building = db.find_one({"internal_name": internal_name})
 
     if language:
@@ -27,8 +25,7 @@ def get_building_type(server, internal_name, language=None):
 
 
 def get_all_buildings_types(server, language=None):
-    client = databases['TSS_' + server]
-    db = client['buildings_types']
+    db = collection(server, 'buildings_types')
     buildings = list(db.find())
 
     if language:
@@ -40,8 +37,7 @@ def get_all_buildings_types(server, language=None):
 def get_all_buildable_buildings_types(server, commandant, language=None):
     # TODO /!\ copier coller des districts à vérifier !!!
 
-    client = databases['TSS_' + server]
-    db = client['buildings_types']
+    db = collection(server, 'buildings_types')
     buildings = list(db.find())
 
     # Remove unconstructibles buildings

@@ -8,12 +8,14 @@ from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_POST
 from django.contrib.auth import login
 from django.core.validators import validate_email
+from django.core.paginator import Paginator
 from bokeh.plotting import figure
 from bokeh.embed import components
 
 
 from backend.login import throttled_authenticate
 from backend.utils import request_params
+from database.db_connect import PaginatedCollection
 from data import server_details, user, technology, sectors, systems, coordinates, map_generator
 
 
@@ -98,12 +100,15 @@ def admin_servers_states_edit(request):
     if params['value'] == 'false':
         params['value'] = False
     server_details.change_server_param(params['server_name'], params['type'], params['value'])
+    server_details.refresh_servers_menu()
     return redirect(admin_servers_states)
 
 
 ########################################################################################################################
 # SERVER SPECIFIC ADMINISTRATION
 ########################################################################################################################
+
+GEOGRAPHY_PAGE_SIZE = 100
 
 
 @staff_member_required(login_url='/admin_login/')
@@ -159,18 +164,17 @@ def admin_geography(request):
         return systems_table
 
     # #### GLOBAL LISTS #### #
-    # /!\ Slow to generate for systems and nearly impossible for systems, way too big to display correctly
+
+    geography_page = None
+    if params['target'] in ("sectors", "systems", "coordinates"):
+        geography_page = Paginator(PaginatedCollection(server, params['target']), GEOGRAPHY_PAGE_SIZE).get_page(params.get('page'))
+        geography_table = geography_page.object_list
 
     if params['target'] == "sectors":
-        geography_table = sectors.get_all_sectors(server)
         geography_table = unclutter_sectors_table(geography_table)
 
     if params['target'] == "systems":
-        geography_table = systems.get_all_systems(server)
         geography_table = unclutter_geography_table(geography_table)
-
-    if params['target'] == "coordinates":
-        geography_table = coordinates.get_all_coordinates(server)
 
 
     # #### SPECIFIC LIST #### #
@@ -213,4 +217,4 @@ def admin_geography(request):
 
     return render(request, 'admin/admin_geography.html', {'geography_table': geography_table,'target': params['target'],
                                                           'parent_seed': parent_seed, 'parent_table': parent_table,
-                                                          'seed_type': seed_type})
+                                                          'seed_type': seed_type, 'geography_page': geography_page})

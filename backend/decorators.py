@@ -1,12 +1,12 @@
 
 from functools import wraps
 from bson.objectid import ObjectId
+from django.shortcuts import redirect
 from django.utils import timezone
 
-from data.user import get_user_by_name
 from data.cycles import get_current_cycle
-from data.commandant import get_commandant_by_object_id, update_commandant
-from backend.utils import get_active_server_and_commandant_from_request
+from data.commandant import get_commandants_by_object_ids, update_commandant
+from backend.utils import get_active_server_and_commandant_from_request, get_request_user
 
 
 def log_player_action(view_func):
@@ -56,18 +56,16 @@ def add_cycle_info(view_func):
 
         context_dict = {}
         if getattr(request, "user", None):
-            user_account = get_user_by_name(str(request.user))
+            user_account = get_request_user(request)
             if user_account and user_account.get("playing_on_server"):
                 server_name = user_account["playing_on_server"]
                 cycle = get_current_cycle(server_name)
 
-                commandants_cycle_playing = []
-                commandants_cycle_finished = []
+                commandants = {commandant['_id']: commandant for commandant in get_commandants_by_object_ids(
+                    server_name, cycle['commandants_cycle_playing'] + cycle['commandants_cycle_finished'])}
 
-                for commandant_id in cycle['commandants_cycle_playing']:
-                    commandants_cycle_playing.append(get_commandant_by_object_id(server_name, commandant_id))
-                for commandant_id in cycle['commandants_cycle_finished']:
-                    commandants_cycle_finished.append(get_commandant_by_object_id(server_name, commandant_id))
+                commandants_cycle_playing = [commandants[_id] for _id in cycle['commandants_cycle_playing'] if _id in commandants]
+                commandants_cycle_finished = [commandants[_id] for _id in cycle['commandants_cycle_finished'] if _id in commandants]
                 ratio_finished = len(commandants_cycle_finished) / (len(commandants_cycle_finished)+len(commandants_cycle_playing)) if commandants_cycle_finished else 0
 
 
@@ -93,3 +91,16 @@ def add_cycle_info(view_func):
 
         return response
     return _wrapped_view
+
+
+
+def commandant_required(view_func):
+    # Give the active server and commandant to the view, send the player to the account page without them
+
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        server, commandant = get_active_server_and_commandant_from_request(request)
+        if not server or not commandant:
+            return redirect('/user_account/')
+        return view_func(request, server, commandant, *args, **kwargs)
+    return wrapper

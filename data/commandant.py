@@ -4,7 +4,7 @@ from bson.objectid import ObjectId
 from django.utils.translation import gettext as _
 from pymongo.collation import Collation
 
-from database.db_connect import databases
+from database.db_connect import databases, collection, update_field, push_field, pull_field
 from data.errors import GameError
 from data import server_details
 from data import starting_values as sv
@@ -55,8 +55,7 @@ def valid_commandant_creation(server, user, pseudo,
 
 def create_commandant(server, user, commandant_name, civilisation_name):
 
-    client = databases['TSS_' + server]
-    db = client['commandants']
+    db = collection(server, 'commandants')
 
     user = get_user_by_name(user)
     starting_values = sv.get_starting_values(server)
@@ -141,19 +140,20 @@ def create_commandant(server, user, commandant_name, civilisation_name):
 def commandant_field_taken(server, field, value):
     # Case insensitive search of a commandant_name or civilisation_name
     # shortcut: no unique index, two simultaneous creations can still collide, add the index when indexes are created
-    client = databases['TSS_' + server]
-    return bool(client['commandants'].find_one({field: value}, collation=Collation(locale='fr', strength=2)))
+    return bool(collection(server, 'commandants').find_one({field: value}, collation=Collation(locale='fr', strength=2)))
 
 
 def get_commandant_by_object_id(server, _id):
-    client = databases['TSS_' + server]
-    db = client['commandants']
+    db = collection(server, 'commandants')
     return db.find_one({'_id': ObjectId(_id)})
 
 
+def get_commandants_by_object_ids(server, ids):
+    return list(collection(server, 'commandants').find({'_id': {'$in': ids}}))
+
+
 def get_commandant_by_name(server, name):
-    client = databases['TSS_' + server]
-    db = client['commandants']
+    db = collection(server, 'commandants')
     return db.find_one({'commandant_name': name})
 
 
@@ -165,8 +165,7 @@ def get_commandant_from_any_server(name=None, _id=None):
             continue
 
         try:
-            client = databases['TSS_' + db_name]
-            db = client['commandants']
+            db = collection(db_name, 'commandants')
         except:
             continue
 
@@ -182,35 +181,22 @@ def get_commandant_from_any_server(name=None, _id=None):
 
 
 def update_commandant(server, commandant_id, param, value):
-    # Modifies an existing document or documents in a collection
-
-    client = databases['TSS_' + server]
-    db = client['commandants']
-    db.update_one({"_id": commandant_id}, {"$set": {param: value}})
+    update_field(server, 'commandants', commandant_id, param, value)
 
 
 def push_param_commandant(server, commandant_id, param, value):
-    # Appends a specified value to an array
-
-    client = databases['TSS_' + server]
-    db = client['commandants']
-    db.update_one({"_id": commandant_id}, {"$push": {param: value}})
+    push_field(server, 'commandants', commandant_id, param, value)
 
 
 def pull_param_commandant(server, commandant_id, param, value):
-    # Removes from an existing array all instances of a value or values that match a specified condition.
-
-    client = databases['TSS_' + server]
-    db = client['commandants']
-    db.update_one({"_id": commandant_id}, {"$pull": {param: value}})
+    pull_field(server, 'commandants', commandant_id, param, value)
 
 
 def delete_commandant(server, commandant_id):
     # /!\ TEST AND ADMIN ACTION ONLY (removal of the commandant and any mention in user account)
     # Use commandant_death() instead for normal endgame or death of a player
 
-    client = databases['TSS_' + server]
-    db = client['commandants']
+    db = collection(server, 'commandants')
 
     commandant = get_commandant_by_object_id(server, commandant_id)
     user = get_user_by_name(commandant['user_name'])

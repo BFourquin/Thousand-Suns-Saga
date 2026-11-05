@@ -1,24 +1,21 @@
 
-from database.db_connect import databases
+from database.db_connect import collection
 
 
 def get_coordinate(server, seed):
 
-    client = databases['TSS_' + server]
-    db = client['coordinates']
+    db = collection(server, 'coordinates')
     return db.find_one({"_id": str(seed)})
 
 
 def get_all_coordinates(server):
-    client = databases['TSS_' + server]
-    db = client['coordinates']
+    db = collection(server, 'coordinates')
     return list(db.find())
 
 
 def set_coordinate(server, coordinate):
 
-    client = databases['TSS_' + server]
-    db = client['coordinates']
+    db = collection(server, 'coordinates')
 
     # Will remove previous entry if one exist
     previous_coordinate = get_coordinate(server, coordinate['_id'])

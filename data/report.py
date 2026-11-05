@@ -4,7 +4,7 @@ import datetime
 from random import randint
 from bson.objectid import ObjectId
 
-from database.db_connect import databases
+from database.db_connect import collection
 from data.report_generator import generate_report
 from data.commandant import get_commandant_by_object_id, push_param_commandant, pull_param_commandant, update_commandant
 
@@ -14,8 +14,7 @@ from data.commandant import get_commandant_by_object_id, push_param_commandant, 
 def create_report(server, owner_id, report_type, args={}, sender=None, sender_image=None):
 
     try:
-        client = databases['TSS_' + server]
-        db = client['report']
+        db = collection(server, 'report')
 
         report = generate_report(server, owner_id, report_type, args, sender, sender_image)
 
@@ -38,15 +37,13 @@ def get_report_by_object_id(server, _id, owner_id):
     if not ObjectId.is_valid(_id):
         return None
 
-    client = databases['TSS_' + server]
-    db = client['report']
+    db = collection(server, 'report')
     return db.find_one({'_id': ObjectId(_id), 'owner': owner_id})
 
 
 def get_commandant_reports(server, commandant_id, filter_status=None, filter_category=None, search_text=None):
 
-    client = databases['TSS_' + server]
-    db = client['report']
+    db = collection(server, 'report')
 
     reports_id_list = get_commandant_by_object_id(server, commandant_id)['reports']
     reports_list = list(db.find({'_id': {'$in': reports_id_list}}))
@@ -83,15 +80,13 @@ def get_commandant_reports(server, commandant_id, filter_status=None, filter_cat
 
 
 def change_report_status(server, report_id, owner_id, status):
-    client = databases['TSS_' + server]
-    db = client['report']
+    db = collection(server, 'report')
     db.update_one({"_id": ObjectId(report_id), 'owner': owner_id}, {"$set": {'status': status}})
 
 
 def delete_report(server, report_id, owner_id):
 
-    client = databases['TSS_' + server]
-    db = client['report']
+    db = collection(server, 'report')
 
     # Remove reference from the owning commandant's reports list
     if db.find_one_and_delete({"_id": ObjectId(report_id), 'owner': owner_id}):

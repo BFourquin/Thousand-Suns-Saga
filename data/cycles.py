@@ -4,7 +4,7 @@ from dateutil import tz
 from random import randint
 from bson.objectid import ObjectId
 
-from database.db_connect import databases
+from database.db_connect import collection, update_field, push_field, pull_field
 from data import server_details
 from data.server_details import get_server_details, get_tz
 from data.commandant import get_commandant_by_object_id, update_commandant
@@ -12,8 +12,7 @@ from data.commandant import get_commandant_by_object_id, update_commandant
 
 def create_cycle_entry(server_name, last_cycle=None):
 
-    client = databases['TSS_' + server_name]
-    db = client['cycles']
+    db = collection(server_name, 'cycles')
 
     server = get_server_details(server_name)
     commandants_list = server['active_commandants']
@@ -45,40 +44,21 @@ def create_cycle_entry(server_name, last_cycle=None):
 
 def get_current_cycle(server_name):
 
-    client = databases['TSS_' + server_name]
-    db = client['cycles']
+    db = collection(server_name, 'cycles')
 
     return db.find_one({}, sort=[('cycle_nb', -1)])
 
 
 def update_cycle(server, param, value):
-    # Modifies an existing document or documents in a collection
-
-    client = databases['TSS_' + server]
-    db = client['cycles']
-
-    cycle_id = ObjectId(get_current_cycle(server)['_id'])
-    db.update_one({"_id": cycle_id}, {"$set": {param: value}})
+    update_field(server, 'cycles', get_current_cycle(server)['_id'], param, value)
 
 
 def push_param_cycle(server, param, value):
-    # Appends a specified value to an array
-
-    client = databases['TSS_' + server]
-    db = client['cycles']
-
-    cycle_id = ObjectId(get_current_cycle(server)['_id'])
-    db.update_one({"_id": cycle_id}, {"$push": {param: value}})
+    push_field(server, 'cycles', get_current_cycle(server)['_id'], param, value)
 
 
 def pull_param_cycle(server, param, value):
-    # Removes from an existing array all instances of a value or values that match a specified condition.
-
-    client = databases['TSS_' + server]
-    db = client['cycles']
-
-    cycle_id = ObjectId(get_current_cycle(server)['_id'])
-    db.update_one({"_id": cycle_id}, {"$pull": {param: value}})
+    pull_field(server, 'cycles', get_current_cycle(server)['_id'], param, value)
 
 
 ########################################################################################################################

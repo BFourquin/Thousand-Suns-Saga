@@ -17,6 +17,9 @@ def public_homepage(request):
 
 def servers_list(request):
 
+    # A player looking for a server must not read an old menu saying it isn't open yet
+    server_details.refresh_servers_menu()
+
     servers = server_details.get_all_servers_details()
     for i in range(len(servers)):
         servers[i]['cycles'] = cycles.get_current_cycle(servers[i]['server_name'])

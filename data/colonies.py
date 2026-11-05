@@ -2,7 +2,7 @@
 from bson.objectid import ObjectId
 
 from backend import utils
-from database.db_connect import databases
+from database.db_connect import collection, update_field, push_field, pull_field
 from data.districts import create_district, get_district
 from data.districts_types import get_district_type
 from data.admin import cheat_log
@@ -21,8 +21,7 @@ def additional_colony_info(colony, add_coo_image):
 
 
 def get_colony(server, id, add_coo_image=False):
-    client = databases['TSS_' + server]
-    db = client['colonies']
+    db = collection(server, 'colonies')
 
     colony = db.find_one({"_id": ObjectId(id)})
     colony = additional_colony_info(colony, add_coo_image)
@@ -31,8 +30,7 @@ def get_colony(server, id, add_coo_image=False):
 
 
 def get_colonies_controlled_by_commandant(server, commandant_id, add_coo_image=False):
-    client = databases['TSS_' + server]
-    db = client['colonies']
+    db = collection(server, 'colonies')
 
     colonies = list(db.find({"controller": commandant_id}))
     for i in range(len(colonies)):
@@ -42,40 +40,26 @@ def get_colonies_controlled_by_commandant(server, commandant_id, add_coo_image=F
 
 
 def get_all_colonies(server):
-    client = databases['TSS_' + server]
-    db = client['colonies']
+    db = collection(server, 'colonies')
     return list(db.find())
 
 
 
 def update_colony(server, colony_id, param, value):
-    # Modifies an existing document or documents in a collection
-
-    client = databases['TSS_' + server]
-    db = client['colonies']
-    db.update_one({"_id": ObjectId(colony_id)}, {"$set": {param: value}})
+    update_field(server, 'colonies', colony_id, param, value)
 
 
 def push_param_colony(server, colony_id, param, value):
-    # Appends a specified value to an array
-
-    client = databases['TSS_' + server]
-    db = client['colonies']
-    db.update_one({"_id": ObjectId(colony_id)}, {"$push": {param: value}})
+    push_field(server, 'colonies', colony_id, param, value)
 
 
 def pull_param_colony(server, colony_id, param, value):
-    # Removes from an existing array all instances of a value or values that match a specified condition.
-
-    client = databases['TSS_' + server]
-    db = client['colonies']
-    db.update_one({"_id": ObjectId(colony_id)}, {"$pull": {param: value}})
+    pull_field(server, 'colonies', colony_id, param, value)
 
 
 def new_colony(server, commandant_id, colony_name, coordinate, colony_type, central_district_type):
 
-    client = databases['TSS_' + server]
-    db = client['colonies']
+    db = collection(server, 'colonies')
 
     new_colony = {
         'name': colony_name,
@@ -104,8 +88,7 @@ def add_district_if_slot_free(server, colony_id, district_id):
     # The central district doesn't use a slot, hence the + 1
     # TODO take into account future special districts with different slots size
 
-    client = databases['TSS_' + server]
-    db = client['colonies']
+    db = collection(server, 'colonies')
 
     result = db.update_one({"_id": ObjectId(colony_id),
                             "$expr": {"$lt": [{"$size": "$districts"}, {"$add": ["$districts_slots_total", 1]}]}},

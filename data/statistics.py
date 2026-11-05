@@ -1,5 +1,5 @@
 
-from database.db_connect import databases
+from database.db_connect import collection
 
 mg_stats_buffer = {}  # Used as alternative to write many thousand times updates in the DB
 
@@ -19,8 +19,7 @@ Statistics have one entry for each stats_category :
 def get_statistics_category(server, stats_category):
     """Get a whole stats_category"""
 
-    client = databases['TSS_' + server]
-    db = client['statistics']
+    db = collection(server, 'statistics')
     stats_entry = db.find_one({"stats_category": stats_category})
 
     if stats_entry:
@@ -37,8 +36,7 @@ def get_statistic(server, stats_category, stat_name):
 
 def set_statistics_category(server, stats_category, stats):
 
-    client = databases['TSS_' + server]
-    db = client['statistics']
+    db = collection(server, 'statistics')
 
     db.delete_one({"stats_category": stats_category})
     db.insert_one({"stats_category": stats_category, "stats": stats})

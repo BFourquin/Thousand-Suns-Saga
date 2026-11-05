@@ -97,37 +97,21 @@ def get_all_users(strify=False):
     return users
 
 
-def update_user(user, param, value):
-
-    # Default django user table
+def user_table(param):
+    # Default django user table or extended user table
     if param in ('last_login', 'is_superuser', 'username', 'first_name', 'last_name',
                  'email', 'is_staff', 'is_active', 'date_joined'):
-        db_user.update_one({"_id": user['_id']}, {"$set": {param: value}})
+        return db_user
+    return db_extend
 
-    # Extended user table
-    else:
-        db_extend.update_one({"_id": user['_id']}, {"$set": {param: value}})
+
+def update_user(user, param, value):
+    user_table(param).update_one({"_id": user['_id']}, {"$set": {param: value}})
 
 
 def push_param_user(user_id, param, value):
-
-    # Default django user table
-    if param in ('last_login', 'is_superuser', 'username', 'first_name', 'last_name',
-                 'email', 'is_staff', 'is_active', 'date_joined'):
-        db_user.update_one({"_id": user_id}, {"$push": {param: value}})
-
-    # Extended user table
-    else:
-        db_extend.update_one({"_id": user_id}, {"$push": {param: value}})
+    user_table(param).update_one({"_id": user_id}, {"$push": {param: value}})
 
 
 def pull_param_user(user_id, param, value):
-
-    # Default django user table
-    if param in ('last_login', 'is_superuser', 'username', 'first_name', 'last_name',
-                 'email', 'is_staff', 'is_active', 'date_joined'):
-        db_user.update_one({"_id": user_id}, {"$pull": {param: value}})
-
-    # Extended user table
-    else:
-        db_extend.update_one({"_id": user_id}, {"$pull": {param: value}})
+    user_table(param).update_one({"_id": user_id}, {"$pull": {param: value}})

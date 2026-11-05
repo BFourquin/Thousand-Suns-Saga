@@ -1,21 +1,19 @@
 
 from bson.objectid import ObjectId
 
-from database.db_connect import databases
+from database.db_connect import collection, update_field
 from data import colonies, buildings_types, districts
 
 
 def get_building(server, id):
 
-    client = databases['TSS_' + server]
-    db = client['buildings']
+    db = collection(server, 'buildings')
     return db.find_one({"_id": ObjectId(id)})
 
 
 def get_buildings(server, ids_list, append_building_type=False):
 
-    client = databases['TSS_' + server]
-    db = client['buildings']
+    db = collection(server, 'buildings')
     ids = [ObjectId(_) for _ in ids_list]
 
     if not append_building_type:
@@ -36,18 +34,13 @@ def get_buildings(server, ids_list, append_building_type=False):
 
 def set_building(server, building):
 
-    client = databases['TSS_' + server]
-    db = client['buildings']
+    db = collection(server, 'buildings')
 
     db.insert_one(building)
     
 
 def update_building(server, building_id, param, value):
-    # Modifies an existing document or documents in a collection
-
-    client = databases['TSS_' + server]
-    db = client['buildings']
-    db.update_one({"_id": building_id}, {"$set": {param: value}})
+    update_field(server, 'buildings', building_id, param, value)
 
 
 ########################################################################################################################
@@ -55,8 +48,7 @@ def update_building(server, building_id, param, value):
 
 def construct_building(server, district_id, building_type):
 
-    client = databases['TSS_' + server]
-    db = client['buildings']
+    db = collection(server, 'buildings')
 
     home_district = districts.get_district(server, district_id)
     building_type_properties = buildings_types.get_building_type(server, building_type)
@@ -89,8 +81,7 @@ def construct_building(server, district_id, building_type):
 
 def delete_building(server, building_id, refund_ratio=0.75):
 
-    client = databases['TSS_' + server]
-    db = client['buildings']
+    db = collection(server, 'buildings')
 
     building = db.find_one({"_id": ObjectId(building_id)})
     if not building:

@@ -1,6 +1,6 @@
 
 
-from database.db_connect import databases
+from database.db_connect import collection
 
 
 # ######################################################################################################################
@@ -31,8 +31,7 @@ def recreate_redundant_info(system):
 
 
 def get_system_by_seed(server, seed):
-    client = databases['TSS_' + server]
-    db = client['systems']
+    db = collection(server, 'systems')
 
     system = db.find_one({"_id": str(seed)})
     system = recreate_redundant_info(system) if system is not None else None
@@ -40,8 +39,7 @@ def get_system_by_seed(server, seed):
 
 
 def get_system_by_position(server, sector_id, y, x):
-    client = databases['TSS_' + server]
-    db = client['systems']
+    db = collection(server, 'systems')
 
     system = db.find_one({"sector_id": sector_id, "pos_y": y, "pos_x": x})
     system = recreate_redundant_info(system) if system is not None else None
@@ -49,8 +47,7 @@ def get_system_by_position(server, sector_id, y, x):
 
 
 def get_systems_in_sector(server, sector_id):
-    client = databases['TSS_' + server]
-    db = client['systems']
+    db = collection(server, 'systems')
 
     systems = list(db.find({"sector_id": str(sector_id)}))
     #system = recreate_redundant_info(system) if system is not None else None
@@ -59,16 +56,14 @@ def get_systems_in_sector(server, sector_id):
 
 
 def get_all_systems(server):
-    client = databases['TSS_' + server]
-    db = client['systems']
+    db = collection(server, 'systems')
 
     return list(db.find())
 
 
 def set_system(server, system):
 
-    client = databases['TSS_' + server]
-    db = client['systems']
+    db = collection(server, 'systems')
 
     # Will remove previous entry if one exist
     previous_system = get_system_by_seed(server, system["_id"])

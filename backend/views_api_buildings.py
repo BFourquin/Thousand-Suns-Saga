@@ -3,7 +3,7 @@ from bson.objectid import ObjectId
 
 
 from database.db_connect import databases
-from backend.utils import request_params, get_active_server_and_commandant_from_request
+from backend.utils import request_params, get_active_server_and_commandant_from_request, commandant_owns_colony
 from backend.api_ui_interactions import api_pop_up, api_pop_up_and_redirect, api_login_required
 from data.resources import check_enough_resources_dict, pay_resources, add_resources
 from data.districts import create_district, delete_district
@@ -29,7 +29,7 @@ def api_build_district(request):
 
     if not server or not commandant:
         return no_active_commandant()
-    if 'colony_id' not in params or ObjectId(params['colony_id']) not in commandant['colonies']:
+    if not commandant_owns_colony(commandant, params.get('colony_id')):
         return invalid_colony()
 
     # Get district type
@@ -90,7 +90,7 @@ def api_district_set_activation_percent(request):
 
     if not server or not commandant:
         return no_active_commandant()
-    if 'colony_id' not in params or ObjectId(params['colony_id']) not in commandant['colonies']:
+    if not commandant_owns_colony(commandant, params.get('colony_id')):
         return invalid_colony()
     if 'district_id' not in params:
         return api_pop_up({"title": "Cible de l'action invalide", "level": "danger"}, status=400)
@@ -124,7 +124,7 @@ def api_delete_district(request):
 
     if not server or not commandant:
         return no_active_commandant()
-    if 'colony_id' not in params or ObjectId(params['colony_id']) not in commandant['colonies']:
+    if not commandant_owns_colony(commandant, params.get('colony_id')):
         return invalid_colony()
     if 'district_id' not in params:
         return api_pop_up({"title": "Cible de la démolition invalide", "level": "danger"}, status=400)

@@ -2,20 +2,18 @@
 from bson.objectid import ObjectId
 
 from data.commandant import get_commandant_by_object_id, update_commandant
-from database.db_connect import databases
+from database.db_connect import collection
 
 
 
 def get_all_resources_parameters(server_name):
-    client = databases['TSS_' + server_name]
-    db = client['resources']
+    db = collection(server_name, 'resources')
 
     return db.find({})
 
 
 def get_resource_parameters(server_name, resource_name):
-    client = databases['TSS_' + server_name]
-    db = client['resources']
+    db = collection(server_name, 'resources')
 
     return db.find_one({'internal_name': resource_name})
 
@@ -43,15 +41,13 @@ def add_infos_to_resources_dict(server_name, resources_dict, commandant=None, la
 
 
 def get_resources_categories(server_name):
-    client = databases['TSS_' + server_name]
-    db = client['resources_categories']
+    db = collection(server_name, 'resources_categories')
 
     return db.find({})
 
 
 def get_resources_subcategories(server_name):
-    client = databases['TSS_' + server_name]
-    db = client['resources_subcategories']
+    db = collection(server_name, 'resources_subcategories')
 
     return db.find({})
 
@@ -109,14 +105,14 @@ def pay_resources(server, commandant_id, cost):
     for resource, quantity in cost.items():
         query['resources.' + resource] = {'$gte': quantity}
 
-    db = databases['TSS_' + server]['commandants']
+    db = collection(server, 'commandants')
     result = db.update_one(query, {'$inc': {'resources.' + resource: -quantity for resource, quantity in cost.items()}})
     return result.modified_count == 1
 
 
 def add_resources(server, commandant_id, gains):
     if gains:
-        db = databases['TSS_' + server]['commandants']
+        db = collection(server, 'commandants')
         db.update_one({'_id': ObjectId(commandant_id)},
                       {'$inc': {'resources.' + resource: quantity for resource, quantity in gains.items()}})
 
