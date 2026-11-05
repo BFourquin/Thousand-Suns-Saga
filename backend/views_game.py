@@ -14,7 +14,8 @@ from backend.utils import request_params, parameters_presents, get_request_user
 from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator, cycles
 from data.report import get_commandant_reports, get_report_by_object_id, delete_report, change_report_status, \
     mark_all_reports_as_read, update_nb_unread_reports
-from data.colonies import get_colonies_controlled_by_commandant
+from data.colonies import get_colonies_controlled_by_commandant, get_colonies_at_coordinates
+from data.commandant import get_commandants_by_object_ids
 from data.resources import get_all_resources_parameters, get_resources_categories, get_resources_subcategories
 
 
@@ -284,33 +285,47 @@ def geography_system(request, server, commandant):
 
     # TODO check if commandant has vision on the system
 
+    system = None
+    system_searched = False
+    if params.get('system_id'):
+        system_searched = True
+        system = systems.get_system_by_seed(server, params['system_id'].strip())
+    elif params.get('sector_id') and params.get('pos_y') and params.get('pos_x'):
+        system_searched = True
+        system = systems.get_system_by_position(server, params['sector_id'].strip(),
+                                                params['pos_y'].strip().zfill(3), params['pos_x'].strip().zfill(3))
 
-    if 'system_id' in params:
-        system_id = params['system_id']
-    elif parameters_presents(('system_id', 'pos_y', 'pos_x'), params):
-        system_id = None  # TODO system view from composite coordinate
-        #get_system_by_position(server, sector_id, y, x)
-    else:
-        system_id = commandant['native_system']
-
-    system = systems.get_system_by_seed(server, system_id)
+    system_not_found = system_searched and system is None
+    if system is None:
+        system = systems.get_system_by_seed(server, commandant['native_system'])
     system['id'] = system['_id']
 
-    system_coordinates = []
-    for coordinate in system['system_coordinates'].keys():
-        coo = data.coordinates.get_coordinate(server, coordinate)
-        coo['image'] = 'images/placeholder/'+coo['type']+'.png'  # TODO get planet image
+    system_coordinates = [coordinates.add_display_info(coordinate)
+                          for coordinate in coordinates.get_coordinates_of_system(server, system)]
+    coordinates_by_id = {coordinate['_id']: coordinate for coordinate in system_coordinates}
+    for coordinate in system_coordinates:
+        coordinate['colonies'] = []
 
-        system_coordinates.append(coo)
+    # Who is settled on each coordinate
+    colonies = get_colonies_at_coordinates(server, list(coordinates_by_id))
+    owners = {owner['_id']: owner for owner in
+              get_commandants_by_object_ids(server, [colony['owner'] for colony in colonies])}
 
-    nb_rows_display = 1 + (len(system_coordinates)-1)//8
-    display_nb_coos_per_rows = len(system_coordinates)//nb_rows_display
-
+    for colony in colonies:
+        owner = owners.get(colony['owner'], {})
+        colony['id'] = colony['_id']
+        colony['is_mine'] = colony['owner'] == commandant['_id']
+        colony['owner_name'] = owner.get('commandant_name', '')
+        colony['civilisation_name'] = owner.get('civilisation_name', '')
+        located_on = coordinates_by_id[str(colony['coordinate'])]
+        located_on['colonies'].append(colony)
+        located_on['has_my_colony'] = located_on.get('has_my_colony') or colony['is_mine']
 
     return TemplateResponse(request, 'game/geography_system.html',
                             {'server': server, 'system': system,
                              'system_coordinates': system_coordinates,
-                             'display_nb_coos_per_rows': display_nb_coos_per_rows})
+                             'star': system_coordinates[0],
+                             'system_not_found': system_not_found})
 
 
 ########################################################################################################################

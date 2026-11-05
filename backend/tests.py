@@ -14,6 +14,7 @@ from backend.login import LOGIN_MAX_FAILURES_PER_ACCOUNT, throttled_authenticate
 from backend.utils import commandant_owns_colony
 from data import server_details
 from data.commandant import commandant_name_taken
+from data.coordinates import get_coordinate_image
 from data.report import change_report_status, get_report_by_object_id
 from data.resources import pay_resources
 
@@ -200,6 +201,59 @@ class GameViewsTests(SimpleTestCase):
         self.commandant_view(views_game.reports, '/reports/', 'post', {'action': 'delete', 'reports[]': report_id})
         self.assertEqual(delete.call_args[0][1], report_id)
         self.assertEqual(len(delete.call_args[0]), 3)
+
+
+@patch('backend.views_game.get_commandants_by_object_ids')
+@patch('backend.views_game.get_colonies_at_coordinates', return_value=[])
+@patch('backend.views_game.coordinates.get_coordinates_of_system')
+@patch('backend.views_game.systems')
+class SystemMapTests(SimpleTestCase):
+
+    star = {'_id': '100', 'type': 'star', 'subtype': 'G', 'name': 'Delea'}
+    planet = {'_id': '101', 'type': 'telluric', 'subtype': 'native', 'name': 'Danus'}
+
+    def view(self, url):
+        request = RequestFactory().get(url)
+        request.user = player()
+        self.commandant = {'_id': ObjectId(), 'colonies': [], 'native_system': 'home'}
+        return inspect.unwrap(views_game.geography_system)(request, 'S', self.commandant)
+
+    def test_unknown_system_falls_back_on_the_native_one(self, systems, get_coordinates, _colonies, _owners):
+        get_coordinates.return_value = [dict(self.star)]
+        systems.get_system_by_seed.side_effect = lambda server, seed: {'_id': seed} if seed == 'home' else None
+        context = self.view('/geography_system/?system_id=999').context_data
+        self.assertTrue(context['system_not_found'])
+        self.assertEqual(context['system']['id'], 'home')
+
+    def test_position_is_zero_padded(self, systems, get_coordinates, _colonies, _owners):
+        get_coordinates.return_value = [dict(self.star)]
+        self.view('/geography_system/?sector_id=1001&pos_y=65&pos_x=047')
+        systems.get_system_by_position.assert_called_once_with('S', '1001', '065', '047')
+
+    def test_colonies_land_on_their_coordinate(self, systems, get_coordinates, colonies, owners):
+        # Colonies store the coordinate as an int, coordinates their id as a str
+        get_coordinates.return_value = [dict(self.star), dict(self.planet)]
+        owner = ObjectId()
+        colonies.return_value = [{'_id': ObjectId(), 'name': 'Siravedra', 'coordinate': 101, 'owner': owner}]
+        owners.return_value = [{'_id': owner, 'commandant_name': 'Kyu', 'civilisation_name': 'Entente'}]
+        star, planet = self.view('/geography_system/').context_data['system_coordinates']
+        self.assertEqual(star['colonies'], [])
+        self.assertEqual(planet['colonies'][0]['owner_name'], 'Kyu')
+        self.assertFalse(planet['has_my_colony'])
+
+
+class CoordinateImageTests(SimpleTestCase):
+
+    @patch('data.coordinates.images_in_folder', side_effect=lambda folder: [folder + '/a.png', folder + '/b.png'])
+    def test_image_is_stable_and_follows_habitability(self, _images):
+        native = {'_id': '101', 'type': 'telluric', 'subtype': 'native'}
+        self.assertEqual(get_coordinate_image(native), get_coordinate_image(native))
+        self.assertRegex(get_coordinate_image(native), '^telluric/(habitable|ocean)/')
+
+    @patch('data.coordinates.images_in_folder', return_value=[])
+    def test_no_image_falls_back_on_the_placeholder(self, _images):
+        coordinate = {'_id': '100', 'type': 'star', 'subtype': 'G'}
+        self.assertEqual(get_coordinate_image(coordinate), 'images/placeholder/star.png')
 
 
 class DataLayerTests(SimpleTestCase):

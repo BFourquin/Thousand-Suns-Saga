@@ -85,5 +85,7 @@
     <!-- Behaviours declared with data attributes in the templates -->
     <script src="{% static 'js/tss.js' %}" ></script>
 
+    {% if page_css %}<link rel="stylesheet" href="{% static page_css %}">{% endif %}
+
 </head>
 

@@ -2,305 +2,190 @@
 {% load i18n %}
 {% load static %}
 
-{% include "includes/head.html" with title="Système" %}
+{% blocktrans with name=star.name asvar system_title %}Système {{ name }}{% endblocktrans %}
 
-{% include "includes/menu_game.html" with page_title=_("Système") %}  <!-- include body start -->
+{% include "includes/head.html" with title=system_title page_css="css/system_map.css" %}
 
-  <!-- Content Wrapper. Contains page content -->
+{% include "includes/menu_game.html" with page_title=system_title %}  <!-- include body start -->
+
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <!--<h1>{% trans "Cartographie système"%} </h1>-->
-          </div>
+    <section class="content sysmap-page">
+
+      {% if system_not_found %}
+        <div class="alert alert-warning">
+          <i class="icon fas fa-triangle-exclamation"></i>
+          {% trans "Aucun système à ces coordonnées. Retour à votre système d'origine." %}
         </div>
-      </div><!-- /.container-fluid -->
-    </section>
+      {% endif %}
 
-    <!-- Main content -->
-    <section class="content">
+      <!-- GO TO ANOTHER SYSTEM -->
+      <div class="sysmap-nav">
+        <form method="get" action="/geography_system/" class="sysmap-nav-group">
+          <span class="sysmap-field sysmap-field-grow">
+            <label for="sysmap-code">{% trans "Code cartographique" %}</label>
+            <input id="sysmap-code" type="text" name="system_id" inputmode="numeric" class="form-control form-control-sm sysmap-input-code" value="{{ system.id }}">
+          </span>
+          <button type="submit" class="btn btn-default btn-sm" title="{% trans 'Rechercher' %}" aria-label="{% trans 'Rechercher' %}"><i class="fas fa-magnifying-glass"></i></button>
+        </form>
+        <form method="get" action="/geography_system/" class="sysmap-nav-group">
+          <span class="sysmap-field sysmap-field-grow">
+            <label for="sysmap-sector">{% trans "Secteur" %}</label>
+            <input id="sysmap-sector" type="text" name="sector_id" inputmode="numeric" class="form-control form-control-sm sysmap-input-sector" value="{{ system.sector_id }}">
+          </span>
+          <span class="sysmap-field">
+            <label for="sysmap-y">{% trans "Latitude" %}</label>
+            <input id="sysmap-y" type="text" name="pos_y" inputmode="numeric" maxlength="3" class="form-control form-control-sm sysmap-input-pos" value="{{ system.pos_y }}">
+          </span>
+          <span class="sysmap-field">
+            <label for="sysmap-x">{% trans "Longitude" %}</label>
+            <input id="sysmap-x" type="text" name="pos_x" inputmode="numeric" maxlength="3" class="form-control form-control-sm sysmap-input-pos" value="{{ system.pos_x }}">
+          </span>
+          <button type="submit" class="btn btn-default btn-sm" title="{% trans 'Rechercher' %}" aria-label="{% trans 'Rechercher' %}"><i class="fas fa-magnifying-glass"></i></button>
+        </form>
+      </div>
 
-      <div class="container-fluid">
-        <div class="row">
 
-          <!--------------------------------------------------------------------------------------------------------->
-          <!-- Corps central -->
+      <div class="sysmap" id="sysmap" data-star="{{ star.subtype }}">
 
-          <div class="card card-secondary u-min-width-40pct">
-              <div class="card-header">
-                <h3 class="card-title">{% trans "Coordonnées"%}</h3>
+        <!-- ORBITAL VIEW : drawn on the canvas, the buttons follow the bodies to stay clickable and keyboard reachable -->
+        <div class="sysmap-scene">
+          <canvas class="sysmap-canvas" aria-hidden="true"></canvas>
+
+          {% for coo in system_coordinates %}
+            <button type="button" class="sysmap-body" data-index="{{ forloop.counter0 }}"
+                    data-type="{{ coo.type }}" data-subtype="{{ coo.subtype }}" data-image="{% static '' %}{{ coo.image }}"
+                    {% if coo.has_my_colony %}data-colony="mine"{% elif coo.colonies %}data-colony="other"{% endif %}
+                    aria-label="{{ coo.sys_coordinate }}. {{ coo.name }}, {{ coo.type_name }}" aria-pressed="false">
+              <span class="sysmap-label">
+                <b>{{ coo.sys_coordinate }}</b><span class="sysmap-label-name">{{ coo.name }}</span>
+                {% if coo.colonies %}<i class="fas fa-city"></i>{% endif %}
+              </span>
+            </button>
+          {% endfor %}
+
+          <div class="sysmap-hud">
+            <h2 class="sysmap-title">{{ star.name }}</h2>
+            <p class="sysmap-subtitle">{{ star.type_name }}{% if star.subtype_name %} · {{ star.subtype_name }}{% endif %} · {{ system_coordinates|length }} {% if system_coordinates|length > 1 %}{% trans "coordonnées" %}{% else %}{% trans "coordonnée" %}{% endif %}</p>
+            <ul class="sysmap-legend">
+              <li><span class="sysmap-dot sysmap-dot-mine"></span>{% trans "Votre colonie" %}</li>
+              <li><span class="sysmap-dot sysmap-dot-other"></span>{% trans "Autre colonie" %}</li>
+            </ul>
+          </div>
+
+          <div class="sysmap-controls" role="group" aria-label="{% trans 'Contrôles de la vue' %}">
+            <button type="button" class="btn btn-sm" data-action="pause" title="{% trans 'Pause / reprise' %}" aria-label="{% trans 'Pause / reprise' %}" aria-pressed="false"><i class="fas fa-pause"></i></button>
+            <button type="button" class="btn btn-sm" data-action="zoom-out" title="{% trans 'Dézoomer' %}" aria-label="{% trans 'Dézoomer' %}"><i class="fas fa-minus"></i></button>
+            <button type="button" class="btn btn-sm" data-action="zoom-in" title="{% trans 'Zoomer' %}" aria-label="{% trans 'Zoomer' %}"><i class="fas fa-plus"></i></button>
+            <button type="button" class="btn btn-sm" data-action="reset" title="{% trans "Vue d'ensemble" %}" aria-label="{% trans "Vue d'ensemble" %}"><i class="fas fa-expand"></i></button>
+          </div>
+          <p class="sysmap-hint">{% trans "Glisser pour tourner · Molette pour zoomer · Double-clic pour suivre un astre" %}</p>
+        </div>
+
+
+        <!-- DATA OF THE SELECTED COORDINATE -->
+        <aside class="sysmap-panel" aria-live="polite">
+          {% for coo in system_coordinates %}
+            <article class="sysmap-detail" data-index="{{ forloop.counter0 }}" {% if not forloop.first %}hidden{% endif %}>
+
+              <div class="sysmap-portrait sysmap-portrait-{{ coo.type }}">
+                {% if coo.type != 'star' %}<img src="{% static '' %}{{ coo.image }}" alt="" loading="lazy">{% endif %}
               </div>
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-5">
-                    {% trans "Code cartographique : "%}
-                    <input type="text" class="form-control u-max-width-160px" value="{{system.id}}">
-                  </div>
-                  <button type="button" class="icon_button btn btn-block btn-default ">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                  </button>
 
+              <h3 class="sysmap-detail-name"><span class="sysmap-orbit-nb">{{ coo.sys_coordinate }}</span> {{ coo.name }}</h3>
+              <p class="sysmap-detail-kind">{{ coo.type_name }}{% if coo.subtype_name %} · {{ coo.subtype_name }}{% endif %}</p>
+
+              <dl class="sysmap-facts">
+                <dt>{% trans "Code" %}</dt><dd class="sysmap-mono">{{ coo.id }}</dd>
+                <dt>{% trans "Secteur" %}</dt><dd class="sysmap-mono">{{ system.sector_id }}</dd>
+                <dt>{% trans "Position" %}</dt><dd class="sysmap-mono">{{ system.pos_y }} / {{ system.pos_x }}</dd>
+                <dt>{% trans "Orbite" %}</dt><dd class="sysmap-mono">{{ coo.sys_coordinate }}</dd>
+              </dl>
+
+              <h4 class="sysmap-section"><i class="fas fa-city"></i> {% trans "Colonies" %}</h4>
+              {% for colony in coo.colonies %}
+                <div class="sysmap-colony {% if colony.is_mine %}is-mine{% endif %}">
+                  {% if colony.is_mine %}
+                    <a href="/colony/?colony_id={{ colony.id }}"><b>{{ colony.name }}</b></a>
+                  {% else %}
+                    <b>{{ colony.name }}</b>
+                  {% endif %}
+                  <small>{{ colony.civilisation_name }} · {{ colony.owner_name }}</small>
                 </div>
-                <span class="u-min-height-10px-display-inline-block"></span>
-                <div class="row">
+              {% empty %}
+                <p class="sysmap-empty">{% trans "Aucune colonie" %}</p>
+              {% endfor %}
 
+              <h4 class="sysmap-section"><i class="fas fa-jet-fighter"></i> {% trans "Flottes" %}</h4>
+              <p class="sysmap-empty">{% trans "Aucune flotte détectée" %}</p>
 
-                  <div class="col-4">
-                    {% trans "Secteur : "%}
-                    <input type="text" class="form-control u-max-width-120px" value="{{system.sector_id}}">
-                  </div>
-                  <div class="col-3">
-                    {% trans "Latitude : "%}
-                    <input type="text" class="form-control u-max-width-60px" value="{{system.pos_y}}">
-                  </div>
-                  <div class="col-3">
-                    {% trans "Longitude : "%}
-                    <input type="text" class="form-control u-max-width-60px" value="{{system.pos_x}}">
-                  </div>
-                  <button type="button" class="icon_button btn btn-block btn-default ">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                  </button>
-                </div>
-              </div>
-              <!-- /.card-body -->
-            </div>
+              <h4 class="sysmap-section"><i class="fas fa-flag"></i> {% trans "Revendications" %}</h4>
+              <p class="sysmap-empty">{% trans "Aucune revendication" %}</p>
 
-
-          <!-- /.col -->
-          <div class="col-12">
-            <div class="card">
-              <div class="card-header p-2">
-                <ul class="nav nav-pills">
-                  <li class="nav-item"><a class="nav-link active" href="#activity" data-toggle="tab">{% trans "Cartographie"%}</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#timeline" data-toggle="tab">{% trans "Radar de flottes"%}</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#settings" data-toggle="tab">{% trans "Colonies"%}</a></li>
+              {% if coo.colony_modifiers or coo.fleet_modifiers %}
+                <h4 class="sysmap-section"><i class="fas fa-lightbulb"></i> {% trans "Modificateurs" %}</h4>
+                <ul class="sysmap-modifiers">
+                  {% for modifier in coo.colony_modifiers %}<li>{{ modifier }}</li>{% endfor %}
+                  {% for modifier in coo.fleet_modifiers %}<li>{{ modifier }}</li>{% endfor %}
                 </ul>
-              </div><!-- /.card-header -->
-              <div class="card-body" >
-                <div class="tab-content">
-                  <div class="active tab-pane" id="activity">
+              {% endif %}
 
-                    <div class="row row-cols-{{display_nb_coos_per_rows}}">
-                    {% for coo in system_coordinates %}
-
-                      <div class="col">
-                          <div class="card">
-                            <!--
-                            <div class="card-header">
-                              <h3 class="card-title">
-                                <i class="fas fa-text-width"></i>
-                                Description
-                              </h3>
-                            </div>
-                            -->
-                            <!-- /.card-header -->
-                            <div class="card-body">
-                              <dl>
-                                <dt><img class="img-bordered-sm u-width-min-100pct-400px-margin-right-30px" src='{% static "" %}{{coo.image}}' alt="user image"
-                                   ></dt>
-
-                                <dt>
-                                  <span class="u-margin-bottom-10px-font-size-25px-text-align-center"><a href="#" >
-                                    <!--<i class="fa-solid fa-arrow-right-to-bracket" style="border: 0.5px solid #4f5962;></i>-->
-                                    {{coo.sys_coordinate}}. {{coo.name}}
-                                  </a></span>
-                                </dt>
-
-                                <dt><span class="description u-font-size-20px-color-6c757d">{{coo.type}} {{coo.subtype}}</span></dt>
-
-                                <dt>{% trans "Colonies"%}</dt>
-                                <dd></dd>
-
-                                <dt>{% trans "Flottes"%}</dt>
-                                <dd></dd>
-
-                                <dt>{% trans "Revendications"%}</dt>
-                                <dd></dd>
-
-                                <dt></dt>
-                                <dd></dd>
-
-                                <dt></dt>
-                                <dd></dd>
-
-                              </dl>
-                            </div>
-                            <!-- /.card-body -->
-                          </div>
-                          <!-- /.card -->
-                      </div>
-
-                    {% endfor %}
-                    </div>
+              <button type="button" class="btn btn-default btn-sm btn-block sysmap-follow" data-action="follow">
+                <i class="fas fa-crosshairs"></i> {% trans "Suivre cet astre" %}
+              </button>
+            </article>
+          {% endfor %}
+        </aside>
+      </div>
 
 
-
-                  </div>
-                  <!-- /.tab-pane -->
-                  <div class="tab-pane" id="timeline">
-                    <!-- The timeline -->
-                    <div class="timeline timeline-inverse">
-                      <!-- timeline time label -->
-                      <div class="time-label">
-                        <span class="bg-danger">
-                          10 Feb. 2014
-                        </span>
-                      </div>
-                      <!-- /.timeline-label -->
-                      <!-- timeline item -->
-                      <div>
-                        <i class="fas fa-envelope bg-primary"></i>
-
-                        <div class="timeline-item">
-                          <span class="time"><i class="far fa-clock"></i> 12:05</span>
-
-                          <h3 class="timeline-header"><a href="#">Support Team</a> sent you an email</h3>
-
-                          <div class="timeline-body">
-                            Etsy doostang zoodles disqus groupon greplin oooj voxy zoodles,
-                            weebly ning heekya handango imeem plugg dopplr jibjab, movity
-                            jajah plickers sifteo edmodo ifttt zimbra. Babblely odeo kaboodle
-                            quora plaxo ideeli hulu weebly balihoo...
-                          </div>
-                          <div class="timeline-footer">
-                            <a href="#" class="btn btn-primary btn-sm">Read more</a>
-                            <a href="#" class="btn btn-danger btn-sm">Delete</a>
-                          </div>
-                        </div>
-                      </div>
-                      <!-- END timeline item -->
-                      <!-- timeline item -->
-                      <div>
-                        <i class="fas fa-user bg-info"></i>
-
-                        <div class="timeline-item">
-                          <span class="time"><i class="far fa-clock"></i> 5 mins ago</span>
-
-                          <h3 class="timeline-header border-0"><a href="#">Sarah Young</a> accepted your friend request
-                          </h3>
-                        </div>
-                      </div>
-                      <!-- END timeline item -->
-                      <!-- timeline item -->
-                      <div>
-                        <i class="fas fa-comments bg-warning"></i>
-
-                        <div class="timeline-item">
-                          <span class="time"><i class="far fa-clock"></i> 27 mins ago</span>
-
-                          <h3 class="timeline-header"><a href="#">Jay White</a> commented on your post</h3>
-
-                          <div class="timeline-body">
-                            Take me to your leader!
-                            Switzerland is small and neutral!
-                            We are more like Germany, ambitious and misunderstood!
-                          </div>
-                          <div class="timeline-footer">
-                            <a href="#" class="btn btn-warning btn-flat btn-sm">View comment</a>
-                          </div>
-                        </div>
-                      </div>
-                      <!-- END timeline item -->
-                      <!-- timeline time label -->
-                      <div class="time-label">
-                        <span class="bg-success">
-                          3 Jan. 2014
-                        </span>
-                      </div>
-                      <!-- /.timeline-label -->
-                      <!-- timeline item -->
-                      <div>
-                        <i class="fas fa-camera bg-purple"></i>
-
-                        <div class="timeline-item">
-                          <span class="time"><i class="far fa-clock"></i> 2 days ago</span>
-
-                          <h3 class="timeline-header"><a href="#">Mina Lee</a> uploaded new photos</h3>
-
-                          <div class="timeline-body">
-                            <!--
-                            <img src="https://placehold.it/150x100" alt="...">
-                            <img src="https://placehold.it/150x100" alt="...">
-                            <img src="https://placehold.it/150x100" alt="...">
-                            <img src="https://placehold.it/150x100" alt="...">
-                            -->
-                          </div>
-                        </div>
-                      </div>
-                      <!-- END timeline item -->
-                      <div>
-                        <i class="far fa-clock bg-gray"></i>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- /.tab-pane -->
-
-                  <div class="tab-pane" id="settings">
-                    <form class="form-horizontal">
-                      <div class="form-group row">
-                        <label for="inputName" class="col-sm-2 col-form-label">Name</label>
-                        <div class="col-sm-10">
-                          <input type="email" class="form-control" id="inputName" placeholder="Name">
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
-                        <div class="col-sm-10">
-                          <input type="email" class="form-control" id="inputEmail" placeholder="Email">
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="inputName2" class="col-sm-2 col-form-label">Name</label>
-                        <div class="col-sm-10">
-                          <input type="text" class="form-control" id="inputName2" placeholder="Name">
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="inputExperience" class="col-sm-2 col-form-label">Experience</label>
-                        <div class="col-sm-10">
-                          <textarea class="form-control" id="inputExperience" placeholder="Experience"></textarea>
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="inputSkills" class="col-sm-2 col-form-label">Skills</label>
-                        <div class="col-sm-10">
-                          <input type="text" class="form-control" id="inputSkills" placeholder="Skills">
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <div class="offset-sm-2 col-sm-10">
-                          <div class="checkbox">
-                            <label>
-                              <input type="checkbox"> I agree to the <a href="#">terms and conditions</a>
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <div class="offset-sm-2 col-sm-10">
-                          <button type="submit" class="btn btn-danger">Submit</button>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-                  <!-- /.tab-pane -->
-                </div>
-                <!-- /.tab-content -->
-              </div><!-- /.card-body -->
-            </div>
-            <!-- /.card -->
-          </div>
-          <!-- /.col -->
-
+      <!-- ALL THE COORDINATES AT A GLANCE -->
+      <div class="card sysmap-survey" data-star="{{ star.subtype }}">
+        <div class="card-header">
+          <h3 class="card-title">{% trans "Relevé du système" %}</h3>
         </div>
-        <!-- /.row -->
-      </div><!-- /.container-fluid -->
+        <div class="card-body table-responsive p-0">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th class="text-center">{% trans "Orbite" %}</th>
+                <th>{% trans "Astre" %}</th>
+                <th class="d-none d-sm-table-cell">{% trans "Type" %}</th>
+                <th class="d-none d-md-table-cell">{% trans "Code" %}</th>
+                <th>{% trans "Colonies" %}</th>
+                <th class="d-none d-sm-table-cell">{% trans "Flottes" %}</th>
+                <th class="d-none d-sm-table-cell">{% trans "Revendications" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for coo in system_coordinates %}
+                <tr class="sysmap-row" data-index="{{ forloop.counter0 }}">
+                  <td class="text-center sysmap-mono">{{ coo.sys_coordinate }}</td>
+                  <td class="sysmap-row-name">
+                    <span class="sysmap-thumb sysmap-portrait-{{ coo.type }}">
+                      {% if coo.type != 'star' %}<img src="{% static '' %}{{ coo.image }}" alt="" loading="lazy">{% endif %}
+                    </span>
+                    <button type="button" class="btn btn-link p-0">{{ coo.name }}</button>
+                  </td>
+                  <td class="d-none d-sm-table-cell">{{ coo.type_name }}{% if coo.subtype_name %} <small class="text-muted">· {{ coo.subtype_name }}</small>{% endif %}</td>
+                  <td class="d-none d-md-table-cell sysmap-mono">{{ coo.id }}</td>
+                  <td>
+                    {% for colony in coo.colonies %}
+                      {% if colony.is_mine %}<a href="/colony/?colony_id={{ colony.id }}">{{ colony.name }}</a>{% else %}{{ colony.name }}{% endif %}{% if not forloop.last %}, {% endif %}
+                    {% empty %}<span class="text-muted">—</span>{% endfor %}
+                  </td>
+                  <td class="d-none d-sm-table-cell"><span class="text-muted">—</span></td>
+                  <td class="d-none d-sm-table-cell"><span class="text-muted">—</span></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </section>
-    <!-- /.content -->
   </div>
-  <!-- /.content-wrapper -->
+
+  <script src="{% static 'js/system_map.js' %}" defer></script>
 
 </body>
 </html>

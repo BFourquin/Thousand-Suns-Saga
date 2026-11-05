@@ -39,6 +39,12 @@ def get_colonies_controlled_by_commandant(server, commandant_id, add_coo_image=F
     return colonies
 
 
+def get_colonies_at_coordinates(server, coordinates_ids):
+    # Colonies store their coordinate as an int, coordinates their id as a str
+    db = collection(server, 'colonies')
+    return list(db.find({"coordinate": {"$in": [int(coordinate_id) for coordinate_id in coordinates_ids]}}))
+
+
 def get_all_colonies(server):
     db = collection(server, 'colonies')
     return list(db.find())

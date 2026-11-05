@@ -1,0 +1,299 @@
+/* Solar system page : orbital view (js/system_map.js), data panel and survey table */
+
+.sysmap {
+    --sys-accent: var(--tss-accent-text, #5aa9ff);
+    --sys-mine: #3ddc97;
+    --sys-other: #ffb020;
+    --sys-glass: rgba(9, 13, 22, 0.78);
+    --sys-line: rgba(255, 255, 255, 0.14);
+    --sys-text: #e9eef5;
+    --sys-muted: #9aa7b8;
+    --panel-width: 330px;
+    position: relative;
+    margin-bottom: 1rem;
+    color: var(--sys-text);
+}
+
+/* Colors of each kind of star, also read by the canvas */
+.sysmap, .sysmap-survey { --star-core: #fff4cf; --star: #ffc95c; --star-edge: #e8641b; }
+[data-star="O"] { --star-core: #eaf2ff; --star: #8db4ff; --star-edge: #3a5fe0; }
+[data-star="B"] { --star-core: #eef5ff; --star: #a9c8ff; --star-edge: #5a84e8; }
+[data-star="A"] { --star-core: #ffffff; --star: #dbe7ff; --star-edge: #93aef0; }
+[data-star="F"] { --star-core: #fffdf0; --star: #fff0b8; --star-edge: #f0b64e; }
+[data-star="K"] { --star-core: #ffe7bd; --star: #ffa94d; --star-edge: #d4480f; }
+[data-star="M"] { --star-core: #ffc9a3; --star: #ff7a3d; --star-edge: #b3200a; }
+[data-star="giant"] { --star-core: #ffd6a8; --star: #ff8a3c; --star-edge: #c12a0a; }
+[data-star="supergiant"] { --star-core: #ffc2a0; --star: #ff5f35; --star-edge: #a01208; }
+[data-star="white_dwarf"] { --star-core: #ffffff; --star: #e6f0ff; --star-edge: #a9c4f5; }
+[data-star="wolf_rayet"] { --star-core: #e6fbff; --star: #6fe3ff; --star-edge: #2276e8; }
+[data-star="nebula"] { --star-core: #ffe6fb; --star: #e58cff; --star-edge: #6a2ad8; }
+
+.sysmap-page { padding-top: 0.75rem !important; }
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Go to another system */
+
+.sysmap-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    margin-bottom: 0.75rem;
+}
+.sysmap-nav-group { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin: 0; }
+.sysmap-field { display: inline-flex; align-items: center; gap: 0.4rem; }
+.sysmap-nav-group label { margin: 0; font-size: 0.85rem; font-weight: 400; white-space: nowrap; }
+.sysmap-input-code { width: 11.5rem; }
+.sysmap-input-sector { width: 7.5rem; }
+.sysmap-input-pos { width: 3.75rem; }
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Orbital view */
+
+.sysmap-scene {
+    position: relative;
+    height: clamp(460px, calc(100vh - 165px), 820px);
+    overflow: hidden;
+    background: #02040a;
+    border: 1px solid var(--sys-line);
+    border-radius: var(--tss-radius, 4px);
+    isolation: isolate;  /* The bodies stack among themselves, never over the panel */
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: pan-y;
+}
+.sysmap-scene.is-dragging { cursor: grabbing; }
+.sysmap-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+.sysmap-body {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    color: inherit;
+    background: none;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    will-change: transform;
+    touch-action: pan-y;
+}
+.sysmap-body:focus { outline: none; }
+.sysmap-body:focus-visible { outline: 2px solid var(--sys-accent); outline-offset: 2px; }
+
+.sysmap-label {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0 0.3rem;
+    font-size: 0.72rem;
+    line-height: 1.25rem;
+    white-space: nowrap;
+    color: var(--sys-muted);
+    text-shadow: 0 0 3px #000, 0 0 6px #000;
+    pointer-events: none;
+}
+.sysmap-label b { color: var(--sys-text); font-weight: 600; }
+.sysmap-label i { font-size: 0.65rem; color: var(--sys-other); }
+.sysmap-body[data-colony="mine"] .sysmap-label i { color: var(--sys-mine); }
+.sysmap-body:hover .sysmap-label { color: #fff; }
+.sysmap-body.is-selected .sysmap-label {
+    color: #fff;
+    font-weight: 600;
+    background: rgba(5, 8, 14, 0.7);
+    border-radius: 3px;
+}
+
+.sysmap-hud { position: absolute; z-index: 1000; top: 0.9rem; left: 1.1rem; pointer-events: none; }
+.sysmap-title {
+    margin: 0;
+    font-size: 1.7rem;
+    font-weight: 600;
+    font-family: var(--tss-font-title, inherit);
+    letter-spacing: 0.02em;
+    color: #fff;
+    text-shadow: 0 0 14px rgba(0, 0, 0, 0.9);
+}
+.sysmap-subtitle { margin: 0 0 0.4rem; font-size: 0.85rem; color: var(--sys-muted); text-shadow: 0 0 6px #000; }
+.sysmap-legend { margin: 0; padding: 0; list-style: none; font-size: 0.75rem; color: var(--sys-muted); text-shadow: 0 0 6px #000; }
+.sysmap-legend li { display: flex; align-items: center; gap: 0.4rem; }
+.sysmap-dot { width: 8px; height: 8px; border-radius: 50%; }
+.sysmap-dot-mine { background: var(--sys-mine); }
+.sysmap-dot-other { background: var(--sys-other); }
+
+.sysmap-controls { position: absolute; z-index: 1000; left: 1.1rem; bottom: 0.9rem; display: flex; gap: 0.25rem; }
+.sysmap-controls .btn {
+    width: 2.1rem;
+    height: 2.1rem;
+    padding: 0;
+    color: var(--sys-text);
+    background: var(--sys-glass);
+    border: 1px solid var(--sys-line);
+}
+.sysmap-controls .btn:hover, .sysmap-controls .btn:focus-visible { color: #fff; border-color: var(--sys-accent); }
+.sysmap-controls .btn[aria-pressed="true"] { color: #fff; background: var(--sys-accent); }
+
+.sysmap-hint {
+    position: absolute;
+    left: 10.5rem;
+    bottom: 1.25rem;
+    margin: 0;
+    font-size: 0.72rem;
+    color: var(--sys-muted);
+    text-shadow: 0 0 6px #000;
+    pointer-events: none;
+}
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Data of the selected coordinate */
+
+.sysmap-panel {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    z-index: 1;
+    width: var(--panel-width);
+    overflow-y: auto;
+    background: var(--sys-glass);
+    border: 1px solid var(--sys-line);
+    border-radius: var(--tss-radius, 4px);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+.sysmap-detail { padding: 0 1rem 1rem; }
+
+.sysmap-portrait {
+    height: 170px;
+    margin: 0 -1rem 0.6rem;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+}
+.sysmap-portrait img { height: 100%; width: 100%; object-fit: cover; }
+.sysmap-portrait-telluric img, .sysmap-portrait-jovian img, .sysmap-portrait-planetoid img { object-fit: contain; }
+
+/* There is no picture of the stars, and they have to take the color of their class */
+.sysmap-portrait-star {
+    background: radial-gradient(circle at 50% 50%, var(--star-core) 0, var(--star) 24%, var(--star-edge) 33%, transparent 62%), #000;
+}
+
+.sysmap-detail-name {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 600;
+    font-family: var(--tss-font-title, inherit);
+    color: #fff;
+    overflow-wrap: anywhere;
+}
+.sysmap-orbit-nb {
+    display: inline-block;
+    min-width: 1.5rem;
+    padding: 0 0.3rem;
+    font-size: 0.85rem;
+    text-align: center;
+    vertical-align: 0.15em;
+    color: #02040a;
+    background: var(--star);
+    border-radius: 3px;
+}
+.sysmap-detail-kind { margin: 0.1rem 0 0.7rem; font-size: 0.85rem; color: var(--sys-muted); }
+
+.sysmap-facts {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.1rem 0.75rem;
+    margin: 0 0 0.75rem;
+    font-size: 0.8rem;
+}
+.sysmap-facts dt { font-weight: 400; color: var(--sys-muted); }
+.sysmap-facts dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+.sysmap-mono { font-family: var(--tss-font-mono, ui-monospace, Consolas, monospace); font-variant-numeric: tabular-nums; }
+
+.sysmap-section {
+    margin: 0.75rem 0 0.25rem;
+    padding-top: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--sys-text);
+    border-top: 1px solid var(--sys-line);
+}
+.sysmap-section i { width: 1.1rem; color: var(--sys-muted); text-align: center; }
+.sysmap-empty { margin: 0; font-size: 0.8rem; color: var(--sys-muted); }
+
+.sysmap-colony { padding: 0.25rem 0.5rem; margin-bottom: 0.25rem; border-left: 3px solid var(--sys-other); background: rgba(255, 255, 255, 0.05); }
+.sysmap-colony.is-mine { border-left-color: var(--sys-mine); }
+.sysmap-colony small { display: block; color: var(--sys-muted); }
+.sysmap-colony a { color: #fff; text-decoration: underline; }
+.sysmap-modifiers { margin: 0; padding-left: 1.1rem; font-size: 0.8rem; }
+
+.sysmap-follow { margin-top: 1rem; }
+.sysmap-panel .sysmap-follow { color: var(--sys-text); background: transparent; border-color: var(--sys-line); }
+.sysmap-panel .sysmap-follow:hover { color: #fff; border-color: var(--sys-accent); }
+.sysmap-panel .sysmap-follow[aria-pressed="true"] { color: #fff; background: var(--sys-accent); border-color: var(--sys-accent); }
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Survey table */
+
+.sysmap-survey td { vertical-align: middle; }
+.sysmap-row { cursor: pointer; }
+.sysmap-row-name { white-space: nowrap; }
+.sysmap-row-name .btn-link { font-weight: 600; color: inherit; vertical-align: baseline; }
+.sysmap-row.is-selected { box-shadow: inset 3px 0 0 var(--tss-accent, #007bff); background-color: rgba(128, 128, 128, 0.14); }
+.sysmap-thumb {
+    display: inline-block;
+    width: 34px;
+    height: 34px;
+    margin-right: 0.5rem;
+    overflow: hidden;
+    vertical-align: middle;
+    background-color: #000;
+    border-radius: 50%;
+}
+.sysmap-thumb img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.5); }
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Tablets and phones : the panel goes under the scene */
+
+@media (max-width: 991.98px) {
+    .sysmap-panel {
+        position: static;
+        width: auto;
+        margin-top: 0.5rem;
+        background: #0a0f1a;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+    .sysmap-hint { display: none; }
+    .sysmap-scene { height: clamp(340px, 78vw, 620px); }
+}
+
+@media (max-width: 575.98px) {
+    .sysmap-page { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+    .sysmap-title { font-size: 1.25rem; }
+    .sysmap-legend { display: none; }
+    .sysmap-label-name { display: none; }
+    .sysmap-body.is-selected .sysmap-label-name { display: inline; }
+    .sysmap-portrait { height: 140px; }
+    .sysmap-nav-group { width: 100%; flex-wrap: nowrap; align-items: flex-end; }
+    .sysmap-field { flex-direction: column; align-items: stretch; gap: 0; }
+    .sysmap-field-grow { flex: 1; min-width: 0; }
+    .sysmap-input-code, .sysmap-input-sector { width: 100%; }
+    .sysmap-nav-group label { font-size: 0.75rem; }
+    .sysmap-controls .btn { width: 2.5rem; height: 2.5rem; }
+}
