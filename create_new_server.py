@@ -11,7 +11,7 @@ from database.load_buildings import load_buildings
 from database.db_connect import clients
 from data import server_details, statistics, starting_values, cycles
 from geography import map_generator, mg_sectors
-from statistics import stats_geography
+from stats import stats_geography
 
 
 """ SERVER STATUS

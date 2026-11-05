@@ -1,14 +1,10 @@
 import json
-import sys
 from unittest.mock import MagicMock, patch
 
 from bson.objectid import ObjectId
 from django.contrib.auth.models import AnonymousUser
 from django.test import Client, RequestFactory, SimpleTestCase
 from django.urls import Resolver404, resolve
-
-# shortcut: db_connect connects at import, stubbed so these tests need no database; remove when it stops doing so
-sys.modules['database.db_connect'] = MagicMock()
 
 API_LOGGED_URLS = ['/api_create_commandant/', '/api_build_district/', '/api_delete_district/',
                    '/api_district_set_activation_percent/']

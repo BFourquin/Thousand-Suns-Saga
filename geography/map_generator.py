@@ -5,7 +5,7 @@ from datetime import datetime
 
 from data import map_generator
 from geography import mg_sectors, solar, planet
-from statistics import stats_geography
+from stats import stats_geography
 from backend.utils import seed_convertor
 
 
