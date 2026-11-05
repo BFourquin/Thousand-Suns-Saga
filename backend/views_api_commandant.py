@@ -44,7 +44,7 @@ def api_create_commandant(request):
     if not 'commandant_name' in params:
         return api_pop_up({"title": _("Aucun nom de commandant spécifié"), "level": "danger"}, status=400)
 
-    if commandant.commandant_field_taken(server['server_name'], 'commandant_name', params['commandant_name']):
+    if commandant.commandant_name_taken(params['commandant_name']):
         return api_pop_up({"title": _("Ce nom de commandant est déjà pris"), "level": "danger"}, status=400)
 
     if not 5 <= len(params['commandant_name']) <= 25:
@@ -55,7 +55,7 @@ def api_create_commandant(request):
     if not 'civilisation_name' in params:
         return api_pop_up({"title": _("Aucun nom de civilisation spécifié"), "level": "danger"}, status=400)
 
-    if commandant.commandant_field_taken(server['server_name'], 'civilisation_name', params['civilisation_name']):
+    if commandant.civilisation_name_taken(server['server_name'], params['civilisation_name']):
         return api_pop_up({"title": _("Ce nom de civilisation est déjà pris"), "level": "danger"}, status=400)
 
     if not 5 <= len(params['civilisation_name']) <= 40:

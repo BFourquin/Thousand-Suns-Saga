@@ -137,10 +137,18 @@ def create_commandant(server, user, commandant_name, civilisation_name):
     create_report(server, commandant_id, 'welcome_on_TSS')
 
 
-def commandant_field_taken(server, field, value):
-    # Case insensitive search of a commandant_name or civilisation_name
+def commandant_name_taken(name):
+    # Case insensitive, on every server declared in the settings
+    # shortcut: no index can span several databases, two simultaneous creations can still collide,
+    # a table of the names in the main database would close it (with the PostgreSQL migration, a unique constraint)
+    return any(db['commandants'].find_one({'commandant_name': name}, collation=Collation(locale='fr', strength=2))
+               for db in databases.values())
+
+
+def civilisation_name_taken(server, name):
+    # Case insensitive, on this server only
     # shortcut: no unique index, two simultaneous creations can still collide, add the index when indexes are created
-    return bool(collection(server, 'commandants').find_one({field: value}, collation=Collation(locale='fr', strength=2)))
+    return bool(collection(server, 'commandants').find_one({'civilisation_name': name}, collation=Collation(locale='fr', strength=2)))
 
 
 def get_commandant_by_object_id(server, _id):

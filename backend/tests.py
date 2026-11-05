@@ -13,6 +13,7 @@ from backend.decorators import commandant_required
 from backend.login import LOGIN_MAX_FAILURES_PER_ACCOUNT, throttled_authenticate
 from backend.utils import commandant_owns_colony
 from data import server_details
+from data.commandant import commandant_name_taken
 from data.report import change_report_status, get_report_by_object_id
 from data.resources import pay_resources
 
@@ -63,25 +64,26 @@ class ApiRoutesTests(SimpleTestCase):
         create.assert_called_once()
 
 
-@patch('backend.views_api_commandant.commandant.commandant_field_taken', return_value=False)
+@patch('backend.views_api_commandant.commandant.civilisation_name_taken', return_value=False)
+@patch('backend.views_api_commandant.commandant.commandant_name_taken', return_value=False)
 @patch('backend.views_api_commandant.commandant.create_commandant')
 @patch('backend.views_api_commandant.server_details.get_server_details')
 class ApiCreateCommandantTests(SimpleTestCase):
 
     data = {'server': 'S', 'user': 'victim', 'commandant_name': 'Commandant', 'civilisation_name': 'Civilisation'}
 
-    def test_owner_comes_from_the_session(self, get_server, create, _name):
+    def test_owner_comes_from_the_session(self, get_server, create, _name, _civilisation):
         get_server.return_value = {'server_name': 'S', 'status': 'open'}
         response = call('/api_create_commandant/', data=self.data, user=player())
         self.assertEqual(response.status_code, 200)
         create.assert_called_once_with('S', 'real_player', 'Commandant', 'Civilisation')
 
-    def test_unknown_server_is_refused(self, get_server, create, _name):
+    def test_unknown_server_is_refused(self, get_server, create, _name, _civilisation):
         get_server.return_value = None
         self.assertEqual(call('/api_create_commandant/', data=self.data, user=player()).status_code, 400)
         create.assert_not_called()
 
-    def test_closed_server_is_refused(self, get_server, create, _name):
+    def test_closed_server_is_refused(self, get_server, create, _name, _civilisation):
         get_server.return_value = {'server_name': 'S', 'status': 'close'}
         self.assertEqual(call('/api_create_commandant/', data=self.data, user=player()).status_code, 400)
         create.assert_not_called()
@@ -201,6 +203,18 @@ class GameViewsTests(SimpleTestCase):
 
 
 class DataLayerTests(SimpleTestCase):
+
+    def test_commandant_name_is_searched_on_every_server(self):
+        free_server, taken_server = MagicMock(), MagicMock()
+        free_server['commandants'].find_one.return_value = None
+        taken_server['commandants'].find_one.return_value = {'commandant_name': 'Paullus'}
+        with patch('data.commandant.databases', {'TSS_A': free_server, 'TSS_B': taken_server}):
+            self.assertTrue(commandant_name_taken('PAULLUS'))
+        collation = free_server['commandants'].find_one.call_args[1]['collation'].document
+        self.assertEqual(collation['strength'], 2)  # Case insensitive
+        taken_server['commandants'].find_one.return_value = None
+        with patch('data.commandant.databases', {'TSS_A': free_server, 'TSS_B': taken_server}):
+            self.assertFalse(commandant_name_taken('Paullus'))
 
     @patch('data.resources.collection')
     def test_payment_is_a_single_conditional_query(self, collection):
