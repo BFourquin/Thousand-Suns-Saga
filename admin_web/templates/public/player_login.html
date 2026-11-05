@@ -5,18 +5,14 @@
 {% include "includes/head.html" with title="TSS Login" %}
 
 
-
-<body class="login-page dark-mode" style="min-height: 466px;
-                                          background-image: url({% static 'images/background-space.jpg'%});
-                                          background-size: cover; background-repeat: no-repeat;">
+<body class="login-page dark-mode">
 
 
 <div class="login-box">
-  <!-- /.login-logo -->
   <div class="card card-outline card-primary">
     <div class="card-header text-center">
-      <img src="{% static "images/logo/TSS-logo-white.png" %}" class="u-width-70pct-margin-30px" />
-      <a href="/public_lobby/" class="h1 u-font-size-3-5rem">THOUSAND SUNS SAGA</a>
+      <img src="{% static "images/logo/TSS-logo-white.png" %}" class="login-logo-image" alt="" />
+      <a href="/public_homepage/" class="login-title">THOUSAND SUNS SAGA</a>
     </div>
     <div class="card-body">
       <p class="login-box-msg">{% trans "Connexion à votre compte utilisateur" %}</p>
@@ -27,7 +23,7 @@
         {% csrf_token %}
 
         <div class="input-group mb-3">
-          <input name="username" type="text" class="form-control" placeholder="{% trans 'Utilisateur' %}">
+          <input name="username" type="text" class="form-control" placeholder="{% trans 'Utilisateur' %}" aria-label="{% trans 'Utilisateur' %}" autocomplete="username" required autofocus>
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-user"></span>
@@ -35,7 +31,7 @@
           </div>
         </div>
         <div class="input-group mb-3">
-          <input name="password" type="password" class="form-control" placeholder="{% trans 'Mot de passe' %}">
+          <input name="password" type="password" class="form-control" placeholder="{% trans 'Mot de passe' %}" aria-label="{% trans 'Mot de passe' %}" autocomplete="current-password" required>
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
@@ -48,11 +44,8 @@
         </div>
       </form>
 
-      <p class="mb-1">
-        <a href="/forgot_password/">{% trans "Mot de passe oublié" %}</a>
-      </p>
-      <p class="mb-0">
-        <a href="/player_register/" class="text-center">{% trans "Créer un compte utilisateur" %}</a>
+      <p class="mb-0 text-center">
+        <a href="/player_register/">{% trans "Créer un compte utilisateur" %}</a>
       </p>
     </div>
     <!-- /.card-body -->
@@ -61,4 +54,5 @@
 </div>
 <!-- /.login-box -->
 
+</body>
 </html>

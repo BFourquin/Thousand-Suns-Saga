@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load static %}
 
-<div class="modal modal-default fade u-display-none" id="modal-set-activation-district-{{district.id}}" aria-hidden="true">
+<div class="modal modal-default fade" id="modal-set-activation-district-{{district.id}}" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -15,29 +15,17 @@
         <form id="api_form_district_set_activation_percent_{{district.id}}" method="POST" data-api-url="api_district_set_activation_percent">
           {% csrf_token %}
 
-            <input type="hidden" id="server" name="server" value={{server_name}} />
-            <input type="hidden" id="colony_id" name="colony_id" value={{colony_id}} />
+            <input type="hidden" name="server" value="{{server_name}}" />
+            <input type="hidden" name="colony_id" value="{{colony_id}}" />
             <input type="hidden" name="district_id" value="{{ district.id }}">
 
-            <div class="modal-body">
-              <table class="table table-stripped u-width-100pct-table-layout-auto-tbody-tr-style"white-space: nowrap;">
-                      <td class="u-width-0-border-none">
-                        <img src="{% static ""%}{{district.illustration}}" class="u-max-height-10em-margin-bottom-0-75em"></td>
-
-                      <td class="u-font-size-20px-text-align-center-vertical-align-middle-border-none">
-                        <b class="u-font-size-2em"><i class="fas {{district.icon}}"></i>  {{district.name}}</b>
-                        <br>
-                        <span class="u-font-size-1-1em">{% trans "Le taux d'activité sera appliqué à tous les bâtiments appartenant au district."%}</span>
-
-                        <span>
-                            <input id="{{district.id}}_activation_percent" class="js-range-slider" type="text" name="activation_percent" value="">
-                        </span>
-
-
-                    </td>
-                  </tbody>
-              </table>
-
+            <div class="modal-body modal-media">
+              <img src="{% static ""%}{{district.illustration}}" alt="">
+              <div>
+                <b class="u-font-size-2em"><i class="fas {{district.icon}}"></i>  {{district.name}}</b>
+                <p class="u-font-size-1-1em mb-2">{% trans "Le taux d'activité sera appliqué à tous les bâtiments appartenant au district."%}</p>
+                <input id="{{district.id}}_activation_percent" class="js-range-slider" type="text" name="activation_percent" value="">
+              </div>
             </div>
 
 

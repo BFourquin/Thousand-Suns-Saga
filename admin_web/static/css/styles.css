@@ -14,17 +14,14 @@
 
 @media screen and (min-width: 1600px) {
     .content-wrapper > .content {
-        padding: 0 1.5rem !important;
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
     }
 }
 
 
 /* GENERAL STYLES */
 
-.head-title {
-    line-height: 22px;
-    text-align: center;
-}
 
 .menu-separator {
     border-bottom: 1px solid #4f5962;
@@ -94,7 +91,6 @@
   margin-top: -0.75rem;
   margin-bottom: -0.75rem;
   position: relative;
-  //left: -100%;
   -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1));
   mask-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1));
 }
@@ -174,3 +170,140 @@
 
 /* Font Awesome 7 gives icons a fixed width by default : the layouts here, like .btn-app icons displayed as blocks, expect their natural width */
 :root { --fa-width: auto; }
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Page frame */
+
+body.tss-space, body.login-page {
+    background: #05070d url('../images/background-space.jpg') center / cover no-repeat fixed;
+}
+
+.content-wrapper > .content { padding-top: 1rem; }
+
+/* Title of the page, in the navbar */
+.tss-navbar-left, .tss-page-title { min-width: 0; }
+.head-title {
+    margin: 0;
+    font-size: 1.5rem;
+    line-height: 22px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+}
+
+.tss-cycle-chip {
+    display: flex !important;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0 0.6rem !important;
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 0.25rem;
+}
+
+/* Sidebar entries of the features which don't exist yet */
+.nav-sidebar .nav-link.disabled { opacity: 0.45; cursor: default; }
+
+/* The cycle actions are buttons in the dropdown */
+.dropdown-menu button.dropdown-item { cursor: pointer; }
+
+.img-bordered-sm { object-fit: cover; }
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Login and register */
+
+/* AdminLTE sets the minimum height from a measure of the box, which can be taken before the page is ready.
+   And with a fixed 100vh height, the top of a box higher than the screen could not be reached. */
+.login-page { height: auto; min-height: 100vh !important; padding: 1.5rem 0; }
+.login-logo-image { display: block; width: 45%; margin: 0.5rem auto 0.75rem; }
+.login-title { display: block; font-size: 1.9rem; line-height: 1.2; font-weight: 300; color: #fff; }
+.login-title:hover { color: #fff; }
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Toolbars and filters of the lists */
+
+.mailbox-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem; }
+.mailbox-controls > .float-right { margin-left: auto; }
+
+.marker-filters { display: grid !important; grid-template-columns: repeat(5, 1fr); }
+.marker-filters .multiple_icons_line { padding: 0.5rem 0 !important; text-align: center; }
+.marker-filters .span_centering_icon { min-width: 0; }
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Account */
+
+.account-card { display: flex; align-items: center; gap: 1.5rem; padding: 1rem 0; }
+.account-card + .account-card { border-top: 1px solid rgba(128, 128, 128, 0.3); }
+.account-images { display: flex; flex-shrink: 0; gap: 1rem; }
+.account-images img { width: 150px; height: 150px; }
+.account-infos { min-width: 0; overflow-wrap: anywhere; }
+.account-name { font-size: 1.4rem; font-weight: 600; line-height: 1.25; }
+.account-server { margin-bottom: 0.5rem; font-size: 1.1rem; }
+
+.account-facts .list-group-item { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.25rem 0.75rem; }
+.account-facts .list-group-item > span { overflow-wrap: anywhere; }
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Resources */
+
+.resource-filters { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 1.5rem; margin-bottom: 0.25rem; }
+.resource-filters > div { display: flex; flex-wrap: wrap; }
+.resource-filters .btn-app { margin: 0 0.3rem 0.3rem 0; }
+
+.resources-table th { white-space: normal; vertical-align: bottom; }
+.resources-table td { vertical-align: middle; }
+
+/* Sticky header in a box which stays on screen, only where there is room for it */
+@media (min-width: 992px) {
+    .resources-scroll { max-height: calc(100vh - 215px); }
+}
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Modals with an illustration */
+
+.modal-media { display: flex; align-items: center; gap: 1rem; text-align: center; }
+.modal-media > img { max-height: 10em; max-width: 40%; }
+.modal-media > div { flex: 1; min-width: 0; }
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Tablets and phones */
+
+@media (max-width: 991.98px) {
+    /* Full-height buttons beside the text on large screens, the text would overflow once under it */
+    .btn.u-height-42pct { height: auto !important; }
+}
+
+@media (max-width: 767.98px) {
+    .head-title { font-size: 1.15rem; }
+
+    .account-card { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+    .account-images img { width: 84px; height: 84px; }
+
+    .text-ellipsis { max-width: 48vw; }
+
+    /* One row of filters to slide, instead of half a screen of buttons */
+    .resource-filters > div { flex-wrap: nowrap; width: 100%; overflow-x: auto; }
+    .resource-filters .btn-app { flex: 0 0 auto; }
+
+    .modal-media { flex-direction: column; }
+    .modal-media > img { max-width: 100%; max-height: 7em; }
+
+    /* The name of the resource stays visible while scrolling the columns */
+    .resources-table th:first-child, .resources-table td:first-child { position: sticky; left: 0; z-index: 1; background-color: var(--tss-surface, #fff); }
+    .dark-mode .resources-table th:first-child, .dark-mode .resources-table td:first-child { background-color: var(--tss-surface, #343a40); }
+}
+
+@media (max-width: 575.98px) {
+    .content-wrapper > .content { padding-left: 0.5rem; padding-right: 0.5rem; }
+    .tss-cycle-chip { padding: 0 0.4rem !important; font-size: 0.85rem; }
+    .login-title { font-size: 1.6rem; }
+    .login-box { width: calc(100% - 1rem); max-width: 360px; }
+}

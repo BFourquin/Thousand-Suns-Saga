@@ -1,7 +1,7 @@
 
 {% load static %}
 
-{% include "includes/head.html" with title="TSS Admin : Geography" %}
+{% include "includes/head.html" with title="TSS Admin : Geography" datatables=True %}
 
 {% include "includes/menu_admin.html" %}  <!-- include body start -->
 
@@ -58,11 +58,11 @@
                 href="/admin_geography/?server_name_selected={{request.GET.server_name_selected}}&target=sectors" role="tab"><strong>Secteurs</strong></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" {% if target == "systems" %} active{% endif %}"
+                <a class="nav-link {% if target == "systems" %}active{% endif %}"
                    href="/admin_geography/?server_name_selected={{request.GET.server_name_selected}}&target=systems" role="tab"><strong>Systèmes</strong></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" {% if target == "coordinates" %} active{% endif %}"
+                <a class="nav-link {% if target == "coordinates" %}active{% endif %}"
                    href="/admin_geography/?server_name_selected={{request.GET.server_name_selected}}&target=coordinates" role="tab"><strong>Coordonnées</strong></a>
             </li>
         </ul>
@@ -70,12 +70,12 @@
         <div class="card">
 
           <!-- /.card-header -->
-          <div class="card-body">
+          <div class="card-body table-responsive">
 
             {% if target == "map" %}
 
-              <img src="{% static "" %}images/server_specific/{{request.GET.server_name_selected}}/map/map.png" class="u-height-100pct-padding-30px-display-block-margin-left-auto-margin-right-auto">
-              <img src="{% static "" %}images/server_specific/{{request.GET.server_name_selected}}/map/map_with_sectors.png" class="u-height-100pct-padding-30px-display-block-margin-left-auto-margin-right-auto">
+              <img src="{% static "" %}images/server_specific/{{request.GET.server_name_selected}}/map/map.png" alt="" class="img-fluid d-block mx-auto p-3">
+              <img src="{% static "" %}images/server_specific/{{request.GET.server_name_selected}}/map/map_with_sectors.png" alt="" class="img-fluid d-block mx-auto p-3">
 
             {% else %}
 

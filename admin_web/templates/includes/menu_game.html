@@ -3,10 +3,8 @@
 {% load i18n %}
 
 <body data-theme="{{ theme|default:'classic' }}"
-      class="hold-transition sidebar-mini layout-boxed layout-fixed
-             {% if dark_mode %} dark-mode {% endif %}"
-      style="background-image: url({% static 'images/background-space.jpg'%});
-             background-size: cover; background-repeat: no-repeat; background-attachment: fixed;">
+      class="hold-transition sidebar-mini layout-boxed layout-fixed tss-space
+             {% if dark_mode %} dark-mode {% endif %}">
 
 
 {% include "includes/hijack_banner.html" %}
@@ -15,15 +13,14 @@
   <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-dark">
     <!-- Left navbar links -->
-    <ul class="navbar-nav">
+    <ul class="navbar-nav tss-navbar-left">
 
       <li class="nav-item">
-        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button" aria-label="{% trans 'Menu' %}"><i class="fas fa-bars"></i></a>
       </li>
 
-      <li class="nav-item d-none d-sm-inline-block">
-        <!--<a href="/user_account/" class="nav-link">Home</a>-->
-        <a href="" class="nav-link"><h4 class="head-title">{{page_title}}</h4></a>
+      <li class="nav-item tss-page-title">
+        <h1 class="nav-link head-title">{{page_title}}</h1>
       </li>
 
     </ul>
@@ -31,100 +28,77 @@
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
 
-
-      <!-- REMOVED Navbar Search -->
-
       <!-- Cycle Count -->
 
       <li class="nav-item dropdown">
 
+        <a class="nav-link {% if server_details.gameplay == 'skirmish' %}tss-cycle-chip{% endif %}" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+          {% trans "Cycle" %} {{cycle_info.cycle_nb}}
+          <i class="far fa-calendar-days"></i>
+
           {% if server_details.gameplay == 'skirmish' %}
-          <button type="button" class="btn btn-block btn-default
-                                       {% if not dark_mode %}dark-mode{% endif %} u-padding-0-margin-top-1px-margin-bottom-1px"
-                 >
+          <span class="badge badge{% if ratio_finished >= 0.75 %}-danger{% elif ratio_finished >= 0.5 %}-warning{% else %}-success{% endif %} u-font-size-90pct">
+            {{commandants_cycle_playing|length}}
+            /
+            {% with len_playing=commandants_cycle_playing|length %}{% with len_finished=commandants_cycle_finished|length %}{{ len_playing|add:len_finished }}{% endwith %}{% endwith %}
+          </span>
           {% endif %}
+        </a>
 
-            <a class="nav-link" data-toggle="dropdown" href="#">
-              Cycle {{cycle_info.cycle_nb}}  
-              <i class="far {% if server_details.gameplay == 'saga' %} fa-calendar-days
-                            {% elif server_details.gameplay == 'skirmish' %} fa-calendar-days <!--fa-hourglass-half-->
-                            {% endif %}"></i>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
 
-              {% if server_details.gameplay == 'skirmish' %}
-                
-              <span class="badge right badge{% if ratio_finished >= 0.75 %}-danger{% elif ratio_finished >= 0.5 %}-warning{% else %}-success{% endif %} u-font-size-90pct"
+          <form method="POST" action="/cycle_monitoring/">
+            {% csrf_token %}
 
-                   >
-                  {{commandants_cycle_playing|length}}
-                  /
-                  {% with len_playing=commandants_cycle_playing|length %}{% with len_finished=commandants_cycle_finished|length %}{{ len_playing|add:len_finished }}{% endwith %} {% endwith %}
-
-              </span>
-              {% endif %}
-
-            </a>
-            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                {{cycle}}
-
-              {% if not current_commandant_absent %}
-                {% if not current_commandant_finished %}
-                  <a href="/cycle_monitoring/?commandant_cycle_status=commandant_cycle_finished" class="dropdown-item u-text-align-center-padding-top-1rem">
-                      <h6><i class="fas fa-check"></i>  {% trans "Passer prêt pour fin de cycle" %}</h6></a>
-                {% else %}
-                  <a href="/cycle_monitoring/?commandant_cycle_status=commandant_cycle_playing" class="dropdown-item u-text-align-center-padding-top-1rem">
-                      <h6><i class="fas fa-xmark"></i>  {% trans "Passer non prêt pour fin du cycle" %}</h6></a>
-                {% endif %}
-              {% endif %}
-
-              <div class="dropdown-divider"></div>
-
-              {% if not current_commandant_absent %}
-                <a href="/cycle_monitoring/?commandant_cycle_presence=commandant_cycle_absent" class="dropdown-item u-text-align-center-padding-top-1rem">
-                    <h6><i class="fas fa-moon"></i>  {% trans "Se mettre en mode absent" %}</h6></a>
+            {% if not current_commandant_absent %}
+              {% if not current_commandant_finished %}
+                <button type="submit" name="commandant_cycle_status" value="commandant_cycle_finished" class="dropdown-item u-text-align-center-padding-top-1rem">
+                  <h6><i class="fas fa-check"></i>  {% trans "Passer prêt pour fin de cycle" %}</h6></button>
               {% else %}
-                <a href="/cycle_monitoring/?commandant_cycle_presence=commandant_cycle_present" class="dropdown-item u-text-align-center-padding-top-1rem">
-                    <h6><i class="fas fa-sun"></i>  {% trans "Retirer le mode absent" %}</h6></a>
+                <button type="submit" name="commandant_cycle_status" value="commandant_cycle_playing" class="dropdown-item u-text-align-center-padding-top-1rem">
+                  <h6><i class="fas fa-xmark"></i>  {% trans "Passer non prêt pour fin du cycle" %}</h6></button>
               {% endif %}
 
-
               <div class="dropdown-divider"></div>
 
-              <a href="/cycle_monitoring/" class="dropdown-item">
-                <!-- Message Start -->
-                <div class="media">
-                  <div class="media-body">
-                    <h3 class="dropdown-item-title u-margin-bottom-0-5rem">
-                      {% trans "Cycle en cours" %}
-                    </h3>
-                    {% for comm_playing in commandants_cycle_playing %}
-                        <img src="{% static "" %}{{comm_playing.portrait}}" title="{{comm_playing.commandant_name}}" class="img-size-50">
-                    {% endfor %}
-                  </div>
-                </div>
-                <!-- Message End -->
-              </a>
-              <div class="dropdown-divider"></div>
-              <a href="/cycle_monitoring/" class="dropdown-item">
-                <!-- Message Start -->
-                <div class="media">
-                  <div class="media-body">
-                    <h3 class="dropdown-item-title u-margin-bottom-0-5rem">
-                      {% trans "Cycle terminé" %}
-                    </h3>
-                    {% for comm_finished in commandants_cycle_finished %}
-                      <img src="{% static "" %}{{comm_finished.portrait}}" title="{{comm_finished.commandant_name}}" class="img-size-50">
-                    {% endfor %}
-                  </div>
-                </div>
-                <!-- Message End -->
-              </a>
+              <button type="submit" name="commandant_cycle_presence" value="commandant_cycle_absent" class="dropdown-item u-text-align-center-padding-top-1rem">
+                <h6><i class="fas fa-moon"></i>  {% trans "Se mettre en mode absent" %}</h6></button>
+            {% else %}
+              <button type="submit" name="commandant_cycle_presence" value="commandant_cycle_present" class="dropdown-item u-text-align-center-padding-top-1rem">
+                <h6><i class="fas fa-sun"></i>  {% trans "Retirer le mode absent" %}</h6></button>
+            {% endif %}
+          </form>
 
+          <div class="dropdown-divider"></div>
+
+          <a href="/cycle_monitoring/" class="dropdown-item">
+            <div class="media">
+              <div class="media-body">
+                <h3 class="dropdown-item-title u-margin-bottom-0-5rem">
+                  {% trans "Cycle en cours" %}
+                </h3>
+                {% for comm_playing in commandants_cycle_playing %}
+                  <img src="{% static "" %}{{comm_playing.portrait}}" title="{{comm_playing.commandant_name}}" alt="{{comm_playing.commandant_name}}" class="img-size-50">
+                {% endfor %}
+              </div>
             </div>
-        </button>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="/cycle_monitoring/" class="dropdown-item">
+            <div class="media">
+              <div class="media-body">
+                <h3 class="dropdown-item-title u-margin-bottom-0-5rem">
+                  {% trans "Cycle terminé" %}
+                </h3>
+                {% for comm_finished in commandants_cycle_finished %}
+                  <img src="{% static "" %}{{comm_finished.portrait}}" title="{{comm_finished.commandant_name}}" alt="{{comm_finished.commandant_name}}" class="img-size-50">
+                {% endfor %}
+              </div>
+            </div>
+          </a>
+
+        </div>
       </li>
-
-
-      <!-- REMOVED Navbar Search -->
 
     </ul>
   </nav>
@@ -134,61 +108,33 @@
   <aside class="main-sidebar sidebar-dark-primary elevation-4 u-background-color-var-tss-sidebar-bg-333f50">
     <!-- Brand Logo -->
     <a href="/user_account/" class="brand-link">
-      <img src={% static "images/logo/TSS-logo-white.png" %} class="brand-image">
+      <img src="{% static "images/logo/TSS-logo-white.png" %}" class="brand-image" alt="">
       <span class="brand-text font-weight-light">Thousand Suns Saga</span>
     </a>
 
     <!-- Sidebar -->
     <div class="sidebar">
-      <!-- Sidebar user panel (optional) -->
-      <!--
-      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
-          <img src={% static "dist/img/user2-160x160.jpg" %} class="img-circle elevation-2" alt="User Image">
-        </div>
-        <div class="info">
-          <a href="#" class="d-block">Alexander Pierce</a>
-        </div>
-      </div>
-      -->
-
-      <!-- SidebarSearch Form -->
-      <!--
-      <div class="form-inline">
-        <div class="input-group" data-widget="sidebar-search">
-          <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
-          <div class="input-group-append">
-            <button class="btn btn-sidebar">
-              <i class="fas fa-search fa-fw"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-      -->
 
       <!-- Sidebar Menu -->
       <nav class="mt-2">
-        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-          <!-- Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library -->
-
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false">
 
         <li class="nav-item">
-            <a href="" class="nav-link">
+            <a class="nav-link disabled" aria-disabled="true">
                 <i class="fas fa-tv nav-icon"></i>
                 <p>{% trans "Centre de commande" %}</p>
             </a>
         </li>
 
         <li class="nav-item">
-            <a href="" class="nav-link">
+            <a class="nav-link disabled" aria-disabled="true">
                 <i class="fas fa-landmark nav-icon"></i>
                 <p>{% trans "Gouvernement" %}</p>
             </a>
         </li>
 
         <li class="nav-item">
-            <a href="/reports/" class="nav-link">
+            <a href="/reports/" class="nav-link {% if request.path == '/reports/' or request.path == '/report/' %}active{% endif %}">
                 <i class="fas fa-inbox nav-icon"></i>
                 <p>{% trans "Rapports" %}
                     {% if 'nb_unread_reports' in commandant and commandant.nb_unread_reports > 0 %}
@@ -199,85 +145,85 @@
         </li>
 
         <li class="nav-item">
-            <a href="" class="nav-link">
+            <a class="nav-link disabled" aria-disabled="true">
                 <i class="fas fa-tower-cell nav-icon"></i>
                 <p>{% trans "Diplomatie" %}</p>
             </a>
         </li>
 
-        <li class="menu-separator">
+        <li class="menu-separator"></li>
 
         <li class="nav-item">
-            <a href="" class="nav-link">
+            <a class="nav-link disabled" aria-disabled="true">
                 <i class="fas fa-coins nav-icon"></i>
                 <p>{% trans "Economie" %}</p>
             </a>
         </li>
 
         <li class="nav-item">
-            <a href="/resources/" class="nav-link">
+            <a href="/resources/" class="nav-link {% if request.path == '/resources/' %}active{% endif %}">
                 <i class="fas fa-boxes-stacked nav-icon"></i>
                 <p>{% trans "Ressources" %}</p>
             </a>
         </li>
 
-        <li class="menu-separator">
+        <li class="menu-separator"></li>
 
         <li class="nav-item">
-            <a href="/colonies/" class="nav-link">
+            <a href="/colonies/" class="nav-link {% if request.path == '/colonies/' or request.path == '/colony/' %}active{% endif %}">
                 <i class="fas fa-city nav-icon"></i>
                 <p>{% trans "Colonies" %}</p>
             </a>
         </li>
 
         <li class="nav-item">
-            <a href="/geography_system/" class="nav-link">
+            <a href="/geography_system/" class="nav-link {% if request.path == '/geography_system/' %}active{% endif %}">
                 <i class="fas fa-sun nav-icon"></i>
                 <p>{% trans "Cartographie" %}</p>
             </a>
         </li>
 
-        <li class="menu-separator">
+        <li class="menu-separator"></li>
 
         <li class="nav-item">
-            <a href="" class="nav-link">
+            <a class="nav-link disabled" aria-disabled="true">
                 <i class="fas fa-jet-fighter nav-icon"></i>
                 <p>{% trans "Flottes" %}</p>
             </a>
         </li>
 
         <li class="nav-item">
-            <a href="" class="nav-link">
-                <i class="fas fa-person-rifle nav-icon"></i>  <!-- fa-person-military-rifle -->
+            <a class="nav-link disabled" aria-disabled="true">
+                <i class="fas fa-person-rifle nav-icon"></i>
                 <p>{% trans "Armées" %}</p>
             </a>
         </li>
 
-        <li class="menu-separator">
+        <li class="menu-separator"></li>
 
         <li class="nav-item">
-            <a href="" class="nav-link">
+            <a class="nav-link disabled" aria-disabled="true">
                 <i class="fas fa-flask nav-icon"></i>
                 <p>{% trans "Technologies" %}</p>
             </a>
         </li>
 
         <li class="nav-item">
-            <a href="" class="nav-link">
+            <a class="nav-link disabled" aria-disabled="true">
                 <i class="fas fa-wrench nav-icon"></i>
                 <p>{% trans "Armements" %}</p>
             </a>
         </li>
 
         <li class="nav-item">
-            <a href="" class="nav-link">
+            <a class="nav-link disabled" aria-disabled="true">
                 <i class="fas fa-drafting-compass nav-icon"></i>
                 <p>{% trans "Conception Vaisseaux" %}</p>
             </a>
         </li>
 
         <li class="nav-item">
-            <a href="" class="nav-link">
+            <a class="nav-link disabled" aria-disabled="true">
                 <i class="fas fa-lightbulb nav-icon"></i>
                 <p>{% trans "Modificateurs" %}</p>
             </a>

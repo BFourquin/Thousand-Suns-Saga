@@ -1,3 +1,4 @@
+from data.names import localized_name
 
 from bson.objectid import ObjectId
 
@@ -26,7 +27,7 @@ def add_infos_to_resources_dict(server_name, resources_dict, commandant=None, la
         resource_declaration = get_resource_parameters(server_name, res_internal_name)
         resources_dict[res_internal_name] = {
             'internal_name': res_internal_name,
-            'name': resource_declaration['name_' + language] if language else resource_declaration['name_en'],
+            'name': localized_name(resource_declaration, language or 'en'),
             'quantity': quantity,
             'commandant_storage': commandant['resources'][res_internal_name] if commandant and res_internal_name in commandant['resources'] else 0,
             'enough_stockpiles': commandant and res_internal_name in commandant['resources'] and commandant['resources'][res_internal_name] >= quantity,

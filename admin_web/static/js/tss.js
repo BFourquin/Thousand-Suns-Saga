@@ -7,7 +7,23 @@ $(function () {
 
     $(document).on('change', '[data-autosubmit]', function () { this.form.submit(); });
     $(document).on('click', '[data-confirm]', function () { return confirm($(this).data('confirm')); });
-    $(document).on('click', '[data-href]', function () { window.location.href = $(this).data('href'); });
+    $(document).on('click', '[data-href]', function (e) {
+        // A link inside a clickable row keeps its own destination
+        if (!$(e.target).closest('a, button, input, label').length) { window.location.href = $(this).data('href'); }
+    });
+
+    // Filters take the whole screen of a phone : they start folded. <div class="card" data-collapse-on-mobile>
+    if (window.innerWidth < 992) {
+        $('[data-collapse-on-mobile]').addClass('collapsed-card').find('[data-card-widget="collapse"] i').toggleClass('fa-minus fa-plus');
+    }
+
+    // <input data-must-match="name of the other field" data-mismatch-message="...">
+    $(document).on('input', 'form input', function () {
+        $(this.form).find('[data-must-match]').each(function () {
+            var same = this.value === this.form.elements[this.dataset.mustMatch].value;
+            this.setCustomValidity(same ? '' : this.dataset.mismatchMessage);
+        });
+    });
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

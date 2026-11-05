@@ -9,17 +9,6 @@
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <!--<h1>{% trans "Colonies"%} </h1>-->
-          </div>
-        </div>
-      </div><!-- /.container-fluid -->
-    </section>
-
     <!-- Main content -->
     <section class="content">
 
@@ -27,23 +16,17 @@
       <!--------------------------------------------------------------------------------------------------------->
       <!-- Corps central -->
 
-        <input type="hidden" id="districts_type" name="districts_type" value="{{districts_type}}">
-
-
         <div class="card">
           <div class="table-responsive u-padding-bottom-5px">
-            <table class="table table-striped u-width-100pct-table-layout-auto">
+            <table class="table table-striped mb-0 u-width-100pct-table-layout-auto colony-table">
               <tbody>
 
-                <tr class="background-img-colony{% if dark_mode %}-dark{% endif %}"
-                    style='white-space: nowrap; position: relative; vertical-align: bottom;
-                           background: url("{% static ""%}images/colony_landscape.png") no-repeat right center;
-                           background-size: cover; '>
+                <tr class="colony-row colony-row-large background-img-colony{% if dark_mode %}-dark{% endif %}">
 
                   <td class="align-bottom u-max-width-15rem">
-                    <img class="rem15_large_img_without_td_padding" src="{% static ""%}{{colony.coordinate_image}}"></td>
+                    <img class="rem15_large_img_without_td_padding" src="{% static ""%}{{colony.coordinate_image}}" alt=""></td>
 
-                  <td class="align-bottom u-font-size-20px-text-align-center">
+                  <td class="align-bottom colony-cell-name u-font-size-20px-text-align-center">
                     <b class="u-font-size-35px">{{colony.name}}</b>
                     <br>
                     <i class="fas fa-landmark"></i>
@@ -59,19 +42,19 @@
 
                   <td class="align-bottom">
                     <span>{% trans "Secteur :" %} {{colony.geographic_location.sector_id}}</span><br>
-                    <span>{% trans "Système :" %} X {{colony.geographic_location.pos_x}} | Y {{colony.geographic_location.pos_y}}</span><br>
+                    <span>{% trans "Système :" %} <a href="/geography_system/?system_id={{colony.geographic_location.system_id}}#orbit-{{colony.geographic_location.pos_orbital|add:0}}" title="{% trans 'Voir sur la carte' %}">X {{colony.geographic_location.pos_x}} | Y {{colony.geographic_location.pos_y}} <i class="fas fa-sun"></i></a></span><br>
                     <span>{% trans "Orbite :" %} {{colony.geographic_location.pos_orbital}}</span><br>
                   </td>
 
                   <td class="align-bottom">
-                    <span>Habitants : 1 000 000 <i class="fas fa-users"></i></span><br>
-                    <span>Bonheur : 75% <i class="fas fa-masks-theater"></i></span><br>
-                    <span>Ordre : 75% <i class="fas fa-person-military-pointing"></i></span>
+                    <span>{% trans "Habitants :" %} 1 000 000 <i class="fas fa-users"></i></span><br>
+                    <span>{% trans "Bonheur :" %} 75% <i class="fas fa-masks-theater"></i></span><br>
+                    <span>{% trans "Ordre :" %} 75% <i class="fas fa-person-military-pointing"></i></span>
                   </td>
 
                   <td class="align-bottom">
-                    <span>Districts : {{colony.districts|length}}/3 <i class="fas fa-hexagon-nodes"></i></span><br>
-                    <span>Travailleurs : 100% <i class="fas fa-hammer"></i></span>
+                    <span>{% trans "Districts :" %} {{colony.districts|length}}/3 <i class="fas fa-hexagon-nodes"></i></span><br>
+                    <span>{% trans "Travailleurs :" %} 100% <i class="fas fa-hammer"></i></span>
                   </td>
 
                 </tr>
@@ -83,23 +66,23 @@
         </div>
 
         <div class="card-body row">
-                <div class="col-md-2">
-                  <button type="button" class="btn btn{% if dark_mode %}-outline{% endif %}-info btn-block btn-flat"><i class="fa fa-users"></i>  {% trans "Population"%}</button>
+                <div class="col-6 col-md-4 col-xl-2 mb-2 mb-xl-0">
+                  <button type="button" class="btn btn{% if dark_mode %}-outline{% endif %}-info btn-block btn-flat" disabled><i class="fa fa-users"></i>  {% trans "Population"%}</button>
                 </div>
-                <div class="col-md-2">
-                  <button type="button" class="btn btn{% if dark_mode %}-outline{% endif %}-info btn-block btn-flat"><i class="fa fa-coins"></i>  {% trans "Economie"%}</button>
+                <div class="col-6 col-md-4 col-xl-2 mb-2 mb-xl-0">
+                  <button type="button" class="btn btn{% if dark_mode %}-outline{% endif %}-info btn-block btn-flat" disabled><i class="fa fa-coins"></i>  {% trans "Economie"%}</button>
                 </div>
-                <div class="col-md-2">
-                  <button type="button" class="btn btn{% if dark_mode %}-outline{% endif %}-info btn-block btn-flat"><i class="fa fa-boxes-stacked"></i>  {% trans "Ressources"%}</button>
+                <div class="col-6 col-md-4 col-xl-2 mb-2 mb-xl-0">
+                  <button type="button" class="btn btn{% if dark_mode %}-outline{% endif %}-info btn-block btn-flat" disabled><i class="fa fa-boxes-stacked"></i>  {% trans "Ressources"%}</button>
                 </div>
-                <div class="col-md-2">
-                  <button type="button" class="btn btn{% if dark_mode %}-outline{% endif %}-info btn-block btn-flat"><i class="fa fa-person-rifle"></i>  {% trans "Défenses"%}</button>
+                <div class="col-6 col-md-4 col-xl-2 mb-2 mb-xl-0">
+                  <button type="button" class="btn btn{% if dark_mode %}-outline{% endif %}-info btn-block btn-flat" disabled><i class="fa fa-person-rifle"></i>  {% trans "Défenses"%}</button>
                 </div>
-                <div class="col-md-2">
-                  <button type="button" class="btn btn{% if dark_mode %}-outline{% endif %}-info btn-block btn-flat"><i class="fa fa-scale-balanced"></i>  {% trans "Politique"%}</button>
+                <div class="col-6 col-md-4 col-xl-2 mb-2 mb-xl-0">
+                  <button type="button" class="btn btn{% if dark_mode %}-outline{% endif %}-info btn-block btn-flat" disabled><i class="fa fa-scale-balanced"></i>  {% trans "Politique"%}</button>
                 </div>
-                <div class="col-md-2">
-                  <button type="button" class="btn btn{% if dark_mode %}-outline{% endif %}-info btn-block btn-flat"><i class="fa fa-book"></i>  {% trans "Détails"%}</button>
+                <div class="col-6 col-md-4 col-xl-2 mb-2 mb-xl-0">
+                  <button type="button" class="btn btn{% if dark_mode %}-outline{% endif %}-info btn-block btn-flat" disabled><i class="fa fa-book"></i>  {% trans "Détails"%}</button>
                 </div>
         </div>
 
@@ -114,41 +97,38 @@
 
                   <!-- DISTRICTS FILTERS -->
 
-                  <form id="report-form" method="POST" action="/colonies/?category={{category}}&marker={{marker}}">
-                    {% csrf_token %}
-                    <span class="card-title nav-pills u-padding-top-0-2rem">
+                                      <span class="card-title nav-pills u-padding-top-0-2rem">
 
                       {% trans "Filtrer par types"%} :  
 
-                      <a href="/colony/?colony_id={{colony.id}}&filter_districts=all" class="pills {% if filter_districts == 'all' %}hover{% endif %}">
+                      <a href="/colony/?colony_id={{colony.id}}&filter_districts=all" title="{% trans "Tout" %}" aria-label="{% trans "Tout" %}" class="pills {% if filter_districts == 'all' %}hover{% endif %}">
                         <span class="span_centering_icon"><i class="fas fa-infinity"></i></span>
                       </a>
-                      <a href="/colony/?colony_id={{colony.id}}&filter_districts=industrial_district" class="pills {% if filter_districts == 'industrial_district' %}hover{% endif %}">
+                      <a href="/colony/?colony_id={{colony.id}}&filter_districts=industrial_district" title="{% trans "Industrie" %}" aria-label="{% trans "Industrie" %}" class="pills {% if filter_districts == 'industrial_district' %}hover{% endif %}">
                         <span class="span_centering_icon"><i class="fas fa-industry"></i></span>
                       </a>
-                      <a href="/colony/?colony_id={{colony.id}}&filter_districts=mining_district" class="pills {% if filter_districts == 'mining_district' %}hover{% endif %}">
+                      <a href="/colony/?colony_id={{colony.id}}&filter_districts=mining_district" title="{% trans "Extraction" %}" aria-label="{% trans "Extraction" %}" class="pills {% if filter_districts == 'mining_district' %}hover{% endif %}">
                         <span class="span_centering_icon"><i class="fas fa-oil-well"></i></span>
                       </a>
-                      <a href="/colony/?colony_id={{colony.id}}&filter_districts=scientific_district" class="pills {% if filter_districts == 'scientific_district' %}hover{% endif %}">
+                      <a href="/colony/?colony_id={{colony.id}}&filter_districts=scientific_district" title="{% trans "Science" %}" aria-label="{% trans "Science" %}" class="pills {% if filter_districts == 'scientific_district' %}hover{% endif %}">
                         <span class="span_centering_icon"><i class="fas fa-flask"></i></span>
                       </a>
-                      <a href="/colony/?colony_id={{colony.id}}&filter_districts=economy_district" class="pills {% if filter_districts == 'economy_district' %}hover{% endif %}">
+                      <a href="/colony/?colony_id={{colony.id}}&filter_districts=economy_district" title="{% trans "Economie" %}" aria-label="{% trans "Economie" %}" class="pills {% if filter_districts == 'economy_district' %}hover{% endif %}">
                         <span class="span_centering_icon"><i class="fas fa-coins"></i></span>
                       </a>
-                      <a href="/colony/?colony_id={{colony.id}}&filter_districts=farming_district" class="pills {% if filter_districts == 'farming_district' %}hover{% endif %}">
+                      <a href="/colony/?colony_id={{colony.id}}&filter_districts=farming_district" title="{% trans "Agriculture" %}" aria-label="{% trans "Agriculture" %}" class="pills {% if filter_districts == 'farming_district' %}hover{% endif %}">
                         <span class="span_centering_icon"><i class="fas fa-wheat-awn"></i></span>
                       </a>
-                      <a href="/colony/?colony_id={{colony.id}}&filter_districts=military_district" class="pills {% if filter_districts == 'military_district' %}hover{% endif %}">
+                      <a href="/colony/?colony_id={{colony.id}}&filter_districts=military_district" title="{% trans "Militaire" %}" aria-label="{% trans "Militaire" %}" class="pills {% if filter_districts == 'military_district' %}hover{% endif %}">
                         <span class="span_centering_icon"><i class="fas fa-person-rifle"></i></span>
                       </a>
-                      <a href="/colony/?colony_id={{colony.id}}&filter_districts=nature_district" class="pills {% if filter_districts == 'nature_district' %}hover{% endif %}">
+                      <a href="/colony/?colony_id={{colony.id}}&filter_districts=nature_district" title="{% trans "Nature" %}" aria-label="{% trans "Nature" %}" class="pills {% if filter_districts == 'nature_district' %}hover{% endif %}">
                         <span class="span_centering_icon"><i class="fas fa-leaf"></i></span>
                       </a>
-                      <a href="/colony/?colony_id={{colony.id}}&filter_districts=available_place_district" class="pills {% if filter_districts == 'available_place_district' %}hover{% endif %}">
+                      <a href="/colony/?colony_id={{colony.id}}&filter_districts=available_place_district" title="{% trans "Places libres" %}" aria-label="{% trans "Places libres" %}" class="pills {% if filter_districts == 'available_place_district' %}hover{% endif %}">
                         <span class="span_centering_icon"><i class="fas fa-square-plus"></i></span>
                       </a>
                     </span>
-                  </form>
 
                   </div>
                 </div>
@@ -159,7 +139,7 @@
 
 <div class="card-body p-0">
   <div class="table-responsive mailbox-messages u-padding-bottom-5px">
-    <table class="table table-striped u-width-100pct-table-layout-fixed">
+    <table class="table table-striped mb-0 u-width-100pct-table-layout-fixed district-table">
       <tbody>
 
         {% for district in districts %}
@@ -170,20 +150,20 @@
               <td class="u-width-20pct-text-align-center-border-right-2px-solid-ccc">
 
                 <div class="district-container">
-                  <img src="{% static '' %}{{ district.illustration }}" class="district-img" alt="{{ district.name }}">
+                  <img src="{% static '' %}{{ district.illustration }}" class="district-img" alt="">
 
                   <div class="district-info">
                     <b class="district-name">{{ district.name }}</b>
                     <div class="district-controls">
-                      <a href="/colony/?colony_id={{ colony.id }}&district_delete={{ district.id }}" class="pills" title="{% trans 'Améliorer' %}">
+                      <a href="/colony/?colony_id={{ colony.id }}&district_upgrade={{ district.id }}" class="pills" title="{% trans 'Améliorer' %}" aria-label="{% trans 'Améliorer' %}">
                         <i class="fas fa-up-long"></i></a>
-                      <a href="/colony/?colony_id={{ colony.id }}&district_upgrade={{ district.id }}" class="pills" title="{% trans 'Modifier' %}">
+                      <a href="/colony/?colony_id={{ colony.id }}&district_modify={{ district.id }}" class="pills" title="{% trans 'Modifier' %}" aria-label="{% trans 'Modifier' %}">
                         <i class="fas fa-screwdriver-wrench"></i></a>
-                      <a href="#modal-set-activation-district-{{ colony.id }}" data-toggle="modal" data-target="#modal-set-activation-district-{{ district.id }}" class="pills" title="{% trans 'Activation' %}">
+                      <a href="#modal-set-activation-district-{{ district.id }}" data-toggle="modal" class="pills" title="{% trans 'Activation' %}" aria-label="{% trans 'Activation' %}">
                         <i class="fas fa-power-off"></i></a>
-                      <a href="/colony/?colony_id={{ colony.id }}&district_reorganize={{ district.id }}" class="pills" title="{% trans 'Réorganiser' %}">
+                      <a href="/colony/?colony_id={{ colony.id }}&district_reorganize={{ district.id }}" class="pills" title="{% trans 'Réorganiser' %}" aria-label="{% trans 'Réorganiser' %}">
                         <i class="fas fa-arrows-turn-to-dots"></i></a>
-                      <a href="#modal-delete-district-{{ district.id }}" data-toggle="modal" data-target="#modal-delete-district-{{ district.id }}" class="pills" title="{% trans 'Détruire' %}">
+                      <a href="#modal-delete-district-{{ district.id }}" data-toggle="modal" class="pills" title="{% trans 'Détruire' %}" aria-label="{% trans 'Détruire' %}">
                         <i class="fas fa-trash-can"></i></a>
                     </div>
                   </div>
@@ -194,19 +174,19 @@
               <!-- Right : buildings list -->
               <td class="u-width-80pct-padding-10px">
 
-                <div class="u-display-grid-important-grid-template-columns-repeat-10-minmax-90px-1fr-gap-8px">
+                <div class="buildings-grid">
                     {% for building in district.buildings %}
 
                     <div class="building-card">
 
                         <!-- Building name -->
                         <div class="building-title">
-                            {{ building.name_fr }}
+                            {{ building.name }}
                         </div>
 
                         <!-- Building illustration -->
                         <div class="building-image-container">
-                            <img src="{% static '' %}{{ building.building_type_data.illustration }}" class="building-img">
+                            <img src="{% static '' %}{{ building.building_type_data.illustration }}" class="building-img" alt="" loading="lazy">
                         </div>
 
                         <!-- Activation and productivity bars -->
@@ -230,10 +210,10 @@
 
                         <!-- Actions panels -->
                         <div class="building-actions">
-                            <a href="/colony/?colony_id={{ colony.id }}&building_upgrade={{ building.id }}"><i class="fas fa-up-long"></i></a>
-                            <a href="/colony/?colony_id={{ colony.id }}&building_modify={{ building.id }}"><i class="fas fa-screwdriver-wrench"></i></a>
-                            <a href="/colony/?colony_id={{ colony.id }}&building_activate={{ building.id }}"><i class="fas fa-power-off"></i></a>
-                            <a href="#modal-delete-building-{{ building.id }}" data-toggle="modal"><i class="fas fa-trash-can"></i></a>
+                            <a href="/colony/?colony_id={{ colony.id }}&building_upgrade={{ building.id }}" title="{% trans 'Améliorer' %}" aria-label="{% trans 'Améliorer' %}"><i class="fas fa-up-long"></i></a>
+                            <a href="/colony/?colony_id={{ colony.id }}&building_modify={{ building.id }}" title="{% trans 'Modifier' %}" aria-label="{% trans 'Modifier' %}"><i class="fas fa-screwdriver-wrench"></i></a>
+                            <a href="/colony/?colony_id={{ colony.id }}&building_activate={{ building.id }}" title="{% trans 'Activation' %}" aria-label="{% trans 'Activation' %}"><i class="fas fa-power-off"></i></a>
+                            <a href="#modal-delete-building-{{ building.id }}" data-toggle="modal" title="{% trans 'Détruire' %}" aria-label="{% trans 'Détruire' %}"><i class="fas fa-trash-can"></i></a>
                         </div>
 
                     </div>
@@ -274,8 +254,8 @@
 
                     {% if districts.0.free_districts_slots > 0 %}
 
-                      <tr class="u-white-space-nowrap">
-                        <td colspan="12">
+                      <tr>
+                        <td colspan="2">
                           <button type="button" class="btn btn{% if dark_mode %}-outline{% endif %}-secondary btn-block btn-flat"
                                   data-toggle="modal" data-target="#modal-build-district">
                             <i class="fa fa-square-plus"></i>
@@ -316,6 +296,8 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+
+</div><!-- ./wrapper -->
 
 </body>
 </html>

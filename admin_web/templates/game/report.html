@@ -9,17 +9,6 @@
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <!--<h1>{% trans "Rapport"%} </h1>-->
-          </div>
-        </div>
-      </div><!-- /.container-fluid -->
-    </section>
-
     <!-- Main content -->
     <section class="content">
 
@@ -31,28 +20,26 @@
           <div class="card-body row">
 
 
-            <div class="col-5 text-center d-flex align-items-center justify-content-center">
+            <div class="col-md-5 text-center d-flex align-items-center justify-content-center mb-3 mb-md-0">
               <div class="">
-                <img class="u-max-width-90pct-max-height-90pct" src="{% static ""%}{{report.illustration}}">
+                <img class="u-max-width-90pct-max-height-90pct" src="{% static ""%}{{report.illustration}}" alt="">
               </div>
             </div>
 
 
-            <div class="col-7">
+            <div class="col-md-7">
               <div class="card card-primary card-outline">
                 <div class="card-body p-0">
                   <div class="mailbox-read-info">
                     <!-- Main content: report title and timestamp -->
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div>
-                        <p></p>
+                    <div class="d-flex flex-wrap justify-content-between align-items-center">
+                      <div class="py-2">
                         <h4>{{ report.title }}</h4>
-                        <p></p>
-                        <h6 class="grey_text">{{ report.tss_calendar }}</h6>
-                        <p></p>
+                        <h6 class="grey_text mb-0">{{ report.tss_calendar }}</h6>
                       </div>
 
                       <!-- Sender's information and image aligned next to each other -->
+                      {% if report.sender_name %}
                       <div class="d-flex align-items-center text-right">
                         <!-- Sender's name and government name aligned left of the image -->
                         <div class="text-left mr-3">
@@ -61,8 +48,9 @@
                         </div>
 
                         <!-- Sender's image -->
-                        <img src="{% static "" %}{{report.sender_image}}" class="u-max-height-6em">
+                        <img src="{% static "" %}{{report.sender_image}}" class="u-max-height-6em" alt="">
                       </div>
+                      {% endif %}
                     </div>
 
                     <!-- Time at the bottom of the content -->
@@ -70,28 +58,9 @@
                   </div>
                   <!-- /.mailbox-read-info -->
 
-                  <!-- TODO decide to put back or remove reports control at top of message
-                  <div class="mailbox-controls with-border text-center">
-                    <div class="btn-group">
-                      <button type="button" class="btn btn-default btn-sm" data-container="body" title="Delete">
-                        <i class="far fa-trash-alt"></i>
-                      </button>
-                      <button type="button" class="btn btn-default btn-sm" data-container="body" title="Reply">
-                        <i class="fas fa-reply"></i>
-                      </button>
-                      <button type="button" class="btn btn-default btn-sm" data-container="body" title="Forward">
-                        <i class="fas fa-share"></i>
-                      </button>
-                    </div>
-                    <button type="button" class="btn btn-default btn-sm" title="Print">
-                      <i class="fas fa-print"></i>
-                    </button>
-                  </div>-->
-                  <!-- /.mailbox-controls -->
 
                   <div class="mailbox-read-message">
-                    <p></p>
-                    <p>{{report.message}}</p>
+                    <p class="mb-0">{{report.message}}</p>
                   </div>
                   <!-- /.mailbox-read-message -->
                 </div>
@@ -100,19 +69,19 @@
                 <div class="card-footer">
                   <form id="report-form" method="POST" action="/reports/">
                     {% csrf_token %}
-                     <input type="hidden" id="reports[]" name="reports[]" value="{{report.id}}">
+                     <input type="hidden" name="reports[]" value="{{report.id}}">
 
 
-                    <div class="float-right">
-                      <button type="submit" name="action" value="delete" class="btn btn-default"><i class="far fa-trash-alt"></i> {% trans "Supprimer"%}</button>
-                    </div>
+                    <a href="/reports/" class="btn btn-default mb-1"><i class="fas fa-arrow-left"></i> {% trans "Rapports"%}</a>
                     {% if report.status != "archived" %}
-                      <button type="submit" name="action" value="archive" class="btn btn-default"><i class="fas fa-file-zipper"></i> {% trans "Archiver"%}</button>
+                      <button type="submit" name="action" value="archive" class="btn btn-default mb-1"><i class="fas fa-file-zipper"></i> {% trans "Archiver"%}</button>
                     {% else %}
-                      <button type="submit" name="action" value="unarchive" class="btn btn-default"><i class="fas fa-file-zipper"></i> {% trans "Désarchiver"%}</button>
+                      <button type="submit" name="action" value="unarchive" class="btn btn-default mb-1"><i class="fas fa-file-zipper"></i> {% trans "Désarchiver"%}</button>
                     {% endif %}
 
-                    <button type="submit" name="action" value="unread" class="btn btn-default"><i class="fas fa-envelope"></i> {% trans "Marquer comme non-lu"%}</button>
+                    <button type="submit" name="action" value="unread" class="btn btn-default mb-1"><i class="fas fa-envelope"></i> {% trans "Marquer comme non-lu"%}</button>
+
+                    <button type="submit" name="action" value="delete" class="btn btn-default mb-1 float-sm-right"><i class="far fa-trash-alt"></i> {% trans "Supprimer"%}</button>
 
                   </form>
                 </div>
@@ -130,6 +99,8 @@
   </div>
   <!-- /.content-wrapper -->
 
+
+</div><!-- ./wrapper -->
 
 </body>
 </html>

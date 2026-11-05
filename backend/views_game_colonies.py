@@ -14,6 +14,7 @@ from data.districts import get_district
 from data.districts_types import get_district_type, get_all_districts_types, get_all_buildable_districts_types
 from data.resources import get_all_resources_parameters, get_resources_categories, get_resources_subcategories
 from data.buildings import get_buildings
+from data.names import localized_name
 
 
 
@@ -30,8 +31,6 @@ def colonies(request, server, commandant):
     search_text = params['search_text'] if 'search_text' in params else None
 
     colonies = get_colonies_controlled_by_commandant(server, commandant['_id'], add_coo_image=True)
-
-    colonies.append(colonies) # TODO remove, visual test
 
     return TemplateResponse(request, 'game/colonies.html',
                             {'server': server, 'colonies': colonies,
@@ -61,10 +60,14 @@ def colony(request, server, commandant):
     districts = []
     for district_id in colony_dict['districts']:
         district = get_district(server, district_id)  # Specific district info
+        if district is None:
+            continue  # Reference left by a district deleted before the fix of delete_district : the page must still open
         district.update(get_district_type(server, district['district_type']))  # Global district values
         district['id'] = str(district_id)
-        district['name'] = district['name_'+get_language(request)]
+        district['name'] = localized_name(district, get_language(request))
         district['buildings'] = get_buildings(server, district['buildings_ids'], append_building_type=True)
+        for building in district['buildings']:
+            building['name'] = localized_name(building, get_language(request))
         district['free_districts_slots'] = district['districts_slots'] - len(colony_dict['districts']) + 1
 
         districts.append(district)

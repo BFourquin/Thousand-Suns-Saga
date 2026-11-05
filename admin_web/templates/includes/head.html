@@ -9,11 +9,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Favicon according to browser color mode. Not working ?
-    <link href="{% static 'images/logo/TSS-logo-white.png' %}" rel="icon" media="(prefers-color-scheme: dark)">
-    <link href="{% static 'images/logo/TSS-logo-black.png' %}" rel="icon" media="(prefers-color-scheme: light)">
-    -->
-
     <link rel="shortcut icon" type="image/png" href="{% static 'images/logo/TSS-logo-mini.png' %}" >
 
 
@@ -25,16 +20,18 @@
 
 
 
-    <link rel="stylesheet" href="{% static "css/styles.css" %}" >
-    <link rel="stylesheet" href="{% static "css/colonies.css" %}" >
-    <link rel="stylesheet" href="{% static "css/background_img_list.css" %}" >
-
-
     <!-- ADMINLTE 3 -->
 
     <link rel="stylesheet" href="{% static "css/fonts.css" %}" >
     <link rel="stylesheet" href="{% static "libraries/fontawesome-free/css/all.min.css" %}" >
     <link rel="stylesheet" href="{% static "dist/css/adminlte.css" %}" >  <!-- was adminlte.min.css -->
+
+
+    <!-- OUR STYLES : after AdminLTE, to override it -->
+
+    <link rel="stylesheet" href="{% static "css/styles.css" %}" >
+    <link rel="stylesheet" href="{% static "css/colonies.css" %}" >
+    <link rel="stylesheet" href="{% static "css/background_img_list.css" %}" >
     <link rel="stylesheet" href="{% static "css/utilities.css" %}" >
 
 
@@ -48,28 +45,29 @@
     <!----------------------------------------------------------------------------------------------------------------->
     <!-- JS SCRIPTS -->
 
-    <script type="text/javascript" src="{% static "libraries/jquery/jquery.min.js" %}" ></script> <!-- jQuery -->
-    <script type="text/javascript" src="{% static "libraries/bootstrap/js/bootstrap.bundle.min.js" %}" ></script> <!-- Bootstrap -->
-    <script type="text/javascript" src="{% static "dist/js/adminlte.js" %}" ></script> <!-- AdminLTE -->
-    <!--<script type="text/javascript" src="{% static "dist/js/demo.js" %}" ></script> --> <!-- AdminLTE for demo purposes -->
+    <script src="{% static "libraries/jquery/jquery.min.js" %}" defer></script> <!-- jQuery -->
+    <script src="{% static "libraries/bootstrap/js/bootstrap.bundle.min.js" %}" defer></script> <!-- Bootstrap -->
+    <script src="{% static "dist/js/adminlte.min.js" %}" defer></script> <!-- AdminLTE -->
 
 
-    <!-- DataTables -->
+    <!-- DataTables, more than 2 MB with the exports : only on the pages which ask for them -->
+    {% if datatables %}
     <link rel="stylesheet" href="{% static "libraries/datatables-bs4/css/dataTables.bootstrap4.min.css" %}" >
     <link rel="stylesheet" href="{% static "libraries/datatables-responsive/css/responsive.bootstrap4.min.css" %}" >
     <link rel="stylesheet" href="{% static "libraries/datatables-buttons/css/buttons.bootstrap4.min.css" %}" >
-    <script src="{% static "libraries/datatables/jquery.dataTables.min.js" %}" ></script>
-    <script src="{% static "libraries/datatables-bs4/js/dataTables.bootstrap4.min.js" %}" ></script>
-    <script src="{% static "libraries/datatables-responsive/js/dataTables.responsive.min.js" %}" ></script>
-    <script src="{% static "libraries/datatables-responsive/js/responsive.bootstrap4.min.js" %}" ></script>
-    <script src="{% static "libraries/datatables-buttons/js/dataTables.buttons.min.js" %}" ></script>
-    <script src="{% static "libraries/datatables-buttons/js/buttons.bootstrap4.min.js" %}" ></script>
-    <script src="{% static "libraries/jszip/jszip.min.js" %}" ></script>
-    <script src="{% static "libraries/pdfmake/pdfmake.min.js" %}" ></script>
-    <script src="{% static "libraries/pdfmake/vfs_fonts.js" %}" ></script>
-    <script src="{% static "libraries/datatables-buttons/js/buttons.html5.min.js" %}" ></script>
-    <script src="{% static "libraries/datatables-buttons/js/buttons.print.min.js" %}" ></script>
-    <script src="{% static "libraries/datatables-buttons/js/buttons.colVis.min.js" %}" ></script>
+    <script src="{% static "libraries/datatables/jquery.dataTables.min.js" %}" defer></script>
+    <script src="{% static "libraries/datatables-bs4/js/dataTables.bootstrap4.min.js" %}" defer></script>
+    <script src="{% static "libraries/datatables-responsive/js/dataTables.responsive.min.js" %}" defer></script>
+    <script src="{% static "libraries/datatables-responsive/js/responsive.bootstrap4.min.js" %}" defer></script>
+    <script src="{% static "libraries/datatables-buttons/js/dataTables.buttons.min.js" %}" defer></script>
+    <script src="{% static "libraries/datatables-buttons/js/buttons.bootstrap4.min.js" %}" defer></script>
+    <script src="{% static "libraries/jszip/jszip.min.js" %}" defer></script>
+    <script src="{% static "libraries/pdfmake/pdfmake.min.js" %}" defer></script>
+    <script src="{% static "libraries/pdfmake/vfs_fonts.js" %}" defer></script>
+    <script src="{% static "libraries/datatables-buttons/js/buttons.html5.min.js" %}" defer></script>
+    <script src="{% static "libraries/datatables-buttons/js/buttons.print.min.js" %}" defer></script>
+    <script src="{% static "libraries/datatables-buttons/js/buttons.colVis.min.js" %}" defer></script>
+    {% endif %}
 
     <!-- Timers -->
     <script src="{% static 'libraries/dayjs/dayjs.min.js' %}" defer></script>
@@ -79,11 +77,11 @@
     <script src="{% static 'js/timers.js' %}" defer></script>
 
     <!-- Range sliders -->
-    <script src="{% static "libraries/ion-rangeslider/js/ion.rangeSlider.min.js" %}" ></script>
+    <script src="{% static "libraries/ion-rangeslider/js/ion.rangeSlider.min.js" %}" defer></script>
     <link rel="stylesheet" href="{% static 'libraries/ion-rangeslider/css/ion.rangeSlider.min.css' %}">
 
     <!-- Behaviours declared with data attributes in the templates -->
-    <script src="{% static 'js/tss.js' %}" ></script>
+    <script src="{% static 'js/tss.js' %}" defer></script>
 
     {% if page_css %}<link rel="stylesheet" href="{% static page_css %}">{% endif %}
 

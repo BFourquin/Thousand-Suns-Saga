@@ -9,6 +9,7 @@
 
 .district-img {
   width: 180px;
+  max-width: 100%;
   height: auto;
 }
 
@@ -20,14 +21,13 @@
   margin: 0 4px;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////
 
 
 /* --- GRILLE DES BÂTIMENTS --- */
-td > .buildings-grid {
-    display: grid !important;
-    grid-template-columns: repeat(10, minmax(90px, 1fr));
-    gap: 6px;
+.buildings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 8px;
     width: 100%;
 }
 
@@ -94,7 +94,6 @@ td > .buildings-grid {
     display: flex;
     align-items: center;
     gap: 3px;
-    //margin-bottom: 2px;
 }
 
 .usage-metric-bar {
@@ -142,8 +141,14 @@ td > .buildings-grid {
     transition: bottom 0.25s ease;
 }
 
-.building-card:hover .building-actions {
+.building-card:hover .building-actions,
+.building-card:focus-within .building-actions {
     bottom: 0; /* remonte au survol */
+}
+
+/* Nothing to hover on a touch screen : the actions stay visible */
+@media (hover: none) {
+    .building-actions { bottom: 0; }
 }
 
 .building-actions i {
@@ -186,3 +191,39 @@ td > .buildings-grid {
     transform: scale(1.15);
     opacity: 0.8;
 }
+
+
+/* --- BANDEAU D'UNE COLONIE --- */
+
+.colony-row {
+    background: url('../images/colony_landscape.png') no-repeat right center / cover;
+    white-space: nowrap;
+}
+.colony-row-large { vertical-align: bottom; }
+.colony-name, .colony-name:hover { font-size: 35px; font-weight: 700; color: inherit; }
+
+/* --- TELEPHONES ET TABLETTES : les cellules s'empilent --- */
+
+@media (max-width: 767.98px) {
+    .colony-table, .colony-table tbody { display: block; }
+    .colony-row { display: flex; flex-wrap: wrap; align-items: center; white-space: normal; }
+    .colony-row td { flex: 1 1 45%; padding: 0.25rem 0.5rem; border: 0; font-size: 0.85rem; }
+    .colony-row td:first-child { flex: 0 0 auto; }
+    .colony-row .colony-cell-name { flex: 1 1 55%; }
+    .colony-row .large_img_without_td_padding,
+    .colony-row .rem15_large_img_without_td_padding { max-height: 5rem; margin: 0; }
+    .colony-name, .colony-name:hover { font-size: 1.6rem; }
+    .colony-row b { font-size: 1.6rem !important; }
+
+    .district-table, .district-table tbody, .district-table tr, .district-table td { display: block; }
+    .district-table td { width: auto !important; border-right: 0 !important; }
+
+    /* Choice of a new district : one block per district instead of a wide table */
+    #modal-build-district thead { display: none; }
+    #modal-build-district tbody tr { display: flex; flex-wrap: wrap; align-items: center; white-space: normal !important; border-bottom: 1px solid rgba(128, 128, 128, 0.4); }
+    #modal-build-district tbody td { flex: 1 1 45%; width: auto !important; border: 0; }
+    #modal-build-district tbody td:first-child { flex: 0 0 auto; }
+}
+
+/* Link on the picture : the blue of links is unreadable there */
+.colony-row td > a:not(.colony-name), .colony-row span > a { color: inherit !important; text-decoration: underline; }

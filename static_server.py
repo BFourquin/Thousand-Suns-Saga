@@ -4,7 +4,7 @@
 """Use instead of `python3 -m http.server` when you need CORS"""
 
 import os
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 
 
 class CORSRequestHandler(SimpleHTTPRequestHandler):
@@ -18,5 +18,5 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
 # Static folder
 os.chdir('admin_web/static/')
 
-httpd = HTTPServer(('0.0.0.0', 33100), CORSRequestHandler)
+httpd = ThreadingHTTPServer(('0.0.0.0', 33100), CORSRequestHandler)
 httpd.serve_forever()

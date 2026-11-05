@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-05 23:30+0100\n"
+"POT-Creation-Date: 2026-11-06 00:47+0100\n"
 "PO-Revision-Date: 2024-06-02 10:00+0000\n"
 "Last-Translator: <benoittd@hotmail.fr>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,222 +24,241 @@ msgid "Cette planète n'est pas colonisable"
 msgstr "This planet cannot be colonized"
 
 #: .\admin_web\templates\game\colonies.html:8
-#: .\admin_web\templates\game\colonies.html:17
-#: .\admin_web\templates\game\colonies.html:245
-#: .\admin_web\templates\game\colonies.html:305
-#: .\admin_web\templates\game\colony.html:17
+#: .\admin_web\templates\game\colonies.html:233
 #: .\admin_web\templates\game\colony_old.html:17
-#: .\admin_web\templates\game\geography_system.html:78
-#: .\admin_web\templates\game\geography_system.html:113
-#: .\admin_web\templates\game\geography_systemOLD.html:78
-#: .\admin_web\templates\game\reports.html:120
-#: .\admin_web\templates\includes\menu_game.html:229
+#: .\admin_web\templates\game\geography_system.html:104
+#: .\admin_web\templates\game\geography_system.html:154
+#: .\admin_web\templates\game\reports.html:109
+#: .\admin_web\templates\includes\menu_game.html:175
 msgid "Colonies"
 msgstr "Colonies"
 
-#: .\admin_web\templates\game\colonies.html:42
+#: .\admin_web\templates\game\colonies.html:31
 msgid "Filtres par taille"
 msgstr "Filter by size"
 
-#: .\admin_web\templates\game\colonies.html:56
+#: .\admin_web\templates\game\colonies.html:45
 msgid "Toutes les colonies"
 msgstr "All colonies"
 
-#: .\admin_web\templates\game\colonies.html:66
+#: .\admin_web\templates\game\colonies.html:55
 msgid "Capitale"
 msgstr "Capital"
 
-#: .\admin_web\templates\game\colonies.html:75
+#: .\admin_web\templates\game\colonies.html:64
 msgid "Mégalopoles"
 msgstr "Megalopolises"
 
-#: .\admin_web\templates\game\colonies.html:84
+#: .\admin_web\templates\game\colonies.html:73
 msgid "Métropoles"
 msgstr "Metropolises"
 
-#: .\admin_web\templates\game\colonies.html:93
+#: .\admin_web\templates\game\colonies.html:82
 msgid "Territoires"
 msgstr "Territories"
 
-#: .\admin_web\templates\game\colonies.html:102
+#: .\admin_web\templates\game\colonies.html:91
 msgid "Cités"
 msgstr "Cities"
 
-#: .\admin_web\templates\game\colonies.html:111
+#: .\admin_web\templates\game\colonies.html:100
 msgid "Avant-postes"
 msgstr "Outposts"
 
-#: .\admin_web\templates\game\colonies.html:121
-#: .\admin_web\templates\game\geography_system.html:119
+#: .\admin_web\templates\game\colonies.html:109
+#: .\admin_web\templates\game\geography_system.html:121
+#: .\admin_web\templates\game\geography_system.html:156
 msgid "Revendications"
 msgstr "Claims"
 
-#: .\admin_web\templates\game\colonies.html:135
+#: .\admin_web\templates\game\colonies.html:123
 msgid "Filtres par marqueurs"
 msgstr "Filter by markers"
 
-#: .\admin_web\templates\game\colonies.html:250
-#: .\admin_web\templates\game\reports.html:226
+#: .\admin_web\templates\game\colonies.html:237
+#: .\admin_web\templates\game\colonies.html:238
+#: .\admin_web\templates\game\colonies.html:241
+#: .\admin_web\templates\game\reports.html:214
+#: .\admin_web\templates\game\reports.html:215
+#: .\admin_web\templates\game\reports.html:218
 msgid "Recherche"
 msgstr "Search"
 
-#: .\admin_web\templates\game\colonies.html:266
-#: .\admin_web\templates\game\colonies.html:388
-#: .\admin_web\templates\game\reports.html:242
-#: .\admin_web\templates\game\reports.html:354
-msgid "Tout sélectionner"
-msgstr "Select all"
-
-#: .\admin_web\templates\game\colonies.html:271
-#: .\admin_web\templates\game\colonies.html:393
-#: .\admin_web\templates\game\report.html:107
-#: .\admin_web\templates\game\reports.html:247
-#: .\admin_web\templates\game\reports.html:359
-msgid "Supprimer"
-msgstr "Delete"
-
-#: .\admin_web\templates\game\colonies.html:279
-#: .\admin_web\templates\game\colonies.html:401
-#: .\admin_web\templates\game\reports.html:255
-#: .\admin_web\templates\game\reports.html:367
-msgid "Marquer comme lu"
-msgstr "Mark as read"
+#: .\admin_web\templates\game\colonies.html:278
+#: .\admin_web\templates\game\colony.html:45
+msgid "Voir sur la carte"
+msgstr "View on the map"
 
 #: .\admin_web\templates\game\colonies.html:285
-#: .\admin_web\templates\game\colonies.html:407
-#: .\admin_web\templates\game\report.html:115
-#: .\admin_web\templates\game\reports.html:261
-#: .\admin_web\templates\game\reports.html:373
-msgid "Marquer comme non-lu"
-msgstr "Mark as unread"
+#: .\admin_web\templates\game\colony.html:50
+msgid "Habitants :"
+msgstr "Inhabitants:"
 
-#: .\admin_web\templates\game\colonies.html:293
-#: .\admin_web\templates\game\colonies.html:415
-#: .\admin_web\templates\game\report.html:110
-#: .\admin_web\templates\game\reports.html:269
-#: .\admin_web\templates\game\reports.html:381
-msgid "Archiver"
-msgstr "Archive"
+#: .\admin_web\templates\game\colonies.html:286
+#: .\admin_web\templates\game\colony.html:51
+msgid "Bonheur :"
+msgstr "Happiness:"
+
+#: .\admin_web\templates\game\colonies.html:287
+#: .\admin_web\templates\game\colony.html:52
+msgid "Ordre :"
+msgstr "Order:"
+
+#: .\admin_web\templates\game\colonies.html:291
+#: .\admin_web\templates\game\colony.html:56
+msgid "Districts :"
+msgstr "Districts:"
+
+#: .\admin_web\templates\game\colonies.html:292
+#: .\admin_web\templates\game\colony.html:57
+msgid "Travailleurs :"
+msgstr "Workers:"
 
 #: .\admin_web\templates\game\colonies.html:298
-#: .\admin_web\templates\game\colonies.html:420
-#: .\admin_web\templates\game\report.html:112
-#: .\admin_web\templates\game\reports.html:274
-#: .\admin_web\templates\game\reports.html:386
-msgid "Désarchiver"
-msgstr "Unarchive"
+#: .\admin_web\templates\game\geography_system.html:115
+msgid "Aucune colonie"
+msgstr "No colony"
 
-#: .\admin_web\templates\game\colonies.html:305
-#: .\admin_web\templates\game\reports.html:281
-msgid "Page"
-msgstr "Page"
-
-#: .\admin_web\templates\game\colony.html:61
+#: .\admin_web\templates\game\colony.html:44
 msgid "Secteur :"
 msgstr "Sector:"
 
-#: .\admin_web\templates\game\colony.html:62
+#: .\admin_web\templates\game\colony.html:45
 msgid "Système :"
 msgstr "System:"
 
-#: .\admin_web\templates\game\colony.html:63
+#: .\admin_web\templates\game\colony.html:46
 msgid "Orbite :"
 msgstr "Orbit:"
 
-#: .\admin_web\templates\game\colony.html:87
+#: .\admin_web\templates\game\colony.html:70
 #: .\admin_web\templates\game\colony_old.html:87
 msgid "Population"
 msgstr "Population"
 
-#: .\admin_web\templates\game\colony.html:90
+#: .\admin_web\templates\game\colony.html:73
+#: .\admin_web\templates\game\colony.html:116
 #: .\admin_web\templates\game\colony_old.html:90
-#: .\admin_web\templates\game\reports.html:111
-#: .\admin_web\templates\includes\menu_game.html:213
+#: .\admin_web\templates\game\reports.html:100
+#: .\admin_web\templates\includes\menu_game.html:159
 msgid "Economie"
 msgstr "Economy"
 
-#: .\admin_web\templates\game\colony.html:93
+#: .\admin_web\templates\game\colony.html:76
 #: .\admin_web\templates\game\colony_old.html:93
 #: .\admin_web\templates\game\resources.html:8
-#: .\admin_web\templates\game\resources.html:17
-#: .\admin_web\templates\includes\menu_game.html:220
+#: .\admin_web\templates\includes\menu_game.html:166
 msgid "Ressources"
 msgstr "Resources"
 
-#: .\admin_web\templates\game\colony.html:96
+#: .\admin_web\templates\game\colony.html:79
 #: .\admin_web\templates\game\colony_old.html:96
 msgid "Défenses"
 msgstr "Defenses"
 
-#: .\admin_web\templates\game\colony.html:99
+#: .\admin_web\templates\game\colony.html:82
 #: .\admin_web\templates\game\colony_old.html:99
 msgid "Politique"
 msgstr "Politics"
 
-#: .\admin_web\templates\game\colony.html:102
+#: .\admin_web\templates\game\colony.html:85
 #: .\admin_web\templates\game\colony_old.html:102
 msgid "Détails"
 msgstr "Details"
 
-#: .\admin_web\templates\game\colony.html:110
+#: .\admin_web\templates\game\colony.html:93
 #: .\admin_web\templates\game\colony_old.html:110
 msgid "Districts"
 msgstr "Districts"
 
-#: .\admin_web\templates\game\colony.html:121
+#: .\admin_web\templates\game\colony.html:102
 #: .\admin_web\templates\game\colony_old.html:121
 msgid "Filtrer par types"
 msgstr "Filter by type"
 
-#: .\admin_web\templates\game\colony.html:178
+#: .\admin_web\templates\game\colony.html:104
+#: .\admin_web\templates\game\resources.html:21
+msgid "Tout"
+msgstr "All"
+
+#: .\admin_web\templates\game\colony.html:107
+msgid "Industrie"
+msgstr "Industry"
+
+#: .\admin_web\templates\game\colony.html:110
+msgid "Extraction"
+msgstr "Mining"
+
+#: .\admin_web\templates\game\colony.html:113
+msgid "Science"
+msgstr "Science"
+
+#: .\admin_web\templates\game\colony.html:119
+msgid "Agriculture"
+msgstr "Agriculture"
+
+#: .\admin_web\templates\game\colony.html:122
+msgid "Militaire"
+msgstr "Military"
+
+#: .\admin_web\templates\game\colony.html:125
+msgid "Nature"
+msgstr "Nature"
+
+#: .\admin_web\templates\game\colony.html:128
+#: .\admin_web\templates\game\colony.html:232
+msgid "Places libres"
+msgstr "Free slots"
+
+#: .\admin_web\templates\game\colony.html:158
+#: .\admin_web\templates\game\colony.html:213
 #: .\admin_web\templates\game\colony_old.html:179
 msgid "Améliorer"
 msgstr "Upgrade"
 
-#: .\admin_web\templates\game\colony.html:180
+#: .\admin_web\templates\game\colony.html:160
+#: .\admin_web\templates\game\colony.html:214
 msgid "Modifier"
 msgstr "Edit"
 
-#: .\admin_web\templates\game\colony.html:182
+#: .\admin_web\templates\game\colony.html:162
+#: .\admin_web\templates\game\colony.html:215
 #: .\admin_web\templates\game\colony_old.html:183
 msgid "Activation"
 msgstr "Activation"
 
-#: .\admin_web\templates\game\colony.html:184
+#: .\admin_web\templates\game\colony.html:164
 #: .\admin_web\templates\game\colony_old.html:185
 msgid "Réorganiser"
 msgstr "Reorganize"
 
-#: .\admin_web\templates\game\colony.html:186
+#: .\admin_web\templates\game\colony.html:166
+#: .\admin_web\templates\game\colony.html:216
 #: .\admin_web\templates\game\colony_old.html:188
-#: .\admin_web\templates\includes\colony\modal_delete_district.html:40
+#: .\admin_web\templates\includes\colony\modal_delete_district.html:33
 msgid "Détruire"
 msgstr "Destroy"
 
-#: .\admin_web\templates\game\colony.html:246
+#: .\admin_web\templates\game\colony.html:226
 msgid "Construire un nouveau bâtiment"
 msgstr "Construct a new building"
 
-#: .\admin_web\templates\game\colony.html:252
-msgid "Places libres"
-msgstr "Free slots"
-
-#: .\admin_web\templates\game\colony.html:254
+#: .\admin_web\templates\game\colony.html:234
 msgid "Place libre"
 msgstr "Free slot"
 
-#: .\admin_web\templates\game\colony.html:282
+#: .\admin_web\templates\game\colony.html:262
 #: .\admin_web\templates\game\colony_old.html:218
 #: .\admin_web\templates\includes\colony\modal_build_district.html:9
 msgid "Fonder un nouveau district"
 msgstr "Found a new district"
 
-#: .\admin_web\templates\game\colony.html:284
+#: .\admin_web\templates\game\colony.html:264
 #: .\admin_web\templates\game\colony_old.html:220
 msgid "emplacements libres"
 msgstr "free slots"
 
-#: .\admin_web\templates\game\colony.html:286
+#: .\admin_web\templates\game\colony.html:266
 #: .\admin_web\templates\game\colony_old.html:222
 msgid "emplacement libre"
 msgstr "free slot"
@@ -249,46 +268,42 @@ msgid "Modification"
 msgstr "Edit"
 
 #: .\admin_web\templates\game\create_commandant.html:7
-#: .\admin_web\templates\game\create_commandant.html:66
+#: .\admin_web\templates\game\create_commandant.html:55
 #: .\admin_web\templates\translations.txt:12
 msgid "Rejoindre le serveur"
 msgstr "Join the server"
 
-#: .\admin_web\templates\game\create_commandant.html:16
-msgid "Nouveau commandant"
-msgstr "New commandant"
-
-#: .\admin_web\templates\game\create_commandant.html:32
+#: .\admin_web\templates\game\create_commandant.html:21
 msgid "Ouvert depuis le"
 msgstr "Open since"
 
-#: .\admin_web\templates\game\create_commandant.html:35
-#: .\admin_web\templates\public\servers_list.html:135
+#: .\admin_web\templates\game\create_commandant.html:24
+#: .\admin_web\templates\public\servers_list.html:118
 msgid "jour"
 msgstr "day"
 
-#: .\admin_web\templates\game\create_commandant.html:36
-#: .\admin_web\templates\public\servers_list.html:136
+#: .\admin_web\templates\game\create_commandant.html:25
+#: .\admin_web\templates\public\servers_list.html:119
 msgid "jours"
 msgstr "days"
 
-#: .\admin_web\templates\game\create_commandant.html:38
+#: .\admin_web\templates\game\create_commandant.html:27
 msgid "Joueurs actifs :"
 msgstr "Active players:"
 
-#: .\admin_web\templates\game\create_commandant.html:40
+#: .\admin_web\templates\game\create_commandant.html:29
 msgid "Joueurs morts :"
 msgstr "Dead players:"
 
-#: .\admin_web\templates\game\create_commandant.html:52
+#: .\admin_web\templates\game\create_commandant.html:41
 msgid "Nom de votre commandant"
 msgstr "Your commandant's name"
 
-#: .\admin_web\templates\game\create_commandant.html:56
+#: .\admin_web\templates\game\create_commandant.html:45
 msgid "Nom de votre civilisation"
 msgstr "Your civilization's name"
 
-#: .\admin_web\templates\game\create_commandant.html:61
+#: .\admin_web\templates\game\create_commandant.html:50
 msgid ""
 "Vous pourrez changer le nom de votre commandant ou de votre civilisation "
 "plus tard pour refléter les évolutions de votre roleplay. Néanmoins, cela ne"
@@ -299,15 +314,16 @@ msgstr ""
 "community's approval."
 
 #: .\admin_web\templates\game\cycle_monitoring.html:8
+#: .\admin_web\templates\includes\menu_game.html:36
 #: .\admin_web\templates\translations.txt:14
 msgid "Cycle"
 msgstr "Cycle"
 
-#: .\admin_web\templates\game\cycle_monitoring.html:40
+#: .\admin_web\templates\game\cycle_monitoring.html:29
 msgid "Vous êtes en mode absent."
 msgstr "You are in absent mode."
 
-#: .\admin_web\templates\game\cycle_monitoring.html:41
+#: .\admin_web\templates\game\cycle_monitoring.html:30
 msgid ""
 "Si vous n'êtes plus disponible pour commander, le reste de la galaxie ne "
 "sera pas bloqué par votre inactivité."
@@ -315,7 +331,7 @@ msgstr ""
 "If you are no longer available to command, the rest of the galaxy will not "
 "be held up by your inactivity."
 
-#: .\admin_web\templates\game\cycle_monitoring.html:42
+#: .\admin_web\templates\game\cycle_monitoring.html:31
 msgid ""
 "Tant que vous ne retirez pas le mode absent, vous serez systématiquement "
 "considéré comme ayant terminé votre cycle."
@@ -323,11 +339,11 @@ msgstr ""
 "Until you remove absent mode, you will always be considered as having "
 "finished your cycle."
 
-#: .\admin_web\templates\game\cycle_monitoring.html:46
+#: .\admin_web\templates\game\cycle_monitoring.html:35
 msgid "Vous n'êtes pas prêt pour le cycle suivant."
 msgstr "You are not ready for the next cycle."
 
-#: .\admin_web\templates\game\cycle_monitoring.html:47
+#: .\admin_web\templates\game\cycle_monitoring.html:36
 msgid ""
 "Vous n'avez pas encore terminé de donner des ordres pour ce cycle. N'oubliez"
 " pas de signaler lorsque vous avez fini."
@@ -335,7 +351,7 @@ msgstr ""
 "You have not finished giving orders for this cycle yet. Remember to report "
 "when you are done."
 
-#: .\admin_web\templates\game\cycle_monitoring.html:48
+#: .\admin_web\templates\game\cycle_monitoring.html:37
 msgid ""
 "Si vous prenez un temps déraisonnable, le Maître du Jeu peut forcer le "
 "passage de cycle, voire vous déclarer absent en cas d'abus."
@@ -343,11 +359,11 @@ msgstr ""
 "If you take an unreasonable amount of time, the Game Master can force the "
 "next cycle, or even declare you absent in case of abuse."
 
-#: .\admin_web\templates\game\cycle_monitoring.html:52
+#: .\admin_web\templates\game\cycle_monitoring.html:41
 msgid "Vous êtes prêt pour le cycle suivant."
 msgstr "You are ready for the next cycle."
 
-#: .\admin_web\templates\game\cycle_monitoring.html:53
+#: .\admin_web\templates\game\cycle_monitoring.html:42
 msgid ""
 "Lorsque tous les autres commandants auront également terminé leur cycle, le "
 "maître du jeu passera au cycle suivant."
@@ -355,7 +371,7 @@ msgstr ""
 "Once all the other commandants have also finished their cycle, the game "
 "master will move on to the next cycle."
 
-#: .\admin_web\templates\game\cycle_monitoring.html:54
+#: .\admin_web\templates\game\cycle_monitoring.html:43
 msgid ""
 "Vous pouvez pendant ce temps continuer à donner des ordres, mais vous "
 "risquez d'être interrompu par le changement de cycle."
@@ -363,25 +379,25 @@ msgstr ""
 "You can keep giving orders in the meantime, but you may be interrupted by "
 "the cycle change."
 
-#: .\admin_web\templates\game\cycle_monitoring.html:66
+#: .\admin_web\templates\game\cycle_monitoring.html:55
 msgid "Se déclarer prêt pour la fin de cycle"
 msgstr "Declare yourself ready for the end of the cycle"
 
-#: .\admin_web\templates\game\cycle_monitoring.html:71
+#: .\admin_web\templates\game\cycle_monitoring.html:60
 msgid "Se déclarer pas encore prêt pour la fin du cycle"
 msgstr "Declare yourself not yet ready for the end of the cycle"
 
-#: .\admin_web\templates\game\cycle_monitoring.html:78
-#: .\admin_web\templates\includes\menu_game.html:83
+#: .\admin_web\templates\game\cycle_monitoring.html:67
+#: .\admin_web\templates\includes\menu_game.html:65
 msgid "Se mettre en mode absent"
 msgstr "Switch to absent mode"
 
-#: .\admin_web\templates\game\cycle_monitoring.html:83
-#: .\admin_web\templates\includes\menu_game.html:86
+#: .\admin_web\templates\game\cycle_monitoring.html:72
+#: .\admin_web\templates\includes\menu_game.html:68
 msgid "Retirer le mode absent"
 msgstr "Remove absent mode"
 
-#: .\admin_web\templates\game\cycle_monitoring.html:101
+#: .\admin_web\templates\game\cycle_monitoring.html:90
 msgid ""
 "Tous les commandants ne sont pas encore prêts pour changer de cycle. Forcer "
 "la fin du cycle ?"
@@ -389,239 +405,342 @@ msgstr ""
 "Not all commandants are ready to change cycle yet. Force the end of the "
 "cycle?"
 
-#: .\admin_web\templates\game\cycle_monitoring.html:102
-#: .\admin_web\templates\game\cycle_monitoring.html:109
+#: .\admin_web\templates\game\cycle_monitoring.html:91
+#: .\admin_web\templates\game\cycle_monitoring.html:98
 msgid "[ADMIN/MG]"
 msgstr "[ADMIN/GM]"
 
-#: .\admin_web\templates\game\cycle_monitoring.html:102
-#: .\admin_web\templates\game\cycle_monitoring.html:109
+#: .\admin_web\templates\game\cycle_monitoring.html:91
+#: .\admin_web\templates\game\cycle_monitoring.html:98
 msgid "Passer au cycle suivant"
 msgstr "Go to the next cycle"
 
-#: .\admin_web\templates\game\cycle_monitoring.html:125
+#: .\admin_web\templates\game\cycle_monitoring.html:114
 msgid "Commandants n'ayant pas terminé leur cycle"
 msgstr "Commandants who have not finished their cycle"
 
-#: .\admin_web\templates\game\cycle_monitoring.html:163
-#: .\admin_web\templates\game\cycle_monitoring.html:244
+#: .\admin_web\templates\game\cycle_monitoring.html:146
+#: .\admin_web\templates\game\cycle_monitoring.html:224
 msgid "Dernière action :"
 msgstr "Last action:"
 
-#: .\admin_web\templates\game\cycle_monitoring.html:172
+#: .\admin_web\templates\game\cycle_monitoring.html:155
 msgid "Passer en mode absent"
 msgstr "Switch to absent mode"
 
-#: .\admin_web\templates\game\cycle_monitoring.html:199
+#: .\admin_web\templates\game\cycle_monitoring.html:168
+msgid "Tous les commandants ont terminé leur cycle."
+msgstr "All the commandants have finished their cycle."
+
+#: .\admin_web\templates\game\cycle_monitoring.html:185
 msgid "Commandants en attente du cycle suivant"
 msgstr "Commandants waiting for the next cycle"
 
-#: .\admin_web\templates\game\cycle_monitoring.html:237
+#: .\admin_web\templates\game\cycle_monitoring.html:217
 msgid "Terminé depuis :"
 msgstr "Finished for:"
 
-#: .\admin_web\templates\game\geography_system.html:7
-#: .\admin_web\templates\game\geography_systemOLD.html:7
-#: .\admin_web\templates\template.html:8
-#: .\admin_web\templates\translations.txt:18
-msgid "Système"
-msgstr "System"
+#: .\admin_web\templates\game\cycle_monitoring.html:240
+msgid "Aucun commandant n'a encore terminé son cycle."
+msgstr "No commandant has finished their cycle yet."
 
-#: .\admin_web\templates\game\geography_system.html:16
-#: .\admin_web\templates\game\geography_systemOLD.html:16
-msgid "Cartographie système"
-msgstr "System map"
+#: .\admin_web\templates\game\geography_system.html:5
+#, python-format
+msgid "Système %(name)s"
+msgstr "%(name)s system"
 
-#: .\admin_web\templates\game\geography_system.html:33
-#: .\admin_web\templates\game\geography_systemOLD.html:33
-msgid "Coordonnées"
-msgstr "Coordinates"
+#: .\admin_web\templates\game\geography_system.html:17
+msgid "Aucun système à ces coordonnées. Retour à votre système d'origine."
+msgstr "No system at these coordinates. Back to your home system."
 
-#: .\admin_web\templates\game\geography_system.html:38
-#: .\admin_web\templates\game\geography_systemOLD.html:38
-msgid "Code cartographique : "
-msgstr "Map code: "
+#: .\admin_web\templates\game\geography_system.html:25
+msgid "Code cartographique"
+msgstr "Map code"
 
-#: .\admin_web\templates\game\geography_system.html:51
-#: .\admin_web\templates\game\geography_systemOLD.html:51
-msgid "Secteur : "
-msgstr "Sector: "
+#: .\admin_web\templates\game\geography_system.html:28
+#: .\admin_web\templates\game\geography_system.html:43
+msgid "Rechercher"
+msgstr "Search"
 
-#: .\admin_web\templates\game\geography_system.html:55
-#: .\admin_web\templates\game\geography_systemOLD.html:55
-msgid "Latitude : "
-msgstr "Latitude: "
+#: .\admin_web\templates\game\geography_system.html:32
+#: .\admin_web\templates\game\geography_system.html:99
+msgid "Secteur"
+msgstr "Sector"
 
-#: .\admin_web\templates\game\geography_system.html:59
-#: .\admin_web\templates\game\geography_systemOLD.html:59
-msgid "Longitude : "
-msgstr "Longitude: "
+#: .\admin_web\templates\game\geography_system.html:36
+msgid "Latitude"
+msgstr "Latitude"
+
+#: .\admin_web\templates\game\geography_system.html:40
+msgid "Longitude"
+msgstr "Longitude"
+
+#: .\admin_web\templates\game\geography_system.html:68
+msgid "coordonnées"
+msgstr "coordinates"
+
+#: .\admin_web\templates\game\geography_system.html:68
+msgid "coordonnée"
+msgstr "coordinate"
+
+#: .\admin_web\templates\game\geography_system.html:70
+msgid "Votre colonie"
+msgstr "Your colony"
+
+#: .\admin_web\templates\game\geography_system.html:71
+msgid "Autre colonie"
+msgstr "Other colony"
+
+#: .\admin_web\templates\game\geography_system.html:75
+msgid "Contrôles de la vue"
+msgstr "View controls"
 
 #: .\admin_web\templates\game\geography_system.html:76
-#: .\admin_web\templates\game\geography_systemOLD.html:76
-#: .\admin_web\templates\includes\menu_game.html:236
-msgid "Cartographie"
-msgstr "Cartography"
+msgid "Pause / reprise"
+msgstr "Pause / resume"
 
 #: .\admin_web\templates\game\geography_system.html:77
-#: .\admin_web\templates\game\geography_systemOLD.html:77
-msgid "Radar de flottes"
-msgstr "Fleet radar"
+msgid "Dézoomer"
+msgstr "Zoom out"
 
-#: .\admin_web\templates\game\geography_system.html:116
-#: .\admin_web\templates\game\reports.html:129
-#: .\admin_web\templates\includes\menu_game.html:245
+#: .\admin_web\templates\game\geography_system.html:78
+msgid "Zoomer"
+msgstr "Zoom in"
+
+#: .\admin_web\templates\game\geography_system.html:79
+msgid "Vue d'ensemble"
+msgstr "Overview"
+
+#: .\admin_web\templates\game\geography_system.html:81
+msgid ""
+"Glisser pour tourner · Molette pour zoomer · Double-clic pour suivre un "
+"astre"
+msgstr "Drag to rotate · Wheel to zoom · Double-click to follow a body"
+
+#: .\admin_web\templates\game\geography_system.html:98
+#: .\admin_web\templates\game\geography_system.html:153
+msgid "Code"
+msgstr "Code"
+
+#: .\admin_web\templates\game\geography_system.html:100
+msgid "Position"
+msgstr "Position"
+
+#: .\admin_web\templates\game\geography_system.html:101
+#: .\admin_web\templates\game\geography_system.html:150
+msgid "Orbite"
+msgstr "Orbit"
+
+#: .\admin_web\templates\game\geography_system.html:118
+#: .\admin_web\templates\game\geography_system.html:155
+#: .\admin_web\templates\game\reports.html:118
+#: .\admin_web\templates\includes\menu_game.html:191
 msgid "Flottes"
 msgstr "Fleets"
 
-#: .\admin_web\templates\game\geography_systemOLD.html:104
-msgid "Colonies :"
-msgstr "Colonies:"
+#: .\admin_web\templates\game\geography_system.html:119
+msgid "Aucune flotte détectée"
+msgstr "No fleet detected"
 
-#: .\admin_web\templates\game\geography_systemOLD.html:105
-msgid "Flottes :"
-msgstr "Fleets:"
+#: .\admin_web\templates\game\geography_system.html:122
+msgid "Aucune revendication"
+msgstr "No claim"
 
-#: .\admin_web\templates\game\geography_systemOLD.html:106
-msgid "Revendications :"
-msgstr "Claims:"
+#: .\admin_web\templates\game\geography_system.html:125
+#: .\admin_web\templates\includes\menu_game.html:228
+msgid "Modificateurs"
+msgstr "Modifiers"
+
+#: .\admin_web\templates\game\geography_system.html:133
+msgid "Suivre cet astre"
+msgstr "Follow this body"
+
+#: .\admin_web\templates\game\geography_system.html:144
+msgid "Relevé du système"
+msgstr "System survey"
+
+#: .\admin_web\templates\game\geography_system.html:151
+msgid "Astre"
+msgstr "Body"
+
+#: .\admin_web\templates\game\geography_system.html:152
+msgid "Type"
+msgstr "Type"
 
 #: .\admin_web\templates\game\report.html:8
-#: .\admin_web\templates\game\report.html:17
+#: .\admin_web\templates\game\reports.html:270
 msgid "Rapport"
 msgstr "Report"
 
+#: .\admin_web\templates\game\report.html:75
 #: .\admin_web\templates\game\reports.html:8
-#: .\admin_web\templates\game\reports.html:17
-#: .\admin_web\templates\game\reports.html:221
-#: .\admin_web\templates\game\reports.html:281
-#: .\admin_web\templates\includes\menu_game.html:193
+#: .\admin_web\templates\game\reports.html:210
+#: .\admin_web\templates\game\reports.html:270
+#: .\admin_web\templates\includes\menu_game.html:139
 #: .\admin_web\templates\translations.txt:16
 msgid "Rapports"
 msgstr "Reports"
 
-#: .\admin_web\templates\game\reports.html:42
+#: .\admin_web\templates\game\report.html:77
+#: .\admin_web\templates\game\reports.html:258
+#: .\admin_web\templates\game\reports.html:372
+msgid "Archiver"
+msgstr "Archive"
+
+#: .\admin_web\templates\game\report.html:79
+#: .\admin_web\templates\game\reports.html:263
+#: .\admin_web\templates\game\reports.html:377
+msgid "Désarchiver"
+msgstr "Unarchive"
+
+#: .\admin_web\templates\game\report.html:82
+#: .\admin_web\templates\game\reports.html:250
+#: .\admin_web\templates\game\reports.html:364
+msgid "Marquer comme non-lu"
+msgstr "Mark as unread"
+
+#: .\admin_web\templates\game\report.html:84
+#: .\admin_web\templates\game\reports.html:236
+#: .\admin_web\templates\game\reports.html:350
+msgid "Supprimer"
+msgstr "Delete"
+
+#: .\admin_web\templates\game\reports.html:31
 msgid "Catégories"
 msgstr "Categories"
 
-#: .\admin_web\templates\game\reports.html:56
-#: .\admin_web\templates\game\reports.html:201
+#: .\admin_web\templates\game\reports.html:45
+#: .\admin_web\templates\game\reports.html:190
 msgid "Tous les rapports"
 msgstr "All reports"
 
-#: .\admin_web\templates\game\reports.html:66
+#: .\admin_web\templates\game\reports.html:55
 msgid "Bilan de cycle"
 msgstr "Cycle summary"
 
-#: .\admin_web\templates\game\reports.html:75
+#: .\admin_web\templates\game\reports.html:64
 msgid "Combats spatiaux"
 msgstr "Space battles"
 
-#: .\admin_web\templates\game\reports.html:84
-msgid "Combats terestres"
+#: .\admin_web\templates\game\reports.html:73
+msgid "Combats terrestres"
 msgstr "Ground battles"
 
-#: .\admin_web\templates\game\reports.html:93
-#: .\admin_web\templates\includes\menu_game.html:186
+#: .\admin_web\templates\game\reports.html:82
+#: .\admin_web\templates\includes\menu_game.html:132
 msgid "Gouvernement"
 msgstr "Government"
 
-#: .\admin_web\templates\game\reports.html:102
-#: .\admin_web\templates\includes\menu_game.html:204
+#: .\admin_web\templates\game\reports.html:91
+#: .\admin_web\templates\includes\menu_game.html:150
 msgid "Diplomatie"
 msgstr "Diplomacy"
 
-#: .\admin_web\templates\game\reports.html:138
+#: .\admin_web\templates\game\reports.html:127
 msgid "Exploration"
 msgstr "Exploration"
 
-#: .\admin_web\templates\game\reports.html:147
-#: .\admin_web\templates\includes\menu_game.html:261
+#: .\admin_web\templates\game\reports.html:136
+#: .\admin_web\templates\includes\menu_game.html:207
 msgid "Technologies"
 msgstr "Technologies"
 
-#: .\admin_web\templates\game\reports.html:156
+#: .\admin_web\templates\game\reports.html:145
 msgid "Autres"
 msgstr "Other"
 
-#: .\admin_web\templates\game\reports.html:170
-#: .\admin_web\templates\includes\menu_public.html:171
+#: .\admin_web\templates\game\reports.html:159
+#: .\admin_web\templates\includes\menu_public.html:112
 msgid "Archives"
 msgstr "Archives"
 
-#: .\admin_web\templates\game\reports.html:183
+#: .\admin_web\templates\game\reports.html:172
 msgid "Non-lus seulement"
 msgstr "Unread only"
 
-#: .\admin_web\templates\game\reports.html:189
+#: .\admin_web\templates\game\reports.html:178
 msgid "Rapports courants"
 msgstr "Current reports"
 
-#: .\admin_web\templates\game\reports.html:195
+#: .\admin_web\templates\game\reports.html:184
 msgid "Rapports archivés"
 msgstr "Archived reports"
 
-#: .\admin_web\templates\game\reports.html:211
+#: .\admin_web\templates\game\reports.html:200
 msgid "Tout marquer comme lu"
 msgstr "Mark all as read"
 
-#: .\admin_web\templates\game\reports.html:213
+#: .\admin_web\templates\game\reports.html:202
 msgid "Télécharger les rapports"
 msgstr "Download the reports"
 
-#: .\admin_web\templates\game\resources.html:37
-msgid "Tout"
-msgstr "All"
+#: .\admin_web\templates\game\reports.html:231
+#: .\admin_web\templates\game\reports.html:345
+msgid "Tout sélectionner"
+msgstr "Select all"
 
-#: .\admin_web\templates\game\resources.html:62
+#: .\admin_web\templates\game\reports.html:244
+#: .\admin_web\templates\game\reports.html:358
+msgid "Marquer comme lu"
+msgstr "Mark as read"
+
+#: .\admin_web\templates\game\reports.html:270
+msgid "Page"
+msgstr "Page"
+
+#: .\admin_web\templates\game\reports.html:330
+msgid "Aucun rapport"
+msgstr "No report"
+
+#: .\admin_web\templates\game\resources.html:35
 msgid "Pénurie"
 msgstr "Shortage"
 
-#: .\admin_web\templates\game\resources.html:70
+#: .\admin_web\templates\game\resources.html:39
 msgid "En baisse"
 msgstr "Decreasing"
 
-#: .\admin_web\templates\game\resources.html:78
+#: .\admin_web\templates\game\resources.html:43
 msgid "Non autosuffisant"
 msgstr "Not self-sufficient"
 
-#: .\admin_web\templates\game\resources.html:86
+#: .\admin_web\templates\game\resources.html:47
 msgid "Plein"
 msgstr "Full"
 
-#: .\admin_web\templates\game\resources.html:119
+#: .\admin_web\templates\game\resources.html:58
 msgid "Ressource"
 msgstr "Resource"
 
-#: .\admin_web\templates\game\resources.html:120
+#: .\admin_web\templates\game\resources.html:59
 msgid "Stockage et ordres commerciaux"
 msgstr "Storage and trade orders"
 
-#: .\admin_web\templates\game\resources.html:121
+#: .\admin_web\templates\game\resources.html:60
 msgid "Produit"
 msgstr "Produced"
 
-#: .\admin_web\templates\game\resources.html:122
+#: .\admin_web\templates\game\resources.html:61
 msgid "Consommé"
 msgstr "Consumed"
 
-#: .\admin_web\templates\game\resources.html:123
+#: .\admin_web\templates\game\resources.html:62
 msgid "Solde"
 msgstr "Balance"
 
-#: .\admin_web\templates\game\resources.html:124
-msgid "Autosufisance"
+#: .\admin_web\templates\game\resources.html:63
+msgid "Autosuffisance"
 msgstr "Self-sufficiency"
 
-#: .\admin_web\templates\game\resources.html:125
+#: .\admin_web\templates\game\resources.html:64
 msgid "Fourniture globale"
 msgstr "Global supply"
 
-#: .\admin_web\templates\game\resources.html:126
+#: .\admin_web\templates\game\resources.html:65
 msgid "Décret"
 msgstr "Decree"
 
-#: .\admin_web\templates\game\resources.html:127
+#: .\admin_web\templates\game\resources.html:66
 msgid "Effet"
 msgstr "Effect"
 
@@ -630,101 +749,81 @@ msgstr "Effect"
 msgid "Compte TSS"
 msgstr "TSS Account"
 
-#: .\admin_web\templates\game\user_account.html:16
-msgid "Compte utilisateur"
-msgstr "User account"
-
-#: .\admin_web\templates\game\user_account.html:36
-msgid "Serveurs rejoint"
+#: .\admin_web\templates\game\user_account.html:24
+msgid "Serveurs rejoints"
 msgstr "Joined servers"
 
-#: .\admin_web\templates\game\user_account.html:37
+#: .\admin_web\templates\game\user_account.html:25
 msgid "Panthéon"
 msgstr "Pantheon"
 
-#: .\admin_web\templates\game\user_account.html:38
+#: .\admin_web\templates\game\user_account.html:26
 msgid "Historique"
 msgstr "History"
 
-#: .\admin_web\templates\game\user_account.html:63
+#: .\admin_web\templates\game\user_account.html:43
 msgid "Serveur"
 msgstr "Server"
 
-#: .\admin_web\templates\game\user_account.html:65
-#: .\admin_web\templates\game\user_account.html:92
+#: .\admin_web\templates\game\user_account.html:44
 msgid "Statut:"
 msgstr "Status:"
 
-#: .\admin_web\templates\game\user_account.html:66
-#: .\admin_web\templates\game\user_account.html:93
-#: .\admin_web\templates\game\user_account.html:117
+#: .\admin_web\templates\game\user_account.html:45
 msgid "Date de création:"
 msgstr "Inscription date"
 
-#: .\admin_web\templates\game\user_account.html:67
-#: .\admin_web\templates\game\user_account.html:94
-#: .\admin_web\templates\game\user_account.html:118
+#: .\admin_web\templates\game\user_account.html:46
 msgid "Planète capitale:"
 msgstr "Capital world:"
 
-#: .\admin_web\templates\game\user_account.html:68
-#: .\admin_web\templates\game\user_account.html:95
-#: .\admin_web\templates\game\user_account.html:119
-msgid "Faction:"
-msgstr "Faction:"
+#: .\admin_web\templates\game\user_account.html:50
+msgid "Vous n'avez encore rejoint aucun serveur."
+msgstr "You have not joined any server yet."
 
-#: .\admin_web\templates\game\user_account.html:116
-msgid "Status:"
-msgstr "Status:"
-
-#: .\admin_web\templates\game\user_account.html:130
+#: .\admin_web\templates\game\user_account.html:53
 msgid "Rejoindre un nouveau serveur"
 msgstr "Join a new server"
 
-#: .\admin_web\templates\game\user_account.html:313
+#: .\admin_web\templates\game\user_account.html:59
+#: .\admin_web\templates\game\user_account.html:64
+msgid "Bientôt disponible."
+msgstr "Coming soon."
+
+#: .\admin_web\templates\game\user_account.html:88
 msgid "E-mail"
 msgstr "E-mail"
 
-#: .\admin_web\templates\game\user_account.html:316
-#: .\admin_web\templates\public\player_login.html:38
-#: .\admin_web\templates\public\player_register.html:45
-msgid "Mot de passe"
-msgstr "Password"
-
-#: .\admin_web\templates\game\user_account.html:316
-msgid "Changer"
-msgstr "Change"
-
-#: .\admin_web\templates\game\user_account.html:319
+#: .\admin_web\templates\game\user_account.html:91
 msgid "Date d'inscription"
 msgstr "Inscription date"
 
-#: .\admin_web\templates\game\user_account.html:322
+#: .\admin_web\templates\game\user_account.html:94
 msgid "Dernière connexion"
 msgstr "Last connection"
 
-#: .\admin_web\templates\game\user_account.html:337
+#: .\admin_web\templates\game\user_account.html:109
 msgid "Préférences"
 msgstr "Preferences"
 
-#: .\admin_web\templates\game\user_account.html:348
-#: .\admin_web\templates\public\servers_list.html:52
+#: .\admin_web\templates\game\user_account.html:120
+#: .\admin_web\templates\public\servers_list.html:38
 msgid "Langue"
 msgstr "Language"
 
-#: .\admin_web\templates\game\user_account.html:356
+#: .\admin_web\templates\game\user_account.html:128
 msgid "Thème graphique"
 msgstr "Visual theme"
 
-#: .\admin_web\templates\game\user_account.html:376
+#: .\admin_web\templates\game\user_account.html:148
 msgid "Affichage"
 msgstr "Display"
 
-#: .\admin_web\templates\game\user_account.html:378
+#: .\admin_web\templates\game\user_account.html:150
 msgid "Mode sombre"
 msgstr "Dark mode"
 
-#: .\admin_web\templates\game\user_account.html:379
+#: .\admin_web\templates\game\user_account.html:151
 msgid "Mode clair"
 msgstr "Light Mode"
 
@@ -748,26 +847,27 @@ msgstr "Slots"
 msgid "Ordre"
 msgstr "Order"
 
-#: .\admin_web\templates\includes\colony\modal_build_district.html:53
-#: .\admin_web\templates\includes\colony\modal_build_district.html:64
+#: .\admin_web\templates\includes\colony\modal_build_district.html:47
+#: .\admin_web\templates\includes\colony\modal_build_district.html:58
 msgid "Stock"
 msgstr "Stock"
 
-#: .\admin_web\templates\includes\colony\modal_build_district.html:73
+#: .\admin_web\templates\includes\colony\modal_build_district.html:67
 msgid "bâtiments"
 msgstr "buildings"
 
-#: .\admin_web\templates\includes\colony\modal_build_district.html:75
+#: .\admin_web\templates\includes\colony\modal_build_district.html:69
 msgid "districts"
 msgstr "districts"
 
+#: .\admin_web\templates\includes\colony\modal_build_district.html:81
 #: .\admin_web\templates\includes\colony\modal_build_district.html:83
 msgid "Construire"
 msgstr "Build"
 
-#: .\admin_web\templates\includes\colony\modal_build_district.html:97
-#: .\admin_web\templates\includes\colony\modal_delete_district.html:39
-#: .\admin_web\templates\includes\colony\modal_set_activation_district.html:45
+#: .\admin_web\templates\includes\colony\modal_build_district.html:98
+#: .\admin_web\templates\includes\colony\modal_delete_district.html:32
+#: .\admin_web\templates\includes\colony\modal_set_activation_district.html:33
 msgid "Annuler"
 msgstr "Cancel"
 
@@ -775,7 +875,7 @@ msgstr "Cancel"
 msgid "Détruire ce district ?"
 msgstr "Destroy this district?"
 
-#: .\admin_web\templates\includes\colony\modal_delete_district.html:30
+#: .\admin_web\templates\includes\colony\modal_delete_district.html:26
 msgid ""
 "Le district et l'ensemble de ses bâtiments seront détruits, mais une partie "
 "des ressources pourront être recyclées."
@@ -787,13 +887,13 @@ msgstr ""
 msgid "Définir l'activité des bâtiments ?"
 msgstr "Set the activity of the buildings?"
 
-#: .\admin_web\templates\includes\colony\modal_set_activation_district.html:30
+#: .\admin_web\templates\includes\colony\modal_set_activation_district.html:26
 msgid ""
 "Le taux d'activité sera appliqué à tous les bâtiments appartenant au "
 "district."
 msgstr "The activity rate will apply to all the buildings of the district."
 
-#: .\admin_web\templates\includes\colony\modal_set_activation_district.html:46
+#: .\admin_web\templates\includes\colony\modal_set_activation_district.html:34
 msgid "Appliquer"
 msgstr "Apply"
 
@@ -806,115 +906,126 @@ msgid "Vous contrôlez le compte de"
 msgstr "You are controlling the account of"
 
 #: .\admin_web\templates\includes\hijack_banner.html:7
-#| msgid "Créer un compte"
 msgid "Reprendre mon compte"
 msgstr "Back to my account"
 
-#: .\admin_web\templates\includes\menu_game.html:72
+#: .\admin_web\templates\includes\menu_game.html:19
+#: .\admin_web\templates\includes\menu_public.html:19
+msgid "Menu"
+msgstr "Menu"
+
+#: .\admin_web\templates\includes\menu_game.html:56
 msgid "Passer prêt pour fin de cycle"
 msgstr "Set ready for end of cycle"
 
-#: .\admin_web\templates\includes\menu_game.html:75
+#: .\admin_web\templates\includes\menu_game.html:59
 msgid "Passer non prêt pour fin du cycle"
 msgstr "Set not ready for end of cycle"
 
-#: .\admin_web\templates\includes\menu_game.html:97
+#: .\admin_web\templates\includes\menu_game.html:78
 msgid "Cycle en cours"
 msgstr "Cycle in progress"
 
-#: .\admin_web\templates\includes\menu_game.html:112
+#: .\admin_web\templates\includes\menu_game.html:91
 msgid "Cycle terminé"
 msgstr "Cycle finished"
 
-#: .\admin_web\templates\includes\menu_game.html:179
+#: .\admin_web\templates\includes\menu_game.html:125
 msgid "Centre de commande"
 msgstr "Command center"
 
-#: .\admin_web\templates\includes\menu_game.html:252
+#: .\admin_web\templates\includes\menu_game.html:182
+msgid "Cartographie"
+msgstr "Cartography"
+
+#: .\admin_web\templates\includes\menu_game.html:198
 msgid "Armées"
 msgstr "Armies"
 
-#: .\admin_web\templates\includes\menu_game.html:268
+#: .\admin_web\templates\includes\menu_game.html:214
 msgid "Armements"
 msgstr "Weapons"
 
-#: .\admin_web\templates\includes\menu_game.html:275
+#: .\admin_web\templates\includes\menu_game.html:221
 msgid "Conception Vaisseaux"
 msgstr "Ship design"
 
-#: .\admin_web\templates\includes\menu_game.html:282
-msgid "Modificateurs"
-msgstr "Modifiers"
-
-#: .\admin_web\templates\includes\menu_public.html:118
-msgid "Accueil"
-msgstr "Home"
-
-#: .\admin_web\templates\includes\menu_public.html:125
-msgid "Découvrir TSS"
-msgstr "Discover TSS"
-
-#: .\admin_web\templates\includes\menu_public.html:136
+#: .\admin_web\templates\includes\menu_public.html:32
+#: .\admin_web\templates\includes\menu_public.html:77
+#: .\admin_web\templates\public\public_homepage.html:22
 msgid "Mon compte"
 msgstr "My account"
 
-#: .\admin_web\templates\includes\menu_public.html:145
+#: .\admin_web\templates\includes\menu_public.html:34
+#: .\admin_web\templates\includes\menu_public.html:86
+#: .\admin_web\templates\public\public_homepage.html:25
 msgid "Se connecter"
 msgstr "Log in"
 
-#: .\admin_web\templates\includes\menu_public.html:152
+#: .\admin_web\templates\includes\menu_public.html:59
+msgid "Accueil"
+msgstr "Home"
+
+#: .\admin_web\templates\includes\menu_public.html:66
+msgid "Découvrir TSS"
+msgstr "Discover TSS"
+
+#: .\admin_web\templates\includes\menu_public.html:93
+#: .\admin_web\templates\public\public_homepage.html:24
 msgid "Créer un compte"
 msgstr "Create an account"
 
-#: .\admin_web\templates\includes\menu_public.html:164
+#: .\admin_web\templates\includes\menu_public.html:105
+#: .\admin_web\templates\public\public_homepage.html:27
 msgid "Serveurs"
 msgstr "Servers"
 
-#: .\admin_web\templates\includes\menu_public.html:180
+#: .\admin_web\templates\includes\menu_public.html:121
 msgid "Règlement"
 msgstr "Rules"
 
-#: .\admin_web\templates\includes\menu_public.html:187
+#: .\admin_web\templates\includes\menu_public.html:128
 msgid "Communauté"
 msgstr "Community"
 
-#: .\admin_web\templates\includes\menu_public.html:195
+#: .\admin_web\templates\includes\menu_public.html:136
 msgid "Contact"
 msgstr "Contact"
 
-#: .\admin_web\templates\includes\menu_public.html:204
+#: .\admin_web\templates\includes\menu_public.html:145
 msgid "Soutenir TSS"
 msgstr "Support TSS"
 
-#: .\admin_web\templates\includes\menu_public.html:211
+#: .\admin_web\templates\includes\menu_public.html:152
 msgid "Participer au projet"
 msgstr "Join the project"
 
-#: .\admin_web\templates\public\player_login.html:22
+#: .\admin_web\templates\public\player_login.html:18
 msgid "Connexion à votre compte utilisateur"
 msgstr "Log in to your user account"
 
-#: .\admin_web\templates\public\player_login.html:30
+#: .\admin_web\templates\public\player_login.html:26
 msgid "Utilisateur"
 msgstr "User"
 
-#: .\admin_web\templates\public\player_login.html:47
+#: .\admin_web\templates\public\player_login.html:34
+#: .\admin_web\templates\public\player_register.html:41
+msgid "Mot de passe"
+msgstr "Password"
+
+#: .\admin_web\templates\public\player_login.html:43
 msgid "Connexion"
 msgstr "Log in"
 
-#: .\admin_web\templates\public\player_login.html:52
-msgid "Mot de passe oublié"
-msgstr "Forgot password"
-
-#: .\admin_web\templates\public\player_login.html:55
+#: .\admin_web\templates\public\player_login.html:48
 msgid "Créer un compte utilisateur"
 msgstr "Create a user account"
 
-#: .\admin_web\templates\public\player_register.html:22
+#: .\admin_web\templates\public\player_register.html:18
 msgid "Création d'un compte utilisateur."
 msgstr "Creating a user account."
 
-#: .\admin_web\templates\public\player_register.html:23
+#: .\admin_web\templates\public\player_register.html:19
 msgid ""
 "Ce compte regroupera tous les personnages que vous incarnerez dans les "
 "différents serveurs de jeu."
@@ -922,107 +1033,119 @@ msgstr ""
 "This account will gather all the characters you play on the different game "
 "servers."
 
-#: .\admin_web\templates\public\player_register.html:29
+#: .\admin_web\templates\public\player_register.html:25
 msgid "Pseudonyme"
 msgstr "Username"
 
-#: .\admin_web\templates\public\player_register.html:37
+#: .\admin_web\templates\public\player_register.html:33
 msgid "Email"
 msgstr "Email"
 
-#: .\admin_web\templates\public\player_register.html:53
+#: .\admin_web\templates\public\player_register.html:49
 msgid "Vérification mot de passe"
 msgstr "Confirm password"
 
-#: .\admin_web\templates\public\player_register.html:61
+#: .\admin_web\templates\public\player_register.html:50
+msgid "Les mots de passe ne correspondent pas."
+msgstr "The passwords do not match."
+
+#: .\admin_web\templates\public\player_register.html:58
 msgid "S'inscrire"
 msgstr "Sign up"
+
+#: .\admin_web\templates\public\player_register.html:64
+msgid "J'ai déjà un compte"
+msgstr "I already have an account"
 
 #: .\admin_web\templates\public\public_homepage.html:7
 msgid "Accueil TSS"
 msgstr "TSS home"
 
-#: .\admin_web\templates\public\public_homepage.html:16
-msgid "Thousand Suns Saga"
-msgstr "Thousand Suns Saga"
-
 #: .\admin_web\templates\public\servers_list.html:7
-#: .\admin_web\templates\public\servers_list.html:16
 #: .\admin_web\templates\translations.txt:10
 msgid "Serveurs TSS"
 msgstr "TSS servers"
 
-#: .\admin_web\templates\public\servers_list.html:32
+#: .\admin_web\templates\public\servers_list.html:21
 msgid "Serveurs de jeu"
 msgstr "Game servers"
 
-#: .\admin_web\templates\public\servers_list.html:48
+#: .\admin_web\templates\public\servers_list.html:24
+msgid "Réduire"
+msgstr "Collapse"
+
+#: .\admin_web\templates\public\servers_list.html:34
 msgid "Nom du serveur"
 msgstr "Server name"
 
-#: .\admin_web\templates\public\servers_list.html:55
+#: .\admin_web\templates\public\servers_list.html:41
 msgid "Roleplay"
 msgstr "Roleplay"
 
-#: .\admin_web\templates\public\servers_list.html:58
+#: .\admin_web\templates\public\servers_list.html:44
 msgid "Joueurs"
 msgstr "Players"
 
-#: .\admin_web\templates\public\servers_list.html:61
+#: .\admin_web\templates\public\servers_list.html:47
 msgid "Cycles"
 msgstr "Cycles"
 
-#: .\admin_web\templates\public\servers_list.html:65
+#: .\admin_web\templates\public\servers_list.html:51
 msgid "Date d'ouverture"
 msgstr "Opening date"
 
-#: .\admin_web\templates\public\servers_list.html:68
+#: .\admin_web\templates\public\servers_list.html:54
 msgid "Multicompte"
 msgstr "Multi-account"
 
-#: .\admin_web\templates\public\servers_list.html:71
+#: .\admin_web\templates\public\servers_list.html:57
 msgid "Inscription"
 msgstr "Sign up"
 
-#: .\admin_web\templates\public\servers_list.html:95
+#: .\admin_web\templates\public\servers_list.html:78
 msgid "Français"
 msgstr "French"
 
-#: .\admin_web\templates\public\servers_list.html:100
+#: .\admin_web\templates\public\servers_list.html:83
 msgid "Anglais"
 msgstr "English"
 
-#: .\admin_web\templates\public\servers_list.html:105
+#: .\admin_web\templates\public\servers_list.html:88
 msgid "International"
 msgstr "International"
 
-#: .\admin_web\templates\public\servers_list.html:119
+#: .\admin_web\templates\public\servers_list.html:102
 msgid "Actifs :"
 msgstr "Active:"
 
-#: .\admin_web\templates\public\servers_list.html:121
+#: .\admin_web\templates\public\servers_list.html:104
 msgid "Morts :"
 msgstr "Dead:"
 
-#: .\admin_web\templates\public\servers_list.html:141
+#: .\admin_web\templates\public\servers_list.html:124
 msgid "Autorisé"
 msgstr "Allowed"
 
-#: .\admin_web\templates\public\servers_list.html:142
+#: .\admin_web\templates\public\servers_list.html:125
 msgid "Interdit"
 msgstr "Forbidden"
 
-#: .\admin_web\templates\public\servers_list.html:148
+#: .\admin_web\templates\public\servers_list.html:131
 msgid "Rejoindre"
 msgstr "Join"
 
-#: .\admin_web\templates\public\servers_list.html:150
+#: .\admin_web\templates\public\servers_list.html:133
 msgid "Fermé"
 msgstr "Closed"
 
-#: .\admin_web\templates\public\servers_list.html:151
+#: .\admin_web\templates\public\servers_list.html:134
 msgid "Test"
 msgstr "Test"
+
+#: .\admin_web\templates\template.html:8
+#: .\admin_web\templates\translations.txt:18
+msgid "Système"
+msgstr "System"
 
 #: .\admin_web\templates\translations.txt:25
 #: .\backend\views_api_buildings.py:89 .\backend\views_api_buildings.py:112
@@ -1176,6 +1299,90 @@ msgstr "Password too weak"
 msgid "Ce serveur ne possède plus de places disponibles"
 msgstr "This server has no more available slots"
 
+#: .\data\coordinates.py:12
+msgid "Étoile"
+msgstr "Star"
+
+#: .\data\coordinates.py:13
+msgid "Planète tellurique"
+msgstr "Telluric planet"
+
+#: .\data\coordinates.py:14
+msgid "Géante gazeuse"
+msgstr "Gas giant"
+
+#: .\data\coordinates.py:15
+msgid "Planétoïde"
+msgstr "Planetoid"
+
+#: .\data\coordinates.py:16
+msgid "Ceinture d'astéroïdes"
+msgstr "Asteroid belt"
+
+#: .\data\coordinates.py:17
+msgid "Nuage d'Oort"
+msgstr "Oort cloud"
+
+#: .\data\coordinates.py:21
+msgid "Monde natal"
+msgstr "Home world"
+
+#: .\data\coordinates.py:22
+msgid "Habitabilité faible"
+msgstr "Low habitability"
+
+#: .\data\coordinates.py:23
+msgid "Habitabilité moyenne"
+msgstr "Medium habitability"
+
+#: .\data\coordinates.py:24
+msgid "Classe O"
+msgstr "Class O"
+
+#: .\data\coordinates.py:25
+msgid "Classe B"
+msgstr "Class B"
+
+#: .\data\coordinates.py:26
+msgid "Classe A"
+msgstr "Class A"
+
+#: .\data\coordinates.py:27
+msgid "Classe F"
+msgstr "Class F"
+
+#: .\data\coordinates.py:28
+msgid "Classe G"
+msgstr "Class G"
+
+#: .\data\coordinates.py:29
+msgid "Classe K"
+msgstr "Class K"
+
+#: .\data\coordinates.py:30
+msgid "Classe M"
+msgstr "Class M"
+
+#: .\data\coordinates.py:31
+msgid "Géante"
+msgstr "Giant"
+
+#: .\data\coordinates.py:32
+msgid "Supergéante"
+msgstr "Supergiant"
+
+#: .\data\coordinates.py:33
+msgid "Naine blanche"
+msgstr "White dwarf"
+
+#: .\data\coordinates.py:34
+msgid "Wolf-Rayet"
+msgstr "Wolf-Rayet"
+
+#: .\data\coordinates.py:35
+msgid "Nébuleuse"
+msgstr "Nebula"
+
 #: .\data\themes.py:11
 msgid "Classique"
 msgstr "Classic"
@@ -1215,3 +1422,42 @@ msgstr "Minimalist"
 #: .\data\themes.py:15
 msgid "Sombre épuré, accent indigo"
 msgstr "Clean dark, indigo accent"
+
+#~ msgid "Nouveau commandant"
+#~ msgstr "New commandant"
+
+#~ msgid "Cartographie système"
+#~ msgstr "System map"
+
+#~ msgid "Secteur : "
+#~ msgstr "Sector: "
+
+#~ msgid "Radar de flottes"
+#~ msgstr "Fleet radar"
+
+#~ msgid "Colonies :"
+#~ msgstr "Colonies:"
+
+#~ msgid "Flottes :"
+#~ msgstr "Fleets:"
+
+#~ msgid "Revendications :"
+#~ msgstr "Claims:"
+
+#~ msgid "Compte utilisateur"
+#~ msgstr "User account"
+
+#~ msgid "Faction:"
+#~ msgstr "Faction:"
+
+#~ msgid "Status:"
+#~ msgstr "Status:"
+
+#~ msgid "Changer"
+#~ msgstr "Change"
+
+#~ msgid "Mot de passe oublié"
+#~ msgstr "Forgot password"
+
+#~ msgid "Thousand Suns Saga"
+#~ msgstr "Thousand Suns Saga"

@@ -9,17 +9,6 @@
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <!--<h1>{% trans ""%} </h1>-->
-          </div>
-        </div>
-      </div><!-- /.container-fluid -->
-    </section>
-
     <!-- Main content -->
     <section class="content">
 
@@ -123,11 +112,7 @@
             <div class="card card-primary card-outline">
               <div class="card-header">
                 <h5 class="m-0">{% trans "Commandants n'ayant pas terminé leur cycle"%}
-                              (
-                              {{commandants_cycle_playing|length}}
-                              /
-                              {% with len_playing=commandants_cycle_playing|length %}{% with len_finished=commandants_cycle_finished|length %}{{ len_playing|add:len_finished }}{% endwith %} {% endwith %}
-                              )
+                              ({{commandants_cycle_playing|length}} / {% with len_playing=commandants_cycle_playing|length %}{% with len_finished=commandants_cycle_finished|length %}{{ len_playing|add:len_finished }}{% endwith %} {% endwith %})
                 </h5>
               </div>
 
@@ -139,16 +124,14 @@
                       <div class="user-block menu-separator row align-items-center u-margin-top-5px-padding-bottom-10px-margin-bottom-5px">
 
                         <!-- Avatar and flag -->
-                        <div class="col-12 col-md-2 d-flex align-items-center">
-                          <img class="img-bordered-sm me-2 u-height-60px-width-60px" src="{% static "" %}{{ commandant.flag }}"
-                              >
-                          <img class="img-bordered-sm u-height-60px-width-60px-margin-left-10px" src="{% static "" %}{{ commandant.portrait }}"
-                              >
+                        <div class="col-auto d-flex align-items-center">
+                          <img class="img-bordered-sm u-height-60px-width-60px" src="{% static "" %}{{ commandant.flag }}" alt="{{ commandant.civilisation_name }}">
+                          <img class="img-bordered-sm u-height-60px-width-60px-margin-left-10px" src="{% static "" %}{{ commandant.portrait }}" alt="{{ commandant.commandant_name }}">
                         </div>
 
                         <!-- Commandant and civilisation names -->
-                        <div class="col-12 {% if display_admin_and_gm_info %}col-md-5{% else %}col-md-10{% endif %}  align-items-center">
-                          <span class="username d-block mb-2 u-font-size-18px">
+                        <div class="col align-items-center">
+                          <span class="username d-block mb-2 ml-0 u-font-size-18px">
                             {{ commandant.commandant_name }}
                             <br/>
                             {{ commandant.civilisation_name }}
@@ -157,7 +140,7 @@
 
                         <!-- Admin/GM info -->
                         {% if display_admin_and_gm_info %}
-                        <div class="col-12 col-md-5  align-items-center">
+                        <div class="col-12 col-xl-5 mt-2 mt-xl-0">
 
                           <span class="d-block u-font-size-14px">
                               {% trans "Dernière action :" %}
@@ -180,6 +163,9 @@
                     </div>
                     <!-- /.post -->
 
+
+                  {% empty %}
+                    <p class="text-muted mb-0">{% trans "Tous les commandants ont terminé leur cycle." %}</p>
                   {% endfor %}
                 </div>
 
@@ -197,11 +183,7 @@
             <div class="card card-primary card-outline">
               <div class="card-header">
                 <h5 class="m-0">{% trans "Commandants en attente du cycle suivant"%}
-                              (
-                              {{commandants_cycle_finished|length}}
-                              /
-                              {% with len_playing=commandants_cycle_playing|length %}{% with len_finished=commandants_cycle_finished|length %}{{ len_playing|add:len_finished }}{% endwith %} {% endwith %}
-                              )
+                              ({{commandants_cycle_finished|length}} / {% with len_playing=commandants_cycle_playing|length %}{% with len_finished=commandants_cycle_finished|length %}{{ len_playing|add:len_finished }}{% endwith %} {% endwith %})
                 </h5>
               </div>
 
@@ -213,16 +195,14 @@
                       <div class="user-block menu-separator row align-items-center u-margin-top-5px-padding-bottom-10px-margin-bottom-5px">
 
                         <!-- Avatar and flag -->
-                        <div class="col-12 col-md-2 d-flex align-items-center">
-                          <img class="img-bordered-sm me-2 u-height-60px-width-60px" src="{% static "" %}{{ commandant.flag }}"
-                              >
-                          <img class="img-bordered-sm u-height-60px-width-60px-margin-left-10px" src="{% static "" %}{{ commandant.portrait }}"
-                              >
+                        <div class="col-auto d-flex align-items-center">
+                          <img class="img-bordered-sm u-height-60px-width-60px" src="{% static "" %}{{ commandant.flag }}" alt="{{ commandant.civilisation_name }}">
+                          <img class="img-bordered-sm u-height-60px-width-60px-margin-left-10px" src="{% static "" %}{{ commandant.portrait }}" alt="{{ commandant.commandant_name }}">
                         </div>
 
                         <!-- Commandant and civilisation names -->
-                        <div class="col-12 {% if display_admin_and_gm_info %}col-md-5{% else %}col-md-10{% endif %}  align-items-center">
-                          <span class="username d-block mb-2 u-font-size-18px">
+                        <div class="col align-items-center">
+                          <span class="username d-block mb-2 ml-0 u-font-size-18px">
                             {{ commandant.commandant_name }}
                             <br/>
                             {{ commandant.civilisation_name }}
@@ -231,7 +211,7 @@
 
                         <!-- Admin/GM info -->
                         {% if display_admin_and_gm_info %}
-                        <div class="col-12 col-md-5  align-items-center">
+                        <div class="col-12 col-xl-5 mt-2 mt-xl-0">
 
                           <span class="d-block u-font-size-14px">
                               {% trans "Terminé depuis :" %}
@@ -255,6 +235,9 @@
                     </div>
                     <!-- /.post -->
 
+
+                  {% empty %}
+                    <p class="text-muted mb-0">{% trans "Aucun commandant n'a encore terminé son cycle." %}</p>
                   {% endfor %}
                 </div>
 
@@ -272,6 +255,8 @@
   <!-- /.content-wrapper -->
 
 
+
+</div><!-- ./wrapper -->
 
 </body>
 </html>

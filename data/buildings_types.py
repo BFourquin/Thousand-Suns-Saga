@@ -1,4 +1,5 @@
 
+from data.names import localized_name
 from bson.objectid import ObjectId
 
 from database.db_connect import collection
@@ -10,7 +11,7 @@ def get_building_type_by_id(server, id, language=None):
     building = db.find_one({"_id": ObjectId(id)})
 
     if language:
-        building['name'] = building['name_'+language]
+        building['name'] = localized_name(building, language)
     return building
 
 
@@ -20,7 +21,7 @@ def get_building_type(server, internal_name, language=None):
     building = db.find_one({"internal_name": internal_name})
 
     if language:
-        building['name'] = building['name_' + language]
+        building['name'] = localized_name(building, language)
     return building
 
 
@@ -30,7 +31,7 @@ def get_all_buildings_types(server, language=None):
 
     if language:
         for i in range(len(buildings)):
-            buildings[i]['name'] = buildings[i]['name_' + language]
+            buildings[i]['name'] = localized_name(buildings[i], language)
     return buildings
 
 
@@ -61,6 +62,6 @@ def get_all_buildable_buildings_types(server, commandant, language=None):
 
     if language:
         for i in range(len(buildings)):
-            buildings[i]['name'] = buildings[i]['name_' + language]
+            buildings[i]['name'] = localized_name(buildings[i], language)
 
     return buildings

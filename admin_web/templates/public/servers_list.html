@@ -8,17 +8,6 @@
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <!--<h1>{% trans "Serveurs TSS"%}</h1>-->
-          </div>
-        </div>
-      </div><!-- /.container-fluid -->
-    </section>
-
     <!-- Main content -->
     <section class="content">
 
@@ -27,44 +16,41 @@
       <!-- ACTIVE SERVERS -->
 
 
-      <div class="card u-margin-top-40px">
+      <div class="card">
         <div class="card-header">
           <h3 class="card-title">{% trans "Serveurs de jeu"%}</h3>
 
           <div class="card-tools">
-            <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse" title="{% trans 'Réduire' %}" aria-label="{% trans 'Réduire' %}">
               <i class="fas fa-minus"></i>
             </button>
           </div>
         </div>
-        <div class="card-body p-0">
+        <div class="card-body table-responsive p-0">
           <table class="table table-striped projects">
               <thead>
                   <tr>
-                      <th class="u-width-1pct">
-                          #
-                      </th>
                       <th>
                           {% trans "Nom du serveur"%}
                       </th>
 
-                      <th>
+                      <th class="d-none d-sm-table-cell">
                            {% trans "Langue"%}
                       </th>
-                      <th>
+                      <th class="d-none d-md-table-cell">
                            {% trans "Roleplay"%}
                       </th>
                       <th>
                            {% trans "Joueurs"%}
                       </th>
-                      <th>
+                      <th class="d-none d-md-table-cell">
                            {% trans "Cycles"%}
                       </th>
 
-                      <th>
+                      <th class="d-none d-md-table-cell">
                            {% trans "Date d'ouverture"%}
                       </th>
-                       <th>
+                       <th class="d-none d-md-table-cell">
                            {% trans "Multicompte"%}
                        </th>
                       <th>
@@ -77,31 +63,28 @@
                  {% if not server.admin_only_visibility and server.status in 'open,close,test'%}
 
                   <tr>
-                      <td>
-                          <span class="u-font-size-1-3em">#</span>
-                      </td>
                       <!-- Nom du serveur -->
                       <td>
-                          <span class="u-font-size-2em">
+                          <span class="u-font-size-1-3em">
                               {{server.server_name}}
                           </span>
                       </td>
 
                       <!-- Language -->
-                      <td>
+                      <td class="d-none d-sm-table-cell">
                           <span>
                               {% if server.language == 'fr' %}
-                                <img src="{% static "images/flags/fr.svg"%}" class="u-width-30px-margin-right-5px">
+                                <img src="{% static "images/flags/fr.svg"%}" class="u-width-30px-margin-right-5px" alt="">
                                 {% trans "Français"%}
                               {% endif %}
 
                               {% if server.language == 'en' %}
-                                <img src="{% static "images/flags/en.svg"%}" class="u-width-30px-margin-right-5px">
+                                <img src="{% static "images/flags/en.svg"%}" class="u-width-30px-margin-right-5px" alt="">
                                 {% trans "Anglais"%}
                               {% endif %}
 
                               {% if server.language == 'international' %}
-                                <img src="{% static "images/flags/international.svg"%}" class="u-width-30px-margin-right-5px">
+                                <img src="{% static "images/flags/international.svg"%}" class="u-width-30px-margin-right-5px" alt="">
                                 {% trans "International"%}
                               {% endif %}
 
@@ -109,7 +92,7 @@
                       </td>
 
                       <!-- Roleplay -->
-                      <td>
+                      <td class="d-none d-md-table-cell">
                           {{server.roleplay}}
                       </td>
 
@@ -123,21 +106,21 @@
                       </td>
 
                       <!-- Cycles -->
-                      <td>
+                      <td class="d-none d-md-table-cell">
                           {{server.cycles.cycle_nb}}
                       </td>
 
 
                       <!-- Dates -->
-                      <td>
-                          {{server.opening_date|date:'d/m/Y H:m'}}
+                      <td class="d-none d-md-table-cell">
+                          {{server.opening_date|date:'d/m/Y H:i'}}
                           ( {{server.open_since_days}}
                           {% if server.open_since_days < 2 %}{% trans "jour"%}{% endif %}
                           {% if server.open_since_days >= 2 %}{% trans "jours"%}{% endif %} )
                       </td>
 
                       <!-- Multicomptes -->
-                      <td>
+                      <td class="d-none d-md-table-cell">
                           {% if server.allow_multiaccounts %} {% trans "Autorisé"%} {% endif %}
                           {% if not server.allow_multiaccounts %} {% trans "Interdit"%} {% endif %}
                       </td>
@@ -156,8 +139,6 @@
 
                  {% endif %}
                  {% endfor %}
-
-                  </tr>
               </tbody>
           </table>
         </div>
@@ -171,11 +152,6 @@
   <!-- /.content-wrapper -->
 
 
-  <!-- Control Sidebar -->
-  <aside class="control-sidebar control-sidebar-dark">
-    <!-- Control sidebar content goes here -->
-  </aside>
-  <!-- /.control-sidebar -->
 </div>
 <!-- ./wrapper -->
 

@@ -41,10 +41,10 @@
                     <b>Email</b> <a class="float-right">{{user.email}}</a>
                   </li>
                   <li class="list-group-item">
-                    <b>Date d'inscription</b> <a class="float-right">{{user.date_joined|date:'d/m/Y H:m'}}</a>
+                    <b>Date d'inscription</b> <a class="float-right">{{user.date_joined|date:'d/m/Y H:i'}}</a>
                   </li>
                   <li class="list-group-item">
-                    <b>Dernière connexion</b> <a class="float-right">{{user.last_login|date:'d/m/Y H:m'}}</a>
+                    <b>Dernière connexion</b> <a class="float-right">{{user.last_login|date:'d/m/Y H:i'}}</a>
                   </li>
                   <li class="list-group-item">
                     <b>ID</b> <a class="float-right">{{user.objectid}}
@@ -96,7 +96,7 @@
               <div class="card-body">
                 <ul class="list-group list-group-unbordered mb-3">
                   <li class="list-group-item">
-                    <b>Durée du ban</b> <a class="float-right">{{user.banned_until|date:'d/m/Y H:m'}}</a>
+                    <b>Durée du ban</b> <a class="float-right">{{user.banned_until|date:'d/m/Y H:i'}}</a>
                   </li>
                   <li class="list-group-item">
                     <b>Raison</b> <a class="float-right">{{user.banned_reason}}</a>

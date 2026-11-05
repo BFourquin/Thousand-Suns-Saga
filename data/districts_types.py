@@ -1,4 +1,5 @@
 
+from data.names import localized_name
 from bson.objectid import ObjectId
 
 from database.db_connect import collection
@@ -10,7 +11,7 @@ def get_district_type_by_id(server, id, language=None):
     district = db.find_one({"_id": ObjectId(id)})
 
     if language:
-        district['name'] = district['name_'+language]
+        district['name'] = localized_name(district, language)
     return district
 
 
@@ -20,7 +21,7 @@ def get_district_type(server, internal_name, language=None):
     district = db.find_one({"internal_name": internal_name})
 
     if language:
-        district['name'] = district['name_' + language]
+        district['name'] = localized_name(district, language)
     return district
 
 
@@ -30,7 +31,7 @@ def get_all_districts_types(server, language=None):
 
     if language:
         for i in range(len(districts)):
-            districts[i]['name'] = districts[i]['name_' + language]
+            districts[i]['name'] = localized_name(districts[i], language)
     return districts
 
 
@@ -60,6 +61,6 @@ def get_all_buildable_districts_types(server, commandant, language=None):
 
     if language:
         for i in range(len(districts)):
-            districts[i]['name'] = districts[i]['name_' + language]
+            districts[i]['name'] = localized_name(districts[i], language)
 
     return districts

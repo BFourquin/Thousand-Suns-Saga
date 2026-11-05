@@ -111,6 +111,7 @@ body[data-theme]:where(:not([data-theme="classic"])) .main-header .nav-link { co
 body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar {
     background-color: var(--tss-sidebar-bg) !important;
     border-right: var(--tss-border-width) solid var(--tss-border);
+    overflow-x: hidden;  /* The border made it 1px too wide : a scrollbar showed at the bottom of the menu */
 }
 body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar .brand-link {
     background-color: var(--tss-sidebar-bg) !important;

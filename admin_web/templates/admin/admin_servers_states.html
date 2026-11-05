@@ -57,7 +57,7 @@
             </button>
           </div>
         </div>
-        <div class="card-body p-0">
+        <div class="card-body table-responsive p-0">
           <table class="table table-striped projects">
               <thead>
                   <tr>
@@ -103,10 +103,10 @@
                       <td>
                         <form action="/admin_servers_states_edit/" method="POST" id="{{server.server_name}}_status">
                             {% csrf_token %}
-                            <input type="hidden" id="server_name" name="server_name" value="{{server.server_name}}">
-                            <input type="hidden" id="type" name="type" value="status">
+                            <input type="hidden" name="server_name" value="{{server.server_name}}">
+                            <input type="hidden" name="type" value="status">
                             <select class="custom-select u-max-width-100px"
-                                    name="value" id="value"
+                                    name="value"
                                     data-autosubmit form="{{server.server_name}}_status">
                               <option {% if server.status == 'open' %} selected="selected" {% endif %} value="open">open</option>
                               <option {% if server.status == 'close' %} selected="selected" {% endif %} value="close">close</option>
@@ -121,10 +121,10 @@
                       <td>
                         <form action="/admin_servers_states_edit/" method="POST" id="{{server.server_name}}_visibility">
                             {% csrf_token %}
-                            <input type="hidden" id="server_name" name="server_name" value="{{server.server_name}}">
-                            <input type="hidden" id="type" name="type" value="admin_only_visibility">
+                            <input type="hidden" name="server_name" value="{{server.server_name}}">
+                            <input type="hidden" name="type" value="admin_only_visibility">
                             <select class="custom-select u-max-width-100px"
-                                    name="value" id="value"
+                                    name="value"
                                     data-autosubmit form="{{server.server_name}}_visibility">
                               <option {% if server.admin_only_visibility %} selected="selected" {% endif %} value="true">admin</option>
                               <option {% if not server.admin_only_visibility %} selected="selected" {% endif %} value="false">tous</option>
@@ -135,11 +135,11 @@
                       <!-- Dates -->
                       <td>
                           <small>
-                              Création : {{server.creation_date|date:'d/m/Y H:m'}}
+                              Création : {{server.creation_date|date:'d/m/Y H:i'}}
                               <br/>
-                              Ouverture : {{server.opening_date|date:'d/m/Y H:m'}}
+                              Ouverture : {{server.opening_date|date:'d/m/Y H:i'}}
                               <br/>
-                              Fermeture : {{server.end_date|date:'d/m/Y H:m'}}
+                              Fermeture : {{server.end_date|date:'d/m/Y H:i'}}
                           </small>
                       </td>
 
@@ -156,10 +156,10 @@
                       <td>
                         <form action="/admin_servers_states_edit/" method="POST" id="{{server.server_name}}_allow_multiaccounts">
                             {% csrf_token %}
-                            <input type="hidden" id="server_name" name="server_name" value="{{server.server_name}}">
-                            <input type="hidden" id="type" name="type" value="allow_multiaccounts">
+                            <input type="hidden" name="server_name" value="{{server.server_name}}">
+                            <input type="hidden" name="type" value="allow_multiaccounts">
                             <select class="custom-select u-max-width-100px"
-                                    name="value" id="value"
+                                    name="value"
                                     data-autosubmit form="{{server.server_name}}_allow_multiaccounts">
                               <option {% if server.allow_multiaccounts %} selected="selected" {% endif %} value="true">autorisé</option>
                               <option {% if not server.allow_multiaccounts %} selected="selected" {% endif %} value="false">interdit</option>
@@ -170,8 +170,6 @@
                   </tr>
 
                  {% endfor %}
-
-                  </tr>
               </tbody>
           </table>
         </div>
@@ -185,26 +183,13 @@
   <!-- /.content-wrapper -->
 
 
-  <!-- Control Sidebar -->
-  <aside class="control-sidebar control-sidebar-dark">
-    <!-- Control sidebar content goes here -->
-  </aside>
-  <!-- /.control-sidebar -->
 </div>
 <!-- ./wrapper -->
 
 
 <!-- REQUIRED SCRIPTS -->
 
-<!-- jQuery -->
-<script type="text/javascript" src="{% static "libraries/jquery/jquery.min.js" %}" ></script>
-<!-- Bootstrap -->
-<script type="text/javascript" src="{% static "libraries/bootstrap/js/bootstrap.bundle.min.js" %}" ></script>
-<!-- AdminLTE -->
-<script type="text/javascript" src="{% static "dist/js/adminlte.js" %}" ></script>
 
-<!-- AdminLTE for demo purposes -->
-<script type="text/javascript" src="{% static "dist/js/demo.js" %}" ></script>
 </body>
 </html>
 

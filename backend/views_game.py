@@ -17,6 +17,7 @@ from data.report import get_commandant_reports, get_report_by_object_id, delete_
 from data.colonies import get_colonies_controlled_by_commandant, get_colonies_at_coordinates
 from data.commandant import get_commandants_by_object_ids
 from data.resources import get_all_resources_parameters, get_resources_categories, get_resources_subcategories
+from data.names import localized_name
 
 
 ########################################################################################################################
@@ -364,7 +365,7 @@ def resources(request, server, commandant):
 
 
         resources_table.append({
-            'name': resource['name_' + language],
+            'name': localized_name(resource, language),
             'icon': resource['icon'],
             'stock': commandant['resources'][resource_name] if resource_name in commandant['resources'] else 0,
             'max_storage': 20000,
@@ -381,7 +382,7 @@ def resources(request, server, commandant):
 
     resources_categories = list(get_resources_categories(server))
     for category in resources_categories:
-        category['name'] = category['name_' + language]
+        category['name'] = localized_name(category, language)
 
     return TemplateResponse(request, 'game/resources.html',
                             {'server': server, 'resources': resources_table,

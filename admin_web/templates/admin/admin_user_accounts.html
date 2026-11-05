@@ -1,7 +1,7 @@
 
 {% load static %}
 
-{% include "includes/head.html" with title="TSS Admin : Comptes utilisateurs" %}
+{% include "includes/head.html" with title="TSS Admin : Comptes utilisateurs" datatables=True %}
 
 {% include "includes/menu_admin.html" %}  <!-- include body start -->
 
@@ -80,7 +80,7 @@
                       <tr data-href="/admin_user_details/?id={{user_account.id}}">
                           {% for var in user_account.values %}
                             {% if var.date %}
-                                <td><a href="/admin_user_details/?id={{user_account.id}}">{{var|date:'d/m/Y H:m'}}</a></td>
+                                <td><a href="/admin_user_details/?id={{user_account.id}}">{{var|date:'d/m/Y H:i'}}</a></td>
                             {% else %}
                                 <td><a href="/admin_user_details/?id={{user_account.id}}">{{var}}</a></td>
                             {% endif %}
