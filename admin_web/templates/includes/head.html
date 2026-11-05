@@ -37,6 +37,24 @@
     <link rel="stylesheet" href="{% static "dist/css/adminlte.css" %}" >  <!-- was adminlte.min.css -->
 
 
+    <!-- USER THEME (selected in the account preferences) -->
+    {% if theme and theme != 'classic' %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    {% if theme == 'console' %}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Rajdhani:wght@500;600;700&display=swap">
+    {% elif theme == 'atlas' %}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+    {% elif theme == 'industrial' %}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Roboto+Mono:wght@400;600&display=swap">
+    {% elif theme == 'minimal' %}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap">
+    {% endif %}
+    <link rel="stylesheet" href="{% static "css/themes/theme_base.css" %}" >
+    <link rel="stylesheet" href="{% static "css/themes/theme_" %}{{ theme }}.css" >
+    {% endif %}
+
+
     <!-- BOKEH -->
     <!--
     <link href="http://cdn.pydata.org/bokeh/release/bokeh-2.4.1.min.css" rel="stylesheet" type="text/css">

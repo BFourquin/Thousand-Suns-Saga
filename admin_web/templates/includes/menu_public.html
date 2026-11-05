@@ -2,7 +2,8 @@
 {% load static %}
 {% load i18n %}
 
-<body class="hold-transition sidebar-mini layout-boxed layout-fixed 
+<body data-theme="{{ theme|default:'classic' }}"
+      class="hold-transition sidebar-mini layout-boxed layout-fixed 
              {% if dark_mode %} dark-mode {% endif %}"
       style="background-image: url({% static 'images/background-space.jpg'%});
              background-size: cover; background-repeat: no-repeat; background-attachment: fixed;">

@@ -35,6 +35,7 @@ def create_user_extend(username):
                       'banned_reason': None,
                       'language': 'en',
                       'dark_mode': True,
+                      'theme': 'classic',
                       'playing_on_server': None,
                       'playing_on_commandant': None,
                       }

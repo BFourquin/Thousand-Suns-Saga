@@ -24,6 +24,7 @@ packaging
 pathtools
 Pillow
 pluggy
+psycopg[binary]
 py
 pymongo
 pyparsing

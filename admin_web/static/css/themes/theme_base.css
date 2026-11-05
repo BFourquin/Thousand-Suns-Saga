@@ -1,0 +1,303 @@
+/*
+ * Shared rules of the selectable themes (everything except 'classic').
+ * Each theme file (theme_<id>.css) only has to define the --tss-* variables on body[data-theme="<id>"],
+ * plus its own decorative extras.
+ *
+ * Specificity: "body[data-theme] .x" beats AdminLTE's ".dark-mode .x", and ties with "body[data-theme=<id>] .x" in theme files, which load later and so win
+ */
+
+/* Defaults, overridden by body[data-theme="<id>"] in each theme file */
+:root {
+    --tss-bg: #454d55;
+    --tss-bg-dim: rgba(0, 0, 0, 0.55);          /* dimming layer over the starfield picture */
+    --tss-content-bg: transparent;
+    --tss-surface: #343a40;
+    --tss-surface-2: #3d444b;
+    --tss-border: #6c757d;
+    --tss-text: #f2f4f6;
+    --tss-text-muted: #aab2ba;                   /* keep contrast >= 4.5:1 on --tss-surface */
+    --tss-accent: #007bff;
+    --tss-accent-text: #5aa9ff;
+    --tss-accent-contrast: #ffffff;
+    --tss-warn: #ffb020;
+    --tss-danger: #ff5d6c;
+    --tss-success: #3ddc97;
+    --tss-sidebar-bg: #343a40;
+    --tss-sidebar-active: var(--tss-surface-2);
+    --tss-radius: 4px;
+    --tss-border-width: 1px;
+    --tss-glow: none;
+    --tss-card-blur: 0px;
+    --tss-card-alpha: 1;
+    --tss-title-transform: none;
+    --tss-title-spacing: normal;
+    --tss-font-body: 'Source Sans Pro', -apple-system, 'Segoe UI', sans-serif;
+    --tss-font-title: var(--tss-font-body);
+    --tss-font-mono: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Page & typography */
+
+body[data-theme]:where(:not([data-theme="classic"])) {
+    background-color: var(--tss-bg) !important;
+    color: var(--tss-text);
+    font-family: var(--tss-font-body);
+}
+
+/* Dim the starfield so panels and text read better */
+body[data-theme]:where(:not([data-theme="classic"]))::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: var(--tss-bg-dim);
+    pointer-events: none;
+    z-index: 0;
+}
+body[data-theme]:where(:not([data-theme="classic"])) .wrapper { position: relative; z-index: 1; }
+
+body[data-theme]:where(:not([data-theme="classic"])) h1,
+body[data-theme]:where(:not([data-theme="classic"])) h2,
+body[data-theme]:where(:not([data-theme="classic"])) h3,
+body[data-theme]:where(:not([data-theme="classic"])) h4,
+body[data-theme]:where(:not([data-theme="classic"])) h5,
+body[data-theme]:where(:not([data-theme="classic"])) .card-title,
+body[data-theme]:where(:not([data-theme="classic"])) .brand-text,
+body[data-theme]:where(:not([data-theme="classic"])) .head-title {
+    font-family: var(--tss-font-title);
+    text-transform: var(--tss-title-transform);
+    letter-spacing: var(--tss-title-spacing);
+}
+
+body[data-theme]:where(:not([data-theme="classic"])) code,
+body[data-theme]:where(:not([data-theme="classic"])) kbd,
+body[data-theme]:where(:not([data-theme="classic"])) pre,
+body[data-theme]:where(:not([data-theme="classic"])) .table td.text-right,
+body[data-theme]:where(:not([data-theme="classic"])) .badge {
+    font-family: var(--tss-font-mono);
+}
+
+body[data-theme]:where(:not([data-theme="classic"])) .text-muted,
+body[data-theme]:where(:not([data-theme="classic"])) .grey_text {
+    color: var(--tss-text-muted) !important;
+}
+
+body[data-theme]:where(:not([data-theme="classic"])) a:not(.btn):not(.nav-link):not(.dropdown-item) {
+    color: var(--tss-accent-text);
+}
+body[data-theme]:where(:not([data-theme="classic"])) a:not(.btn):not(.nav-link):not(.dropdown-item):hover {
+    color: var(--tss-text);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .text-primary { color: var(--tss-accent-text) !important; }
+body[data-theme]:where(:not([data-theme="classic"])) .hover { color: var(--tss-accent-text) !important; }
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Layout: header, sidebar, content */
+
+body[data-theme]:where(:not([data-theme="classic"])) .content-wrapper {
+    background: var(--tss-content-bg);
+    color: var(--tss-text);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .content-wrapper .content-header { color: var(--tss-text); }
+
+body[data-theme]:where(:not([data-theme="classic"])) .main-header.navbar {
+    background-color: var(--tss-sidebar-bg);
+    border-bottom: var(--tss-border-width) solid var(--tss-border);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .main-header .nav-link { color: var(--tss-text); }
+
+body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar {
+    background-color: var(--tss-sidebar-bg) !important;
+    border-right: var(--tss-border-width) solid var(--tss-border);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar .brand-link {
+    background-color: var(--tss-sidebar-bg) !important;
+    border-bottom: var(--tss-border-width) solid var(--tss-border);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar .nav-sidebar > .nav-item > .nav-link {
+    color: var(--tss-text);
+    border-radius: var(--tss-radius);
+    border-left: 3px solid transparent;
+}
+body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar .nav-sidebar > .nav-item > .nav-link:hover {
+    background-color: var(--tss-sidebar-active);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar .nav-sidebar > .nav-item > .nav-link.active,
+body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar .nav-sidebar > .nav-item.menu-open > .nav-link {
+    background-color: var(--tss-sidebar-active);
+    color: var(--tss-text);
+    border-left-color: var(--tss-accent);
+    box-shadow: var(--tss-glow);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .menu-separator { border-bottom-color: var(--tss-border); }
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Cards, tables, tabs */
+
+body[data-theme]:where(:not([data-theme="classic"])) .card,
+body[data-theme]:where(:not([data-theme="classic"])) .modal-content,
+body[data-theme]:where(:not([data-theme="classic"])) .dropdown-menu {
+    background-color: color-mix(in srgb, var(--tss-surface) calc(var(--tss-card-alpha) * 100%), transparent);
+    color: var(--tss-text);
+    border: var(--tss-border-width) solid var(--tss-border);
+    border-radius: var(--tss-radius);
+    -webkit-backdrop-filter: blur(var(--tss-card-blur));
+    backdrop-filter: blur(var(--tss-card-blur));
+}
+body[data-theme]:where(:not([data-theme="classic"])) .card-header,
+body[data-theme]:where(:not([data-theme="classic"])) .modal-header {
+    background-color: var(--tss-surface-2);
+    color: var(--tss-text);
+    border-bottom: var(--tss-border-width) solid var(--tss-border);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .card-secondary:not(.card-outline) > .card-header,
+body[data-theme]:where(:not([data-theme="classic"])) .card-primary:not(.card-outline) > .card-header,
+body[data-theme]:where(:not([data-theme="classic"])) .card-info:not(.card-outline) > .card-header {
+    background-color: var(--tss-surface-2);
+    color: var(--tss-text);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .card-primary:not(.card-outline) > .card-header,
+body[data-theme]:where(:not([data-theme="classic"])) .card-primary.card-outline {
+    border-top-color: var(--tss-accent);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .card-footer {
+    background-color: var(--tss-surface-2);
+    border-top: var(--tss-border-width) solid var(--tss-border);
+}
+
+body[data-theme]:where(:not([data-theme="classic"])) .list-group-item {
+    background-color: transparent;
+    border-color: var(--tss-border);
+    color: var(--tss-text);
+}
+
+body[data-theme]:where(:not([data-theme="classic"])) .table,
+body[data-theme]:where(:not([data-theme="classic"])) .table td,
+body[data-theme]:where(:not([data-theme="classic"])) .table th {
+    color: var(--tss-text);
+    border-color: var(--tss-border);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .table thead th {
+    background-color: var(--tss-surface-2);
+    border-bottom: calc(var(--tss-border-width) * 2) solid var(--tss-border);
+    font-family: var(--tss-font-title);
+    text-transform: var(--tss-title-transform);
+    letter-spacing: var(--tss-title-spacing);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .table-hover tbody tr:hover {
+    background-color: var(--tss-surface-2);
+    color: var(--tss-text);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .table-striped tbody tr:nth-of-type(odd) {
+    background-color: color-mix(in srgb, var(--tss-surface-2) 45%, transparent);
+}
+
+body[data-theme]:where(:not([data-theme="classic"])) .nav-tabs { border-bottom-color: var(--tss-border); }
+body[data-theme]:where(:not([data-theme="classic"])) .nav-tabs .nav-link,
+body[data-theme]:where(:not([data-theme="classic"])) .nav-pills .nav-link {
+    color: var(--tss-text-muted);
+    border-radius: var(--tss-radius);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .nav-tabs .nav-link:hover,
+body[data-theme]:where(:not([data-theme="classic"])) .nav-pills .nav-link:hover { color: var(--tss-text); }
+body[data-theme]:where(:not([data-theme="classic"])) .nav-pills .nav-link.active,
+body[data-theme]:where(:not([data-theme="classic"])) .nav-pills .show > .nav-link {
+    background-color: var(--tss-accent);
+    color: var(--tss-accent-contrast);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .nav-tabs .nav-link.active {
+    background-color: var(--tss-surface);
+    color: var(--tss-text);
+    border-color: var(--tss-border) var(--tss-border) var(--tss-surface);
+    border-top: 2px solid var(--tss-accent);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .pills { color: var(--tss-text-muted); }
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Forms & buttons */
+
+body[data-theme]:where(:not([data-theme="classic"])) .form-control,
+body[data-theme]:where(:not([data-theme="classic"])) .custom-select,
+body[data-theme]:where(:not([data-theme="classic"])) .input-group-text {
+    background-color: var(--tss-bg);
+    color: var(--tss-text);
+    border: var(--tss-border-width) solid var(--tss-border);
+    border-radius: var(--tss-radius);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .form-control:focus,
+body[data-theme]:where(:not([data-theme="classic"])) .custom-select:focus {
+    background-color: var(--tss-bg);
+    color: var(--tss-text);
+    border-color: var(--tss-accent);
+    box-shadow: var(--tss-glow);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .form-control::placeholder { color: var(--tss-text-muted); }
+
+body[data-theme]:where(:not([data-theme="classic"])) .btn { border-radius: var(--tss-radius); font-family: var(--tss-font-title); }
+body[data-theme]:where(:not([data-theme="classic"])) .btn-primary {
+    background-color: var(--tss-accent);
+    border-color: var(--tss-accent);
+    color: var(--tss-accent-contrast);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .btn-primary:hover,
+body[data-theme]:where(:not([data-theme="classic"])) .btn-primary:focus {
+    background-color: var(--tss-accent);
+    border-color: var(--tss-accent);
+    color: var(--tss-accent-contrast);
+    filter: brightness(1.12);
+    box-shadow: var(--tss-glow);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .btn-outline-info,
+body[data-theme]:where(:not([data-theme="classic"])) .btn-outline-secondary,
+body[data-theme]:where(:not([data-theme="classic"])) .btn-default {
+    background-color: transparent;
+    color: var(--tss-text);
+    border-color: var(--tss-border);
+}
+body[data-theme]:where(:not([data-theme="classic"])) .btn-outline-info:hover,
+body[data-theme]:where(:not([data-theme="classic"])) .btn-outline-secondary:hover,
+body[data-theme]:where(:not([data-theme="classic"])) .btn-default:hover {
+    background-color: var(--tss-surface-2);
+    border-color: var(--tss-accent);
+    color: var(--tss-text);
+    box-shadow: var(--tss-glow);
+}
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Misc */
+
+body[data-theme]:where(:not([data-theme="classic"])) .unread-dark { background-color: color-mix(in srgb, var(--tss-warn) 22%, var(--tss-surface)) !important; }
+body[data-theme]:where(:not([data-theme="classic"])) .archived-dark { background-color: color-mix(in srgb, var(--tss-accent) 18%, var(--tss-surface)) !important; }
+
+body[data-theme]:where(:not([data-theme="classic"])) ::-webkit-scrollbar { width: 10px; height: 10px; }
+body[data-theme]:where(:not([data-theme="classic"])) ::-webkit-scrollbar-track { background: var(--tss-bg); }
+body[data-theme]:where(:not([data-theme="classic"])) ::-webkit-scrollbar-thumb { background: var(--tss-border); border-radius: 5px; }
+body[data-theme]:where(:not([data-theme="classic"])) ::-webkit-scrollbar-thumb:hover { background: var(--tss-accent); }
+
+/* Long pseudos (account page title) must not wrap awkwardly with wide display fonts */
+body[data-theme]:where(:not([data-theme="classic"])) h1.text-center {
+    font-size: 1.7rem;
+    text-transform: none;
+    letter-spacing: normal;
+    overflow-wrap: anywhere;
+}
+
+/* Sidebar brand: wide display fonts must never overflow the sidebar */
+body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar .brand-link {
+    overflow: hidden;
+    white-space: nowrap;
+}
+body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar .brand-link .brand-text {
+    display: inline-block;
+    max-width: calc(100% - 3.2rem);   /* room for the logo */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    font-size: var(--tss-brand-size, 1.05rem);
+    letter-spacing: var(--tss-brand-spacing, normal);
+}

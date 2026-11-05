@@ -1,0 +1,40 @@
+/* THEME "Console de commandement" : HUD holographique, cyan electrique + ambre */
+
+body[data-theme="console"] {
+    --tss-bg: #070b14;
+    --tss-bg-dim: rgba(4, 8, 16, 0.80);
+    --tss-surface: #0f1a2b;
+    --tss-surface-2: #16263d;
+    --tss-border: #1f3a5c;
+    --tss-text: #e6f1ff;
+    --tss-text-muted: #8fa6c2;
+    --tss-accent: #2de2e6;
+    --tss-accent-text: #2de2e6;
+    --tss-accent-contrast: #031318;
+    --tss-warn: #ffb020;
+    --tss-sidebar-bg: #0a1220;
+    --tss-sidebar-active: rgba(45, 226, 230, 0.10);
+    --tss-radius: 2px;
+    --tss-glow: 0 0 10px rgba(45, 226, 230, 0.35);
+    --tss-card-blur: 8px;
+    --tss-card-alpha: 0.78;
+    --tss-title-transform: uppercase;
+    --tss-title-spacing: 0.06em;
+    --tss-brand-size: 0.9rem;
+    --tss-brand-spacing: 0.02em;
+    --tss-font-body: 'Inter', 'Segoe UI', sans-serif;
+    --tss-font-title: 'Rajdhani', 'Inter', sans-serif;
+    --tss-font-mono: 'JetBrains Mono', Consolas, monospace;
+}
+
+/* Chamfered corners, HUD style */
+body[data-theme="console"] .card,
+body[data-theme="console"] .modal-content {
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+}
+body[data-theme="console"] .card-header { border-left: 3px solid var(--tss-accent); }
+body[data-theme="console"] .card-title { font-weight: 600; font-size: 1.15rem; }
+body[data-theme="console"] .content-header h1,
+body[data-theme="console"] .content-header h2 { color: var(--tss-accent); text-shadow: 0 0 12px rgba(45, 226, 230, 0.45); }
+body[data-theme="console"] .btn-primary { text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
+body[data-theme="console"] .badge-warning, body[data-theme="console"] .text-warning { color: var(--tss-warn) !important; }
