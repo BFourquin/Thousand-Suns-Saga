@@ -17,6 +17,7 @@ from backend.decorators import commandant_required
 from backend.login import LOGIN_MAX_FAILURES_PER_ACCOUNT, throttled_authenticate
 from backend.models import CommandantAccount, Server, UserExtended, to_id
 from backend.templatetags.tss_dates import rp_date
+from backend.templatetags.tss_text import MAX_DEPTH, bbcode
 from database.schemas import schema_of, server_schema
 from game.models import Building, Colony, Commandant, ConversationMessage, Coordinate, District, DistrictType, Entente, EntenteMember, EntenteRole, Post, Report, StartingValues
 from backend.utils import commandant_owns_colony
@@ -822,6 +823,13 @@ class ForumsTests(TestCase):
 
         forums.destroy_player_forum('S', coalition_id, self.owner)
         self.assertEqual(len(images()), 2)
+
+    def test_messages_are_displayed_formatted_and_escaped_with_their_toolbar(self):
+        topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', '[b]Citoyens[/b] <script>alert(1)</script>')
+        self.play(self.user, self.owner)
+        response = self.client.get(f'/topic/?topic_id={topic_id}')
+        self.assertContains(response, '<strong>Citoyens</strong> &lt;script&gt;')
+        self.assertContains(response, 'data-text-toolbar')
 
     def test_game_dates_show_the_real_date_until_the_rule_is_decided(self):
         self.assertEqual(rp_date(None), '')
@@ -1730,3 +1738,51 @@ class EntentesTests(TestCase):
 
         self.client.post(url, {'action': 'dissolve'})
         self.assertIsNone(ententes.get_entente('S', self.entente, self.founder))
+
+
+class TextFormattingTests(SimpleTestCase):
+
+    def test_styles_alignments_sizes_and_colors(self):
+        self.assertEqual(bbcode('[b]a[/b][i]b[/i][u]c[/u][s]d[/s]'), '<strong>a</strong><em>b</em><u>c</u><s>d</s>')
+        self.assertEqual(bbcode('[center]a[/center]'), '<div class="text-center">a</div>')
+        self.assertEqual(bbcode('[size=5]a[/size]'), '<span style="font-size:1.5rem">a</span>')
+        self.assertEqual(bbcode('[color=#FF0000]a[/color]'), '<span style="color:#FF0000">a</span>')
+        self.assertEqual(bbcode('[B]a[/B]'), '<strong>a</strong>')
+
+    def test_new_lines(self):
+        self.assertEqual(bbcode('a\r\nb'), 'a<br>b')
+        self.assertEqual(bbcode('a\n[center]b[/center]\nc'), 'a<div class="text-center">b</div>c')
+
+    def test_links(self):
+        link = '<a href="https://a.fr/?x=1&amp;y=2" target="_blank" rel="nofollow noopener noreferrer">'
+        self.assertEqual(bbcode('[url=https://a.fr/?x=1&y=2]ici[/url]'), link + 'ici</a>')
+        self.assertEqual(bbcode('[url]https://a.fr/?x=1&y=2[/url]'), link + 'https://a.fr/?x=1&amp;y=2</a>')
+        self.assertIn('<a href="https://a.fr"', bbcode('voir https://a.fr'))
+        self.assertEqual(bbcode('[url=https://a.fr]https://b.fr[/url]').count('<a '), 1)  # No link in a link
+
+    def test_everything_is_escaped(self):
+        self.assertEqual(bbcode('<b onclick="x">&'), '&lt;b onclick=&quot;x&quot;&gt;&amp;')
+        self.assertEqual(bbcode('[b]<img src=x>[/b]'), '<strong>&lt;img src=x&gt;</strong>')
+
+    def test_refused_values_stay_as_typed(self):
+        for text in ('[url=javascript:alert(1)]a[/url]', '[url=data:text/html,x]a[/url]', '[url]javascript:alert(1)[/url]', '[url=]a[/url]',
+                     '[url=https://a.fr" onclick="x]a[/url]', '[color=red;background:url(x)]a[/color]', '[color=#12]a[/color]',
+                     '[size=8]a[/size]', '[size=1;position:fixed]a[/size]', '[b=x]a'):
+            result = bbcode(text)
+            self.assertNotIn('<a ', result, text)
+            self.assertNotIn('<span', result, text)
+            self.assertNotIn('<strong', result, text)
+
+    def test_no_external_content_is_embedded(self):
+        for text in ('[img]https://a.fr/b.png[/img]', '[video]https://youtu.be/x[/video]', '[iframe]https://a.fr[/iframe]', '<iframe src="https://a.fr"></iframe>'):
+            result = bbcode(text)
+            for tag in ('<img', '<video', '<iframe', '<embed', '<object'):
+                self.assertNotIn(tag, result, text)
+        self.assertIn('<a href="https://youtu.be/x"', bbcode('https://youtu.be/x'))
+
+    def test_the_page_around_stays_balanced(self):
+        self.assertEqual(bbcode('[center]a'), '<div class="text-center">a</div>')
+        self.assertEqual(bbcode('a[/center]'), 'a[/center]')
+        self.assertEqual(bbcode('[b][i]a[/b]c[/i]'), '<strong><em>a</em></strong>c[/i]')
+        self.assertEqual(bbcode('[b]' * 1000).count('<strong>'), MAX_DEPTH)
+        self.assertEqual(bbcode('[b]' * 1000).count('</strong>'), MAX_DEPTH)

@@ -40,6 +40,7 @@
             </div>
             <div class="form-group">
               <label for="conversation-body">{% trans "Message" %}</label>
+              {% include "includes/text_toolbar.html" %}
               <textarea id="conversation-body" name="body" class="form-control" rows="6" maxlength="20000" required>{{ request.POST.body }}</textarea>
             </div>
             <button type="submit" name="action" value="new" class="btn btn-primary">{% trans "Envoyer" %}</button>

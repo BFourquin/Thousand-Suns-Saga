@@ -64,6 +64,7 @@
               </div>
               <div class="form-group">
                 <label for="entente-description">{% trans "Description" %}</label>
+                {% include "includes/text_toolbar.html" %}
                 <textarea id="entente-description" name="description" class="form-control" rows="4" maxlength="5000">{{ request.POST.description }}</textarea>
               </div>
               <button type="submit" class="btn btn-primary">{% trans "Fonder" %}</button>

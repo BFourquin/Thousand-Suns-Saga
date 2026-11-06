@@ -1,0 +1,38 @@
+{% load i18n %}
+{% comment %} Just before a textarea : formats its selection with the tags of backend/templatetags/tss_text.py {% endcomment %}
+<div class="d-flex flex-wrap align-items-center mt-2" data-text-toolbar>
+  <button type="button" class="btn btn-default btn-sm mr-1 mb-1" data-tag="b" title="{% trans "Gras" %}" aria-label="{% trans "Gras" %}"><i class="fas fa-bold"></i></button>
+  <button type="button" class="btn btn-default btn-sm mr-1 mb-1" data-tag="i" title="{% trans "Italique" %}" aria-label="{% trans "Italique" %}"><i class="fas fa-italic"></i></button>
+  <button type="button" class="btn btn-default btn-sm mr-1 mb-1" data-tag="u" title="{% trans "Souligné" %}" aria-label="{% trans "Souligné" %}"><i class="fas fa-underline"></i></button>
+  <button type="button" class="btn btn-default btn-sm mr-3 mb-1" data-tag="s" title="{% trans "Barré" %}" aria-label="{% trans "Barré" %}"><i class="fas fa-strikethrough"></i></button>
+
+  <button type="button" class="btn btn-default btn-sm mr-1 mb-1" data-tag="left" title="{% trans "Aligner à gauche" %}" aria-label="{% trans "Aligner à gauche" %}"><i class="fas fa-align-left"></i></button>
+  <button type="button" class="btn btn-default btn-sm mr-1 mb-1" data-tag="center" title="{% trans "Centrer" %}" aria-label="{% trans "Centrer" %}"><i class="fas fa-align-center"></i></button>
+  <button type="button" class="btn btn-default btn-sm mr-1 mb-1" data-tag="right" title="{% trans "Aligner à droite" %}" aria-label="{% trans "Aligner à droite" %}"><i class="fas fa-align-right"></i></button>
+  <button type="button" class="btn btn-default btn-sm mr-3 mb-1" data-tag="justify" title="{% trans "Justifier" %}" aria-label="{% trans "Justifier" %}"><i class="fas fa-align-justify"></i></button>
+
+  <select class="custom-select custom-select-sm w-auto mr-1 mb-1" data-tag="size" aria-label="{% trans "Taille" %}">
+    <option value="">{% trans "Taille" %}</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+  </select>
+  <select class="custom-select custom-select-sm w-auto mr-3 mb-1" data-tag="color" aria-label="{% trans "Couleur" %}">
+    <option value="">{% trans "Couleur" %}</option>
+    <option value="#ff4136" style="color:#ff4136">{% trans "Rouge" %}</option>
+    <option value="#ff851b" style="color:#ff851b">{% trans "Orange" %}</option>
+    <option value="#ffdc00" style="color:#ffdc00">{% trans "Jaune" %}</option>
+    <option value="#2ecc40" style="color:#2ecc40">{% trans "Vert" %}</option>
+    <option value="#7fdbff" style="color:#7fdbff">{% trans "Bleu clair" %}</option>
+    <option value="#0074d9" style="color:#0074d9">{% trans "Bleu" %}</option>
+    <option value="#b10dc9" style="color:#b10dc9">{% trans "Violet" %}</option>
+    <option value="#aaaaaa" style="color:#aaaaaa">{% trans "Gris" %}</option>
+  </select>
+
+  <button type="button" class="btn btn-default btn-sm mr-1 mb-1" data-link data-prompt="{% trans "Adresse du lien :" %}" title="{% trans "Lien" %}" aria-label="{% trans "Lien" %}"><i class="fas fa-link"></i></button>
+  <button type="button" class="btn btn-default btn-sm mb-1" data-remove-format title="{% trans "Retirer la mise en forme" %}" aria-label="{% trans "Retirer la mise en forme" %}"><i class="fas fa-remove-format"></i></button>
+</div>

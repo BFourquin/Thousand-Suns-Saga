@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 16:06+0100\n"
+"POT-Creation-Date: 2026-11-06 16:49+0100\n"
 "PO-Revision-Date: 2024-06-02 10:00+0000\n"
 "Last-Translator: <benoittd@hotmail.fr>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,7 +41,7 @@ msgid "Nom de la coalition"
 msgstr "Name of the coalition"
 
 #: .\admin_web\templates\game\coalition.html:34
-#: .\admin_web\templates\game\diplomacy.html:69
+#: .\admin_web\templates\game\diplomacy.html:70
 msgid "Fonder"
 msgstr "Found"
 
@@ -230,8 +230,8 @@ msgstr "Upgrade"
 
 #: .\admin_web\templates\game\colony.html:160
 #: .\admin_web\templates\game\colony.html:214
-#: .\admin_web\templates\game\entente.html:134
-#: .\admin_web\templates\game\forum_thread.html:98
+#: .\admin_web\templates\game\entente.html:135
+#: .\admin_web\templates\game\forum_thread.html:100
 msgid "Modifier"
 msgstr "Edit"
 
@@ -287,44 +287,44 @@ msgid "Destinataire"
 msgstr "Recipient"
 
 #: .\admin_web\templates\game\conversations.html:38
-#: .\admin_web\templates\game\conversations.html:66
-#: .\admin_web\templates\game\forum.html:69
+#: .\admin_web\templates\game\conversations.html:67
+#: .\admin_web\templates\game\forum.html:71
 msgid "Sujet"
 msgstr "Topic"
 
 #: .\admin_web\templates\game\conversations.html:42
-#: .\admin_web\templates\game\forum.html:122
-#: .\admin_web\templates\game\forum_thread.html:146
+#: .\admin_web\templates\game\forum.html:124
+#: .\admin_web\templates\game\forum_thread.html:149
 msgid "Message"
 msgstr "Message"
 
-#: .\admin_web\templates\game\conversations.html:45
-#: .\admin_web\templates\game\forum_thread.html:148
+#: .\admin_web\templates\game\conversations.html:46
+#: .\admin_web\templates\game\forum_thread.html:151
 msgid "Envoyer"
 msgstr "Send"
 
-#: .\admin_web\templates\game\conversations.html:52
+#: .\admin_web\templates\game\conversations.html:53
 msgid "Conversations"
 msgstr "Conversations"
 
-#: .\admin_web\templates\game\conversations.html:64
+#: .\admin_web\templates\game\conversations.html:65
 msgid "Date"
 msgstr "Date"
 
-#: .\admin_web\templates\game\conversations.html:65
+#: .\admin_web\templates\game\conversations.html:66
 msgid "Correspondant"
 msgstr "Correspondent"
 
-#: .\admin_web\templates\game\conversations.html:76
-#: .\admin_web\templates\game\forum.html:80
+#: .\admin_web\templates\game\conversations.html:77
+#: .\admin_web\templates\game\forum.html:82
 msgid "Nouveau"
 msgstr "New"
 
-#: .\admin_web\templates\game\conversations.html:81
+#: .\admin_web\templates\game\conversations.html:82
 msgid "Aucune conversation"
 msgstr "No conversation"
 
-#: .\admin_web\templates\game\conversations.html:88
+#: .\admin_web\templates\game\conversations.html:89
 msgid "Supprimer la sélection"
 msgstr "Delete selection"
 
@@ -366,9 +366,9 @@ msgstr "Your civilization's name"
 
 #: .\admin_web\templates\game\create_commandant.html:50
 msgid ""
-"Vous pourrez changer le nom de votre commandant ou de votre civilisation plus"
-" tard pour refléter les évolutions de votre roleplay. Néanmoins, cela ne sera"
-" possible que sur approbation de la communauté."
+"Vous pourrez changer le nom de votre commandant ou de votre civilisation "
+"plus tard pour refléter les évolutions de votre roleplay. Néanmoins, cela ne"
+" sera possible que sur approbation de la communauté."
 msgstr ""
 "You can change the name of your commandant or civilization later to reflect "
 "how your roleplay evolves. However, this will only be possible with the "
@@ -386,11 +386,11 @@ msgstr "You are in absent mode."
 
 #: .\admin_web\templates\game\cycle_monitoring.html:30
 msgid ""
-"Si vous n'êtes plus disponible pour commander, le reste de la galaxie ne sera"
-" pas bloqué par votre inactivité."
+"Si vous n'êtes plus disponible pour commander, le reste de la galaxie ne "
+"sera pas bloqué par votre inactivité."
 msgstr ""
-"If you are no longer available to command, the rest of the galaxy will not be"
-" held up by your inactivity."
+"If you are no longer available to command, the rest of the galaxy will not "
+"be held up by your inactivity."
 
 #: .\admin_web\templates\game\cycle_monitoring.html:31
 msgid ""
@@ -406,8 +406,8 @@ msgstr "You are not ready for the next cycle."
 
 #: .\admin_web\templates\game\cycle_monitoring.html:36
 msgid ""
-"Vous n'avez pas encore terminé de donner des ordres pour ce cycle. N'oubliez "
-"pas de signaler lorsque vous avez fini."
+"Vous n'avez pas encore terminé de donner des ordres pour ce cycle. N'oubliez"
+" pas de signaler lorsque vous avez fini."
 msgstr ""
 "You have not finished giving orders for this cycle yet. Remember to report "
 "when you are done."
@@ -434,11 +434,11 @@ msgstr ""
 
 #: .\admin_web\templates\game\cycle_monitoring.html:43
 msgid ""
-"Vous pouvez pendant ce temps continuer à donner des ordres, mais vous risquez"
-" d'être interrompu par le changement de cycle."
+"Vous pouvez pendant ce temps continuer à donner des ordres, mais vous "
+"risquez d'être interrompu par le changement de cycle."
 msgstr ""
-"You can keep giving orders in the meantime, but you may be interrupted by the"
-" cycle change."
+"You can keep giving orders in the meantime, but you may be interrupted by "
+"the cycle change."
 
 #: .\admin_web\templates\game\cycle_monitoring.html:55
 msgid "Se déclarer prêt pour la fin de cycle"
@@ -506,7 +506,7 @@ msgid "Aucun commandant n'a encore terminé son cycle."
 msgstr "No commandant has finished their cycle yet."
 
 #: .\admin_web\templates\game\diplomacy.html:5
-#: .\admin_web\templates\game\entente.html:15
+#: .\admin_web\templates\game\entente.html:16
 #: .\admin_web\templates\game\reports.html:92
 #: .\admin_web\templates\includes\menu_game.html:150
 msgid "Diplomatie"
@@ -539,8 +539,8 @@ msgid "Fonder une entente"
 msgstr "Found an entente"
 
 #: .\admin_web\templates\game\diplomacy.html:54
-#: .\admin_web\templates\game\entente.html:140
-#: .\admin_web\templates\game\entente.html:164
+#: .\admin_web\templates\game\entente.html:141
+#: .\admin_web\templates\game\entente.html:165
 #: .\admin_web\templates\game\player_forum_manage.html:28
 #: .\admin_web\templates\game\player_forums.html:47
 #: .\admin_web\templates\includes\ententes_table.html:8
@@ -553,138 +553,138 @@ msgid "Type d'alliance"
 msgstr "Type of alliance"
 
 #: .\admin_web\templates\game\diplomacy.html:66
-#: .\admin_web\templates\game\entente.html:190
+#: .\admin_web\templates\game\entente.html:191
 msgid "Description"
 msgstr "Description"
 
-#: .\admin_web\templates\game\diplomacy.html:72 .\data\ententes.py:234
+#: .\admin_web\templates\game\diplomacy.html:73 .\data\ententes.py:234
 msgid "Vous possédez déjà le maximum de 5 ententes"
 msgstr "You already own the maximum of 5 ententes"
 
-#: .\admin_web\templates\game\entente.html:29
+#: .\admin_web\templates\game\entente.html:30
 msgid ""
-"Rassemble d'office tous les commandants natifs de ce secteur : on ne peut ni "
-"y postuler, ni la quitter."
+"Rassemble d'office tous les commandants natifs de ce secteur : on ne peut ni"
+" y postuler, ni la quitter."
 msgstr ""
-"Automatically gathers all the commandants native to this sector: it cannot be"
-" applied to or left."
+"Automatically gathers all the commandants native to this sector: it cannot "
+"be applied to or left."
 
-#: .\admin_web\templates\game\entente.html:33
+#: .\admin_web\templates\game\entente.html:34
 msgid "Cette entente n'a pas de description."
 msgstr "This entente has no description."
 
-#: .\admin_web\templates\game\entente.html:36
-#: .\admin_web\templates\game\entente.html:123
-#: .\admin_web\templates\game\forum.html:22
+#: .\admin_web\templates\game\entente.html:37
+#: .\admin_web\templates\game\entente.html:124
+#: .\admin_web\templates\game\forum.html:23
 #: .\admin_web\templates\includes\ententes_table.html:10
 #: .\admin_web\templates\includes\player_forums_table.html:10
 #: .\data\ententes.py:183
 msgid "Propriétaire"
 msgstr "Owner"
 
-#: .\admin_web\templates\game\entente.html:43
+#: .\admin_web\templates\game\entente.html:44
 msgid "Cette entente vous invite à la rejoindre"
 msgstr "This entente invites you to join it"
 
-#: .\admin_web\templates\game\entente.html:47
-#: .\admin_web\templates\game\entente.html:102
+#: .\admin_web\templates\game\entente.html:48
+#: .\admin_web\templates\game\entente.html:103
 #: .\admin_web\templates\includes\forum_invitations.html:19
 msgid "Accepter"
 msgstr "Accept"
 
-#: .\admin_web\templates\game\entente.html:48
-#: .\admin_web\templates\game\entente.html:103
+#: .\admin_web\templates\game\entente.html:49
+#: .\admin_web\templates\game\entente.html:104
 #: .\admin_web\templates\includes\forum_invitations.html:20
 msgid "Refuser"
 msgstr "Decline"
 
-#: .\admin_web\templates\game\entente.html:56
+#: .\admin_web\templates\game\entente.html:57
 msgid "Postuler"
 msgstr "Apply"
 
-#: .\admin_web\templates\game\entente.html:61
+#: .\admin_web\templates\game\entente.html:62
 msgid "Message à l'entente (facultatif)"
 msgstr "Message to the entente (optional)"
 
-#: .\admin_web\templates\game\entente.html:64
+#: .\admin_web\templates\game\entente.html:65
 msgid "Envoyer ma candidature"
 msgstr "Send my application"
 
-#: .\admin_web\templates\game\entente.html:72
+#: .\admin_web\templates\game\entente.html:73
 msgid "Votre candidature attend une réponse"
 msgstr "Your application is awaiting an answer"
 
-#: .\admin_web\templates\game\entente.html:77
+#: .\admin_web\templates\game\entente.html:78
 msgid "Retirer ma candidature"
 msgstr "Withdraw my application"
 
-#: .\admin_web\templates\game\entente.html:85
+#: .\admin_web\templates\game\entente.html:86
 msgid "Candidatures"
 msgstr "Applications"
 
-#: .\admin_web\templates\game\entente.html:108
+#: .\admin_web\templates\game\entente.html:109
 msgid "Aucune candidature en attente"
 msgstr "No pending application"
 
-#: .\admin_web\templates\game\entente.html:119
+#: .\admin_web\templates\game\entente.html:120
 msgid "Rôles"
 msgstr "Roles"
 
-#: .\admin_web\templates\game\entente.html:123
+#: .\admin_web\templates\game\entente.html:124
 msgid "unique, toutes les options"
 msgstr "unique, all the options"
 
-#: .\admin_web\templates\game\entente.html:130
+#: .\admin_web\templates\game\entente.html:131
 msgid "Aucune option"
 msgstr "No option"
 
-#: .\admin_web\templates\game\entente.html:145
-#: .\admin_web\templates\game\entente.html:193
-#: .\admin_web\templates\game\forum.html:34
-#: .\admin_web\templates\game\forum_thread.html:99
-#: .\admin_web\templates\game\player_forum_manage.html:41
+#: .\admin_web\templates\game\entente.html:146
+#: .\admin_web\templates\game\entente.html:195
+#: .\admin_web\templates\game\forum.html:36
+#: .\admin_web\templates\game\forum_thread.html:101
+#: .\admin_web\templates\game\player_forum_manage.html:42
 msgid "Enregistrer"
 msgstr "Save"
 
-#: .\admin_web\templates\game\entente.html:148
+#: .\admin_web\templates\game\entente.html:149
 msgid "Supprimer ce rôle ? Ses membres reprendront le rôle Membre."
 msgstr "Delete this role? Its members will go back to the Member role."
 
-#: .\admin_web\templates\game\entente.html:148
-#: .\admin_web\templates\game\forum_thread.html:57
+#: .\admin_web\templates\game\entente.html:149
+#: .\admin_web\templates\game\forum_thread.html:58
 #: .\admin_web\templates\game\report.html:85
 #: .\admin_web\templates\game\reports.html:237
 #: .\admin_web\templates\game\reports.html:351
 msgid "Supprimer"
 msgstr "Delete"
 
-#: .\admin_web\templates\game\entente.html:160
+#: .\admin_web\templates\game\entente.html:161
 msgid "Créer un rôle"
 msgstr "Create a role"
 
-#: .\admin_web\templates\game\entente.html:168
+#: .\admin_web\templates\game\entente.html:169
 msgid "Créer"
 msgstr "Create"
 
-#: .\admin_web\templates\game\entente.html:179
-#: .\admin_web\templates\game\entente.html:181
+#: .\admin_web\templates\game\entente.html:180
+#: .\admin_web\templates\game\entente.html:182
 msgid "Gérer l'entente"
 msgstr "Manage the entente"
 
-#: .\admin_web\templates\game\entente.html:195
+#: .\admin_web\templates\game\entente.html:197
 msgid ""
 "Dissoudre définitivement cette entente ? Cette opération est irréversible."
 msgstr "Permanently dissolve this entente? This cannot be undone."
 
-#: .\admin_web\templates\game\entente.html:195
+#: .\admin_web\templates\game\entente.html:197
 msgid "Dissoudre l'entente"
 msgstr "Dissolve the entente"
 
-#: .\admin_web\templates\game\entente.html:202
+#: .\admin_web\templates\game\entente.html:204
 msgid "Céder la propriété"
 msgstr "Give away the ownership"
 
-#: .\admin_web\templates\game\entente.html:211
+#: .\admin_web\templates\game\entente.html:213
 msgid ""
 "Céder définitivement la propriété de cette entente à ce membre ? Vous "
 "deviendrez un simple membre."
@@ -692,197 +692,197 @@ msgstr ""
 "Permanently give the ownership of this entente to this member? You will "
 "become a regular member."
 
-#: .\admin_web\templates\game\entente.html:211
+#: .\admin_web\templates\game\entente.html:213
 msgid "Céder"
 msgstr "Give away"
 
-#: .\admin_web\templates\game\entente.html:225
-#: .\admin_web\templates\game\player_forum_manage.html:62
+#: .\admin_web\templates\game\entente.html:227
+#: .\admin_web\templates\game\player_forum_manage.html:63
 msgid "Inviter un commandant"
 msgstr "Invite a commandant"
 
-#: .\admin_web\templates\game\entente.html:231
-#: .\admin_web\templates\game\player_forum_manage.html:68
+#: .\admin_web\templates\game\entente.html:233
+#: .\admin_web\templates\game\player_forum_manage.html:69
 msgid "Nom du commandant"
 msgstr "Commandant's name"
 
-#: .\admin_web\templates\game\entente.html:233
-#: .\admin_web\templates\game\player_forum_manage.html:70
+#: .\admin_web\templates\game\entente.html:235
+#: .\admin_web\templates\game\player_forum_manage.html:71
 msgid "Inviter"
 msgstr "Invite"
 
-#: .\admin_web\templates\game\entente.html:246
-#: .\admin_web\templates\game\player_forum_manage.html:81
+#: .\admin_web\templates\game\entente.html:248
+#: .\admin_web\templates\game\player_forum_manage.html:82
 #: .\admin_web\templates\includes\ententes_table.html:11
 #: .\admin_web\templates\includes\player_forums_table.html:11
 msgid "Membres"
 msgstr "Members"
 
-#: .\admin_web\templates\game\entente.html:252
+#: .\admin_web\templates\game\entente.html:254
 msgid "Quitter cette entente ?"
 msgstr "Leave this entente?"
 
-#: .\admin_web\templates\game\entente.html:252
-#: .\admin_web\templates\game\forum.html:56
+#: .\admin_web\templates\game\entente.html:254
+#: .\admin_web\templates\game\forum.html:58
 msgid "Quitter"
 msgstr "Leave"
 
-#: .\admin_web\templates\game\entente.html:272
+#: .\admin_web\templates\game\entente.html:274
 msgid "Rôle de"
 msgstr "Role of"
 
-#: .\admin_web\templates\game\entente.html:280
+#: .\admin_web\templates\game\entente.html:282
 msgid "Attribuer"
 msgstr "Assign"
 
-#: .\admin_web\templates\game\entente.html:284
+#: .\admin_web\templates\game\entente.html:286
 msgid "Exclure ce membre de l'entente ?"
 msgstr "Exclude this member from the entente?"
 
-#: .\admin_web\templates\game\entente.html:284
+#: .\admin_web\templates\game\entente.html:286
 msgid "Exclure"
 msgstr "Exclude"
 
-#: .\admin_web\templates\game\forum.html:23
+#: .\admin_web\templates\game\forum.html:24
 msgid "Vous avez été banni de ce forum : vous pouvez seulement le lire."
 msgstr "You have been banned from this forum: you can only read it."
 
-#: .\admin_web\templates\game\forum.html:27
+#: .\admin_web\templates\game\forum.html:28
 msgid "Modifier le texte d'ambiance"
 msgstr "Edit the ambiance text"
 
-#: .\admin_web\templates\game\forum.html:32
+#: .\admin_web\templates\game\forum.html:34
 #: .\admin_web\templates\game\player_forum_manage.html:32
 #: .\admin_web\templates\game\player_forums.html:51
 msgid "Texte d'ambiance"
 msgstr "Ambiance text"
 
-#: .\admin_web\templates\game\forum.html:45
+#: .\admin_web\templates\game\forum.html:47
 #: .\admin_web\templates\game\player_forums.html:5
 #: .\admin_web\templates\includes\menu_game.html:198
 msgid "Tavernes"
 msgstr "Taverns"
 
-#: .\admin_web\templates\game\forum.html:47
+#: .\admin_web\templates\game\forum.html:49
 #: .\admin_web\templates\includes\forum_invitations.html:13
 #: .\admin_web\templates\includes\player_forums_table.html:20
 msgid "Privé"
 msgstr "Private"
 
-#: .\admin_web\templates\game\forum.html:52
+#: .\admin_web\templates\game\forum.html:54
 #: .\admin_web\templates\game\reports.html:201
 msgid "Tout marquer comme lu"
 msgstr "Mark all as read"
 
-#: .\admin_web\templates\game\forum.html:54
+#: .\admin_web\templates\game\forum.html:56
 #: .\admin_web\templates\game\player_forum_manage.html:7
 msgid "Gérer"
 msgstr "Manage"
 
-#: .\admin_web\templates\game\forum.html:58
+#: .\admin_web\templates\game\forum.html:60
 #: .\admin_web\templates\public\servers_list.html:131
 msgid "Rejoindre"
 msgstr "Join"
 
-#: .\admin_web\templates\game\forum.html:70
+#: .\admin_web\templates\game\forum.html:72
 msgid "Auteur"
 msgstr "Author"
 
-#: .\admin_web\templates\game\forum.html:71
+#: .\admin_web\templates\game\forum.html:73
 msgid "Réponses"
 msgstr "Replies"
 
-#: .\admin_web\templates\game\forum.html:72
+#: .\admin_web\templates\game\forum.html:74
 msgid "Vues"
 msgstr "Views"
 
-#: .\admin_web\templates\game\forum.html:73
+#: .\admin_web\templates\game\forum.html:75
 #: .\admin_web\templates\includes\player_forums_table.html:12
 msgid "Dernier message"
 msgstr "Last message"
 
-#: .\admin_web\templates\game\forum.html:87
+#: .\admin_web\templates\game\forum.html:89
 msgid "Aller au dernier message"
 msgstr "Go to the last message"
 
-#: .\admin_web\templates\game\forum.html:92
+#: .\admin_web\templates\game\forum.html:94
 msgid "Aucun sujet pour l'instant"
 msgstr "No topic yet"
 
-#: .\admin_web\templates\game\forum.html:107
 #: .\admin_web\templates\game\forum.html:109
+#: .\admin_web\templates\game\forum.html:111
 msgid "Créer un nouveau sujet"
 msgstr "Create a new topic"
 
-#: .\admin_web\templates\game\forum.html:118
+#: .\admin_web\templates\game\forum.html:120
 msgid "Titre"
 msgstr "Title"
 
-#: .\admin_web\templates\game\forum.html:125
+#: .\admin_web\templates\game\forum.html:128
 msgid "Publier"
 msgstr "Publish"
 
-#: .\admin_web\templates\game\forum_thread.html:47
+#: .\admin_web\templates\game\forum_thread.html:48
 msgid "Lui écrire"
 msgstr "Write to them"
 
-#: .\admin_web\templates\game\forum_thread.html:52
+#: .\admin_web\templates\game\forum_thread.html:53
 msgid "Respect diplomatique"
 msgstr "Diplomatic respect"
 
-#: .\admin_web\templates\game\forum_thread.html:56
+#: .\admin_web\templates\game\forum_thread.html:57
 msgid "Supprimer définitivement ce message ?"
 msgstr "Permanently delete this message?"
 
-#: .\admin_web\templates\game\forum_thread.html:65
+#: .\admin_web\templates\game\forum_thread.html:66
 msgid "Score"
 msgstr "Score"
 
-#: .\admin_web\templates\game\forum_thread.html:75
+#: .\admin_web\templates\game\forum_thread.html:76
 msgid "Détail des votes"
 msgstr "Votes in detail"
 
-#: .\admin_web\templates\game\forum_thread.html:85
+#: .\admin_web\templates\game\forum_thread.html:86
 msgid "Message modifié : voir les versions précédentes"
 msgstr "Edited message: see the previous versions"
 
-#: .\admin_web\templates\game\forum_thread.html:89
+#: .\admin_web\templates\game\forum_thread.html:90
 msgid "Remplacée le"
 msgstr "Replaced on"
 
-#: .\admin_web\templates\game\forum_thread.html:97
+#: .\admin_web\templates\game\forum_thread.html:98
 msgid ""
-"Modifier (possible 15 minutes après l'envoi, les versions précédentes restent"
-" visibles)"
+"Modifier (possible 15 minutes après l'envoi, les versions précédentes "
+"restent visibles)"
 msgstr ""
 "Edit (possible for 15 minutes after sending, the previous versions stay "
 "visible)"
 
-#: .\admin_web\templates\game\forum_thread.html:105
+#: .\admin_web\templates\game\forum_thread.html:107
 msgid "Signaler à l'équipe"
 msgstr "Report to the team"
 
-#: .\admin_web\templates\game\forum_thread.html:107
+#: .\admin_web\templates\game\forum_thread.html:109
 msgid "Motif (facultatif)"
 msgstr "Reason (optional)"
 
-#: .\admin_web\templates\game\forum_thread.html:108
+#: .\admin_web\templates\game\forum_thread.html:110
 msgid "Signaler"
 msgstr "Report"
 
-#: .\admin_web\templates\game\forum_thread.html:111
+#: .\admin_web\templates\game\forum_thread.html:113
 msgid "Signalé à l'équipe"
 msgstr "Reported to the team"
 
-#: .\admin_web\templates\game\forum_thread.html:122
+#: .\admin_web\templates\game\forum_thread.html:124
 msgid "Supprimer définitivement ce sujet et tous ses messages ?"
 msgstr "Permanently delete this topic and all its messages?"
 
-#: .\admin_web\templates\game\forum_thread.html:123
+#: .\admin_web\templates\game\forum_thread.html:125
 msgid "Supprimer le sujet"
 msgstr "Delete the topic"
 
-#: .\admin_web\templates\game\forum_thread.html:141
+#: .\admin_web\templates\game\forum_thread.html:143
 msgid "Répondre"
 msgstr "Reply"
 
@@ -955,7 +955,8 @@ msgstr "Overview"
 
 #: .\admin_web\templates\game\geography_system.html:81
 msgid ""
-"Glisser pour tourner · Molette pour zoomer · Double-clic pour suivre un astre"
+"Glisser pour tourner · Molette pour zoomer · Double-clic pour suivre un "
+"astre"
 msgstr "Drag to rotate · Wheel to zoom · Double-click to follow a body"
 
 #: .\admin_web\templates\game\geography_system.html:98
@@ -1013,48 +1014,49 @@ msgstr "Type"
 msgid "Présentation"
 msgstr "Presentation"
 
-#: .\admin_web\templates\game\player_forum_manage.html:38
-#: .\admin_web\templates\game\player_forums.html:56
+#: .\admin_web\templates\game\player_forum_manage.html:39
+#: .\admin_web\templates\game\player_forums.html:57
 msgid "Taverne privée (entrée sur invitation uniquement)"
 msgstr "Private tavern (invitation only)"
 
-#: .\admin_web\templates\game\player_forum_manage.html:47
+#: .\admin_web\templates\game\player_forum_manage.html:48
 msgid "Destruction"
 msgstr "Destruction"
 
-#: .\admin_web\templates\game\player_forum_manage.html:49
+#: .\admin_web\templates\game\player_forum_manage.html:50
 msgid "Détruire ce forum supprime définitivement ses sujets et ses messages."
 msgstr "Destroying this forum permanently deletes its topics and messages."
 
-#: .\admin_web\templates\game\player_forum_manage.html:53
+#: .\admin_web\templates\game\player_forum_manage.html:54
 msgid "Détruire définitivement ce forum ? Cette opération est irréversible."
 msgstr "Permanently destroy this forum? This cannot be undone."
 
-#: .\admin_web\templates\game\player_forum_manage.html:53
+#: .\admin_web\templates\game\player_forum_manage.html:54
 msgid "Détruire définitivement"
 msgstr "Destroy permanently"
 
-#: .\admin_web\templates\game\player_forum_manage.html:93 .\data\ententes.py:63
+#: .\admin_web\templates\game\player_forum_manage.html:94
+#: .\data\ententes.py:63
 msgid "Membre"
 msgstr "Member"
 
-#: .\admin_web\templates\game\player_forum_manage.html:94
+#: .\admin_web\templates\game\player_forum_manage.html:95
 msgid "Invité"
 msgstr "Invited"
 
-#: .\admin_web\templates\game\player_forum_manage.html:95
+#: .\admin_web\templates\game\player_forum_manage.html:96
 msgid "Banni"
 msgstr "Banned"
 
-#: .\admin_web\templates\game\player_forum_manage.html:100
+#: .\admin_web\templates\game\player_forum_manage.html:101
 msgid "Bannir"
 msgstr "Ban"
 
-#: .\admin_web\templates\game\player_forum_manage.html:101
+#: .\admin_web\templates\game\player_forum_manage.html:102
 msgid "Annuler l'invitation"
 msgstr "Cancel the invitation"
 
-#: .\admin_web\templates\game\player_forum_manage.html:102
+#: .\admin_web\templates\game\player_forum_manage.html:103
 msgid "Lever le bannissement"
 msgstr "Lift the ban"
 
@@ -1079,11 +1081,11 @@ msgstr "No other tavern open to all"
 msgid "Ouvrir une taverne"
 msgstr "Open a tavern"
 
-#: .\admin_web\templates\game\player_forums.html:58
+#: .\admin_web\templates\game\player_forums.html:59
 msgid "Ouvrir"
 msgstr "Open"
 
-#: .\admin_web\templates\game\player_forums.html:61 .\data\forums.py:430
+#: .\admin_web\templates\game\player_forums.html:62 .\data\forums.py:430
 msgid "Vous possédez déjà le maximum de 5 tavernes"
 msgstr "You already own the maximum of 5 taverns"
 
@@ -1543,6 +1545,92 @@ msgstr "Previous page"
 msgid "Page suivante"
 msgstr "Next page"
 
+#: .\admin_web\templates\includes\text_toolbar.html:5
+msgid "Gras"
+msgstr "Bold"
+
+#: .\admin_web\templates\includes\text_toolbar.html:6
+msgid "Italique"
+msgstr "Italic"
+
+#: .\admin_web\templates\includes\text_toolbar.html:7
+msgid "Souligné"
+msgstr "Underline"
+
+#: .\admin_web\templates\includes\text_toolbar.html:8
+msgid "Barré"
+msgstr "Strikethrough"
+
+#: .\admin_web\templates\includes\text_toolbar.html:10
+msgid "Aligner à gauche"
+msgstr "Align left"
+
+#: .\admin_web\templates\includes\text_toolbar.html:11
+msgid "Centrer"
+msgstr "Center"
+
+#: .\admin_web\templates\includes\text_toolbar.html:12
+msgid "Aligner à droite"
+msgstr "Align right"
+
+#: .\admin_web\templates\includes\text_toolbar.html:13
+msgid "Justifier"
+msgstr "Justify"
+
+#: .\admin_web\templates\includes\text_toolbar.html:15
+#: .\admin_web\templates\includes\text_toolbar.html:16
+msgid "Taille"
+msgstr "Size"
+
+#: .\admin_web\templates\includes\text_toolbar.html:25
+#: .\admin_web\templates\includes\text_toolbar.html:26
+msgid "Couleur"
+msgstr "Color"
+
+#: .\admin_web\templates\includes\text_toolbar.html:27
+msgid "Rouge"
+msgstr "Red"
+
+#: .\admin_web\templates\includes\text_toolbar.html:28
+msgid "Orange"
+msgstr "Orange"
+
+#: .\admin_web\templates\includes\text_toolbar.html:29
+msgid "Jaune"
+msgstr "Yellow"
+
+#: .\admin_web\templates\includes\text_toolbar.html:30
+msgid "Vert"
+msgstr "Green"
+
+#: .\admin_web\templates\includes\text_toolbar.html:31
+msgid "Bleu clair"
+msgstr "Light blue"
+
+#: .\admin_web\templates\includes\text_toolbar.html:32
+msgid "Bleu"
+msgstr "Blue"
+
+#: .\admin_web\templates\includes\text_toolbar.html:33
+msgid "Violet"
+msgstr "Purple"
+
+#: .\admin_web\templates\includes\text_toolbar.html:34
+msgid "Gris"
+msgstr "Grey"
+
+#: .\admin_web\templates\includes\text_toolbar.html:37
+msgid "Adresse du lien :"
+msgstr "Address of the link:"
+
+#: .\admin_web\templates\includes\text_toolbar.html:37
+msgid "Lien"
+msgstr "Link"
+
+#: .\admin_web\templates\includes\text_toolbar.html:38
+msgid "Retirer la mise en forme"
+msgstr "Remove the formatting"
+
 #: .\admin_web\templates\public\player_login.html:18
 msgid "Connexion à votre compte utilisateur"
 msgstr "Log in to your user account"
@@ -1787,7 +1875,8 @@ msgstr "Invalid colony"
 
 #: .\backend\views_api_buildings.py:133
 msgid "Impossible de détruire la capitale de votre colonie sans l'abandonner"
-msgstr "You cannot destroy your colony's capital without abandoning the colony"
+msgstr ""
+"You cannot destroy your colony's capital without abandoning the colony"
 
 #: .\backend\views_api_commandant.py:19 .\backend\views_api_commandant.py:37
 msgid "Ce serveur n'existe pas"
@@ -2198,10 +2287,10 @@ msgstr "Clean dark, indigo accent"
 #~ msgstr "Founder"
 
 #~ msgid ""
-#~ "Sous la grande coupole de la station qui sert de capitale au secteur, chaque "
-#~ "civilisation dispose d'une tribune. Les discours y sont publics, les accords "
-#~ "rarement, et chaque mot prononcé ici finit tôt ou tard dans les archives du "
-#~ "secteur."
+#~ "Sous la grande coupole de la station qui sert de capitale au secteur, chaque"
+#~ " civilisation dispose d'une tribune. Les discours y sont publics, les "
+#~ "accords rarement, et chaque mot prononcé ici finit tôt ou tard dans les "
+#~ "archives du secteur."
 #~ msgstr ""
 #~ "Under the great dome of the station serving as the capital of the sector, "
 #~ "each civilisation has its own rostrum. Speeches are public here, agreements "
@@ -2209,8 +2298,8 @@ msgstr "Clean dark, indigo accent"
 #~ "the sector."
 
 #~ msgid ""
-#~ "Ici, on pose les uniformes : ce forum est hors du jeu. Questions, bugs, idées"
-#~ " ou simples discussions entre joueurs, ce qui s'y dit n'engage pas vos "
+#~ "Ici, on pose les uniformes : ce forum est hors du jeu. Questions, bugs, "
+#~ "idées ou simples discussions entre joueurs, ce qui s'y dit n'engage pas vos "
 #~ "commandants."
 #~ msgstr ""
 #~ "Uniforms off: this forum is out of character. Questions, bugs, ideas or "
@@ -2221,9 +2310,9 @@ msgstr "Clean dark, indigo accent"
 #~ "membres de la coalition y entrent, et ce qui s'y décide ne regarde qu'eux, "
 #~ "jusqu'au jour où le secteur en découvre les conséquences."
 #~ msgstr ""
-#~ "The doors of this council chamber are closed and guarded. Only the members of"
-#~ " the coalition may enter, and what is decided here concerns them alone, until"
-#~ " the day the sector discovers the consequences."
+#~ "The doors of this council chamber are closed and guarded. Only the members "
+#~ "of the coalition may enter, and what is decided here concerns them alone, "
+#~ "until the day the sector discovers the consequences."
 
 #~ msgid ""
 #~ "La fumée flotte sous les néons, les verres s'entrechoquent et les "
@@ -2231,8 +2320,8 @@ msgstr "Clean dark, indigo accent"
 #~ "d'endroit, personne ne pose de questions, ou alors à voix basse."
 #~ msgstr ""
 #~ "Smoke drifts under the neon lights, glasses clink and conversations drop a "
-#~ "notch at each newcomer. In a place like this, nobody asks questions, or only "
-#~ "in a whisper."
+#~ "notch at each newcomer. In a place like this, nobody asks questions, or only"
+#~ " in a whisper."
 
 #~ msgid "Section"
 #~ msgstr "Section"
@@ -2256,8 +2345,8 @@ msgstr "Clean dark, indigo accent"
 #~ msgstr "Announcements"
 
 #~ msgid ""
-#~ "Les nouvelles du jeu. Seule l'équipe y ouvre des sujets, tout le monde peut y"
-#~ " réagir."
+#~ "Les nouvelles du jeu. Seule l'équipe y ouvre des sujets, tout le monde peut "
+#~ "y réagir."
 #~ msgstr ""
 #~ "News about the game. Only the team opens topics here, everyone can reply."
 
@@ -2314,9 +2403,6 @@ msgstr "Clean dark, indigo accent"
 
 #~ msgid "Status:"
 #~ msgstr "Status:"
-
-#~ msgid "Changer"
-#~ msgstr "Change"
 
 #~ msgid "Mot de passe oublié"
 #~ msgstr "Forgot password"

@@ -49,6 +49,7 @@
               </div>
               <div class="form-group">
                 <label for="forum-ambiance">{% trans "Texte d'ambiance" %}</label>
+                {% include "includes/text_toolbar.html" %}
                 <textarea id="forum-ambiance" name="ambiance" class="form-control" rows="4" maxlength="5000">{{ request.POST.ambiance }}</textarea>
               </div>
               <div class="form-group form-check">

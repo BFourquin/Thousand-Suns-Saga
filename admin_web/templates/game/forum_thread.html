@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load static %}
 {% load tss_dates %}
+{% load tss_text %}
 
 {% comment %} Messages of a topic of a forum of the server (forum is given) or of a conversation {% endcomment %}
 
@@ -56,7 +57,7 @@
                     {% endif %}
                   </div>
 
-                  <div class="mt-2">{{ post.body|urlize|linebreaksbr }}</div>
+                  <div class="mt-2">{{ post.body|bbcode }}</div>
 
                   {% if forum %}
                     <div class="mt-2 d-flex flex-wrap align-items-center">
@@ -83,7 +84,7 @@
                       <summary><small class="text-muted">{% trans "Message modifié : voir les versions précédentes" %} ({{ post.previous_versions|length }})</small></summary>
                       {% for version in post.previous_versions %}
                         <blockquote class="mt-2 mb-1">
-                          {{ version.body|urlize|linebreaksbr }}
+                          {{ version.body|bbcode }}
                           <small class="d-block text-muted">{% trans "Remplacée le" %} {{ version.replaced_at|rp_date }}</small>
                         </blockquote>
                       {% endfor %}
@@ -93,7 +94,8 @@
                   {% if post.can_edit and can_post %}
                     <details class="mt-2">
                       <summary><small>{% trans "Modifier (possible 15 minutes après l'envoi, les versions précédentes restent visibles)" %}</small></summary>
-                      <textarea name="edited_body_{{ post.id }}" class="form-control mt-2" rows="5" maxlength="20000" aria-label="{% trans "Modifier" %}">{{ post.body }}</textarea>
+                      {% include "includes/text_toolbar.html" %}
+                      <textarea name="edited_body_{{ post.id }}" class="form-control" rows="5" maxlength="20000" aria-label="{% trans "Modifier" %}">{{ post.body }}</textarea>
                       <button type="submit" name="edit_post" value="{{ post.id }}" class="btn btn-primary btn-sm mt-2">{% trans "Enregistrer" %}</button>
                     </details>
                   {% endif %}
@@ -141,6 +143,7 @@
             <form method="POST" action="{{ request.get_full_path }}">
               {% csrf_token %}
               <div class="form-group">
+                {% include "includes/text_toolbar.html" %}
                 <textarea name="body" class="form-control" rows="6" maxlength="20000" required aria-label="{% trans "Message" %}">{{ request.POST.body }}</textarea>
               </div>
               <button type="submit" class="btn btn-primary">{% trans "Envoyer" %}</button>

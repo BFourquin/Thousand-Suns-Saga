@@ -43,6 +43,44 @@ $(function () {
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // TEXT TOOLBAR : includes/text_toolbar.html, just before the textarea it formats
+
+    function toolbar_textarea(control) { return $(control).closest('[data-text-toolbar]').nextAll('textarea')[0]; }
+
+    function selected_text(area) { return area.value.slice(area.selectionStart, area.selectionEnd); }
+
+    function replace_selection(area, before, text, after) {
+        var start = area.selectionStart + before.length;
+        area.setRangeText(before + text + after, area.selectionStart, area.selectionEnd);
+        area.setSelectionRange(start, start + text.length);
+        area.focus();
+    }
+
+    $(document).on('click', '[data-text-toolbar] button[data-tag]', function () {
+        var area = toolbar_textarea(this);
+        replace_selection(area, '[' + this.dataset.tag + ']', selected_text(area), '[/' + this.dataset.tag + ']');
+    });
+
+    $(document).on('change', '[data-text-toolbar] select[data-tag]', function () {
+        var area = toolbar_textarea(this);
+        replace_selection(area, '[' + this.dataset.tag + '=' + this.value + ']', selected_text(area), '[/' + this.dataset.tag + ']');
+        this.selectedIndex = 0;  // So that the same choice can be made again
+    });
+
+    $(document).on('click', '[data-text-toolbar] button[data-link]', function () {
+        var area = toolbar_textarea(this), url = window.prompt(this.dataset.prompt, 'https://');
+        if (!url) { return; }
+        var text = selected_text(area);
+        replace_selection(area, text ? '[url=' + url + ']' : '[url]', text || url, '[/url]');
+    });
+
+    $(document).on('click', '[data-text-toolbar] button[data-remove-format]', function () {
+        var area = toolbar_textarea(this);
+        replace_selection(area, '', selected_text(area).replace(/\[\/?(?:b|i|u|s|left|center|right|justify|size|color|url)(?:=[^\[\]\n]*)?\]/gi, ''), '');
+    });
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // FORMS SENT TO THE JSON API : <form data-api-url="api_name">
 
     // Toasts built in AdminLTE : https://adminlte.io/docs/3.0/javascript/toasts.html

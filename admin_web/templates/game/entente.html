@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load static %}
 {% load tss_dates %}
+{% load tss_text %}
 
 {% include "includes/head.html" with title=entente.name %}
 
@@ -28,7 +29,7 @@
               {% if entente.is_native %}
                 <p>{% trans "Rassemble d'office tous les commandants natifs de ce secteur : on ne peut ni y postuler, ni la quitter." %}</p>
               {% elif entente.description %}
-                {{ entente.description|linebreaks }}
+                {{ entente.description|bbcode }}
               {% else %}
                 <p class="text-muted">{% trans "Cette entente n'a pas de description." %}</p>
               {% endif %}
@@ -188,6 +189,7 @@
                   {% csrf_token %}
                   <div class="form-group">
                     <label for="entente-description">{% trans "Description" %}</label>
+                    {% include "includes/text_toolbar.html" %}
                     <textarea id="entente-description" name="description" class="form-control" rows="6" maxlength="5000">{{ entente.description }}</textarea>
                   </div>
                   <button type="submit" name="action" value="save" class="btn btn-primary">{% trans "Enregistrer" %}</button>

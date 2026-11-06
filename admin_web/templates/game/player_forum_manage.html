@@ -30,6 +30,7 @@
                 </div>
                 <div class="form-group">
                   <label for="forum-ambiance">{% trans "Texte d'ambiance" %}</label>
+                  {% include "includes/text_toolbar.html" %}
                   <textarea id="forum-ambiance" name="ambiance" class="form-control" rows="6" maxlength="5000">{{ forum.description }}</textarea>
                 </div>
                 {% if forum.kind == 'player' %}
