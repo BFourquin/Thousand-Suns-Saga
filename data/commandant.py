@@ -8,7 +8,7 @@ from backend.models import CommandantAccount, UserExtended
 from game.models import Commandant, to_id
 from database.schemas import on_server
 from data.errors import GameError
-from data import starting_values as sv
+from data import ententes, starting_values as sv
 from data.user import get_user_by_name
 from actions import colonize
 from backend import utils
@@ -44,7 +44,6 @@ def create_commandant(server, user, commandant_name, civilisation_name):
             creation_date=timezone.now(),
 
             # Starting position
-            native_entente=None,  # TODO native_faction
             native_sector=utils.info_from_seed(starting_planet_id)['sector_id'],
             native_system=utils.info_from_seed(starting_planet_id)['system_id'],
             native_planet=starting_planet_id,
@@ -58,6 +57,8 @@ def create_commandant(server, user, commandant_name, civilisation_name):
                                          commandant_name=commandant_name)
     except IntegrityError:  # A simultaneous creation took the name after the check of the view
         raise GameError(_("Ce nom de commandant est déjà pris"))
+
+    ententes.join_native_entente(server, commandant)
 
     # Starting colony
     colonize.colonize(server, commandant.id,

@@ -23,7 +23,7 @@ class Commandant(GameModel):
     creation_date = models.DateTimeField()
 
     # Starting position
-    native_entente = models.CharField(max_length=100, null=True, blank=True)
+    native_entente = models.ForeignKey('Entente', on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
     native_sector = models.CharField(max_length=10)
     native_system = models.CharField(max_length=16)
     native_planet = models.CharField(max_length=18)
@@ -48,6 +48,33 @@ class Commandant(GameModel):
     def as_dict(self):
         return super().as_dict() | {'server': current_server(),
                                     'colonies': list(self.colonies.order_by('id').values_list('id', flat=True))}
+
+
+########################################################################################################################
+# ENTENTES
+
+
+class Entente(GameModel):
+    category = models.CharField(max_length=15)  # 'native', or a key of data.ententes.founded_categories
+    name = models.CharField(max_length=60, blank=True)  # Empty for a native one : built in the language of the reader
+    description = models.TextField(blank=True)
+    native_sector = models.CharField(max_length=10, null=True, blank=True, unique=True)
+    founder = models.ForeignKey(Commandant, on_delete=models.CASCADE, null=True, blank=True, related_name='+')
+    creation_date = models.DateTimeField()
+
+    class Meta:
+        constraints = [models.UniqueConstraint(Lower('name'), condition=~models.Q(category='native'), name='entente_name_unique')]
+
+
+class EntenteMember(GameModel):
+    entente = models.ForeignKey(Entente, on_delete=models.CASCADE, related_name='members')
+    commandant = models.ForeignKey(Commandant, on_delete=models.CASCADE, related_name='+')
+    status = models.CharField(max_length=10)  # 'applicant' | 'member'
+    application = models.TextField(blank=True)  # Only read by the founder and the applicant
+    datetime = models.DateTimeField()  # Of the application, then of the entry in the entente
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['entente', 'commandant'], name='entente_member_unique')]
 
 
 ########################################################################################################################

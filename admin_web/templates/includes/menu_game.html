@@ -145,9 +145,13 @@
         </li>
 
         <li class="nav-item">
-            <a class="nav-link disabled" aria-disabled="true">
+            <a href="/diplomacy/" class="nav-link {% if request.path == '/diplomacy/' or request.path == '/entente/' %}active{% endif %}">
                 <i class="fas fa-tower-cell nav-icon"></i>
-                <p>{% trans "Diplomatie" %}</p>
+                <p>{% trans "Diplomatie" %}
+                    {% if nb_entente_applications %}
+                        <span class="badge badge-warning right">{{nb_entente_applications}}</span>
+                    {% endif %}
+                </p>
             </a>
         </li>
 

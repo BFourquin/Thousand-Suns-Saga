@@ -5,6 +5,26 @@ from data.commandant import get_commandant
 from data.user import get_user_by_id
 
 
+ENTENTE_REPORTS = {
+    'entente_application_accepted': {
+        'fr': ("Candidature acceptée", "L'entente {entente} vous compte désormais parmi ses membres."),
+        'en': ("Application accepted", "The entente {entente} now counts you among its members."),
+    },
+    'entente_application_refused': {
+        'fr': ("Candidature refusée", "L'entente {entente} a refusé votre candidature."),
+        'en': ("Application refused", "The entente {entente} refused your application."),
+    },
+    'entente_member_excluded': {
+        'fr': ("Exclusion d'une entente", "Le fondateur de l'entente {entente} vous en a exclu."),
+        'en': ("Excluded from an entente", "The founder of the entente {entente} excluded you from it."),
+    },
+    'entente_dissolved': {
+        'fr': ("Entente dissoute", "Le fondateur de l'entente {entente} l'a dissoute."),
+        'en': ("Entente dissolved", "The founder of the entente {entente} dissolved it."),
+    },
+}
+
+
 def generate_report(server, owner_id, report_type, args={}, sender=None, sender_image=None):
 
     commandant = get_commandant(server, owner_id)
@@ -56,6 +76,12 @@ def generate_report(server, owner_id, report_type, args={}, sender=None, sender_
         report['category_icon'] = 'fa-file-alt'
         report['illustration'] = "images/report/command_center.png"
 
+    elif report_type in ENTENTE_REPORTS:
+        report['title'], message = ENTENTE_REPORTS[report_type][lang]
+        report['message'] = message.format(entente=args['entente'])
+        report['category'] = 'diplomacy'
+        report['category_icon'] = 'fa-handshake'
+        report['illustration'] = "images/report/command_center.png"
 
 
     return report

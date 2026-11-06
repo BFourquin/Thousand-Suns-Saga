@@ -1,0 +1,184 @@
+
+{% load i18n %}
+{% load static %}
+{% load tss_dates %}
+
+{% include "includes/head.html" with title=entente.name %}
+
+{% include "includes/menu_game.html" with page_title=entente.name %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Main content -->
+    <section class="content">
+
+      <p><a href="/diplomacy/" class="btn btn-default"><i class="fas fa-arrow-left"></i> {% trans "Diplomatie" %}</a></p>
+
+      {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+
+      <div class="row">
+        <div class="col-lg-7">
+
+          <div class="card card-primary card-outline">
+            <div class="card-header">
+              <h3 class="card-title text-break">{{ entente.name }}</h3>
+              <div class="card-tools"><span class="badge badge-secondary">{{ entente.category_label }}</span></div>
+            </div>
+            <div class="card-body text-break">
+              {% if entente.is_native %}
+                <p>{% trans "Rassemble d'office tous les commandants natifs de ce secteur : on ne peut ni y postuler, ni la quitter." %}</p>
+              {% elif entente.description %}
+                {{ entente.description|linebreaks }}
+              {% else %}
+                <p class="text-muted">{% trans "Cette entente n'a pas de description." %}</p>
+              {% endif %}
+              {% if entente.founder_name %}
+                <small class="text-muted">{% trans "Fondée par" %} {{ entente.founder_name }}, {{ entente.creation_date|rp_date }}</small>
+              {% endif %}
+            </div>
+          </div>
+
+          {% if entente.can_apply %}
+            <div class="card">
+              <div class="card-header"><h3 class="card-title">{% trans "Postuler" %}</h3></div>
+              <div class="card-body">
+                <form method="POST" action="{{ request.get_full_path }}">
+                  {% csrf_token %}
+                  <div class="form-group">
+                    <label for="entente-application">{% trans "Message au fondateur (facultatif)" %}</label>
+                    <textarea id="entente-application" name="application" class="form-control" rows="4" maxlength="1000">{{ request.POST.application }}</textarea>
+                  </div>
+                  <button type="submit" name="action" value="apply" class="btn btn-primary">{% trans "Envoyer ma candidature" %}</button>
+                </form>
+              </div>
+            </div>
+          {% endif %}
+
+          {% if entente.status == 'applicant' %}
+            <div class="card card-info card-outline">
+              <div class="card-header"><h3 class="card-title">{% trans "Votre candidature attend la réponse du fondateur" %}</h3></div>
+              <div class="card-body text-break">
+                {{ entente.my_application|linebreaks }}
+                <form method="POST" action="{{ request.get_full_path }}">
+                  {% csrf_token %}
+                  <button type="submit" name="action" value="leave" class="btn btn-default btn-sm">{% trans "Retirer ma candidature" %}</button>
+                </form>
+              </div>
+            </div>
+          {% endif %}
+
+          {% if entente.is_founder %}
+            <div class="card card-warning card-outline">
+              <div class="card-header"><h3 class="card-title">{% trans "Candidatures" %}</h3></div>
+              <div class="card-body p-0">
+                <div class="table-responsive">
+                  <table class="table mb-0">
+                    <tbody>
+                      {% for applicant in entente.applications %}
+                        <tr>
+                          <td class="text-break">
+                            <img src="{% static "" %}{{ applicant.portrait }}" class="img-size-32 mr-2" alt="">
+                            <strong>{{ applicant.name }}</strong> ({{ applicant.civilisation_name }})
+                            <small class="text-muted d-block">{{ applicant.datetime|rp_date }}</small>
+                            {{ applicant.application|linebreaks }}
+                          </td>
+                          <td class="text-right u-white-space-nowrap">
+                            <form method="POST" action="{{ request.get_full_path }}">
+                              {% csrf_token %}
+                              <input type="hidden" name="commandant_id" value="{{ applicant.id }}">
+                              <button type="submit" name="action" value="accept" class="btn btn-primary btn-sm">{% trans "Accepter" %}</button>
+                              <button type="submit" name="action" value="refuse" class="btn btn-default btn-sm">{% trans "Refuser" %}</button>
+                            </form>
+                          </td>
+                        </tr>
+                      {% empty %}
+                        <tr><td class="text-center text-muted py-4">{% trans "Aucune candidature en attente" %}</td></tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="card collapsed-card">
+              <div class="card-header">
+                <h3 class="card-title">{% trans "Gérer l'entente" %}</h3>
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="{% trans "Gérer l'entente" %}">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body">
+                <form method="POST" action="{{ request.get_full_path }}">
+                  {% csrf_token %}
+                  <div class="form-group">
+                    <label for="entente-description">{% trans "Description" %}</label>
+                    <textarea id="entente-description" name="description" class="form-control" rows="6" maxlength="5000">{{ entente.description }}</textarea>
+                  </div>
+                  <button type="submit" name="action" value="save" class="btn btn-primary">{% trans "Enregistrer" %}</button>
+                  <button type="submit" name="action" value="dissolve" class="btn btn-danger float-right"
+                          data-confirm="{% trans "Dissoudre définitivement cette entente ? Cette opération est irréversible." %}">{% trans "Dissoudre l'entente" %}</button>
+                </form>
+              </div>
+            </div>
+          {% endif %}
+
+        </div>
+        <div class="col-lg-5">
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">{% trans "Membres" %} ({{ entente.members|length }})</h3>
+              {% if entente.status == 'member' and not entente.is_native and not entente.is_founder %}
+                <div class="card-tools">
+                  <form method="POST" action="{{ request.get_full_path }}">
+                    {% csrf_token %}
+                    <button type="submit" name="action" value="leave" class="btn btn-default btn-sm"
+                            data-confirm="{% trans "Quitter cette entente ?" %}"><i class="fas fa-right-from-bracket"></i> {% trans "Quitter" %}</button>
+                  </form>
+                </div>
+              {% endif %}
+            </div>
+            <div class="card-body p-0">
+              <form method="POST" action="{{ request.get_full_path }}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="exclude">
+                <div class="table-responsive">
+                  <table class="table mb-0">
+                    <tbody>
+                      {% for member in entente.members %}
+                        <tr>
+                          <td class="text-break">
+                            <img src="{% static "" %}{{ member.portrait }}" class="img-size-32 mr-2" alt="">
+                            {{ member.name }}
+                            {% if member.is_founder %}<span class="badge badge-primary">{% trans "Fondateur" %}</span>{% endif %}
+                            <small class="text-muted d-block">{{ member.civilisation_name }}</small>
+                          </td>
+                          <td class="text-right">
+                            {% if entente.is_founder and not member.is_founder %}
+                              <button type="submit" name="commandant_id" value="{{ member.id }}" class="btn btn-default btn-sm"
+                                      data-confirm="{% trans "Exclure ce membre de l'entente ?" %}">{% trans "Exclure" %}</button>
+                            {% endif %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+</div><!-- ./wrapper -->
+
+</body>
+</html>

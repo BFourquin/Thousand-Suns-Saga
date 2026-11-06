@@ -20,7 +20,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, re_path
 
-from backend import views_public, views_game, views_admin, views_game_colonies, views_forums
+from backend import views_public, views_game, views_admin, views_game_colonies, views_forums, views_diplomacy
 from backend import views_api_user, views_api_commandant, views_api_buildings
 
 
@@ -80,6 +80,9 @@ urlpatterns = [
 
     path('reports/', views_game.reports, name='reports'),
     path('report/', views_game.report, name='report'),
+
+    path('diplomacy/', views_diplomacy.diplomacy, name='diplomacy'),
+    path('entente/', views_diplomacy.entente, name='entente'),
 
     path('assembly/', views_forums.assembly, name='assembly'),
     path('hrp/', views_forums.hrp, name='hrp'),

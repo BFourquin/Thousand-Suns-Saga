@@ -1,8 +1,10 @@
 import inspect
 import json
 from datetime import datetime, timedelta, timezone as dt_timezone
+from importlib import import_module
 from unittest.mock import MagicMock, patch
 
+from django.apps import apps
 from django.contrib.auth.models import AnonymousUser, User
 from django.core.cache import cache
 from django.db import DatabaseError, IntegrityError, connection, transaction
@@ -16,9 +18,9 @@ from backend.login import LOGIN_MAX_FAILURES_PER_ACCOUNT, throttled_authenticate
 from backend.models import CommandantAccount, Server, UserExtended, to_id
 from backend.templatetags.tss_dates import rp_date
 from database.schemas import schema_of, server_schema
-from game.models import Building, Colony, Commandant, ConversationMessage, Coordinate, District, DistrictType, Post, Report, StartingValues
+from game.models import Building, Colony, Commandant, ConversationMessage, Coordinate, District, DistrictType, Entente, EntenteMember, Post, Report, StartingValues
 from backend.utils import commandant_owns_colony
-from data import conversations, forums
+from data import conversations, ententes, forums
 from data import server_details
 from data import cycles
 from data.commandant import civilisation_name_taken, commandant_name_taken, create_commandant, delete_commandant, get_commandant
@@ -1300,3 +1302,184 @@ class CreateCommandantTests(TestCase):
             self.assertFalse(Commandant.objects.exists())
             self.assertFalse(Colony.objects.exists())
         self.assertEqual(len(self.planets_left()), 2)
+
+    def test_commandants_of_a_sector_share_their_native_entente(self):
+        create_commandant('S', 'player', 'Paullus', 'Empire')
+        create_commandant('S', 'player', 'Varro', 'Royaume')
+        with server_schema('S'):
+            entente = Entente.objects.get()
+            self.assertEqual(entente.native_sector, '1001000000')
+            self.assertEqual(set(Commandant.objects.values_list('native_entente', flat=True)), {entente.id})
+        details = ententes.get_entente('S', entente.id, None)
+        self.assertEqual(details['name'], 'Natifs du secteur 0-0')
+        self.assertEqual([member['name'] for member in details['members']], ['Paullus', 'Varro'])
+
+
+class EntentesTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user('player', 'p@example.com', 'x')
+        cls.other_user = User.objects.create_user('other_player', 'o@example.com', 'x')
+        for user in (cls.user, cls.other_user):
+            UserExtended.objects.update_or_create(user=user, defaults={'language': 'fr'})
+        make_server('S')
+        with server_schema('S'):
+            cls.founder, cls.visitor = [
+                Commandant.objects.create(user=user, commandant_name=name, civilisation_name=name, creation_date=timezone.now()).id
+                for user, name in ((cls.user, 'Paullus'), (cls.other_user, 'Varro'))]
+        cycles.create_cycle_entry('S')
+
+    def setUp(self):
+        self.entente = ententes.found_entente('S', self.founder, 'La Ligue', 'economic', 'Commerce')
+
+    def play(self, user, commandant_id):
+        UserExtended.objects.filter(user=user).update(playing_on_server_id='S', playing_on_commandant=commandant_id)
+        self.client.force_login(user)
+
+    def status(self, commandant_id, entente=None):
+        return ententes.get_entente('S', entente or self.entente, commandant_id)['status']
+
+    def report_titles(self, commandant_id):
+        with server_schema('S'):
+            return list(Report.objects.filter(owner_id=commandant_id).order_by('id').values_list('title', flat=True))
+
+    def native_entente(self):
+        with server_schema('S'):
+            commandant = Commandant.objects.get(id=self.visitor)
+            commandant.native_sector = '1001002005'
+            ententes.join_native_entente('S', commandant)
+            return commandant.native_entente_id
+
+    def test_founder_is_the_first_member(self):
+        details = ententes.get_entente('S', self.entente, self.founder)
+        self.assertEqual((details['status'], details['is_founder'], details['can_apply']), ('member', True, False))
+        self.assertEqual(details['category_label'], 'Économique')
+        self.assertEqual([member['id'] for member in details['members']], [self.founder])
+
+    def test_founding_is_refused_with_a_bad_category_or_a_name_taken(self):
+        for name, category in (('Autre', 'piracy'), ('LA LIGUE', 'military'), ('', 'military'), ('x' * 61, 'military')):
+            with self.subTest(name=name, category=category), self.assertRaises(GameError):
+                ententes.found_entente('S', self.visitor, name, category, '')
+
+    def test_number_of_founded_ententes_is_limited(self):
+        for number in range(ententes.MAX_FOUNDED_ENTENTES - 1):
+            ententes.found_entente('S', self.founder, f'Ligue {number}', 'other', '')
+        with self.assertRaises(GameError):
+            ententes.found_entente('S', self.founder, 'Ligue de trop', 'other', '')
+        ententes.found_entente('S', self.visitor, 'La sienne', 'other', '')
+
+    def test_accepted_application_makes_a_member(self):
+        ententes.apply_to_entente('S', self.entente, self.visitor, 'Je viens en paix')
+        self.assertEqual(self.status(self.visitor), 'applicant')
+        self.assertEqual(ententes.get_entente('S', self.entente, self.visitor)['my_application'], 'Je viens en paix')
+        self.assertEqual(ententes.count_applications_to_answer('S', self.founder), 1)
+
+        ententes.answer_application('S', self.entente, self.founder, self.visitor, True)
+        ententes.answer_application('S', self.entente, self.founder, self.visitor, True)  # Twice sends a single report
+        self.assertEqual(self.status(self.visitor), 'member')
+        self.assertEqual(ententes.count_applications_to_answer('S', self.founder), 0)
+        self.assertEqual(self.report_titles(self.visitor), ['Candidature acceptée'])
+
+    def test_refused_applicant_can_apply_again(self):
+        ententes.apply_to_entente('S', self.entente, self.visitor, '')
+        ententes.answer_application('S', self.entente, self.founder, self.visitor, False)
+        self.assertIsNone(self.status(self.visitor))
+        self.assertEqual(self.report_titles(self.visitor), ['Candidature refusée'])
+        ententes.apply_to_entente('S', self.entente, self.visitor, '')
+        self.assertEqual(self.status(self.visitor), 'applicant')
+
+    def test_applications_are_only_shown_to_the_founder(self):
+        ententes.apply_to_entente('S', self.entente, self.visitor, 'Secret')
+        self.assertEqual(ententes.get_entente('S', self.entente, self.founder)['applications'][0]['application'], 'Secret')
+        self.assertEqual(ententes.get_entente('S', self.entente, self.visitor)['applications'], [])
+        self.assertEqual(ententes.get_ententes('S', self.visitor)['others'][0]['nb_applications'], 0)
+        self.assertEqual(ententes.get_ententes('S', self.founder)['mine'][0]['nb_applications'], 1)
+        self.assertEqual([member['id'] for member in ententes.get_entente('S', self.entente, self.visitor)['members']], [self.founder])
+
+    def test_orders_of_a_founder_are_refused_to_the_others(self):
+        ententes.apply_to_entente('S', self.entente, self.visitor, '')
+        for refused in (lambda: ententes.answer_application('S', self.entente, self.visitor, self.visitor, True),
+                        lambda: ententes.exclude_member('S', self.entente, self.visitor, self.founder),
+                        lambda: ententes.update_entente_description('S', self.entente, self.visitor, 'Hop'),
+                        lambda: ententes.dissolve_entente('S', self.entente, self.visitor)):
+            with self.assertRaises(GameError):
+                refused()
+        self.assertEqual(self.status(self.visitor), 'applicant')
+
+    def test_applying_changes_nothing_for_a_member(self):
+        ententes.apply_to_entente('S', self.entente, self.founder, '')
+        self.assertEqual(self.status(self.founder), 'member')
+
+    def test_founder_stays_until_dissolving(self):
+        ententes.leave_entente('S', self.entente, self.founder)
+        ententes.exclude_member('S', self.entente, self.founder, self.founder)
+        self.assertEqual(self.status(self.founder), 'member')
+
+    def test_member_can_leave_or_be_excluded(self):
+        for remove in (lambda: ententes.leave_entente('S', self.entente, self.visitor),
+                       lambda: ententes.exclude_member('S', self.entente, self.founder, self.visitor)):
+            ententes.apply_to_entente('S', self.entente, self.visitor, '')
+            ententes.answer_application('S', self.entente, self.founder, self.visitor, True)
+            remove()
+            self.assertIsNone(self.status(self.visitor))
+        self.assertEqual(self.report_titles(self.visitor)[-1], "Exclusion d'une entente")
+
+    def test_dissolving_warns_members_and_applicants_and_frees_the_name(self):
+        ententes.apply_to_entente('S', self.entente, self.visitor, '')
+        ententes.dissolve_entente('S', self.entente, self.founder)
+        self.assertIsNone(ententes.get_entente('S', self.entente, self.founder))
+        self.assertEqual(self.report_titles(self.visitor), ['Entente dissoute'])
+        self.assertEqual(self.report_titles(self.founder), [])
+        ententes.found_entente('S', self.visitor, 'La Ligue', 'other', '')
+
+    def test_native_entente_is_closed(self):
+        native = self.native_entente()
+        details = ententes.get_entente('S', native, self.founder)
+        self.assertEqual(details['name'], 'Natifs du secteur 2-5')
+        self.assertFalse(details['can_apply'])
+        with self.assertRaises(GameError):
+            ententes.apply_to_entente('S', native, self.founder, '')
+        ententes.leave_entente('S', native, self.visitor)
+        self.assertEqual(self.status(self.visitor, native), 'member')
+        self.assertEqual(ententes.get_ententes('S', self.visitor)['mine'][0]['id'], native)
+
+    def test_migration_gathers_the_existing_commandants(self):
+        with server_schema('S'):
+            Commandant.objects.filter(id=self.visitor).update(native_sector='1001002005')
+            import_module('game.migrations.0005_ententes').create_native_ententes(apps, None)
+            self.assertEqual(Commandant.objects.get(id=self.visitor).native_entente.native_sector, '1001002005')
+            self.assertIsNone(Commandant.objects.get(id=self.founder).native_entente)  # No sector : only in the tests
+            self.assertEqual(EntenteMember.objects.filter(commandant_id=self.visitor).count(), 1)
+
+    def test_pages_from_the_list_to_the_application(self):
+        native = self.native_entente()
+        url = f'/entente/?entente_id={self.entente}'
+        self.play(self.other_user, self.visitor)
+
+        response = self.client.get('/diplomacy/')
+        self.assertContains(response, 'La Ligue')
+        self.assertContains(response, 'Natifs du secteur 2-5')
+        self.assertContains(self.client.get(url), 'Envoyer ma candidature')
+        self.assertNotContains(self.client.get(f'/entente/?entente_id={native}'), 'Envoyer ma candidature')
+        self.assertRedirects(self.client.get('/entente/?entente_id=999'), '/diplomacy/')
+
+        self.client.post(url, {'action': 'apply', 'application': 'Bonjour'})
+        self.assertContains(self.client.get(url), 'Retirer ma candidature')
+
+        self.play(self.user, self.founder)
+        self.assertContains(self.client.get('/diplomacy/'), '<span class="badge badge-warning right">1</span>', html=True)
+        self.assertContains(self.client.get(url), 'Bonjour')
+        self.client.post(url, {'action': 'accept', 'commandant_id': self.visitor})
+        self.assertEqual(self.status(self.visitor), 'member')
+        self.client.post(url, {'action': 'exclude', 'commandant_id': self.visitor})
+        self.assertIsNone(self.status(self.visitor))
+
+        response = self.client.post('/diplomacy/', {'name': 'La Ligue', 'category': 'other'})
+        self.assertContains(response, 'Ce nom est déjà pris')
+        response = self.client.post('/diplomacy/', {'name': 'Le Temple', 'category': 'religious', 'description': '<script>'}, follow=True)
+        self.assertContains(response, 'Religieuse')
+        self.assertContains(response, '&lt;script&gt;')
+
+        self.client.post(url, {'action': 'dissolve'})
+        self.assertIsNone(ententes.get_entente('S', self.entente, self.founder))

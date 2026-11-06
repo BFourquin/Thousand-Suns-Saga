@@ -1,0 +1,30 @@
+{% load i18n %}
+{% comment %} Parameters : ententes, empty_text {% endcomment %}
+<div class="table-responsive">
+  <table class="table table-hover table-striped mb-0">
+    <thead>
+      <tr>
+        <th>{% trans "Nom" %}</th>
+        <th>{% trans "Type" %}</th>
+        <th>{% trans "Fondateur" %}</th>
+        <th class="text-center">{% trans "Membres" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entente in ententes %}
+        <tr class="pointer_cursor" data-href="/entente/?entente_id={{ entente.id }}">
+          <td class="text-break">
+            <a href="/entente/?entente_id={{ entente.id }}">{{ entente.name }}</a>
+            {% if entente.status == 'applicant' %}<span class="badge badge-info">{% trans "Candidature envoyée" %}</span>{% endif %}
+            {% if entente.nb_applications %}<span class="badge badge-warning" title="{% trans "Candidatures à examiner" %}">{{ entente.nb_applications }}</span>{% endif %}
+          </td>
+          <td>{{ entente.category_label }}</td>
+          <td>{{ entente.founder_name|default:"—" }}</td>
+          <td class="text-center">{{ entente.nb_members }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4" class="text-center text-muted py-4">{{ empty_text }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
