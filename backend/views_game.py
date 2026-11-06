@@ -16,6 +16,7 @@ from data.report import get_commandant_reports, get_report, delete_report, chang
 from data.colonies import get_colonies_controlled_by_commandant, get_colonies_at_coordinates
 from data.commandant import get_commandants
 from data.economy import cycle_balance
+from data.modifiers import CATEGORIES, SCOPES, modifiers_of_commandant
 from data.resources import get_all_resources_parameters, get_resources_categories, get_resources_subcategories
 from data.names import localized_name
 
@@ -375,4 +376,26 @@ def resources(request, server, commandant):
     return TemplateResponse(request, 'game/resources.html',
                             {'server': server, 'resources': resources_table,
                              'selected_category': selected_category, 'resources_categories': resources_categories})
+
+
+@login_required(login_url='/player_login/')
+@add_cycle_info
+@log_player_action
+@commandant_required
+def modifiers(request, server, commandant):
+
+    params = request_params(request)
+
+    selected_scope = params.get('scope', 'all')
+    selected_sign = params.get('sign', 'all')
+    selected_category = params.get('category', 'all')
+
+    modifiers_list = [modifier for modifier in modifiers_of_commandant(server, commandant['id'], get_request_user(request)['language'])
+                      if selected_scope in ('all', modifier['scope'])
+                      and (selected_sign == 'all' or selected_sign in modifier['signs'])
+                      and (selected_category == 'all' or selected_category in modifier['categories'])]
+
+    return TemplateResponse(request, 'game/modifiers.html',
+                            {'server': server, 'modifiers': modifiers_list, 'scopes': SCOPES, 'categories': CATEGORIES,
+                             'selected_scope': selected_scope, 'selected_sign': selected_sign, 'selected_category': selected_category})
 

@@ -299,7 +299,7 @@
         </li>
 
         <li class="nav-item">
-            <a class="nav-link disabled" aria-disabled="true">
+            <a href="/modifiers/" class="nav-link {% if request.path == '/modifiers/' %}active{% endif %}">
                 <i class="fas fa-lightbulb nav-icon"></i>
                 <p>{% trans "Modificateurs" %}</p>
             </a>

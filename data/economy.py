@@ -3,6 +3,7 @@ from collections import Counter
 from game.models import Building, BuildingType, Commandant, District, DistrictType, Resource
 from database.schemas import on_server
 from data.buildings_types import production_of
+from data.modifiers import active_modifiers, commandant_target, district_targets, modified_production
 from data.report import create_report
 from data.technology import CIVILISATION_TECH_LEVEL
 
@@ -63,10 +64,12 @@ def cycle_balance(server, commandant_id, resources):
     produced, consumed, missing = Counter(), Counter(), Counter()
     buildings = []
 
-    districts = District.objects.filter(colony__controller=commandant_id).order_by('id').prefetch_related('buildings')
+    districts = District.objects.filter(colony__controller=commandant_id).order_by('id').select_related('colony').prefetch_related('buildings')
     known_resources = set(Resource.objects.values_list('internal_name', flat=True))
     district_types = {row.internal_name: row.data for row in DistrictType.objects.all()}
     building_types = {row.internal_name: row.data for row in BuildingType.objects.all()}
+    targets_of_districts = {district.id: commandant_target(commandant_id) | district_targets(district) for district in districts}
+    modifiers = active_modifiers(server, {target for targets in targets_of_districts.values() for target in targets})
 
     for district in districts:
         # A district without maintenance slows down everything it holds
@@ -83,6 +86,7 @@ def cycle_balance(server, commandant_id, resources):
             buildings.append({
                 'building': building,
                 'building_type': building_type,
+                'targets': targets_of_districts[district.id],
                 'productivity': activation * covered * district_covered,
                 'missing': dict(building_missing),
             })
@@ -90,7 +94,7 @@ def cycle_balance(server, commandant_id, resources):
     for row in buildings:
         row['production'] = 0
         for resource, quantity in production_of(row['building_type']).items():
-            production = quantity * row['productivity']
+            production = modified_production(modifiers, row['targets'], resource, quantity) * row['productivity']
             if production and resource in known_resources:  # Some rows of the Excel still name it in plain text
                 row['production'] = production
                 produced[resource] += production

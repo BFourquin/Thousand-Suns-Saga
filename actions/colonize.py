@@ -3,6 +3,7 @@ from django.utils.translation import gettext as _
 
 from data import colonies, districts, coordinates, starting_values
 from data.errors import GameError
+from data.modifiers import add_modifier
 
 
 def check_if_colonisable(commandant, coordinate_seed):
@@ -31,5 +32,6 @@ def colonize(server, commandant_id, fleet_id, coordinate_seed, colony_type, cent
     colonies.new_colony(server, commandant_id, colony_name, coordinate_seed, colony_type,
                         central_district_type=central_district_type)
     starting_values.remove_available_native_planets(server, coordinate_seed)
+    add_modifier(server, 'colonial_optimism', 'coordinate', coordinate_seed)
 
 

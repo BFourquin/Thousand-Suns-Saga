@@ -6,6 +6,7 @@ from database.schemas import on_server
 from data.server_details import get_tz
 from data.commandant import update_commandant
 from data.economy import apply_cycle_economy
+from data.modifiers import tick_modifiers
 
 
 @on_server
@@ -110,3 +111,4 @@ def end_cycle(server_name):
     active_commandants(server_name).update(time_cycle_finished=None)
 
     apply_cycle_economy(server_name)
+    tick_modifiers(server_name)

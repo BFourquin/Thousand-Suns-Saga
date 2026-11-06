@@ -19,7 +19,7 @@ from backend.models import CommandantAccount, Server, UserExtended, to_id
 from backend.templatetags.tss_dates import rp_date
 from backend.templatetags.tss_text import MAX_DEPTH, bbcode
 from database.schemas import schema_of, server_schema
-from game.models import Building, BuildingType, Colony, Commandant, ConversationMessage, Coordinate, District, DistrictType, Entente, EntenteMember, EntenteRole, Post, Report, Resource, StartingValues
+from game.models import Building, BuildingType, Colony, Commandant, ConversationMessage, Coordinate, District, DistrictType, Entente, EntenteMember, EntenteRole, Modifier, Post, Report, Resource, StartingValues
 from backend.utils import commandant_owns_colony
 from data import conversations, ententes, forums
 from data import server_details
@@ -31,6 +31,7 @@ from data.coordinates import get_coordinate_image
 from data.districts import create_district, delete_district
 from data.economy import cycle_balance
 from data.errors import GameError
+from data.modifiers import add_modifier
 from data.user import get_user_by_name
 from data.report import change_report_status, delete_report, get_report
 from data.resources import add_resources, pay_resources
@@ -1381,6 +1382,146 @@ class EconomyTests(EconomyTestCase):
         self.assertFalse(construct_building('S', self.central.id, 'well'))
 
 
+class ModifiersTests(EconomyTestCase):
+    # The test coordinate : sector 1001000000, position 055-050, in the last quadrant of its sector
+
+    TYPES = {
+        'boom': {'name_fr': 'Boom', 'description_fr': 'd', 'categories': ['economic', 'military'], 'duration': None, 'decreasing': False,
+                 'effects': [{'stat': 'production', 'percent': 50}]},
+        'flat': {'name_fr': 'Flat', 'description_fr': 'd', 'categories': ['economic'], 'duration': 2, 'decreasing': False,
+                 'effects': [{'stat': 'production', 'flat': 1, 'resource': 'water'}]},
+        'other_resource': {'name_fr': 'Other', 'description_fr': 'd', 'categories': ['other'], 'duration': None, 'decreasing': False,
+                           'effects': [{'stat': 'production', 'flat': 1, 'resource': 'food_a'}]},
+        'fading': {'name_fr': 'Fading', 'description_fr': 'd', 'categories': ['economic'], 'duration': 4, 'decreasing': True,
+                   'effects': [{'stat': 'production', 'percent': 100}]},
+        'disaster': {'name_fr': 'Disaster', 'description_fr': 'd', 'categories': ['military'], 'duration': None, 'decreasing': False,
+                     'effects': [{'stat': 'production', 'percent': -200}]},
+    }
+
+    def setUp(self):
+        patcher = patch.dict('data.modifiers.MODIFIER_TYPES', self.TYPES)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.build(self.central, 'well')  # 4 water per cycle
+        with server_schema('S'):
+            Commandant.objects.filter(id=self.commandant.id).update(resources={'steel': 1000, 'water': 3})
+
+    def produced(self):
+        return cycle_balance('S', self.commandant.id, self.resources())['produced']['water']
+
+    def test_every_scope_reaches_the_buildings_it_contains(self):
+        for scope, target in (('coordinate', '100100000005505001'), ('district', self.central.id), ('system', '1001000000055050'),
+                              ('commandant', self.commandant.id), ('quadrant', '1001000000:11'), ('sector', '1001000000')):
+            modifier = add_modifier('S', 'boom', scope, target)
+            self.assertEqual(self.produced(), 6, scope)
+            with server_schema('S'):
+                modifier.delete()
+
+    def test_what_is_elsewhere_changes_nothing(self):
+        for scope, target in (('coordinate', '100100000005505002'), ('district', self.farming.id), ('system', '1001000000055051'),
+                              ('commandant', self.commandant.id + 1), ('quadrant', '1001000000:00'), ('sector', '1001000001'),
+                              ('sector', '100100000005505001')):
+            add_modifier('S', 'boom', scope, target)
+        self.assertEqual(self.produced(), 4)
+
+    def test_flat_is_added_before_percent_and_only_on_its_resource(self):
+        add_modifier('S', 'other_resource', 'commandant', self.commandant.id)
+        self.assertEqual(self.produced(), 4)
+        add_modifier('S', 'flat', 'commandant', self.commandant.id)
+        self.assertEqual(self.produced(), 5)
+        add_modifier('S', 'boom', 'commandant', self.commandant.id)
+        self.assertEqual(self.produced(), 7.5)
+
+    def test_a_malus_never_makes_a_production_negative(self):
+        add_modifier('S', 'disaster', 'commandant', self.commandant.id)
+        self.assertEqual(cycle_balance('S', self.commandant.id, self.resources())['produced'], {})
+
+    def test_decreasing_effect_fades_then_ends(self):
+        add_modifier('S', 'fading', 'commandant', self.commandant.id)
+        productions = []
+        for _ in range(5):
+            productions.append(self.produced())
+            cycles.end_cycle('S')
+        self.assertEqual(productions, [8, 7, 6, 5, 4])
+        with server_schema('S'):
+            self.assertFalse(Modifier.objects.exists())
+
+    def test_fixed_effect_stays_until_its_end(self):
+        add_modifier('S', 'flat', 'commandant', self.commandant.id)
+        productions = []
+        for _ in range(3):
+            productions.append(self.produced())
+            cycles.end_cycle('S')
+        self.assertEqual(productions, [5, 5, 4])
+
+    def test_permanent_effect_stays(self):
+        add_modifier('S', 'boom', 'commandant', self.commandant.id)
+        cycles.end_cycle('S')
+        with server_schema('S'):
+            self.assertIsNone(Modifier.objects.get().cycles_left)
+        self.assertEqual(self.produced(), 6)
+
+    def test_the_end_of_cycle_applies_the_boost(self):
+        add_modifier('S', 'boom', 'commandant', self.commandant.id)
+        cycles.end_cycle('S')
+        self.assertEqual(self.resources()['water'], 3 + 6 - 2)
+
+    def test_colonial_optimism(self):
+        from data.modifiers import MODIFIER_TYPES
+        self.assertEqual(MODIFIER_TYPES['colonial_optimism']['categories'], ['economic'])
+        add_modifier('S', 'colonial_optimism', 'coordinate', '100100000005505001')
+        self.assertEqual(self.produced(), 4.4)
+        cycles.end_cycle('S')
+        self.assertAlmostEqual(self.produced(), 4.36)
+
+
+class ModifiersPageTests(EconomyTestCase):
+
+    def setUp(self):
+        patcher = patch.dict('data.modifiers.MODIFIER_TYPES', ModifiersTests.TYPES)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.client.force_login(self.user)
+        CommandantAccount.objects.create(server_id='S', commandant_id=self.commandant.id, user=self.user, commandant_name='Paullus')
+        UserExtended.objects.update_or_create(user=self.user, defaults={'playing_on_server_id': 'S', 'playing_on_commandant': self.commandant.id})
+        add_modifier('S', 'boom', 'commandant', self.commandant.id)  # Economic and military
+        add_modifier('S', 'flat', 'district', self.central.id)  # Economic
+        add_modifier('S', 'disaster', 'sector', '1001000000')  # Military, negative
+        add_modifier('S', 'other_resource', 'sector', '1001000001')  # Elsewhere : not displayed
+
+    def names(self, **filters):
+        response = self.client.get('/modifiers/', filters)
+        self.assertEqual(response.status_code, 200)
+        return [modifier['name'] for modifier in response.context['modifiers']]
+
+    def test_only_what_touches_the_empire_is_listed(self):
+        self.assertEqual(self.names(), ['Boom', 'Flat', 'Disaster'])
+
+    def test_filters(self):
+        self.assertEqual(self.names(scope='sector'), ['Disaster'])
+        self.assertEqual(self.names(scope='district'), ['Flat'])
+        self.assertEqual(self.names(sign='positive'), ['Boom', 'Flat'])
+        self.assertEqual(self.names(sign='negative'), ['Disaster'])
+        self.assertEqual(self.names(category='economic'), ['Boom', 'Flat'])
+        self.assertEqual(self.names(category='military'), ['Boom', 'Disaster'])
+        self.assertEqual(self.names(category='other'), [])
+        self.assertEqual(self.names(category='military', sign='positive'), ['Boom'])
+        self.assertEqual(self.names(scope='unknown'), [])
+
+    def test_display_of_the_effects_and_durations(self):
+        response = self.client.get('/modifiers/')
+        self.assertContains(response, '+50 % Production')
+        self.assertContains(response, '+1 Production : water')
+        self.assertContains(response, '-200 % Production')
+        self.assertIn('Home', response.context['modifiers'][2]['target_name'])  # Not the whole text : it depends on the language
+        self.assertContains(response, '2 cycle(s)')
+        self.assertContains(response, 'Permanent')
+
+    def test_filters_are_kept_between_groups(self):
+        self.assertContains(self.client.get('/modifiers/', {'scope': 'sector', 'category': 'military'}),
+                            'href="?scope=sector&sign=positive&category=military"')
+
+
 class EconomyPagesTests(EconomyTestCase):
 
     def setUp(self):
@@ -1455,6 +1596,10 @@ class CreateCommandantTests(TestCase):
         left = self.planets_left()
         self.assertEqual(len(left), 1)
         self.assertNotIn(int(commandant['native_planet']), left)
+        with server_schema('S'):
+            optimism = Modifier.objects.get()
+        self.assertEqual((optimism.modifier_type, optimism.scope, optimism.target, optimism.cycles_left),
+                         ('colonial_optimism', 'coordinate', commandant['native_planet'], 10))
         self.assertEqual(server_details.get_server_details('S')['active_commandants'], [commandant['id']])
         self.assertEqual(get_user_by_name('player')['accounts'], [('S', commandant['id'])])
         self.assertEqual(len(self.planets_left('Other')), 2)

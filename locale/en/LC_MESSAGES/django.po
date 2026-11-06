@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 17:55+0100\n"
+"POT-Creation-Date: 2026-11-06 18:21+0100\n"
 "PO-Revision-Date: 2024-06-02 10:00+0000\n"
 "Last-Translator: <benoittd@hotmail.fr>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,7 +24,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Translated-Using: django-rosetta 0.10.0\n"
 
-#: .\actions\colonize.py:21
+#: .\actions\colonize.py:22
 msgid "Cette planète n'est pas colonisable"
 msgstr "This planet cannot be colonized"
 
@@ -216,6 +216,7 @@ msgid "Agriculture"
 msgstr "Agriculture"
 
 #: .\admin_web\templates\game\colony.html:122 .\data\ententes.py:40
+#: .\data\modifiers.py:21
 msgid "Militaire"
 msgstr "Military"
 
@@ -911,7 +912,7 @@ msgid "Rechercher"
 msgstr "Search"
 
 #: .\admin_web\templates\game\geography_system.html:32
-#: .\admin_web\templates\game\geography_system.html:99
+#: .\admin_web\templates\game\geography_system.html:99 .\data\modifiers.py:16
 msgid "Secteur"
 msgstr "Sector"
 
@@ -994,6 +995,7 @@ msgid "Aucune revendication"
 msgstr "No claim"
 
 #: .\admin_web\templates\game\geography_system.html:125
+#: .\admin_web\templates\game\modifiers.html:8
 #: .\admin_web\templates\includes\menu_game.html:304
 msgid "Modificateurs"
 msgstr "Modifiers"
@@ -1011,9 +1013,63 @@ msgid "Astre"
 msgstr "Body"
 
 #: .\admin_web\templates\game\geography_system.html:152
+#: .\admin_web\templates\game\modifiers.html:68
 #: .\admin_web\templates\includes\ententes_table.html:9
 msgid "Type"
 msgstr "Type"
+
+#: .\admin_web\templates\game\modifiers.html:21
+msgid "Toutes échelles"
+msgstr "All scales"
+
+#: .\admin_web\templates\game\modifiers.html:34
+msgid "Tous effets"
+msgstr "All effects"
+
+#: .\admin_web\templates\game\modifiers.html:38
+msgid "Positif"
+msgstr "Positive"
+
+#: .\admin_web\templates\game\modifiers.html:42
+msgid "Négatif"
+msgstr "Negative"
+
+#: .\admin_web\templates\game\modifiers.html:49
+msgid "Tous types"
+msgstr "All types"
+
+#: .\admin_web\templates\game\modifiers.html:66
+msgid "Modificateur"
+msgstr "Modifier"
+
+#: .\admin_web\templates\game\modifiers.html:67
+msgid "Échelle"
+msgstr "Scale"
+
+#: .\admin_web\templates\game\modifiers.html:69
+#: .\admin_web\templates\game\resources.html:66
+msgid "Effet"
+msgstr "Effect"
+
+#: .\admin_web\templates\game\modifiers.html:70
+msgid "Durée"
+msgstr "Duration"
+
+#: .\admin_web\templates\game\modifiers.html:94
+msgid "Permanent"
+msgstr "Permanent"
+
+#: .\admin_web\templates\game\modifiers.html:96
+msgid "cycle(s) restant(s)"
+msgstr "cycle(s) left"
+
+#: .\admin_web\templates\game\modifiers.html:97
+msgid "Effet décroissant"
+msgstr "Decreasing effect"
+
+#: .\admin_web\templates\game\modifiers.html:102
+msgid "Aucun modificateur"
+msgstr "No modifier"
 
 #: .\admin_web\templates\game\player_forum_manage.html:23
 msgid "Présentation"
@@ -1251,10 +1307,6 @@ msgstr "Global supply"
 msgid "Décret"
 msgstr "Decree"
 
-#: .\admin_web\templates\game\resources.html:66
-msgid "Effet"
-msgstr "Effect"
-
 #: .\admin_web\templates\game\user_account.html:7
 #: .\admin_web\templates\translations.txt:11
 msgid "Compte TSS"
@@ -1343,6 +1395,7 @@ msgid "Bâtiment"
 msgstr "Building"
 
 #: .\admin_web\templates\includes\colony\modal_build_building.html:21
+#: .\data\modifiers.py:25
 msgid "Production"
 msgstr "Production"
 
@@ -1382,6 +1435,7 @@ msgid "Annuler"
 msgstr "Cancel"
 
 #: .\admin_web\templates\includes\colony\modal_build_district.html:22
+#: .\data\modifiers.py:12
 msgid "District"
 msgstr "District"
 
@@ -1789,7 +1843,7 @@ msgid "Test"
 msgstr "Test"
 
 #: .\admin_web\templates\template.html:8
-#: .\admin_web\templates\translations.txt:18
+#: .\admin_web\templates\translations.txt:18 .\data\modifiers.py:13
 msgid "Système"
 msgstr "System"
 
@@ -2056,7 +2110,7 @@ msgstr "Wolf-Rayet"
 msgid "Nébuleuse"
 msgstr "Nebula"
 
-#: .\data\ententes.py:40
+#: .\data\ententes.py:40 .\data\modifiers.py:20
 msgid "Économique"
 msgstr "Economic"
 
@@ -2068,7 +2122,7 @@ msgstr "Scientific"
 msgid "Religieuse"
 msgstr "Religious"
 
-#: .\data\ententes.py:41
+#: .\data\ententes.py:41 .\data\modifiers.py:22
 msgid "Autre"
 msgstr "Other"
 
@@ -2264,6 +2318,42 @@ msgstr "You are already part of a coalition"
 #: .\data\forums.py:551
 msgid "Vous ne pouvez pas rejoindre ce forum"
 msgstr "You cannot join this forum"
+
+#: .\data\modifiers.py:11
+msgid "Coordonnée"
+msgstr "Coordinate"
+
+#: .\data\modifiers.py:14
+msgid "Commandant"
+msgstr "Commandant"
+
+#: .\data\modifiers.py:15
+msgid "Quadrant"
+msgstr "Quadrant"
+
+#: .\data\modifiers.py:54
+msgid "Tout votre empire"
+msgstr "Your whole empire"
+
+#: .\data\modifiers.py:62
+#, python-format
+msgid "District de %(colony)s"
+msgstr "District of %(colony)s"
+
+#: .\data\modifiers.py:64
+#, python-format
+msgid "Système de %(colony)s"
+msgstr "System of %(colony)s"
+
+#: .\data\modifiers.py:65
+#, python-format
+msgid "Quadrant de %(colony)s"
+msgstr "Quadrant of %(colony)s"
+
+#: .\data\modifiers.py:66
+#, python-format
+msgid "Secteur de %(colony)s"
+msgstr "Sector of %(colony)s"
 
 #: .\data\themes.py:11
 msgid "Classique"

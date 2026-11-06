@@ -144,6 +144,14 @@ class Building(GameModel):
     last_cycle_productivity_percent = models.FloatField(default=0)
 
 
+class Modifier(GameModel):
+    modifier_type = models.CharField(max_length=100)  # A key of data.modifiers.MODIFIER_TYPES
+    scope = models.CharField(max_length=15)  # A key of data.modifiers.SCOPES
+    target = models.CharField(max_length=30, db_index=True)  # What the scope designates : see data.modifiers
+    duration = models.IntegerField(null=True, blank=True)  # In cycles, None if permanent
+    cycles_left = models.IntegerField(null=True, blank=True)
+
+
 ########################################################################################################################
 # REPORTS AND CYCLES
 

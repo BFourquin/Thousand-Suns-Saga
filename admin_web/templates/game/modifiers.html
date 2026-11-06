@@ -1,0 +1,120 @@
+
+{% load i18n %}
+{% load static %}
+
+
+{% include "includes/head.html" with title="Modificateurs" %}
+
+{% include "includes/menu_game.html" with page_title=_("Modificateurs") %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Main content -->
+    <section class="content">
+
+      <div class="col-12">
+
+        <div class="resource-filters">
+            <div>
+                <a class="btn btn-app {% if selected_scope == 'all' %}btn-secondary{% else %}btn-default{% endif %}" href="?scope=all&sign={{ selected_sign|urlencode }}&category={{ selected_category|urlencode }}">
+                    <i class="fas fa-infinity"></i>
+                    {% trans "Toutes échelles" %}
+                </a>
+                {% for key, scope in scopes.items %}
+                <a class="btn btn-app {% if selected_scope == key %}btn-secondary{% else %}btn-default{% endif %}" href="?scope={{ key }}&sign={{ selected_sign|urlencode }}&category={{ selected_category|urlencode }}">
+                    <i class="fas {{ scope.icon }}"></i>
+                    {{ scope.name }}
+                </a>
+                {% endfor %}
+            </div>
+
+            <div>
+                <a class="btn btn-app {% if selected_sign == 'all' %}btn-secondary{% else %}btn-default{% endif %}" href="?scope={{ selected_scope|urlencode }}&sign=all&category={{ selected_category|urlencode }}">
+                    <i class="fas fa-infinity"></i>
+                    {% trans "Tous effets" %}
+                </a>
+                <a class="btn btn-app {% if selected_sign == 'positive' %}btn-secondary{% else %}btn-default{% endif %}" href="?scope={{ selected_scope|urlencode }}&sign=positive&category={{ selected_category|urlencode }}">
+                    <i class="fas fa-square-plus"></i>
+                    {% trans "Positif" %}
+                </a>
+                <a class="btn btn-app {% if selected_sign == 'negative' %}btn-secondary{% else %}btn-default{% endif %}" href="?scope={{ selected_scope|urlencode }}&sign=negative&category={{ selected_category|urlencode }}">
+                    <i class="fas fa-square-minus"></i>
+                    {% trans "Négatif" %}
+                </a>
+            </div>
+
+            <div>
+                <a class="btn btn-app {% if selected_category == 'all' %}btn-secondary{% else %}btn-default{% endif %}" href="?scope={{ selected_scope|urlencode }}&sign={{ selected_sign|urlencode }}&category=all">
+                    <i class="fas fa-infinity"></i>
+                    {% trans "Tous types" %}
+                </a>
+                {% for key, category in categories.items %}
+                <a class="btn btn-app {% if selected_category == key %}btn-secondary{% else %}btn-default{% endif %}" href="?scope={{ selected_scope|urlencode }}&sign={{ selected_sign|urlencode }}&category={{ key }}">
+                    <i class="fas {{ category.icon }}"></i>
+                    {{ category.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card">
+
+              <div class="card-body table-responsive p-0">
+                <table class="table text-nowrap">
+                  <thead>
+                    <tr>
+                      <th>{% trans "Modificateur"%}</th>
+                      <th>{% trans "Échelle"%}</th>
+                      <th>{% trans "Type"%}</th>
+                      <th>{% trans "Effet"%}</th>
+                      <th>{% trans "Durée"%}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for modifier in modifiers %}
+                      <tr>
+                        <td class="text-wrap">
+                            <b>{{modifier.name}}</b><br>
+                            <small>{{modifier.description}}</small>
+                        </td>
+                        <td>{{modifier.scope_name}}<br><small>{{modifier.target_name}}</small></td>
+                        <td>
+                            {% for name in modifier.categories_names %}
+                              <span class="badge badge-secondary">{{name}}</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for effect in modifier.effects %}
+                              <span class="{% if effect.positive %}text-success{% else %}text-danger{% endif %}">{{effect.label}}</span>
+                              {% if not forloop.last %}<br>{% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% if modifier.cycles_left is None %}
+                              {% trans "Permanent" %}
+                            {% else %}
+                              {{modifier.cycles_left}} {% trans "cycle(s) restant(s)" %}
+                              {% if modifier.decreasing %}<br><small>{% trans "Effet décroissant" %}</small>{% endif %}
+                            {% endif %}
+                        </td>
+                      </tr>
+                    {% empty %}
+                      <tr><td colspan="5" class="text-center">{% trans "Aucun modificateur"%}</td></tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+</div><!-- ./wrapper -->
+
+</body>
+</html>
