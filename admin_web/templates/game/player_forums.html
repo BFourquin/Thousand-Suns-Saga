@@ -48,7 +48,7 @@
                 <input type="text" id="forum-name" name="name" class="form-control" maxlength="60" required value="{{ request.POST.name }}">
               </div>
               <div class="form-group">
-                <label for="forum-ambiance">{% trans "Texte d'ambiance" %}</label>
+                <label for="forum-ambiance">{% trans "Enseigne" %}</label>
                 {% include "includes/text_toolbar.html" %}
                 <textarea id="forum-ambiance" name="ambiance" class="form-control" rows="4" maxlength="5000">{{ request.POST.ambiance }}</textarea>
               </div>

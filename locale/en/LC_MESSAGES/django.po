@@ -753,14 +753,14 @@ msgid "Vous avez été banni de ce forum : vous pouvez seulement le lire."
 msgstr "You have been banned from this forum: you can only read it."
 
 #: .\admin_web\templates\game\forum.html:28
-msgid "Modifier le texte d'ambiance"
-msgstr "Edit the ambiance text"
+msgid "Modifier l'enseigne"
+msgstr "Edit the sign"
 
 #: .\admin_web\templates\game\forum.html:34
 #: .\admin_web\templates\game\player_forum_manage.html:32
 #: .\admin_web\templates\game\player_forums.html:51
-msgid "Texte d'ambiance"
-msgstr "Ambiance text"
+msgid "Enseigne"
+msgstr "Sign"
 
 #: .\admin_web\templates\game\forum.html:47
 #: .\admin_web\templates\game\player_forums.html:5
@@ -1689,9 +1689,14 @@ msgstr "Sector Assembly"
 msgid "Forum HRP"
 msgstr "OOC forum"
 
-#: .\admin_web\templates\includes\menu_game.html:221
-msgid "Signalements"
-msgstr "Reports"
+#: .\admin_web\templates\includes\menu_game.html:33
+msgid "Admin"
+msgstr "Admin"
+
+#: .\admin_web\templates\game\communication.html:4
+#: .\admin_web\templates\includes\menu_game.html:167
+msgid "Communication"
+msgstr "Communication"
 
 #: .\admin_web\templates\includes\menu_game.html:258
 msgid "Cartographie"
@@ -2476,8 +2481,8 @@ msgid "Vous ne pouvez pas supprimer ce sujet"
 msgstr "You cannot delete this topic"
 
 #: .\data\forums.py:399
-msgid "Le texte d'ambiance doit faire au plus 5 000 caractères"
-msgstr "The ambiance text must be at most 5,000 characters long"
+msgid "L'enseigne doit faire au plus 5 000 caractères"
+msgstr "The sign must be at most 5,000 characters long"
 
 #: .\data\forums.py:405
 msgid "Ce forum ne vous appartient pas"
@@ -2840,9 +2845,6 @@ msgstr "Start the research"
 
 #~ msgid "Messages"
 #~ msgstr "Messages"
-
-#~ msgid "Enseigne"
-#~ msgstr "Sign"
 
 #~ msgid "Clientèle"
 #~ msgstr "Patrons"

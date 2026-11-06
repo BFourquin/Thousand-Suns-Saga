@@ -336,14 +336,18 @@ class ForumsTests(TestCase):
         hrp_id = forums.get_forum_id('S', 'hrp')
         topic_id = forums.create_topic('S', hrp_id, self.owner, 'Bug', 'Texte')
         self.play(self.user, self.owner)
-        self.assertContains(self.client.get('/assembly/', follow=True), 'href="/hrp/"')
+        response = self.client.get('/communication/')
+        self.assertContains(response, 'href="/hrp/"')
+        self.assertEqual(response.context['nb_communication'], 1)
 
         server_details.change_server_param('S', 'roleplay', 'RP')
         self.assertIsNone(forums.get_forum('S', hrp_id, self.owner))
         self.assertIsNone(forums.get_topic('S', topic_id, self.owner))
         with self.assertRaises(GameError), transaction.atomic():
             forums.reply_to_topic('S', topic_id, self.owner, 'Texte')
-        self.assertNotContains(self.client.get('/assembly/', follow=True), 'href="/hrp/"')
+        response = self.client.get('/communication/')
+        self.assertNotContains(response, 'href="/hrp/"')
+        self.assertEqual(response.context['nb_communication'], 0)
         self.assertEqual(self.client.get('/hrp/', follow=True).redirect_chain[-1][0], '/player_forums/')
 
     def test_private_forum_stays_closed_to_the_others(self):
@@ -637,7 +641,7 @@ class ForumsTests(TestCase):
         self.assertEqual(forums.count_open_flags('S'), 3)
 
         self.play(self.staff, self.staff_commandant)
-        self.assertContains(self.client.get('/assembly/', follow=True), 'admin_message_flags')
+        self.assertContains(self.client.get('/assembly/', follow=True), 'href="/admin_main_dashboard/"')
         self.assertContains(self.client.get(url), 'Menace')
         flags = {flag['body']: flag['id'] for flag in forums.get_flags('S')['open']}
 
@@ -705,9 +709,9 @@ class ForumsTests(TestCase):
         self.assertEqual(forums.count_open_flags('Other'), 1)
         self.client.post('/admin_message_flags/', {'action': 'close', 'server': 'unknown', 'flag_id': big['id']})
 
-    def test_player_does_not_see_the_flags_entry(self):
+    def test_player_does_not_see_the_admin_link(self):
         self.play(self.user, self.owner)
-        self.assertNotContains(self.client.get('/assembly/', follow=True), 'admin_message_flags')
+        self.assertNotContains(self.client.get('/assembly/', follow=True), 'href="/admin_main_dashboard/"')
 
     # Votes on the messages
 
@@ -982,7 +986,7 @@ class ForumsTests(TestCase):
         forum_id = self.private_forum()
         conversation_id = conversations.start_conversation('S', self.owner, 'Varro', 'Pacte', 'Texte')
 
-        for url in (f'/forum/?forum_id={self.assembly_id}', f'/forum/?forum_id={hrp_id}', f'/forum/?forum_id={forum_id}',
+        for url in ('/communication/', f'/forum/?forum_id={self.assembly_id}', f'/forum/?forum_id={hrp_id}', f'/forum/?forum_id={forum_id}',
                     f'/topic/?topic_id={topic_id}', '/player_forums/', f'/player_forum_manage/?forum_id={forum_id}',
                     '/coalition/', '/conversations/', f'/conversation/?conversation_id={conversation_id}'):
             self.assertEqual(self.client.get(url).status_code, 200, url)

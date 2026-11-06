@@ -396,7 +396,7 @@ def _clean_name(name):
 
 
 def _clean_ambiance(ambiance):
-    return clean_text(ambiance, AMBIANCE_MAX_LENGTH, _("Le texte d'ambiance doit faire au plus 5 000 caractères"), optional=True)
+    return clean_text(ambiance, AMBIANCE_MAX_LENGTH, _("L'enseigne doit faire au plus 5 000 caractères"), optional=True)
 
 
 def _owned_forum(forum_id, commandant_id):

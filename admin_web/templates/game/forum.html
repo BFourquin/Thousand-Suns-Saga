@@ -25,13 +25,13 @@
 
           {% if can_edit_ambiance %}
             <details>
-              <summary><small>{% trans "Modifier le texte d'ambiance" %}</small></summary>
+              <summary><small>{% trans "Modifier l'enseigne" %}</small></summary>
               <form method="POST" action="{{ request.get_full_path }}" class="mt-2">
                 {% csrf_token %}
                 <div class="form-group">
                   {% include "includes/text_toolbar.html" %}
                   <textarea name="ambiance" class="form-control" rows="6" maxlength="5000"
-                            aria-label="{% trans "Texte d'ambiance" %}">{{ forum.description }}</textarea>
+                            aria-label="{% trans "Enseigne" %}">{{ forum.description }}</textarea>
                 </div>
                 <button type="submit" name="action" value="save_ambiance" class="btn btn-primary btn-sm">{% trans "Enregistrer" %}</button>
               </form>

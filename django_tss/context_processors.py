@@ -30,10 +30,17 @@ def user_account(request):
 def commandant_and_server(request):
 
     server, commandant = get_active_server_and_commandant_from_request(request)
+    details = server_details.get_server_details(server) if server else None
+    nb_unread_conversations = count_unread_conversations(server, commandant['id']) if commandant else 0
+    forum_badges = get_forum_badges(server, commandant['id']) if commandant else {}
+    if details and details['roleplay'] == 'RP':  # Its HRP forum is closed : nothing there can be read
+        forum_badges.pop('hrp', None)
+
     return {'server': server,
             'commandant': commandant,
-            'server_details': server_details.get_server_details(server) if server else None,
-            'nb_unread_conversations': count_unread_conversations(server, commandant['id']) if commandant else 0,
-            'forum_badges': get_forum_badges(server, commandant['id']) if commandant else {},
+            'server_details': details,
+            'nb_unread_conversations': nb_unread_conversations,
+            'forum_badges': forum_badges,
+            'nb_communication': nb_unread_conversations + sum(forum_badges.values()),
             'nb_entente_answers': count_pending_answers(server, commandant['id']) if commandant else 0,
             'nb_open_flags': count_all_open_flags() if request.user.is_staff else 0}

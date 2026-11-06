@@ -89,6 +89,7 @@ urlpatterns = [
     path('diplomacy/', views_diplomacy.diplomacy, name='diplomacy'),
     path('entente/', views_diplomacy.entente, name='entente'),
 
+    path('communication/', views_forums.communication, name='communication'),
     path('assembly/', views_forums.assembly, name='assembly'),
     path('hrp/', views_forums.hrp, name='hrp'),
     path('coalition/', views_forums.coalition, name='coalition'),

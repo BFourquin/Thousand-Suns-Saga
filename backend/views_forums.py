@@ -27,6 +27,14 @@ def _edit_or_flag(request, server, commandant, edit, flag):
     return False
 
 
+@login_required(login_url='/player_login/')
+@add_cycle_info
+@log_player_action
+@commandant_required
+def communication(request, server, commandant):
+    return TemplateResponse(request, 'game/communication.html', {})
+
+
 ########################################################################################################################
 # FORUMS OF THE SERVER
 

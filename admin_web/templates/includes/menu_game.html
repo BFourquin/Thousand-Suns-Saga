@@ -28,6 +28,12 @@
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
 
+      {% if user.is_staff %}
+      <li class="nav-item">
+        <a href="/admin_main_dashboard/" class="nav-link">{% trans "Admin" %}</a>
+      </li>
+      {% endif %}
+
       <!-- Cycle Count -->
 
       <li class="nav-item dropdown">
@@ -155,77 +161,16 @@
             </a>
         </li>
 
-        <li class="menu-separator"></li>
-
         <li class="nav-item">
-            <a href="/assembly/" class="nav-link {% if forum.kind == 'assembly' %}active{% endif %}">
-                <i class="fas fa-building-columns nav-icon"></i>
-                <p>{% trans "Assemblée Sectorielle" %}
-                    {% if forum_badges.assembly %}
-                        <span class="badge badge-warning right">{{forum_badges.assembly}}</span>
-                    {% endif %}
-                </p>
-            </a>
-        </li>
-
-        {% if server_details.roleplay != 'RP' %}
-        <li class="nav-item">
-            <a href="/hrp/" class="nav-link {% if forum.kind == 'hrp' %}active{% endif %}">
+            <a href="/communication/" class="nav-link {% if forum or request.path == '/communication/' or request.path == '/coalition/' or request.path == '/player_forums/' or request.path == '/conversations/' or request.path == '/conversation/' %}active{% endif %}">
                 <i class="fas fa-comments nav-icon"></i>
-                <p>{% trans "Forum HRP" %}
-                    {% if forum_badges.hrp %}
-                        <span class="badge badge-warning right">{{forum_badges.hrp}}</span>
+                <p>{% trans "Communication" %}
+                    {% if nb_communication %}
+                        <span class="badge badge-warning right">{{nb_communication}}</span>
                     {% endif %}
                 </p>
             </a>
         </li>
-        {% endif %}
-
-        <li class="nav-item">
-            <a href="/coalition/" class="nav-link {% if request.path == '/coalition/' or forum.kind == 'coalition' %}active{% endif %}">
-                <i class="fas fa-handshake nav-icon"></i>
-                <p>{% trans "Assemblée de coalition" %}
-                    {% if forum_badges.coalition %}
-                        <span class="badge badge-warning right">{{forum_badges.coalition}}</span>
-                    {% endif %}
-                </p>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a href="/player_forums/" class="nav-link {% if request.path == '/player_forums/' or forum.kind == 'player' %}active{% endif %}">
-                <i class="fas fa-beer-mug-empty nav-icon"></i>
-                <p>{% trans "Tavernes" %}
-                    {% if forum_badges.player %}
-                        <span class="badge badge-warning right">{{forum_badges.player}}</span>
-                    {% endif %}
-                </p>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a href="/conversations/" class="nav-link {% if request.path == '/conversations/' or request.path == '/conversation/' %}active{% endif %}">
-                <i class="fas fa-envelope nav-icon"></i>
-                <p>{% trans "Messages privés" %}
-                    {% if nb_unread_conversations %}
-                        <span class="badge badge-warning right">{{nb_unread_conversations}}</span>
-                    {% endif %}
-                </p>
-            </a>
-        </li>
-
-        {% if user.is_staff %}
-        <li class="nav-item">
-            <a href="/admin_message_flags/" class="nav-link ">
-                <i class="fas fa-flag nav-icon"></i>
-                <p>{% trans "Signalements" %}
-                    {% if nb_open_flags %}
-                        <span class="badge badge-warning right">{{nb_open_flags}}</span>
-                    {% endif %}
-                </p>
-            </a>
-        </li>
-        {% endif %}
 
         <li class="menu-separator"></li>
 
