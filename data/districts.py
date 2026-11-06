@@ -1,7 +1,7 @@
 
 from django.db import transaction
 
-from game.models import Building, Colony, District, to_id
+from game.models import Colony, District, to_id
 from database.schemas import on_server
 from data import colonies, districts_types, buildings
 
@@ -80,32 +80,3 @@ def delete_district(server, commandant_id, district_id, refund_ratio=0.75):
     add_resources(server, commandant_id,
                   {resource: int(quantity * refund_ratio) for resource, quantity in build_cost.items()})
     return True
-
-
-@on_server
-def recalculate_buildings_slots(server, district_id):
-    district = get_district(server, district_id)
-
-    slots_total = districts_types.get_district_type(server, district['district_type'])['districts_slots']
-    slots_occupied = Building.objects.filter(home_district=district_id).count()
-
-
-    # TODO take into account future special buildings with different slots size
-    """
-    for building_id in district['buildings']:
-        building = buildings.get_building(server, building_id)
-
-        slots_total += buildings.get_building_type(server, building['building_type'])['buildings_slots']
-        if building['category'] != 'central_building':
-            slots_occupied += 1
-
-    update_district(server, district_id, 'buildings_slots_total', slots_total)
-    update_district(server, district_id, 'buildings_slots_occupied', slots_occupied)
-    """
-
-    # TODO cheat log
-    if slots_occupied > slots_total:
-        ...
-        # cheat_log()
-
-    return slots_total, slots_occupied

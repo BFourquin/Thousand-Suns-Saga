@@ -222,7 +222,7 @@
 
                   {% if district.buildings_slots_free > 0 %}
                     <div class="building-card building-new">
-                      <a href="/colony/?colony_id={{ colony.id }}&building_new={{ district.id }}"
+                      <a href="#modal-build-building-{{ district.id }}" data-toggle="modal"
                          title="{% trans 'Construire un nouveau bâtiment' %}">
 
 
@@ -279,6 +279,9 @@
                 {% for district in districts %}
                   {% include "includes/colony/modal_set_activation_district.html" with server_name=server district=district colony_id=colony.id %}
                   {% include "includes/colony/modal_delete_district.html" with server_name=server district=district colony_id=colony.id %}
+                  {% if district.buildings_slots_free > 0 %}
+                    {% include "includes/colony/modal_build_building.html" with server_name=server district=district colony_id=colony.id %}
+                  {% endif %}
                 {% endfor%}
 
                 <!-- New district construction modal -->

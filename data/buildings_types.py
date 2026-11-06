@@ -2,6 +2,23 @@
 from data.names import localized_name
 from game.models import BuildingType
 from database.schemas import on_server
+from data.technology import CIVILISATION_TECH_LEVEL
+
+
+# shortcut: the column production_quantity of the Excel is still empty, each building gives this until it is filled
+DEFAULT_PRODUCTION_QUANTITY = 1
+
+
+def production_of(building_type):
+    # What the building gives per cycle, working at full capacity
+    resource = building_type.get('production')
+    return {resource: building_type.get('production_quantity') or DEFAULT_PRODUCTION_QUANTITY} if resource else {}
+
+
+def is_buildable(building_type, district_category):
+    # The Excel has one column of booleans per category of district
+    return bool(building_type.get(district_category)) \
+        and (building_type.get('tech_available') or 0) <= CIVILISATION_TECH_LEVEL < (building_type.get('tech_hidden') or float('inf'))
 
 
 @on_server
@@ -29,8 +46,6 @@ def get_all_buildings_types(server, language=None):
 
 @on_server
 def get_all_buildable_buildings_types(server, commandant, language=None):
-    # TODO /!\ copier coller des districts à vérifier !!!
-
     buildings = get_all_buildings_types(server)
 
     # Remove unconstructibles buildings
@@ -40,10 +55,13 @@ def get_all_buildable_buildings_types(server, commandant, language=None):
             buildings.remove(building)
 
     # More info on resources cost and maintenance
-    from data.resources import add_infos_to_resources_dict
+    from data.resources import add_infos_to_resources_dict, get_resource_parameters
     for i in range(len(buildings)):
         buildings[i]['build_cost'] = add_infos_to_resources_dict(server, buildings[i]['build_cost'], commandant, language)
         buildings[i]['maintenance'] = add_infos_to_resources_dict(server, buildings[i]['maintenance'], commandant, language)
+        production = {resource: quantity for resource, quantity in production_of(buildings[i]).items() if get_resource_parameters(server, resource)}
+        production = add_infos_to_resources_dict(server, production, commandant, language)
+        buildings[i]['resources_columns'] = (production, buildings[i]['build_cost'], buildings[i]['maintenance'])
 
         # Check if any resource is missing to build it
         buildings[i]['enough_stockpiles'] = True

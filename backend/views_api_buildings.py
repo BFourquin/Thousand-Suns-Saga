@@ -8,7 +8,9 @@ from backend.api_ui_interactions import api_pop_up, api_pop_up_and_redirect, api
 from data.resources import check_enough_resources_dict, pay_resources
 from data.districts import create_district, delete_district, get_district
 from data.districts_types import get_district_type
-from data.buildings import get_district_buildings, set_activation_percent_building
+from data.buildings import construct_building, get_district_buildings, set_activation_percent_building
+from data.buildings_types import get_building_type, is_buildable
+from game.models import to_id
 
 
 
@@ -67,6 +69,38 @@ def api_build_district(request):
             return api_pop_up({"title": _("Cette colonie n'a plus d'espace pour un nouveau district de cette taille"), "level": "danger"}, status=400)
 
     return api_pop_up_and_redirect({"title": _("District en construction"), "level": "success"}, status=200, redirect='/colony/?colony_id='+str(params['colony_id']))
+
+
+
+@require_POST
+@api_login_required
+def api_build_building(request):
+
+    params = request_params(request)
+    server, commandant = get_active_server_and_commandant_from_request(request)
+
+    if not server or not commandant:
+        return no_active_commandant()
+    if not commandant_owns_colony(commandant, params.get('colony_id')):
+        return invalid_colony()
+
+    district = get_district(server, params.get('district_id'))
+    building_type = get_building_type(server, params.get('building_type'))
+
+    if not district or to_id(params['colony_id']) != district['colony'] \
+            or not building_type or not is_buildable(building_type, district['category']):
+        return api_pop_up({"title": _("Construction spécifiée incorrecte"), "level": "danger"}, status=400)
+
+    with transaction.atomic():  # No free slot or any error : the payment is cancelled with the rest
+
+        if not pay_resources(server, commandant['id'], building_type['build_cost']):
+            return api_pop_up({"title": _("Ressources manquantes pour la construction"), "level": "danger"}, status=400)
+
+        if not construct_building(server, district['id'], building_type['internal_name']):
+            transaction.set_rollback(True)
+            return api_pop_up({"title": _("Ce district n'a plus de place libre"), "level": "danger"}, status=400)
+
+    return api_pop_up_and_redirect({"title": _("Bâtiment en construction"), "level": "success"}, status=200, redirect='/colony/?colony_id='+str(params['colony_id']))
 
 
 

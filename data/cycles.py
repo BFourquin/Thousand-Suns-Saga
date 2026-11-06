@@ -5,6 +5,7 @@ from game.models import Commandant, Cycle, to_id
 from database.schemas import on_server
 from data.server_details import get_tz
 from data.commandant import update_commandant
+from data.economy import apply_cycle_economy
 
 
 @on_server
@@ -102,9 +103,10 @@ def mark_commandant_cycle_present(server, commandant_id):
 @transaction.atomic
 def end_cycle(server_name):
 
+    Cycle.objects.filter(datetime_end=None).update(datetime_end=timezone.now())
     create_cycle_entry(server_name, last_cycle=get_current_cycle(server_name))
 
     # Reset commandants' cycle status
     active_commandants(server_name).update(time_cycle_finished=None)
 
-    # TODO all cycle events
+    apply_cycle_economy(server_name)

@@ -40,6 +40,7 @@ urlpatterns = [
 
     # BUILDINGS & DISTRICTS
     path('api_build_district/', views_api_buildings.api_build_district),
+    path('api_build_building/', views_api_buildings.api_build_building),
     path('api_delete_district/', views_api_buildings.api_delete_district),
     path('api_district_set_activation_percent/', views_api_buildings.api_district_set_activation_percent),
 

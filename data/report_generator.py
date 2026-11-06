@@ -2,6 +2,8 @@
 from django.utils import timezone
 
 from data.commandant import get_commandant
+from data.names import localized_name
+from data.resources import get_all_resources_parameters
 from data.user import get_user_by_id
 
 
@@ -89,6 +91,22 @@ def generate_report(server, owner_id, report_type, args={}, sender=None, sender_
         report['message'] = message.format(entente=args['entente'])
         report['category'] = 'diplomacy'
         report['category_icon'] = 'fa-handshake'
+        report['illustration'] = "images/report/command_center.png"
+
+    elif report_type == 'cycle_economy':
+        resources = {resource['internal_name']: resource for resource in get_all_resources_parameters(server)}
+        labels = {'fr': ("Produit", "Consommé", "Pénuries"), 'en': ("Produced", "Consumed", "Shortages")}[lang]
+
+        report['title'] = {
+            'fr': "Bilan économique du cycle",
+            'en': "Economic balance of the cycle",
+        }[lang]
+        report['message'] = ' — '.join(
+            label + ' : ' + ', '.join(f"{quantity:.2f} {resources[resource]['unit_notation']} {localized_name(resources[resource], lang)}"
+                                      for resource, quantity in args[key].items())
+            for label, key in zip(labels, ('produced', 'consumed', 'missing')) if args[key])
+        report['category'] = 'cycle_summary'
+        report['category_icon'] = 'fa-coins'
         report['illustration'] = "images/report/command_center.png"
 
 

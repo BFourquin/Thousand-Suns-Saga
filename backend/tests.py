@@ -19,20 +19,23 @@ from backend.models import CommandantAccount, Server, UserExtended, to_id
 from backend.templatetags.tss_dates import rp_date
 from backend.templatetags.tss_text import MAX_DEPTH, bbcode
 from database.schemas import schema_of, server_schema
-from game.models import Building, Colony, Commandant, ConversationMessage, Coordinate, District, DistrictType, Entente, EntenteMember, EntenteRole, Post, Report, StartingValues
+from game.models import Building, BuildingType, Colony, Commandant, ConversationMessage, Coordinate, District, DistrictType, Entente, EntenteMember, EntenteRole, Post, Report, Resource, StartingValues
 from backend.utils import commandant_owns_colony
 from data import conversations, ententes, forums
 from data import server_details
 from data import cycles
+from data.buildings import construct_building
+from data.buildings_types import is_buildable
 from data.commandant import civilisation_name_taken, commandant_name_taken, create_commandant, delete_commandant, get_commandant
 from data.coordinates import get_coordinate_image
 from data.districts import create_district, delete_district
+from data.economy import cycle_balance
 from data.errors import GameError
 from data.user import get_user_by_name
 from data.report import change_report_status, delete_report, get_report
 from data.resources import add_resources, pay_resources
 
-API_LOGGED_URLS = ['/api_create_commandant/', '/api_build_district/', '/api_delete_district/',
+API_LOGGED_URLS = ['/api_create_commandant/', '/api_build_district/', '/api_build_building/', '/api_delete_district/',
                    '/api_district_set_activation_percent/']
 
 
@@ -1249,6 +1252,175 @@ class GameRulesTests(TestCase):
         self.assertEqual(cycle['commandants_cycle_absent'], [commandant_id])
         self.assertEqual(cycle['commandants_cycle_playing'], [])
         self.assertIsNone(get_commandant('S', commandant_id)['time_cycle_finished'])
+
+
+class EconomyTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user('player', 'p@example.com', 'x')
+        make_server('S')
+        with server_schema('S'):
+            cls.commandant = Commandant.objects.create(user=cls.user, commandant_name='Paullus', civilisation_name='Empire',
+                                                       creation_date=timezone.now(), resources={'steel': 10, 'water': 3})
+            colony = Colony.objects.create(name='Home', owner=cls.commandant, controller=cls.commandant,
+                                           coordinate='100100000005505001', colony_type='start')
+            cls.colony = colony
+            DistrictType.objects.create(internal_name='central', data={'internal_name': 'central', 'name_fr': 'central', 'category': 'central_district',
+                                                                       'districts_slots': 1, 'build_cost': {}, 'maintenance': {}})
+            DistrictType.objects.create(internal_name='farming', data={'internal_name': 'farming', 'name_fr': 'farming', 'category': 'farming_district',
+                                                                       'districts_slots': 0, 'build_cost': {}, 'maintenance': {'steel': 4}})
+            cls.central = District.objects.create(colony=colony, district_type='central', category='central_district',
+                                                  population=2_000_000, buildings_slots_free=1, buildings_slots_total=1)
+            cls.farming = District.objects.create(colony=colony, district_type='farming', category='farming_district')
+            for name, data in (('water', {'pop_consumption_9': 1}),
+                               ('food_a', {'pop_consumption_9': 1, 'sub_category': 'food'}),
+                               ('food_b', {'pop_consumption_9': 1, 'sub_category': 'food'}),
+                               ('steel', {}),
+                               ('drug', {'pop_consumption_9': 5, 'category': 'resources_cat_illicits'})):
+                Resource.objects.create(internal_name=name, data={'internal_name': name, 'name_fr': name, 'name_en': name,
+                                                                  'unit_notation': 'Mt', 'icon': 'x.png'} | data)
+            for name, data in (('well', {'production': 'water', 'production_quantity': 4, 'maintenance': {'steel': 2}, 'central_district': True}),
+                               ('farm', {'production': 'food_b', 'farming_district': True}),
+                               ('text_row', {'production': 'Eau en texte', 'central_district': True}),
+                               ('too_old', {'production': 'water', 'tech_hidden': 9, 'central_district': True}),
+                               ('too_new', {'production': 'water', 'tech_available': 10, 'central_district': True})):
+                BuildingType.objects.create(internal_name=name, data={'internal_name': name, 'name_fr': name, 'name_en': name,
+                                                                      'category': 'vital_needs', 'build_cost': {'steel': 1},
+                                                                      'maintenance': {}, 'illustration': 'x.png'} | data)
+            cycles.create_cycle_entry('S')
+
+    def build(self, district, building_type, **fields):
+        with server_schema('S'):
+            return Building.objects.create(building_type=building_type, home_district=district, **fields)
+
+    def resources(self):
+        return get_commandant('S', self.commandant.id)['resources']
+
+
+class EconomyTests(EconomyTestCase):
+
+    def test_production_maintenance_and_needs_of_the_population(self):
+        well = self.build(self.central, 'well')
+        cycles.end_cycle('S')
+        # Water : 3 + 4 produced - 2 for the 2 Mo of population. Steel : well 2, then district 4. No food : shortage
+        self.assertEqual(self.resources(), {'steel': 4, 'water': 5})
+        with server_schema('S'):
+            well.refresh_from_db()
+            report = Report.objects.get(owner=self.commandant)
+        self.assertEqual((well.last_cycle_production, well.last_cycle_productivity_percent), (4, 100))
+        self.assertIn('4.00 Mt water', report.message)
+        self.assertIn('2.00 Mt food_a', report.message)
+        self.assertEqual(get_commandant('S', self.commandant.id)['nb_unread_reports'], 1)
+
+    def test_activation_scales_production_and_maintenance(self):
+        self.build(self.central, 'well', activation_percent=50)
+        cycles.end_cycle('S')
+        self.assertEqual(self.resources(), {'steel': 5, 'water': 3})  # Steel 10 - 4 - 1, water 3 + 2 - 2
+
+    def test_missing_maintenance_lowers_productivity(self):
+        with server_schema('S'):
+            Commandant.objects.filter(id=self.commandant.id).update(resources={'steel': 1, 'water': 0})
+        well = self.build(self.central, 'well')
+        farm = self.build(self.farming, 'farm')
+        cycles.end_cycle('S')
+        with server_schema('S'):
+            well.refresh_from_db()
+            farm.refresh_from_db()
+        # The well of the oldest district takes the only steel, half of its need. Its district is then left with nothing.
+        self.assertEqual(well.last_cycle_productivity_percent, 50)
+        self.assertEqual(well.last_cycle_production, 2)
+        self.assertEqual(well.last_cycle_missing_resources, {'steel': 1})
+        self.assertEqual(farm.last_cycle_productivity_percent, 0)
+        self.assertEqual(self.resources(), {'steel': 0, 'water': 0})
+
+    def test_foods_replace_each_other(self):
+        with server_schema('S'):
+            Commandant.objects.filter(id=self.commandant.id).update(resources={'food_a': 1, 'food_b': 5})
+        cycles.end_cycle('S')
+        self.assertEqual(self.resources(), {'food_a': 0, 'food_b': 4})
+
+    def test_illicits_and_unknown_productions_change_nothing(self):
+        self.build(self.central, 'text_row')
+        with server_schema('S'):
+            Commandant.objects.filter(id=self.commandant.id).update(resources={'drug': 3, 'water': 9, 'food_a': 9, 'steel': 9})
+        cycles.end_cycle('S')
+        self.assertEqual(self.resources(), {'drug': 3, 'water': 7, 'food_a': 7, 'steel': 5})
+
+    def test_forecast_writes_nothing(self):
+        well = self.build(self.central, 'well')
+        balance = cycle_balance('S', self.commandant.id, self.resources())
+        self.assertEqual(balance['produced'], {'water': 4})
+        self.assertEqual(self.resources(), {'steel': 10, 'water': 3})
+        with server_schema('S'):
+            well.refresh_from_db()
+        self.assertEqual(well.last_cycle_production, 0)
+
+    def test_a_failure_cancels_the_whole_cycle(self):
+        self.build(self.central, 'well')
+        with patch('data.economy.create_report', side_effect=ValueError), self.assertRaises(ValueError):
+            cycles.end_cycle('S')
+        self.assertEqual(cycles.get_current_cycle('S')['cycle_nb'], 1)
+        self.assertIsNone(cycles.get_current_cycle('S')['datetime_end'])
+        self.assertEqual(self.resources(), {'steel': 10, 'water': 3})
+
+    def test_building_is_limited_by_district_and_technology(self):
+        for building_type, category, expected in (('well', 'central_district', True), ('well', 'farming_district', False),
+                                                  ('too_old', 'central_district', False), ('too_new', 'central_district', False)):
+            with server_schema('S'):
+                data = BuildingType.objects.get(internal_name=building_type).data
+            self.assertEqual(is_buildable(data, category), expected, building_type)
+
+    def test_construction_takes_a_slot_once(self):
+        self.assertTrue(construct_building('S', self.central.id, 'well'))
+        self.assertFalse(construct_building('S', self.central.id, 'well'))
+        with server_schema('S'):
+            self.assertEqual(Building.objects.count(), 1)
+            self.assertEqual(District.objects.get(id=self.central.id).buildings_slots_free, 0)
+            District.objects.filter(id=self.central.id).update(buildings_slots_free=20)  # As in the old districts
+        self.assertFalse(construct_building('S', self.central.id, 'well'))
+
+
+class EconomyPagesTests(EconomyTestCase):
+
+    def setUp(self):
+        self.client.force_login(self.user)
+        CommandantAccount.objects.create(server_id='S', commandant_id=self.commandant.id, user=self.user, commandant_name='Paullus')
+        UserExtended.objects.update_or_create(user=self.user, defaults={'playing_on_server_id': 'S', 'playing_on_commandant': self.commandant.id})
+
+    def post_build(self, **data):
+        return self.client.post('/api_build_building/', {'colony_id': self.colony.id, 'district_id': self.central.id, 'building_type': 'well'} | data)
+
+    def test_api_builds_and_pays(self):
+        self.assertEqual(self.post_build().status_code, 200)
+        self.assertEqual(self.resources()['steel'], 9)
+        self.assertEqual(self.post_build().status_code, 400)  # No slot left, and not paid
+        self.assertEqual(self.resources()['steel'], 9)
+
+    def test_api_refuses_what_can_not_be_built_there(self):
+        for data in ({'building_type': 'too_new'}, {'building_type': 'farm'}, {'building_type': 'unknown'}, {'district_id': 'abc'}):
+            self.assertEqual(self.post_build(**data).status_code, 400, data)
+        self.assertEqual(self.resources()['steel'], 10)
+
+    def test_api_refuses_the_district_of_another_colony(self):
+        with server_schema('S'):
+            other = Commandant.objects.create(user=self.user, commandant_name='Other', civilisation_name='Other', creation_date=timezone.now())
+            colony = Colony.objects.create(name='Far', owner=other, controller=other, coordinate='1', colony_type='start')
+            district = District.objects.create(colony=colony, district_type='central', category='central_district', buildings_slots_free=1)
+        self.assertEqual(self.post_build(district_id=district.id).status_code, 400)
+
+    def test_colony_page_offers_what_is_buildable_in_each_district(self):
+        response = self.client.get('/colony/', {'colony_id': self.colony.id})
+        self.assertContains(response, f'id="modal-build-building-{self.central.id}"')
+        self.assertContains(response, 'value="well"')
+        self.assertNotContains(response, 'value="too_new"')
+
+    def test_resources_page_shows_the_forecast(self):
+        self.build(self.central, 'well')
+        response = self.client.get('/resources/')
+        row = next(resource for resource in response.context['resources'] if resource['name'] == 'water')
+        self.assertEqual((row['stock'], row['produced'], row['consumed'], row['balance'], row['self_sustainability']), (3, 4, 2, 2, 200))
+        self.assertContains(response, '200 %')
 
 
 class CreateCommandantTests(TestCase):

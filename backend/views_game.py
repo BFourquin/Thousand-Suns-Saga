@@ -15,6 +15,7 @@ from data.report import get_commandant_reports, get_report, delete_report, chang
     mark_all_reports_as_read, update_nb_unread_reports
 from data.colonies import get_colonies_controlled_by_commandant, get_colonies_at_coordinates
 from data.commandant import get_commandants
+from data.economy import cycle_balance
 from data.resources import get_all_resources_parameters, get_resources_categories, get_resources_subcategories
 from data.names import localized_name
 
@@ -337,9 +338,7 @@ def resources(request, server, commandant):
 
 
     resources_declaration = get_all_resources_parameters(server)
-    commandant_resources = None
-    commandant_resources_stats = None
-    global_resources_stats = None
+    forecast = cycle_balance(server, commandant['id'], commandant['resources'])
 
     # Reformat with only useful info
     resources_table = []
@@ -353,19 +352,18 @@ def resources(request, server, commandant):
         if resource_name not in commandant['resources'].keys():
             ... # continue  # TODO display undiscovered resources greyed instead of hiding them ?
 
+        # What is needed for the next cycle, even when the stock can't cover it
+        produced = forecast['produced'][resource_name]
+        needed = forecast['consumed'][resource_name] + forecast['missing'][resource_name]
 
         resources_table.append({
             'name': localized_name(resource, language),
             'icon': resource['icon'],
             'stock': commandant['resources'][resource_name] if resource_name in commandant['resources'] else 0,
-            'max_storage': 20000,
-            'buy_percent': 20,
-            'sell_percent': 60,
-            'produced': 178,
-            'consumed': 80,
-            'balance': 98,
-            'self_sustainability': 223,
-            'global_supply': 72,
+            'produced': produced,
+            'consumed': needed,
+            'balance': produced - needed,
+            'self_sustainability': produced / needed * 100 if needed else None,
             'decree': '',
             'effect': '',
         })

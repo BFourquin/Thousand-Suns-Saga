@@ -3,12 +3,17 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#: .\admin_web\templates\template.html:17
+#: .\admin_web\templates\translations.txt:51
+#: .\admin_web\templates\translations.txt:52
+#: .\admin_web\templates\translations.txt:53
+#: .\admin_web\templates\translations.txt:54
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 16:49+0100\n"
+"POT-Creation-Date: 2026-11-06 17:55+0100\n"
 "PO-Revision-Date: 2024-06-02 10:00+0000\n"
 "Last-Translator: <benoittd@hotmail.fr>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -251,6 +256,7 @@ msgid "Détruire"
 msgstr "Destroy"
 
 #: .\admin_web\templates\game\colony.html:226
+#: .\admin_web\templates\includes\colony\modal_build_building.html:9
 msgid "Construire un nouveau bâtiment"
 msgstr "Construct a new building"
 
@@ -367,8 +373,8 @@ msgstr "Your civilization's name"
 #: .\admin_web\templates\game\create_commandant.html:50
 msgid ""
 "Vous pourrez changer le nom de votre commandant ou de votre civilisation "
-"plus tard pour refléter les évolutions de votre roleplay. Néanmoins, cela ne"
-" sera possible que sur approbation de la communauté."
+"plus tard pour refléter les évolutions de votre roleplay. Néanmoins, cela ne "
+"sera possible que sur approbation de la communauté."
 msgstr ""
 "You can change the name of your commandant or civilization later to reflect "
 "how your roleplay evolves. However, this will only be possible with the "
@@ -406,8 +412,8 @@ msgstr "You are not ready for the next cycle."
 
 #: .\admin_web\templates\game\cycle_monitoring.html:36
 msgid ""
-"Vous n'avez pas encore terminé de donner des ordres pour ce cycle. N'oubliez"
-" pas de signaler lorsque vous avez fini."
+"Vous n'avez pas encore terminé de donner des ordres pour ce cycle. N'oubliez "
+"pas de signaler lorsque vous avez fini."
 msgstr ""
 "You have not finished giving orders for this cycle yet. Remember to report "
 "when you are done."
@@ -563,8 +569,8 @@ msgstr "You already own the maximum of 5 ententes"
 
 #: .\admin_web\templates\game\entente.html:30
 msgid ""
-"Rassemble d'office tous les commandants natifs de ce secteur : on ne peut ni"
-" y postuler, ni la quitter."
+"Rassemble d'office tous les commandants natifs de ce secteur : on ne peut ni "
+"y postuler, ni la quitter."
 msgstr ""
 "Automatically gathers all the commandants native to this sector: it cannot "
 "be applied to or left."
@@ -955,8 +961,7 @@ msgstr "Overview"
 
 #: .\admin_web\templates\game\geography_system.html:81
 msgid ""
-"Glisser pour tourner · Molette pour zoomer · Double-clic pour suivre un "
-"astre"
+"Glisser pour tourner · Molette pour zoomer · Double-clic pour suivre un astre"
 msgstr "Drag to rotate · Wheel to zoom · Double-click to follow a body"
 
 #: .\admin_web\templates\game\geography_system.html:98
@@ -1035,8 +1040,7 @@ msgstr "Permanently destroy this forum? This cannot be undone."
 msgid "Détruire définitivement"
 msgstr "Destroy permanently"
 
-#: .\admin_web\templates\game\player_forum_manage.html:94
-#: .\data\ententes.py:63
+#: .\admin_web\templates\game\player_forum_manage.html:94 .\data\ententes.py:63
 msgid "Membre"
 msgstr "Member"
 
@@ -1334,30 +1338,56 @@ msgstr "Dark mode"
 msgid "Mode clair"
 msgstr "Light Mode"
 
-#: .\admin_web\templates\includes\colony\modal_build_district.html:22
-msgid "District"
-msgstr "District"
+#: .\admin_web\templates\includes\colony\modal_build_building.html:20
+msgid "Bâtiment"
+msgstr "Building"
 
+#: .\admin_web\templates\includes\colony\modal_build_building.html:21
+msgid "Production"
+msgstr "Production"
+
+#: .\admin_web\templates\includes\colony\modal_build_building.html:22
 #: .\admin_web\templates\includes\colony\modal_build_district.html:23
 msgid "Coût"
 msgstr "Cost"
 
+#: .\admin_web\templates\includes\colony\modal_build_building.html:23
 #: .\admin_web\templates\includes\colony\modal_build_district.html:24
 msgid "Maintenance"
 msgstr "Maintenance"
 
-#: .\admin_web\templates\includes\colony\modal_build_district.html:25
-msgid "Emplacements"
-msgstr "Slots"
-
+#: .\admin_web\templates\includes\colony\modal_build_building.html:24
 #: .\admin_web\templates\includes\colony\modal_build_district.html:26
 msgid "Ordre"
 msgstr "Order"
 
+#: .\admin_web\templates\includes\colony\modal_build_building.html:43
 #: .\admin_web\templates\includes\colony\modal_build_district.html:47
 #: .\admin_web\templates\includes\colony\modal_build_district.html:58
 msgid "Stock"
 msgstr "Stock"
+
+#: .\admin_web\templates\includes\colony\modal_build_building.html:61
+#: .\admin_web\templates\includes\colony\modal_build_building.html:63
+#: .\admin_web\templates\includes\colony\modal_build_district.html:81
+#: .\admin_web\templates\includes\colony\modal_build_district.html:83
+msgid "Construire"
+msgstr "Build"
+
+#: .\admin_web\templates\includes\colony\modal_build_building.html:77
+#: .\admin_web\templates\includes\colony\modal_build_district.html:98
+#: .\admin_web\templates\includes\colony\modal_delete_district.html:32
+#: .\admin_web\templates\includes\colony\modal_set_activation_district.html:33
+msgid "Annuler"
+msgstr "Cancel"
+
+#: .\admin_web\templates\includes\colony\modal_build_district.html:22
+msgid "District"
+msgstr "District"
+
+#: .\admin_web\templates\includes\colony\modal_build_district.html:25
+msgid "Emplacements"
+msgstr "Slots"
 
 #: .\admin_web\templates\includes\colony\modal_build_district.html:67
 msgid "bâtiments"
@@ -1366,17 +1396,6 @@ msgstr "buildings"
 #: .\admin_web\templates\includes\colony\modal_build_district.html:69
 msgid "districts"
 msgstr "districts"
-
-#: .\admin_web\templates\includes\colony\modal_build_district.html:81
-#: .\admin_web\templates\includes\colony\modal_build_district.html:83
-msgid "Construire"
-msgstr "Build"
-
-#: .\admin_web\templates\includes\colony\modal_build_district.html:98
-#: .\admin_web\templates\includes\colony\modal_delete_district.html:32
-#: .\admin_web\templates\includes\colony\modal_set_activation_district.html:33
-msgid "Annuler"
-msgstr "Cancel"
 
 #: .\admin_web\templates\includes\colony\modal_delete_district.html:9
 msgid "Détruire ce district ?"
@@ -1775,7 +1794,7 @@ msgid "Système"
 msgstr "System"
 
 #: .\admin_web\templates\translations.txt:25
-#: .\backend\views_api_buildings.py:84 .\backend\views_api_buildings.py:106
+#: .\backend\views_api_buildings.py:118 .\backend\views_api_buildings.py:140
 msgid "Paramètre invalide"
 msgstr "Invalid parameter"
 
@@ -1810,45 +1829,47 @@ msgid "Compte créé"
 msgstr "Account created"
 
 #: .\admin_web\templates\translations.txt:37
-#: .\backend\views_api_buildings.py:39 .\backend\views_api_buildings.py:44
+#: .\backend\views_api_buildings.py:41 .\backend\views_api_buildings.py:46
+#: .\backend\views_api_buildings.py:92
 msgid "Construction spécifiée incorrecte"
 msgstr "Invalid construction"
 
 #: .\admin_web\templates\translations.txt:38
-#: .\backend\views_api_buildings.py:54 .\backend\views_api_buildings.py:63
+#: .\backend\views_api_buildings.py:56 .\backend\views_api_buildings.py:65
+#: .\backend\views_api_buildings.py:97
 msgid "Ressources manquantes pour la construction"
 msgstr "Missing resources for the construction"
 
 #: .\admin_web\templates\translations.txt:39
-#: .\backend\views_api_buildings.py:67
+#: .\backend\views_api_buildings.py:69
 msgid ""
 "Cette colonie n'a plus d'espace pour un nouveau district de cette taille"
 msgstr "This colony has no room left for a new district of this size"
 
 #: .\admin_web\templates\translations.txt:40
-#: .\backend\views_api_buildings.py:69
+#: .\backend\views_api_buildings.py:71
 msgid "District en construction"
 msgstr "District under construction"
 
 #: .\admin_web\templates\translations.txt:42
-#: .\backend\views_api_buildings.py:125 .\backend\views_api_buildings.py:130
-#: .\backend\views_api_buildings.py:138
+#: .\backend\views_api_buildings.py:159 .\backend\views_api_buildings.py:164
+#: .\backend\views_api_buildings.py:172
 msgid "Cible de la démolition invalide"
 msgstr "Invalid demolition target"
 
 #: .\admin_web\templates\translations.txt:44
-#: .\backend\views_api_buildings.py:142
+#: .\backend\views_api_buildings.py:176
 msgid "Destruction en cours du district"
 msgstr "District being destroyed"
 
 #: .\admin_web\templates\translations.txt:46
-#: .\backend\views_api_buildings.py:92 .\backend\views_api_buildings.py:98
-#: .\backend\views_api_buildings.py:103
+#: .\backend\views_api_buildings.py:126 .\backend\views_api_buildings.py:132
+#: .\backend\views_api_buildings.py:137
 msgid "Cible de l'action invalide"
 msgstr "Invalid action target"
 
 #: .\admin_web\templates\translations.txt:47
-#: .\backend\views_api_buildings.py:110
+#: .\backend\views_api_buildings.py:144
 msgid "Application du taux d'activation"
 msgstr "Applying the activation rate"
 
@@ -1865,18 +1886,25 @@ msgstr "Too many login attempts, please try again in a few minutes"
 msgid "Identifiants incorrects"
 msgstr "Incorrect credentials"
 
-#: .\backend\views_api_buildings.py:16
+#: .\backend\views_api_buildings.py:18
 msgid "Aucun commandant actif"
 msgstr "No active commandant"
 
-#: .\backend\views_api_buildings.py:20
+#: .\backend\views_api_buildings.py:22
 msgid "Colonie invalide"
 msgstr "Invalid colony"
 
-#: .\backend\views_api_buildings.py:133
+#: .\backend\views_api_buildings.py:101
+msgid "Ce district n'a plus de place libre"
+msgstr "This district has no free slot left"
+
+#: .\backend\views_api_buildings.py:103
+msgid "Bâtiment en construction"
+msgstr "Building under construction"
+
+#: .\backend\views_api_buildings.py:167
 msgid "Impossible de détruire la capitale de votre colonie sans l'abandonner"
-msgstr ""
-"You cannot destroy your colony's capital without abandoning the colony"
+msgstr "You cannot destroy your colony's capital without abandoning the colony"
 
 #: .\backend\views_api_commandant.py:19 .\backend\views_api_commandant.py:37
 msgid "Ce serveur n'existe pas"
@@ -2287,41 +2315,41 @@ msgstr "Clean dark, indigo accent"
 #~ msgstr "Founder"
 
 #~ msgid ""
-#~ "Sous la grande coupole de la station qui sert de capitale au secteur, chaque"
-#~ " civilisation dispose d'une tribune. Les discours y sont publics, les "
-#~ "accords rarement, et chaque mot prononcé ici finit tôt ou tard dans les "
-#~ "archives du secteur."
+#~ "Sous la grande coupole de la station qui sert de capitale au secteur, "
+#~ "chaque civilisation dispose d'une tribune. Les discours y sont publics, "
+#~ "les accords rarement, et chaque mot prononcé ici finit tôt ou tard dans "
+#~ "les archives du secteur."
 #~ msgstr ""
 #~ "Under the great dome of the station serving as the capital of the sector, "
-#~ "each civilisation has its own rostrum. Speeches are public here, agreements "
-#~ "rarely so, and every word spoken ends up sooner or later in the archives of "
-#~ "the sector."
+#~ "each civilisation has its own rostrum. Speeches are public here, "
+#~ "agreements rarely so, and every word spoken ends up sooner or later in "
+#~ "the archives of the sector."
 
 #~ msgid ""
 #~ "Ici, on pose les uniformes : ce forum est hors du jeu. Questions, bugs, "
-#~ "idées ou simples discussions entre joueurs, ce qui s'y dit n'engage pas vos "
-#~ "commandants."
+#~ "idées ou simples discussions entre joueurs, ce qui s'y dit n'engage pas "
+#~ "vos commandants."
 #~ msgstr ""
 #~ "Uniforms off: this forum is out of character. Questions, bugs, ideas or "
 #~ "simple chats between players, nothing said here binds your commandants."
 
 #~ msgid ""
 #~ "Les portes de cette salle du conseil sont closes et gardées. Seuls les "
-#~ "membres de la coalition y entrent, et ce qui s'y décide ne regarde qu'eux, "
-#~ "jusqu'au jour où le secteur en découvre les conséquences."
+#~ "membres de la coalition y entrent, et ce qui s'y décide ne regarde "
+#~ "qu'eux, jusqu'au jour où le secteur en découvre les conséquences."
 #~ msgstr ""
-#~ "The doors of this council chamber are closed and guarded. Only the members "
-#~ "of the coalition may enter, and what is decided here concerns them alone, "
-#~ "until the day the sector discovers the consequences."
+#~ "The doors of this council chamber are closed and guarded. Only the "
+#~ "members of the coalition may enter, and what is decided here concerns "
+#~ "them alone, until the day the sector discovers the consequences."
 
 #~ msgid ""
 #~ "La fumée flotte sous les néons, les verres s'entrechoquent et les "
 #~ "conversations baissent d'un ton à chaque nouvel arrivant. Dans ce genre "
 #~ "d'endroit, personne ne pose de questions, ou alors à voix basse."
 #~ msgstr ""
-#~ "Smoke drifts under the neon lights, glasses clink and conversations drop a "
-#~ "notch at each newcomer. In a place like this, nobody asks questions, or only"
-#~ " in a whisper."
+#~ "Smoke drifts under the neon lights, glasses clink and conversations drop "
+#~ "a notch at each newcomer. In a place like this, nobody asks questions, or "
+#~ "only in a whisper."
 
 #~ msgid "Section"
 #~ msgstr "Section"
@@ -2345,8 +2373,8 @@ msgstr "Clean dark, indigo accent"
 #~ msgstr "Announcements"
 
 #~ msgid ""
-#~ "Les nouvelles du jeu. Seule l'équipe y ouvre des sujets, tout le monde peut "
-#~ "y réagir."
+#~ "Les nouvelles du jeu. Seule l'équipe y ouvre des sujets, tout le monde "
+#~ "peut y réagir."
 #~ msgstr ""
 #~ "News about the game. Only the team opens topics here, everyone can reply."
 

@@ -72,12 +72,12 @@
                         <td><img class="img_without_td_padding" src="{% static ""%}{{resource.icon}}" alt="">
                             {{resource.name}}
                         </td>
-                        <td class="text-right">{{resource.stock}} T</td>
-                        <td class="text-right">{{resource.produced}} T</td>
-                        <td class="text-right">{{resource.consumed}} T</td>
-                        <td class="text-right {% if resource.balance < 0 %}text-danger{% elif resource.balance > 0 %}text-success{% endif %}">{{resource.balance}} T</td>
-                        <td class="text-right">{{resource.self_sustainability}} %</td>
-                        <td class="text-right">{{resource.global_supply}} %</td>
+                        <td class="text-right">{{resource.stock|floatformat:"-2"}} T</td>
+                        <td class="text-right">{{resource.produced|floatformat:"-2"}} T</td>
+                        <td class="text-right">{{resource.consumed|floatformat:"-2"}} T</td>
+                        <td class="text-right {% if resource.balance < 0 %}text-danger{% elif resource.balance > 0 %}text-success{% endif %}">{{resource.balance|floatformat:"-2"}} T</td>
+                        <td class="text-right">{% if resource.self_sustainability is None %}—{% else %}{{resource.self_sustainability|floatformat:0}} %{% endif %}</td>
+                        <td class="text-right">—</td>
                         <td>{{resource.decree}}</td>
                         <td>{{resource.effect}}</td>
                       </tr>

@@ -1,5 +1,7 @@
 
-from game.models import Building, BuildingType, to_id
+from django.db import transaction
+
+from game.models import Building, BuildingType, District, to_id
 from database.schemas import on_server
 from data import colonies, buildings_types, districts
 
@@ -33,24 +35,27 @@ def update_building(server, building_id, param, value):
 
 
 @on_server
+@transaction.atomic
 def construct_building(server, district_id, building_type):
+    # Return False if the district has no free slot for it
 
-    home_district = districts.get_district(server, district_id)
     building_type_properties = buildings_types.get_building_type(server, building_type)
 
-    # Check if slot available for a new building
-    if home_district['buildings_slots_free'] < 1:
+    # Locked until the end of the transaction : two simultaneous builds can't take the same slot
+    home_district = District.objects.select_for_update().get(id=district_id)
+    slots_free = home_district.buildings_slots_total - home_district.buildings.count()  # The stored value of old districts is wrong
+    if slots_free < 1:
         return False
-    # Resources
-    # TODO
 
     Building.objects.create(
         name_fr=building_type_properties['name_fr'],
         name_en=building_type_properties['name_en'],
         building_type=building_type,
-        home_district_id=district_id,
+        home_district=home_district,
     )
-    districts.recalculate_buildings_slots(server, district_id)
+    home_district.buildings_slots_free = slots_free - 1
+    home_district.save(update_fields=['buildings_slots_free'])
+    return True
 
 
 @on_server
