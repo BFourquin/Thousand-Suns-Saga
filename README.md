@@ -51,12 +51,35 @@ Template : AdminLTE
 Ask Iranis#8652 on Discord for the valid django_tss/settings.py file, or make one from django_tss/settings_opensource.py
 
 
+**Secrets**
+
+The confidential values live in the folder secrets/, ignored by git. Create it with these two files :
+
+secrets/postgres.ini
+```ini
+[postgres]
+name = TSS_main_server
+user = admin
+password = your_password
+host = localhost
+port = 5432
+```
+
+secrets/django.ini
+```ini
+[django]
+secret_key = generated_with_the_command_below
+site_url = http://127.0.0.1
+```
+> python -c "from django.core.management.utils import get_random_secret_key as k; print(k())"
+
+
 **PostgreSQL**
 
 - Install PostgreSQL (https://www.postgresql.org/download/)
 
 
-- Create the role and the database, with the user and password of your django_tss/settings.py : \
+- Create the role and the database, with the user and password of your secrets/postgres.ini : \
   (CREATEDB is only there to let `manage.py test` create its test database)
   > psql -U postgres -c "CREATE ROLE admin LOGIN CREATEDB PASSWORD 'your_password'" \
   > psql -U postgres -c "CREATE DATABASE \"TSS_main_server\" OWNER admin TEMPLATE template0 ENCODING 'UTF8'"

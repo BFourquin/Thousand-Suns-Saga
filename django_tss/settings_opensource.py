@@ -15,6 +15,7 @@ raise Exception('Every confidential data have been removed for security reason, 
 
 
 import os
+from configparser import ConfigParser
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,8 +25,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
+# Confidential values : secrets/ is not versioned, see the README
+
+def read_secrets(file_name, section):
+    config = ConfigParser(interpolation=None)  # A password can hold a %
+    with open(BASE_DIR / 'secrets' / file_name, encoding='utf-8-sig') as f:  # Notepad can add a BOM
+        config.read_file(f)
+    return config[section]
+
+
+DJANGO_SECRETS = read_secrets('django.ini', 'django')
+POSTGRES_SECRETS = read_secrets('postgres.ini', 'postgres')
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = None  # /!\ ASK ADMIN FOR THE REAL SETTINGS FILE /!\
+SECRET_KEY = DJANGO_SECRETS['secret_key']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -87,11 +100,11 @@ WSGI_APPLICATION = 'django_tss.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'TSS_main_server',
-        'USER': 'admin',
-        'PASSWORD': None,  # /!\ ASK ADMIN FOR THE REAL SETTINGS FILE /!\
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': POSTGRES_SECRETS['name'],
+        'USER': POSTGRES_SECRETS['user'],
+        'PASSWORD': POSTGRES_SECRETS['password'],
+        'HOST': POSTGRES_SECRETS['host'],
+        'PORT': POSTGRES_SECRETS['port'],
     },
 }
 

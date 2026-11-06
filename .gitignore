@@ -1,6 +1,7 @@
 
 # Project and database critical infos and passwords
 settings.py
+secrets/
 
 # Readable copy of the Excel files, generated for Claude
 .claude/excel_export/
