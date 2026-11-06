@@ -148,7 +148,7 @@ class Forum(GameModel):
     # mandatory roleplay. 'player' (taverns), 'coalition' (always private) : managed by their owner.
     kind = models.CharField(max_length=10, default='player')
     name = models.CharField(max_length=60)
-    description = models.TextField(blank=True)  # Text of ambiance displayed above the forum, a default one when empty
+    description = models.TextField(blank=True)  # Text of ambiance displayed above the forum
     is_private = models.BooleanField(default=False)
     owner = models.ForeignKey(Commandant, on_delete=models.CASCADE, null=True, blank=True, related_name='+')
 
@@ -172,6 +172,7 @@ class ForumMember(GameModel):
 class Topic(GameModel):
     title = models.CharField(max_length=150)
     last_post_date = models.DateTimeField()
+    nb_views = models.IntegerField(default=0)  # Kept here : counting the TopicRead of each topic of a list would cost more
     forum = models.ForeignKey(Forum, on_delete=models.CASCADE, related_name='topics')
     # SET_NULL : a thread outlives one of its authors
     author = models.ForeignKey(Commandant, on_delete=models.SET_NULL, null=True, related_name='+')
@@ -183,6 +184,7 @@ class TopicRead(GameModel):
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='+')
     commandant = models.ForeignKey(Commandant, on_delete=models.CASCADE, related_name='+')
     last_read_date = models.DateTimeField()
+    viewed = models.BooleanField(default=False)  # Counted in Topic.nb_views
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['topic', 'commandant'], name='topic_read_unique')]
@@ -201,6 +203,15 @@ class ForumPost(GameModel):
 class Post(ForumPost):
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='posts')
     author = models.ForeignKey(Commandant, on_delete=models.SET_NULL, null=True, related_name='+')
+
+
+class PostVote(GameModel):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='votes')
+    commandant = models.ForeignKey(Commandant, on_delete=models.CASCADE, related_name='+')
+    category = models.CharField(max_length=15)  # A key of data.forums.vote_categories
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['post', 'commandant'], name='post_vote_unique')]
 
 
 class Conversation(GameModel):

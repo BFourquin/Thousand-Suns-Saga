@@ -1,8 +1,14 @@
-{% comment %} Parameter : flag {% endcomment %}
-<div><strong>{{ flag.location }}</strong></div>
-<small class="text-muted">
-  Signalé par {{ flag.reporter_name }} le {{ flag.datetime|date:"d/m/Y H:i" }}{% if flag.reason %} : {{ flag.reason }}{% endif %}
-</small>
+{% comment %} Parameter : flag, a reported message with all its reports {% endcomment %}
+<div>
+  <span class="badge badge-warning">{{ flag.reports|length }} signalement{{ flag.reports|length|pluralize }}</span>
+  <span class="badge badge-secondary">{{ flag.server }}</span>
+  <strong>{{ flag.location }}</strong>
+</div>
+{% for report in flag.reports %}
+  <small class="d-block text-muted">
+    {{ report.reporter_name }}, le {{ report.datetime|date:"d/m/Y H:i" }}{% if report.reason %} : {{ report.reason }}{% endif %}
+  </small>
+{% endfor %}
 <blockquote class="mt-2 mb-1">
   <strong>{{ flag.author_name }}</strong><br>
   {{ flag.body|linebreaksbr }}

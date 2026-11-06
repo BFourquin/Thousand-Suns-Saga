@@ -98,6 +98,15 @@
           </li>
 
           <li class="nav-item">
+            <a href="/admin_message_flags/" class="nav-link">
+              <i class="fas fa-flag nav-icon"></i>
+              <p>Signalements
+                {% if nb_open_flags %}<span class="badge badge-warning right">{{nb_open_flags}}</span>{% endif %}
+              </p>
+            </a>
+          </li>
+
+          <li class="nav-item">
             <a class="nav-link disabled" aria-disabled="true">
               <i class="fas fa-bug nav-icon"></i>
               <p>Logs</p>

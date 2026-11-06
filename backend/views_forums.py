@@ -1,7 +1,9 @@
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import gettext as _
+from django.views.decorators.http import require_POST
 
 from backend.decorators import add_cycle_info, commandant_required, log_player_action
 from data import conversations, forums
@@ -105,6 +107,10 @@ def topic(request, server, commandant):
             if 'delete_post' in request.POST:
                 topic_remains = forums.delete_post(server, request.POST['delete_post'], commandant['id'], request.user.is_staff)
                 return redirect(request.get_full_path() if topic_remains else forum_url)
+            if 'vote_post' in request.POST:
+                post_id, category = request.POST['vote_post'].partition(':')[::2]
+                post_id = forums.vote_post(server, post_id, commandant['id'], category)
+                return redirect(f'{request.get_full_path()}#post-{post_id}')  # Back to this message, not to the top of the page
             if _edit_or_flag(request, server, commandant, forums.edit_post, forums.flag_post):
                 return redirect(request.get_full_path())
             forums.reply_to_topic(server, topic['id'], commandant['id'], request.POST.get('body', ''))
@@ -113,13 +119,22 @@ def topic(request, server, commandant):
             error = str(game_error)
 
     posts = forums.get_posts(server, topic['id'], request.GET.get('page', 1), commandant['id'])
-    if posts.object_list:
-        forums.mark_topic_as_read(server, topic['id'], commandant['id'], posts[-1]['datetime'])
+    already_viewed = posts.object_list and forums.mark_topic_as_read(server, topic['id'], commandant['id'], posts[-1]['datetime'])
 
     return TemplateResponse(request, 'game/forum_thread.html', {
         'forum': forum, 'thread_title': topic['title'], 'back_url': forum_url, 'back_label': forum['name'],
-        'posts': posts, 'can_post': forum['can_post'], 'can_moderate': forums.can_moderate(forum, request.user.is_staff),
-        'error': error})
+        'topic_id': topic['id'], 'posts': posts, 'can_post': forum['can_post'], 'can_vote': forum['membership'] != 'banned',
+        'can_moderate': forums.can_moderate(forum, request.user.is_staff),
+        'view_delay': None if already_viewed else forums.VIEW_DELAY_SECONDS, 'error': error})
+
+
+@login_required(login_url='/player_login/')
+@require_POST
+@commandant_required
+def topic_view(request, server, commandant):
+    # Sent by tss.js once the player stayed on the topic with the tab active. Not an action of the player : he may be away.
+    forums.count_topic_view(server, request.POST.get('topic_id'), commandant['id'])
+    return HttpResponse(status=204)
 
 
 ########################################################################################################################
@@ -175,8 +190,7 @@ def coalition(request, server, commandant):
         return redirect(f'/forum/?forum_id={coalition_id}')
 
     return TemplateResponse(request, 'game/coalition.html', {
-        'invitations': forums.get_coalition_invitations(server, commandant['id']),
-        'ambiance': forums.default_ambiance('coalition'), 'error': error})
+        'invitations': forums.get_coalition_invitations(server, commandant['id']), 'error': error})
 
 
 @login_required(login_url='/player_login/')

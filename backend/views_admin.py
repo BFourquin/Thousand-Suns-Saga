@@ -139,18 +139,25 @@ def admin_technology(request):
 
 @staff_member_required(login_url='/admin_login/')
 def admin_message_flags(request):
-    server = request.GET.get('server_name_selected')
-    if not server or not server_details.get_server_details(server):
+    # All the servers, or the one chosen in its own menu
+    selected_server = request.GET.get('server_name_selected')
+    if selected_server and not server_details.get_server_details(selected_server):
         return redirect(admin_servers_states)
 
     if request.method == 'POST':
-        if request.POST.get('action') == 'close':
-            forums.close_flag(server, request.POST.get('flag_id'), request.user.username)
-        elif request.POST.get('action') == 'delete_message':
-            forums.delete_flagged_message(server, request.POST.get('flag_id'), request.user.username)
+        server = request.POST.get('server')
+        if server_details.get_server_details(server):
+            if request.POST.get('action') == 'close':
+                forums.close_flag(server, request.POST.get('flag_id'), request.user.username)
+            elif request.POST.get('action') == 'delete_message':
+                forums.delete_flagged_message(server, request.POST.get('flag_id'), request.user.username)
         return redirect(request.get_full_path())
 
-    return render(request, 'admin/admin_message_flags.html', {'flags': forums.get_flags(server)})
+    more_than = request.GET.get('more_than', '')
+    more_than = int(more_than) if more_than.isdecimal() else 0
+    servers = [selected_server] if selected_server else server_details.get_servers_names(admin_visibility=True)
+    return render(request, 'admin/admin_message_flags.html', {
+        'flags': forums.get_reported_messages(servers, more_than), 'more_than': more_than})
 
 
 # ######################################################################################################################

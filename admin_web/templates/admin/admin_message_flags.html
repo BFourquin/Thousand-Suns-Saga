@@ -10,15 +10,30 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <div class="container-fluid">
-        <h1>Signalements — Serveur {{request.GET.server_name_selected}}</h1>
+        <h1>Signalements — {% if request.GET.server_name_selected %}Serveur {{request.GET.server_name_selected}}{% else %}Tous les serveurs{% endif %}</h1>
       </div>
     </section>
 
     <!-- Main content -->
     <section class="content">
 
+      <div class="card">
+        <div class="card-body">
+          <form method="GET" action="/admin_message_flags/" class="form-inline">
+            {% if request.GET.server_name_selected %}<input type="hidden" name="server_name_selected" value="{{request.GET.server_name_selected}}">{% endif %}
+            <label for="more-than" class="mr-2">Messages de forum signalés par plus de</label>
+            <input type="number" id="more-than" name="more_than" value="{{more_than}}" min="0" class="form-control form-control-sm mr-2" style="width: 5em">
+            <span class="mr-2">personnes</span>
+            <button type="submit" class="btn btn-default btn-sm">Filtrer</button>
+          </form>
+          <small class="text-muted">Pour les gros forums. Les messages privés restent toujours affichés : seul leur destinataire peut les signaler.</small>
+        </div>
+      </div>
+
       <div class="card card-warning card-outline">
-        <div class="card-header"><h3 class="card-title">À traiter ({{flags.open|length}})</h3></div>
+        <div class="card-header">
+          <h3 class="card-title">À traiter : {{flags.open|length}} message{{flags.open|length|pluralize}}{% if flags.open|length != flags.nb_open %} affiché{{flags.open|length|pluralize}} sur {{flags.nb_open}}{% endif %}</h3>
+        </div>
         <div class="card-body p-0">
           {% for flag in flags.open %}
             <div class="p-3 border-bottom text-break">
@@ -26,13 +41,14 @@
               <form method="POST" action="{{ request.get_full_path }}" class="mt-2">
                 {% csrf_token %}
                 <input type="hidden" name="flag_id" value="{{ flag.id }}">
+                <input type="hidden" name="server" value="{{ flag.server }}">
                 <button type="submit" name="action" value="close" class="btn btn-default btn-sm">Classer sans suite</button>
                 <button type="submit" name="action" value="delete_message" class="btn btn-danger btn-sm"
                         data-confirm="Supprimer définitivement ce message ?">Supprimer le message</button>
               </form>
             </div>
           {% empty %}
-            <p class="text-center text-muted py-4 mb-0">Aucun signalement à traiter</p>
+            <p class="text-center text-muted py-4 mb-0">Aucun signalement à afficher</p>
           {% endfor %}
         </div>
       </div>

@@ -413,20 +413,20 @@ class ForumsTests(TestCase):
 
     def test_ambiance_text(self):
         forum_id = forums.create_player_forum('S', self.owner, 'La Cantine', '', False)
-        self.assertEqual(forums.get_forum('S', forum_id, self.owner)['ambiance'], forums.default_ambiance('player'))
         forums.update_player_forum('S', forum_id, self.owner, 'La Cantine', 'Une odeur de friture.', False)
-        self.assertEqual(forums.get_forum('S', forum_id, self.owner)['ambiance'], 'Une odeur de friture.')
+        self.assertEqual(forums.get_forum('S', forum_id, self.owner)['description'], 'Une odeur de friture.')
 
         with self.assertRaises(GameError):
             forums.update_forum_ambiance('S', self.assembly_id, False, 'Pirate')
         forums.update_forum_ambiance('S', forum_id, True, 'Pirate')  # The team's text is only for the forums without owner
-        self.assertEqual(forums.get_forum('S', forum_id, self.owner)['ambiance'], 'Une odeur de friture.')
+        self.assertEqual(forums.get_forum('S', forum_id, self.owner)['description'], 'Une odeur de friture.')
 
         url = f'/forum/?forum_id={self.assembly_id}'
         self.play(self.user, self.owner)
         self.client.post(url, {'action': 'save_ambiance', 'ambiance': 'Pirate'})
-        self.assertContains(self.client.get(url), forums.default_ambiance('assembly').split("'")[0])
+        self.assertNotContains(self.client.get(url), 'Pirate')
         self.assertNotContains(self.client.get(url), 'name="ambiance"')
+        self.assertNotContains(self.client.get(url), 'font-italic')  # No text by default
 
         self.play(self.staff, self.staff_commandant)
         self.client.post(url, {'action': 'save_ambiance', 'ambiance': 'La coupole résonne.'})
@@ -597,8 +597,8 @@ class ForumsTests(TestCase):
 
         forums.edit_post('S', post_id, self.owner, 'Bonjour')  # Hiding it afterwards is useless
         flag = forums.get_flags('S')['open'][0]
-        self.assertEqual((flag['body'], flag['reason'], flag['author_name'], flag['reporter_name']),
-                         ('Insulte', 'Propos injurieux', 'Paullus', 'Varro'))
+        self.assertEqual((flag['body'], flag['author_name'], flag['reports'][0]['reason'], flag['reports'][0]['reporter_name']),
+                         ('Insulte', 'Paullus', 'Propos injurieux', 'Varro'))
         self.assertIn('Discours', flag['location'])
 
     def test_private_message_can_be_flagged_by_its_members_only(self):
@@ -624,7 +624,7 @@ class ForumsTests(TestCase):
 
         self.client.force_login(self.user)
         self.assertEqual(self.client.get(url).status_code, 302)
-        self.client.post(url, {'action': 'close', 'flag_id': forums.get_flags('S')['open'][0]['id']})
+        self.client.post(url, {'action': 'close', 'server': 'S', 'flag_id': forums.get_flags('S')['open'][0]['id']})
         self.assertEqual(forums.count_open_flags('S'), 3)
 
         self.play(self.staff, self.staff_commandant)
@@ -632,13 +632,13 @@ class ForumsTests(TestCase):
         self.assertContains(self.client.get(url), 'Menace')
         flags = {flag['body']: flag['id'] for flag in forums.get_flags('S')['open']}
 
-        self.client.post(url, {'action': 'close', 'flag_id': flags['Normal']})
+        self.client.post(url, {'action': 'close', 'server': 'S', 'flag_id': flags['Normal']})
         self.assertEqual(len(forums.get_posts('S', topic_id, 1, self.visitor)), 2)
 
-        self.client.post(url, {'action': 'delete_message', 'flag_id': flags['Insulte']})
+        self.client.post(url, {'action': 'delete_message', 'server': 'S', 'flag_id': flags['Insulte']})
         self.assertEqual([post['body'] for post in forums.get_posts('S', topic_id, 1, self.visitor)], ['Normal'])
 
-        self.client.post(url, {'action': 'delete_message', 'flag_id': flags['Menace']})
+        self.client.post(url, {'action': 'delete_message', 'server': 'S', 'flag_id': flags['Menace']})
         self.assertIsNone(conversations.get_conversation('S', conversation_id, self.owner))  # Its only message
 
         closed = forums.get_flags('S')['closed']
@@ -647,9 +647,176 @@ class ForumsTests(TestCase):
         self.assertContains(self.client.get(url), 'Insulte')  # Still readable afterwards
         self.assertRedirects(self.client.get('/admin_message_flags/?server_name_selected=unknown'), '/admin_servers_states/', fetch_redirect_response=False)
 
+    def test_reports_are_counted_by_message_on_all_the_servers(self):
+        topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Grosse insulte')
+        forums.reply_to_topic('S', topic_id, self.owner, 'Petite pique')
+        big_id, small_id = [post['id'] for post in forums.get_posts('S', topic_id, 1, self.visitor)]
+        forums.flag_post('S', big_id, self.visitor, 'Injurieux')
+        forums.flag_post('S', big_id, self.staff_commandant, '')
+        forums.flag_post('S', small_id, self.visitor, '')
+        conversation_id = conversations.start_conversation('S', self.owner, 'Varro', 'Pacte', 'Menace privée')
+        conversations.flag_message('S', conversations.get_messages('S', conversation_id, 1, self.visitor)[0]['id'], self.visitor, '')
+
+        with server_schema('Other'):
+            far_author, far_reporter = [Commandant.objects.create(user=user, commandant_name=name, civilisation_name=name, creation_date=timezone.now()).id
+                                        for user, name in ((self.user, 'Lointain'), (self.other_user, 'Voisin'))]
+        far_topic_id = forums.create_topic('Other', forums.get_forum_id('Other', 'assembly'), far_author, 'Ailleurs', 'Autre serveur')
+        forums.flag_post('Other', forums.get_posts('Other', far_topic_id, 1, far_reporter)[0]['id'], far_reporter, '')
+
+        # Messages to handle, not reports
+        self.assertEqual(forums.count_open_flags('S'), 3)
+        self.assertEqual(forums.count_all_open_flags(), 4)
+        big = next(flag for flag in forums.get_flags('S')['open'] if flag['message_id'] == big_id)
+        self.assertEqual({report['reporter_name'] for report in big['reports']}, {'Varro', 'Censeur'})
+
+        # The threshold is about the forums : a private message has a single possible reporter
+        filtered = forums.get_reported_messages(['S', 'Other'], more_than=1)
+        self.assertEqual({flag['body'] for flag in filtered['open']}, {'Grosse insulte', 'Menace privée'})
+        self.assertEqual(filtered['nb_open'], 4)
+
+        self.play(self.staff, self.staff_commandant)
+        response = self.client.get('/admin_message_flags/')
+        for body in ('Grosse insulte', 'Petite pique', 'Menace privée', 'Autre serveur', '2 signalements'):
+            self.assertContains(response, body)
+        self.assertEqual(response.context['nb_open_flags'], 4)
+
+        response = self.client.get('/admin_message_flags/?more_than=1')
+        self.assertContains(response, 'Menace privée')
+        self.assertContains(response, 'Grosse insulte')
+        self.assertNotContains(response, 'Petite pique')
+        self.assertNotContains(response, 'Autre serveur')
+        self.assertContains(response, 'sur 4')
+
+        self.assertNotContains(self.client.get('/admin_message_flags/?server_name_selected=S'), 'Autre serveur')
+        self.assertContains(self.client.get('/admin_message_flags/?more_than=-1'), 'Petite pique')  # An invalid filter hides nothing
+
+        # A decision settles all the reports of the message, on its own server
+        self.client.post('/admin_message_flags/', {'action': 'close', 'server': 'S', 'flag_id': big['id']})
+        self.assertEqual(forums.count_open_flags('S'), 2)
+        self.assertEqual(forums.count_open_flags('Other'), 1)
+        self.client.post('/admin_message_flags/', {'action': 'close', 'server': 'unknown', 'flag_id': big['id']})
+
     def test_player_does_not_see_the_flags_entry(self):
         self.play(self.user, self.owner)
         self.assertNotContains(self.client.get('/assembly/', follow=True), 'admin_message_flags')
+
+    # Votes on the messages
+
+    def vote_line(self, topic_id, commandant_id):
+        post = forums.get_posts('S', topic_id, 1, commandant_id)[0]
+        return post['score'], {vote['category']: vote['voters'] for vote in post['votes'] if vote['voters']}, \
+            [vote['category'] for vote in post['votes'] if vote['is_mine']]
+
+    def test_vote_can_be_changed_and_taken_back(self):
+        topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Citoyens...')
+        post_id = forums.get_posts('S', topic_id, 1, self.owner)[0]['id']
+
+        forums.vote_post('S', post_id, self.visitor, 'humour')
+        forums.vote_post('S', post_id, self.staff_commandant, 'roleplay')
+        self.assertEqual(self.vote_line(topic_id, self.visitor), (2, {'humour': ['Varro'], 'roleplay': ['Censeur']}, ['humour']))
+
+        forums.vote_post('S', post_id, self.visitor, 'remarkable')  # Replaced, not added
+        self.assertEqual(self.vote_line(topic_id, self.visitor), (2, {'remarkable': ['Varro'], 'roleplay': ['Censeur']}, ['remarkable']))
+
+        forums.vote_post('S', post_id, self.visitor, 'remarkable')  # Taken back
+        self.assertEqual(self.vote_line(topic_id, self.visitor), (1, {'roleplay': ['Censeur']}, []))
+
+    def test_who_can_vote(self):
+        topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Citoyens...')
+        post_id = forums.get_posts('S', topic_id, 1, self.owner)[0]['id']
+        with self.assertRaises(GameError):
+            forums.vote_post('S', post_id, self.owner, 'humour')  # Not on one's own message
+        with self.assertRaises(GameError):
+            forums.vote_post('S', post_id, self.visitor, 'inconnue')
+
+        private_topic_id = forums.create_topic('S', self.private_forum(), self.owner, 'Secret', 'Le plan')
+        with self.assertRaises(GameError):
+            forums.vote_post('S', forums.get_posts('S', private_topic_id, 1, self.owner)[0]['id'], self.visitor, 'humour')
+
+        tavern_id = forums.create_player_forum('S', self.owner, 'La Cantine', '', False)
+        tavern_topic_id = forums.create_topic('S', tavern_id, self.owner, 'Menu', 'Du jour')
+        tavern_post_id = forums.get_posts('S', tavern_topic_id, 1, self.owner)[0]['id']
+        forums.vote_post('S', tavern_post_id, self.visitor, 'humour')  # A public forum can be judged without joining it
+        forums.join_forum('S', tavern_id, self.visitor)
+        forums.remove_from_forum('S', tavern_id, self.owner, self.visitor)
+        with self.assertRaises(GameError):
+            forums.vote_post('S', tavern_post_id, self.visitor, 'fitting')
+
+        hrp_topic_id = forums.create_topic('S', forums.get_forum_id('S', 'hrp'), self.owner, 'Bug', 'Texte')
+        hrp_post = forums.get_posts('S', hrp_topic_id, 1, self.owner)[0]
+        self.assertNotIn('roleplay', [vote['category'] for vote in hrp_post['votes']])  # No roleplay out of the game
+        with self.assertRaises(GameError):
+            forums.vote_post('S', hrp_post['id'], self.visitor, 'roleplay')
+
+    def test_vote_from_the_page(self):
+        topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Citoyens...')
+        post_id = forums.get_posts('S', topic_id, 1, self.owner)[0]['id']
+        url = f'/topic/?topic_id={topic_id}'
+
+        self.play(self.other_user, self.visitor)
+        response = self.client.post(url, {'vote_post': f'{post_id}:humour'})
+        self.assertRedirects(response, f'{url}#post-{post_id}', fetch_redirect_response=False)
+        self.assertContains(self.client.get(url), 'Score : 1')
+        self.assertContains(self.client.get(url), 'Humour décapant : Varro')
+        self.assertContains(self.client.post(url, {'vote_post': 'abc:humour'}), 'noter ce message')
+        self.assertContains(self.client.post(url, {'vote_post': 'abc'}), 'noter ce message')
+
+        self.play(self.user, self.owner)  # Sees the votes on his own message, but his buttons are disabled
+        self.assertContains(self.client.get(url), 'disabled>Humour décapant : 1')
+
+        conversation_id = conversations.start_conversation('S', self.owner, 'Varro', 'Pacte', 'Secret')
+        self.assertNotContains(self.client.get(f'/conversation/?conversation_id={conversation_id}'), 'vote_post')
+
+    def test_deleting_a_message_takes_its_votes_away(self):
+        topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Un')
+        forums.reply_to_topic('S', topic_id, self.owner, 'Deux')
+        first, second = forums.get_posts('S', topic_id, 1, self.owner)
+        forums.vote_post('S', first['id'], self.visitor, 'humour')
+        forums.vote_post('S', second['id'], self.visitor, 'humour')
+        forums.delete_post('S', second['id'], self.visitor, True)
+        self.assertEqual(forums.get_posts('S', topic_id, 1, self.owner)[0]['score'], 1)
+
+    # View counter
+
+    def test_view_is_counted_once_by_commandant_after_the_page_asked_for_it(self):
+        topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Citoyens...')
+        url = f'/topic/?topic_id={topic_id}'
+        views = lambda: forums.get_topics('S', self.assembly_id, 1, self.owner)[0]['nb_views']
+
+        self.play(self.other_user, self.visitor)
+        self.client.post('/topic_view/', {'topic_id': topic_id})  # Without having displayed the topic
+        self.assertEqual(views(), 0)
+
+        self.assertContains(self.client.get(url), f'data-view-after="{forums.VIEW_DELAY_SECONDS}"')
+        self.assertEqual(views(), 0)  # Displaying it isn't enough
+        self.assertEqual(self.client.post('/topic_view/', {'topic_id': topic_id}).status_code, 204)
+        self.assertEqual(views(), 1)
+
+        self.client.post('/topic_view/', {'topic_id': topic_id})
+        self.assertEqual(views(), 1)
+        self.assertNotContains(self.client.get(url), 'data-view-after')  # Nothing more to send
+
+        self.play(self.user, self.owner)
+        self.client.get(url)
+        self.client.post('/topic_view/', {'topic_id': topic_id})
+        self.assertEqual(views(), 2)
+        self.assertEqual(self.client.get('/topic_view/').status_code, 405)
+        self.assertEqual(self.client.post('/topic_view/', {'topic_id': 'abc'}).status_code, 204)
+        self.assertContains(self.client.get(f'/forum/?forum_id={self.assembly_id}'), '<td class="text-center">2</td>')
+
+    def test_marking_as_read_is_no_view_and_a_private_topic_stays_closed(self):
+        topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Citoyens...')
+        forums.mark_forum_as_read('S', self.assembly_id, self.visitor)
+        self.assertEqual(forums.get_topics('S', self.assembly_id, 1, self.owner)[0]['nb_views'], 0)
+
+        forum_id = self.private_forum()
+        private_topic_id = forums.create_topic('S', forum_id, self.owner, 'Secret', 'Le plan')
+        forums.invite_to_forum('S', forum_id, self.owner, 'Varro')
+        forums.answer_invitation('S', forum_id, self.visitor, True)
+        forums.mark_forum_as_read('S', forum_id, self.visitor)
+        forums.remove_from_forum('S', forum_id, self.owner, self.visitor)
+        forums.count_topic_view('S', private_topic_id, self.visitor)  # Banned since : he can't read it any more
+        self.assertEqual(forums.get_topics('S', forum_id, 1, self.owner)[0]['nb_views'], 0)
 
     # Coalitions
 
@@ -689,7 +856,6 @@ class ForumsTests(TestCase):
         coalition_id = forums.get_coalition_id('S', self.owner)
         self.assertEqual(response.redirect_chain[-1][0], f'/forum/?forum_id={coalition_id}')
         self.assertContains(response, 'La Ligue')
-        self.assertContains(response, forums.default_ambiance('coalition').split("'")[0])
 
         manage_url = f'/player_forum_manage/?forum_id={coalition_id}'
         self.assertNotContains(self.client.get(manage_url), 'name="is_private"')
@@ -769,7 +935,7 @@ class ForumsTests(TestCase):
 
         self.client.post(url, {'action': 'save', 'name': 'Le Repaire', 'ambiance': 'Texte', 'is_private': 'on'})
         forum = forums.get_forum('S', forum_id, self.owner)
-        self.assertEqual((forum['name'], forum['ambiance'], forum['is_private']), ('Le Repaire', 'Texte', True))
+        self.assertEqual((forum['name'], forum['description'], forum['is_private']), ('Le Repaire', 'Texte', True))
 
         self.client.post(url, {'action': 'invite', 'invited_name': 'Varro'})
         self.assertEqual(self.invitations(self.visitor), 1)
@@ -847,7 +1013,7 @@ class ForumsTests(TestCase):
     def test_post_needs_a_csrf_token(self):
         client = Client(enforce_csrf_checks=True)
         client.force_login(self.user)
-        for url in ('/forum/', '/topic/', '/player_forums/', '/player_forum_manage/', '/coalition/', '/conversations/',
+        for url in ('/forum/', '/topic/', '/topic_view/', '/player_forums/', '/player_forum_manage/', '/coalition/', '/conversations/',
                     '/conversation/', '/admin_message_flags/'):
             self.assertEqual(client.post(url).status_code, 403, url)
 

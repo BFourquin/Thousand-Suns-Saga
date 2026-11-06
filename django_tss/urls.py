@@ -86,6 +86,7 @@ urlpatterns = [
     path('coalition/', views_forums.coalition, name='coalition'),
     path('forum/', views_forums.forum, name='forum'),
     path('topic/', views_forums.topic, name='topic'),
+    path('topic_view/', views_forums.topic_view, name='topic_view'),
     path('player_forums/', views_forums.player_forums, name='player_forums'),
     path('player_forum_manage/', views_forums.player_forum_manage, name='player_forum_manage'),
 

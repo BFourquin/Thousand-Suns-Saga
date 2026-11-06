@@ -1,7 +1,7 @@
 
 from data import server_details
 from data.conversations import count_unread_conversations
-from data.forums import count_open_flags, get_forum_badges
+from data.forums import count_all_open_flags, get_forum_badges
 from data.themes import get_theme_or_default
 from backend.utils import get_active_server_and_commandant_from_request, get_request_user
 
@@ -34,4 +34,4 @@ def commandant_and_server(request):
             'server_details': server_details.get_server_details(server) if server else None,
             'nb_unread_conversations': count_unread_conversations(server, commandant['id']) if commandant else 0,
             'forum_badges': get_forum_badges(server, commandant['id']) if commandant else {},
-            'nb_open_flags': count_open_flags(server) if commandant and request.user.is_staff else 0}
+            'nb_open_flags': count_all_open_flags() if request.user.is_staff else 0}

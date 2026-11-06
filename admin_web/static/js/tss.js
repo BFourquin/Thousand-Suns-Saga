@@ -27,6 +27,22 @@ $(function () {
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // VIEW COUNTER : <form data-view-after="seconds" action="url"> sent once the page stayed that long with its tab active
+
+    $('form[data-view-after]').each(function () {
+        var form = $(this), seconds = 0;
+        var timer = setInterval(function () {
+            if (document.hidden) { return; }
+            seconds += 1;
+            if (seconds >= form.data('view-after')) {
+                clearInterval(timer);
+                $.post(form.attr('action'), form.serialize());
+            }
+        }, 1000);
+    });
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // FORMS SENT TO THE JSON API : <form data-api-url="api_name">
 
     // Toasts built in AdminLTE : https://adminlte.io/docs/3.0/javascript/toasts.html

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 13:10+0100\n"
+"POT-Creation-Date: 2026-11-06 14:18+0100\n"
 "PO-Revision-Date: 2024-06-02 10:00+0000\n"
 "Last-Translator: <benoittd@hotmail.fr>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,19 +28,19 @@ msgstr "This planet cannot be colonized"
 msgid "Assemblée de coalition"
 msgstr "Coalition assembly"
 
-#: .\admin_web\templates\game\coalition.html:20
+#: .\admin_web\templates\game\coalition.html:19
 msgid "Vous ne faites partie d'aucune coalition."
 msgstr "You are not part of any coalition."
 
-#: .\admin_web\templates\game\coalition.html:27
+#: .\admin_web\templates\game\coalition.html:26
 msgid "Fonder une coalition"
 msgstr "Found a coalition"
 
-#: .\admin_web\templates\game\coalition.html:33
+#: .\admin_web\templates\game\coalition.html:32
 msgid "Nom de la coalition"
 msgstr "Name of the coalition"
 
-#: .\admin_web\templates\game\coalition.html:35
+#: .\admin_web\templates\game\coalition.html:34
 msgid "Fonder"
 msgstr "Found"
 
@@ -229,7 +229,7 @@ msgstr "Upgrade"
 
 #: .\admin_web\templates\game\colony.html:160
 #: .\admin_web\templates\game\colony.html:214
-#: .\admin_web\templates\game\forum_thread.html:72
+#: .\admin_web\templates\game\forum_thread.html:92
 msgid "Modifier"
 msgstr "Edit"
 
@@ -271,7 +271,7 @@ msgstr "free slot"
 
 #: .\admin_web\templates\game\conversations.html:5
 #: .\admin_web\templates\includes\menu_game.html:205
-#: .\backend\views_forums.py:268
+#: .\backend\views_forums.py:282
 msgid "Messages privés"
 msgstr "Private messages"
 
@@ -286,18 +286,18 @@ msgstr "Recipient"
 
 #: .\admin_web\templates\game\conversations.html:37
 #: .\admin_web\templates\game\conversations.html:65
-#: .\admin_web\templates\game\forum.html:66
+#: .\admin_web\templates\game\forum.html:68
 msgid "Sujet"
 msgstr "Topic"
 
 #: .\admin_web\templates\game\conversations.html:41
-#: .\admin_web\templates\game\forum.html:117
-#: .\admin_web\templates\game\forum_thread.html:113
+#: .\admin_web\templates\game\forum.html:121
+#: .\admin_web\templates\game\forum_thread.html:140
 msgid "Message"
 msgstr "Message"
 
 #: .\admin_web\templates\game\conversations.html:44
-#: .\admin_web\templates\game\forum_thread.html:115
+#: .\admin_web\templates\game\forum_thread.html:142
 msgid "Envoyer"
 msgstr "Send"
 
@@ -314,7 +314,7 @@ msgid "Correspondant"
 msgstr "Correspondent"
 
 #: .\admin_web\templates\game\conversations.html:75
-#: .\admin_web\templates\game\forum.html:76
+#: .\admin_web\templates\game\forum.html:79
 msgid "Nouveau"
 msgstr "New"
 
@@ -503,93 +503,97 @@ msgstr "Finished for:"
 msgid "Aucun commandant n'a encore terminé son cycle."
 msgstr "No commandant has finished their cycle yet."
 
-#: .\admin_web\templates\game\forum.html:20
+#: .\admin_web\templates\game\forum.html:21
 #: .\admin_web\templates\includes\player_forums_table.html:9
 msgid "Propriétaire"
 msgstr "Owner"
 
-#: .\admin_web\templates\game\forum.html:21
+#: .\admin_web\templates\game\forum.html:22
 msgid "Vous avez été banni de ce forum : vous pouvez seulement le lire."
 msgstr "You have been banned from this forum: you can only read it."
 
-#: .\admin_web\templates\game\forum.html:25
+#: .\admin_web\templates\game\forum.html:26
 msgid "Modifier le texte d'ambiance"
 msgstr "Edit the ambiance text"
 
-#: .\admin_web\templates\game\forum.html:30
+#: .\admin_web\templates\game\forum.html:31
 #: .\admin_web\templates\game\player_forum_manage.html:32
 #: .\admin_web\templates\game\player_forums.html:51
 msgid "Texte d'ambiance"
 msgstr "Ambiance text"
 
-#: .\admin_web\templates\game\forum.html:32
-#: .\admin_web\templates\game\forum_thread.html:73
+#: .\admin_web\templates\game\forum.html:33
+#: .\admin_web\templates\game\forum_thread.html:93
 #: .\admin_web\templates\game\player_forum_manage.html:41
 msgid "Enregistrer"
 msgstr "Save"
 
-#: .\admin_web\templates\game\forum.html:42
+#: .\admin_web\templates\game\forum.html:44
 #: .\admin_web\templates\game\player_forums.html:5
 #: .\admin_web\templates\includes\menu_game.html:194
 msgid "Tavernes"
 msgstr "Taverns"
 
-#: .\admin_web\templates\game\forum.html:44
+#: .\admin_web\templates\game\forum.html:46
 #: .\admin_web\templates\includes\forum_invitations.html:13
 #: .\admin_web\templates\includes\player_forums_table.html:19
 msgid "Privé"
 msgstr "Private"
 
-#: .\admin_web\templates\game\forum.html:49
+#: .\admin_web\templates\game\forum.html:51
 #: .\admin_web\templates\game\reports.html:200
 msgid "Tout marquer comme lu"
 msgstr "Mark all as read"
 
-#: .\admin_web\templates\game\forum.html:51
+#: .\admin_web\templates\game\forum.html:53
 #: .\admin_web\templates\game\player_forum_manage.html:7
 msgid "Gérer"
 msgstr "Manage"
 
-#: .\admin_web\templates\game\forum.html:53
+#: .\admin_web\templates\game\forum.html:55
 msgid "Quitter"
 msgstr "Leave"
 
-#: .\admin_web\templates\game\forum.html:55
+#: .\admin_web\templates\game\forum.html:57
 #: .\admin_web\templates\public\servers_list.html:131
 msgid "Rejoindre"
 msgstr "Join"
 
-#: .\admin_web\templates\game\forum.html:67
+#: .\admin_web\templates\game\forum.html:69
 msgid "Auteur"
 msgstr "Author"
 
-#: .\admin_web\templates\game\forum.html:68
+#: .\admin_web\templates\game\forum.html:70
 msgid "Réponses"
 msgstr "Replies"
 
-#: .\admin_web\templates\game\forum.html:69
+#: .\admin_web\templates\game\forum.html:71
+msgid "Vues"
+msgstr "Views"
+
+#: .\admin_web\templates\game\forum.html:72
 #: .\admin_web\templates\includes\player_forums_table.html:11
 msgid "Dernier message"
 msgstr "Last message"
 
-#: .\admin_web\templates\game\forum.html:82
+#: .\admin_web\templates\game\forum.html:86
 msgid "Aller au dernier message"
 msgstr "Go to the last message"
 
-#: .\admin_web\templates\game\forum.html:87
+#: .\admin_web\templates\game\forum.html:91
 msgid "Aucun sujet pour l'instant"
 msgstr "No topic yet"
 
-#: .\admin_web\templates\game\forum.html:102
-#: .\admin_web\templates\game\forum.html:104
+#: .\admin_web\templates\game\forum.html:106
+#: .\admin_web\templates\game\forum.html:108
 msgid "Créer un nouveau sujet"
 msgstr "Create a new topic"
 
-#: .\admin_web\templates\game\forum.html:113
+#: .\admin_web\templates\game\forum.html:117
 msgid "Titre"
 msgstr "Title"
 
-#: .\admin_web\templates\game\forum.html:120
+#: .\admin_web\templates\game\forum.html:124
 msgid "Publier"
 msgstr "Publish"
 
@@ -609,14 +613,22 @@ msgid "Supprimer"
 msgstr "Delete"
 
 #: .\admin_web\templates\game\forum_thread.html:59
+msgid "Score"
+msgstr "Score"
+
+#: .\admin_web\templates\game\forum_thread.html:69
+msgid "Détail des votes"
+msgstr "Votes in detail"
+
+#: .\admin_web\templates\game\forum_thread.html:79
 msgid "Message modifié : voir les versions précédentes"
 msgstr "Edited message: see the previous versions"
 
-#: .\admin_web\templates\game\forum_thread.html:63
+#: .\admin_web\templates\game\forum_thread.html:83
 msgid "Remplacée le"
 msgstr "Replaced on"
 
-#: .\admin_web\templates\game\forum_thread.html:71
+#: .\admin_web\templates\game\forum_thread.html:91
 msgid ""
 "Modifier (possible 15 minutes après l'envoi, les versions précédentes "
 "restent visibles)"
@@ -624,31 +636,31 @@ msgstr ""
 "Edit (possible for 15 minutes after sending, the previous versions stay "
 "visible)"
 
-#: .\admin_web\templates\game\forum_thread.html:79
+#: .\admin_web\templates\game\forum_thread.html:99
 msgid "Signaler à l'équipe"
 msgstr "Report to the team"
 
-#: .\admin_web\templates\game\forum_thread.html:81
+#: .\admin_web\templates\game\forum_thread.html:101
 msgid "Motif (facultatif)"
 msgstr "Reason (optional)"
 
-#: .\admin_web\templates\game\forum_thread.html:82
+#: .\admin_web\templates\game\forum_thread.html:102
 msgid "Signaler"
 msgstr "Report"
 
-#: .\admin_web\templates\game\forum_thread.html:85
+#: .\admin_web\templates\game\forum_thread.html:105
 msgid "Signalé à l'équipe"
 msgstr "Reported to the team"
 
-#: .\admin_web\templates\game\forum_thread.html:96
+#: .\admin_web\templates\game\forum_thread.html:116
 msgid "Supprimer définitivement ce sujet et tous ses messages ?"
 msgstr "Permanently delete this topic and all its messages?"
 
-#: .\admin_web\templates\game\forum_thread.html:97
+#: .\admin_web\templates\game\forum_thread.html:117
 msgid "Supprimer le sujet"
 msgstr "Delete the topic"
 
-#: .\admin_web\templates\game\forum_thread.html:108
+#: .\admin_web\templates\game\forum_thread.html:135
 msgid "Répondre"
 msgstr "Reply"
 
@@ -872,7 +884,7 @@ msgstr "Open a tavern"
 msgid "Ouvrir"
 msgstr "Open"
 
-#: .\admin_web\templates\game\player_forums.html:61 .\data\forums.py:378
+#: .\admin_web\templates\game\player_forums.html:61 .\data\forums.py:411
 msgid "Vous possédez déjà le maximum de 5 tavernes"
 msgstr "You already own the maximum of 5 taverns"
 
@@ -1245,11 +1257,11 @@ msgstr "Cycle finished"
 msgid "Centre de commande"
 msgstr "Command center"
 
-#: .\admin_web\templates\includes\menu_game.html:159 .\data\forums.py:154
+#: .\admin_web\templates\includes\menu_game.html:159 .\data\forums.py:140
 msgid "Assemblée Sectorielle"
 msgstr "Sector Assembly"
 
-#: .\admin_web\templates\includes\menu_game.html:171 .\data\forums.py:154
+#: .\admin_web\templates\includes\menu_game.html:171 .\data\forums.py:140
 msgid "Forum HRP"
 msgstr "OOC forum"
 
@@ -1636,8 +1648,8 @@ msgstr "You cannot write to yourself"
 msgid "Cette conversation n'existe plus"
 msgstr "This conversation no longer exists"
 
-#: .\data\conversations.py:63 .\data\conversations.py:73 .\data\forums.py:244
-#: .\data\forums.py:254
+#: .\data\conversations.py:63 .\data\conversations.py:73 .\data\forums.py:243
+#: .\data\forums.py:253
 msgid "Ce message n'existe plus"
 msgstr "This message no longer exists"
 
@@ -1730,120 +1742,103 @@ msgstr "Wolf-Rayet"
 msgid "Nébuleuse"
 msgstr "Nebula"
 
-#: .\data\forums.py:45
+#: .\data\forums.py:47
 msgid "Le titre doit faire entre 1 et 150 caractères"
 msgstr "The title must be between 1 and 150 characters long"
 
-#: .\data\forums.py:49
+#: .\data\forums.py:51
 msgid "Le message doit faire entre 1 et 20 000 caractères"
 msgstr "The message must be between 1 and 20,000 characters long"
 
-#: .\data\forums.py:53
+#: .\data\forums.py:55
 msgid "Commandant disparu"
 msgstr "Vanished commandant"
 
-#: .\data\forums.py:86
+#: .\data\forums.py:88
 msgid "Ce message ne peut plus être modifié"
 msgstr "This message can no longer be edited"
 
-#: .\data\forums.py:97
+#: .\data\forums.py:99
 msgid "Vous ne pouvez pas signaler votre propre message"
 msgstr "You cannot report your own message"
 
-#: .\data\forums.py:99
+#: .\data\forums.py:101
 msgid "Le motif doit faire au plus 1 000 caractères"
 msgstr "The reason must be at most 1,000 characters long"
 
-#: .\data\forums.py:110
+#: .\data\forums.py:112
 msgid "Aucun commandant ne porte ce nom sur ce serveur"
 msgstr "No commandant has this name on this server"
 
-#: .\data\forums.py:120
-msgid ""
-"Sous la grande coupole de la station qui sert de capitale au secteur, chaque"
-" civilisation dispose d'une tribune. Les discours y sont publics, les "
-"accords rarement, et chaque mot prononcé ici finit tôt ou tard dans les "
-"archives du secteur."
-msgstr ""
-"Under the great dome of the station serving as the capital of the sector, "
-"each civilisation has its own rostrum. Speeches are public here, agreements "
-"rarely so, and every word spoken ends up sooner or later in the archives of "
-"the sector."
-
-#: .\data\forums.py:123
-msgid ""
-"Ici, on pose les uniformes : ce forum est hors du jeu. Questions, bugs, "
-"idées ou simples discussions entre joueurs, ce qui s'y dit n'engage pas vos "
-"commandants."
-msgstr ""
-"Uniforms off: this forum is out of character. Questions, bugs, ideas or "
-"simple chats between players, nothing said here binds your commandants."
-
-#: .\data\forums.py:125
-msgid ""
-"Les portes de cette salle du conseil sont closes et gardées. Seuls les "
-"membres de la coalition y entrent, et ce qui s'y décide ne regarde qu'eux, "
-"jusqu'au jour où le secteur en découvre les conséquences."
-msgstr ""
-"The doors of this council chamber are closed and guarded. Only the members "
-"of the coalition may enter, and what is decided here concerns them alone, "
-"until the day the sector discovers the consequences."
-
-#: .\data\forums.py:128
-msgid ""
-"La fumée flotte sous les néons, les verres s'entrechoquent et les "
-"conversations baissent d'un ton à chaque nouvel arrivant. Dans ce genre "
-"d'endroit, personne ne pose de questions, ou alors à voix basse."
-msgstr ""
-"Smoke drifts under the neon lights, glasses clink and conversations drop a "
-"notch at each newcomer. In a place like this, nobody asks questions, or only"
-" in a whisper."
-
-#: .\data\forums.py:171
+#: .\data\forums.py:156
 msgid "Vous ne pouvez pas modifier ce texte"
 msgstr "You cannot edit this text"
 
-#: .\data\forums.py:209
+#: .\data\forums.py:208
 msgid "Vous ne pouvez pas écrire dans ce forum"
 msgstr "You cannot write in this forum"
 
-#: .\data\forums.py:234
+#: .\data\forums.py:233
 msgid "Ce sujet n'existe plus"
 msgstr "This topic no longer exists"
 
-#: .\data\forums.py:277
+#: .\data\forums.py:259
+msgid "Message adapté"
+msgstr "Fitting message"
+
+#: .\data\forums.py:259
+msgid "Message remarquable"
+msgstr "Remarkable message"
+
+#: .\data\forums.py:259
+msgid "Humour décapant"
+msgstr "Biting humour"
+
+#: .\data\forums.py:261
+msgid "Role play intéressant"
+msgstr "Interesting roleplay"
+
+#: .\data\forums.py:271
+msgid "Vous ne pouvez pas noter ce message"
+msgstr "You cannot rate this message"
+
+#: .\data\forums.py:273
+msgid "Vous ne pouvez pas noter votre propre message"
+msgstr "You cannot rate your own message"
+
+#: .\data\forums.py:299
 msgid "Vous ne pouvez pas supprimer ce message"
 msgstr "You cannot delete this message"
 
-#: .\data\forums.py:285
+#: .\data\forums.py:307
 msgid "Vous ne pouvez pas supprimer ce sujet"
 msgstr "You cannot delete this topic"
 
-#: .\data\forums.py:343
+#: .\data\forums.py:376
 msgid "Le nom doit faire entre 1 et 60 caractères"
 msgstr "The name must be between 1 and 60 characters long"
 
-#: .\data\forums.py:347
+#: .\data\forums.py:380
 msgid "Le texte d'ambiance doit faire au plus 5 000 caractères"
 msgstr "The ambiance text must be at most 5,000 characters long"
 
-#: .\data\forums.py:353
+#: .\data\forums.py:386
 msgid "Ce forum ne vous appartient pas"
 msgstr "This forum does not belong to you"
 
-#: .\data\forums.py:363 .\data\forums.py:391
+#: .\data\forums.py:396 .\data\forums.py:424
 msgid "Ce nom est déjà pris"
 msgstr "This name is already taken"
 
-#: .\data\forums.py:445 .\data\forums.py:491
+#: .\data\forums.py:478 .\data\forums.py:524
 msgid "Vous faites déjà partie d'une coalition"
 msgstr "You are already part of a coalition"
 
-#: .\data\forums.py:463
+#: .\data\forums.py:496
 msgid "Ce commandant est déjà membre"
 msgstr "This commandant is already a member"
 
-#: .\data\forums.py:499
+#: .\data\forums.py:532
 msgid "Vous ne pouvez pas rejoindre ce forum"
 msgstr "You cannot join this forum"
 
@@ -1886,6 +1881,43 @@ msgstr "Minimalist"
 #: .\data\themes.py:15
 msgid "Sombre épuré, accent indigo"
 msgstr "Clean dark, indigo accent"
+
+#~ msgid ""
+#~ "Sous la grande coupole de la station qui sert de capitale au secteur, chaque"
+#~ " civilisation dispose d'une tribune. Les discours y sont publics, les "
+#~ "accords rarement, et chaque mot prononcé ici finit tôt ou tard dans les "
+#~ "archives du secteur."
+#~ msgstr ""
+#~ "Under the great dome of the station serving as the capital of the sector, "
+#~ "each civilisation has its own rostrum. Speeches are public here, agreements "
+#~ "rarely so, and every word spoken ends up sooner or later in the archives of "
+#~ "the sector."
+
+#~ msgid ""
+#~ "Ici, on pose les uniformes : ce forum est hors du jeu. Questions, bugs, "
+#~ "idées ou simples discussions entre joueurs, ce qui s'y dit n'engage pas vos "
+#~ "commandants."
+#~ msgstr ""
+#~ "Uniforms off: this forum is out of character. Questions, bugs, ideas or "
+#~ "simple chats between players, nothing said here binds your commandants."
+
+#~ msgid ""
+#~ "Les portes de cette salle du conseil sont closes et gardées. Seuls les "
+#~ "membres de la coalition y entrent, et ce qui s'y décide ne regarde qu'eux, "
+#~ "jusqu'au jour où le secteur en découvre les conséquences."
+#~ msgstr ""
+#~ "The doors of this council chamber are closed and guarded. Only the members "
+#~ "of the coalition may enter, and what is decided here concerns them alone, "
+#~ "until the day the sector discovers the consequences."
+
+#~ msgid ""
+#~ "La fumée flotte sous les néons, les verres s'entrechoquent et les "
+#~ "conversations baissent d'un ton à chaque nouvel arrivant. Dans ce genre "
+#~ "d'endroit, personne ne pose de questions, ou alors à voix basse."
+#~ msgstr ""
+#~ "Smoke drifts under the neon lights, glasses clink and conversations drop a "
+#~ "notch at each newcomer. In a place like this, nobody asks questions, or only"
+#~ " in a whisper."
 
 #~ msgid "Section"
 #~ msgstr "Section"

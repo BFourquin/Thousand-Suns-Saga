@@ -15,7 +15,7 @@ from django.utils.translation import gettext as _
 from backend.models import Server
 from data.errors import GameError
 from database.schemas import on_server
-from game.models import Commandant, ConversationMessage, Forum, ForumMember, MessageFlag, Post, Topic, TopicRead, to_id
+from game.models import Commandant, ConversationMessage, Forum, ForumMember, MessageFlag, Post, PostVote, Topic, TopicRead, to_id
 
 TOPICS_PER_PAGE = 20
 POSTS_PER_PAGE = 20
@@ -28,6 +28,8 @@ REASON_MAX_LENGTH = 1000
 
 MAX_OWNED_TAVERNS = 5
 EDIT_DELAY = timedelta(minutes=15)
+VIEW_DELAY_SECONDS = 20  # Time on a topic with the tab active before it counts as a view, in tss.js
+LAST_CLOSED_FLAGS = 50
 
 
 ########################################################################################################################
@@ -115,22 +117,6 @@ def find_commandant(name):
 # FORUMS
 
 
-def default_ambiance(kind):
-    return {
-        'assembly': _("Sous la grande coupole de la station qui sert de capitale au secteur, chaque civilisation dispose "
-                      "d'une tribune. Les discours y sont publics, les accords rarement, et chaque mot prononcé ici "
-                      "finit tôt ou tard dans les archives du secteur."),
-        'hrp': _("Ici, on pose les uniformes : ce forum est hors du jeu. Questions, bugs, idées ou simples discussions "
-                 "entre joueurs, ce qui s'y dit n'engage pas vos commandants."),
-        'coalition': _("Les portes de cette salle du conseil sont closes et gardées. Seuls les membres de la coalition y "
-                       "entrent, et ce qui s'y décide ne regarde qu'eux, jusqu'au jour où le secteur en découvre les "
-                       "conséquences."),
-        'player': _("La fumée flotte sous les néons, les verres s'entrechoquent et les conversations baissent d'un ton à "
-                    "chaque nouvel arrivant. Dans ce genre d'endroit, personne ne pose de questions, ou alors à voix "
-                    "basse."),
-    }[kind]
-
-
 @on_server
 def get_forum_id(server, kind):
     # For the forums existing once per server
@@ -152,7 +138,6 @@ def get_forum(server, forum_id, commandant_id):
 
     return forum.as_dict() | {
         'name': {'assembly': _("Assemblée Sectorielle"), 'hrp': _("Forum HRP")}.get(forum.kind, forum.name),
-        'ambiance': forum.description or default_ambiance(forum.kind),
         'owner_name': forum.owner.commandant_name if forum.owner else None,
         'membership': membership,
         'can_post': forum.kind in ('assembly', 'hrp') or membership == 'member',
@@ -166,7 +151,7 @@ def can_moderate(forum, is_staff):
 
 @on_server
 def update_forum_ambiance(server, forum_id, is_staff, ambiance):
-    # The forums without owner are the business of the team. Empty : back to the default text.
+    # The forums without owner are the business of the team
     if not is_staff:
         raise GameError(_("Vous ne pouvez pas modifier ce texte"))
     Forum.objects.filter(id=to_id(forum_id), kind__in=('assembly', 'hrp')).update(description=_clean_ambiance(ambiance))
@@ -183,7 +168,7 @@ def get_topics(server, forum_id, page, commandant_id):
               .order_by('-last_post_date', '-id'))
     page = Paginator(topics, TOPICS_PER_PAGE).get_page(page)
     page.object_list = [{'id': topic.id, 'title': topic.title, 'author_name': author_name(topic.author),
-                         'nb_replies': topic.nb_posts - 1, 'last_post_date': topic.last_post_date,
+                         'nb_replies': topic.nb_posts - 1, 'nb_views': topic.nb_views, 'last_post_date': topic.last_post_date,
                          'last_author_name': author_name(topic.last_author),
                          'is_unread': topic.read_date is None or topic.last_post_date > topic.read_date}
                         for topic in page.object_list]
@@ -200,7 +185,21 @@ def get_topic(server, topic_id, commandant_id):
 
 @on_server
 def get_posts(server, topic_id, page, commandant_id):
-    return page_of_posts(Post.objects.filter(topic_id=to_id(topic_id)), page, commandant_id, 'post')
+    posts = page_of_posts(Post.objects.filter(topic_id=to_id(topic_id)), page, commandant_id, 'post')
+
+    votes = {}
+    for vote in (PostVote.objects.filter(post_id__in=[post['id'] for post in posts]).select_related('commandant')
+                 .order_by('commandant__commandant_name')):
+        votes.setdefault((vote.post_id, vote.category), []).append(vote.commandant)
+
+    categories = vote_categories(Forum.objects.filter(topics=to_id(topic_id)).values_list('kind', flat=True).first())
+    for post in posts:
+        post['votes'] = [{'category': category, 'label': label,
+                          'voters': [voter.commandant_name for voter in votes.get((post['id'], category), [])],
+                          'is_mine': any(voter.id == commandant_id for voter in votes.get((post['id'], category), []))}
+                         for category, label in categories.items()]
+        post['score'] = sum(len(vote['voters']) for vote in post['votes'])
+    return posts
 
 
 def _forum_open_to_posts(server, forum_id, commandant_id):
@@ -255,6 +254,29 @@ def flag_post(server, post_id, commandant_id, reason):
     flag_message('post', post, commandant_id, reason, f"{forum['name']} > {post.topic.title}")
 
 
+def vote_categories(forum_kind):
+    # The score of a message is its number of votes, whatever their category
+    categories = {'fitting': _("Message adapté"), 'remarkable': _("Message remarquable"), 'humour': _("Humour décapant")}
+    if forum_kind != 'hrp':  # Out of the game, there is no roleplay to reward
+        categories['roleplay'] = _("Role play intéressant")
+    return categories
+
+
+@on_server
+def vote_post(server, post_id, commandant_id, category):
+    # One vote per commandant on a message : another category replaces it, the same one takes it back
+    post = Post.objects.select_related('topic').filter(id=to_id(post_id)).first()
+    forum = get_forum(server, post.topic.forum_id, commandant_id) if post else None
+    if not forum or forum['membership'] == 'banned' or category not in vote_categories(forum['kind']):
+        raise GameError(_("Vous ne pouvez pas noter ce message"))
+    if post.author_id == commandant_id:
+        raise GameError(_("Vous ne pouvez pas noter votre propre message"))
+
+    if not PostVote.objects.filter(post=post, commandant_id=commandant_id, category=category).delete()[0]:
+        PostVote.objects.update_or_create(post=post, commandant_id=commandant_id, defaults={'category': category})
+    return post.id
+
+
 def _remove_post(post):
     # Return False when it was the last post of its topic, which is removed too
     topic = post.topic
@@ -292,10 +314,21 @@ def delete_topic(server, topic_id, commandant_id, is_staff):
 
 @on_server
 def mark_topic_as_read(server, topic_id, commandant_id, read_until):
-    # Up to the last post displayed, and never backwards : coming back to the first page changes nothing
+    # Up to the last post displayed, and never backwards : coming back to the first page changes nothing.
+    # Return whether this commandant already counts as a view of this topic.
     read = TopicRead.objects.get_or_create(topic_id=to_id(topic_id), commandant_id=commandant_id,
                                            defaults={'last_read_date': read_until})[0]
     TopicRead.objects.filter(id=read.id, last_read_date__lt=read_until).update(last_read_date=read_until)
+    return read.viewed
+
+
+@on_server
+@transaction.atomic
+def count_topic_view(server, topic_id, commandant_id):
+    # Once per commandant, so that reloading the page inflates nothing. His TopicRead exists since the page was displayed.
+    if get_topic(server, topic_id, commandant_id) and \
+            TopicRead.objects.filter(topic_id=to_id(topic_id), commandant_id=commandant_id, viewed=False).update(viewed=True):
+        Topic.objects.filter(id=to_id(topic_id)).update(nb_views=F('nb_views') + 1)
 
 
 @on_server
@@ -513,28 +546,63 @@ def leave_forum(server, forum_id, commandant_id):
 
 @on_server
 def count_open_flags(server):
-    return MessageFlag.objects.filter(status='open').count()
+    # Messages to handle, not reports : ten people reporting one message are one thing to do
+    return MessageFlag.objects.filter(status='open').values('message_kind', 'message_id').distinct().count()
+
+
+def count_all_open_flags():
+    return sum(count_open_flags(server) for server in Server.objects.values_list('server_name', flat=True))
+
+
+def _group_by_message(flags, server):
+    # The most recent flag comes first and gives its copy of the message : it holds the older versions too
+    messages = {}
+    for flag in flags:
+        message = messages.setdefault((flag.message_kind, flag.message_id), flag.as_dict() | {
+            'server': server, 'datetime': flag.datetime, 'reports': []})
+        message['reports'].append({'reporter_name': author_name(flag.reporter), 'reason': flag.reason, 'datetime': flag.datetime})
+    return list(messages.values())
 
 
 @on_server
 def get_flags(server):
-    # shortcut: the closed flags are limited to the last 50, paginate if the team wants the whole history
-    def as_rows(flags):
-        return [flag.as_dict() | {'datetime': flag.datetime, 'reporter_name': author_name(flag.reporter)} for flag in flags]
+    # shortcut: the closed flags are limited to the last ones, paginate if the team wants the whole history
+    flags = MessageFlag.objects.select_related('reporter').order_by('-datetime', '-id')
+    return {'open': _group_by_message(flags.filter(status='open'), server),
+            'closed': _group_by_message(flags.filter(status='closed')[:LAST_CLOSED_FLAGS], server)}
 
-    flags = MessageFlag.objects.select_related('reporter').order_by('-datetime')
-    return {'open': as_rows(flags.filter(status='open')), 'closed': as_rows(flags.filter(status='closed')[:50])}
+
+def get_reported_messages(servers, more_than=0):
+    # more_than : hides the forum messages reported by fewer people. Never the private messages : with a single possible
+    # reporter, they would stay hidden for ever.
+    open_messages, closed_messages = [], []
+    for server in servers:
+        flags = get_flags(server)
+        open_messages += flags['open']
+        closed_messages += flags['closed']
+
+    open_messages.sort(key=lambda message: message['datetime'], reverse=True)
+    closed_messages.sort(key=lambda message: message['datetime'], reverse=True)
+    return {'open': [message for message in open_messages if message['message_kind'] != 'post' or len(message['reports']) > more_than],
+            'nb_open': len(open_messages), 'closed': closed_messages[:LAST_CLOSED_FLAGS]}
+
+
+def _settle_flags_of_message(flag, staff_name):
+    MessageFlag.objects.filter(message_kind=flag.message_kind, message_id=flag.message_id, status='open') \
+        .update(status='closed', handled_by=staff_name)
 
 
 @on_server
 def close_flag(server, flag_id, staff_name):
-    MessageFlag.objects.filter(id=to_id(flag_id)).update(status='closed', handled_by=staff_name)
+    # All the reports of its message at once : the team judges a message, not each report
+    flag = MessageFlag.objects.filter(id=to_id(flag_id)).first()
+    if flag:
+        _settle_flags_of_message(flag, staff_name)
 
 
 @on_server
 @transaction.atomic
 def delete_flagged_message(server, flag_id, staff_name):
-    # All the flags of this message are settled by its deletion
     flag = MessageFlag.objects.filter(id=to_id(flag_id)).first()
     if flag is None:
         return
@@ -550,5 +618,4 @@ def delete_flagged_message(server, flag_id, staff_name):
             if not message.conversation.messages.exists():
                 message.conversation.delete()
 
-    MessageFlag.objects.filter(message_kind=flag.message_kind, message_id=flag.message_id) \
-        .update(status='closed', handled_by=staff_name)
+    _settle_flags_of_message(flag, staff_name)

@@ -14,9 +14,10 @@
       {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
 
       <!-- Text of ambiance -->
+      {% if forum.description or forum.owner_name or forum.membership == 'banned' or can_edit_ambiance %}
       <div class="card">
         <div class="card-body text-break">
-          <div class="font-italic">{{ forum.ambiance|linebreaks }}</div>
+          {% if forum.description %}<div class="font-italic">{{ forum.description|linebreaks }}</div>{% endif %}
           {% if forum.owner_name %}<small class="text-muted">{% trans "Propriétaire" %} : {{ forum.owner_name }}</small>{% endif %}
           {% if forum.membership == 'banned' %}<div class="text-danger">{% trans "Vous avez été banni de ce forum : vous pouvez seulement le lire." %}</div>{% endif %}
 
@@ -27,7 +28,7 @@
                 {% csrf_token %}
                 <div class="form-group">
                   <textarea name="ambiance" class="form-control" rows="6" maxlength="5000"
-                            aria-label="{% trans "Texte d'ambiance" %}" placeholder="{{ forum.ambiance }}">{{ forum.description }}</textarea>
+                            aria-label="{% trans "Texte d'ambiance" %}">{{ forum.description }}</textarea>
                 </div>
                 <button type="submit" name="action" value="save_ambiance" class="btn btn-primary btn-sm">{% trans "Enregistrer" %}</button>
               </form>
@@ -35,6 +36,7 @@
           {% endif %}
         </div>
       </div>
+      {% endif %}
 
       <div class="card card-primary card-outline">
         <div class="card-header">
@@ -66,6 +68,7 @@
                   <th>{% trans "Sujet" %}</th>
                   <th>{% trans "Auteur" %}</th>
                   <th class="text-center">{% trans "Réponses" %}</th>
+                  <th class="text-center">{% trans "Vues" %}</th>
                   <th>{% trans "Dernier message" %}</th>
                 </tr>
               </thead>
@@ -78,13 +81,14 @@
                     </td>
                     <td>{{ topic.author_name }}</td>
                     <td class="text-center">{{ topic.nb_replies }}</td>
+                    <td class="text-center">{{ topic.nb_views }}</td>
                     <td class="u-white-space-nowrap">
                       <a href="/topic/?topic_id={{ topic.id }}&page=last" title="{% trans "Aller au dernier message" %}">{{ topic.last_post_date|date:"d/m/Y H:i" }}</a>
                       <br><small class="text-muted">{{ topic.last_author_name }}</small>
                     </td>
                   </tr>
                 {% empty %}
-                  <tr><td colspan="4" class="text-center text-muted py-4">{% trans "Aucun sujet pour l'instant" %}</td></tr>
+                  <tr><td colspan="5" class="text-center text-muted py-4">{% trans "Aucun sujet pour l'instant" %}</td></tr>
                 {% endfor %}
               </tbody>
             </table>

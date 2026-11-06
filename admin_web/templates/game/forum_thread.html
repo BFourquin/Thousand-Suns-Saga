@@ -29,7 +29,7 @@
           {% csrf_token %}
           <div class="card-body p-0">
             {% for post in posts %}
-              <div class="media p-3 border-bottom">
+              <div class="media p-3 border-bottom" id="post-{{ post.id }}">
                 {% if post.author_portrait %}
                   <img src="{% static "" %}{{ post.author_portrait }}" class="img-size-50 mr-3" alt="">
                 {% endif %}
@@ -51,6 +51,26 @@
                   </div>
 
                   <div class="mt-2">{{ post.body|urlize|linebreaksbr }}</div>
+
+                  {% if forum %}
+                    <div class="mt-2 d-flex flex-wrap align-items-center">
+                      <small class="mr-2"><strong>{% trans "Score" %} : {{ post.score }}</strong></small>
+                      {% for vote in post.votes %}
+                        <button type="submit" name="vote_post" value="{{ post.id }}:{{ vote.category }}"
+                                class="btn btn-xs mr-1 mb-1 {% if vote.is_mine %}btn-primary{% else %}btn-default{% endif %}"
+                                aria-pressed="{{ vote.is_mine|yesno:"true,false" }}"
+                                {% if not can_vote or post.author_id == commandant.id %}disabled{% endif %}>{{ vote.label }} : {{ vote.voters|length }}</button>
+                      {% endfor %}
+                    </div>
+                    {% if post.score %}
+                      <details>
+                        <summary><small class="text-muted">{% trans "Détail des votes" %}</small></summary>
+                        {% for vote in post.votes %}
+                          {% if vote.voters %}<small class="d-block">{{ vote.label }} : {{ vote.voters|join:", " }}</small>{% endif %}
+                        {% endfor %}
+                      </details>
+                    {% endif %}
+                  {% endif %}
 
                   {% if post.previous_versions %}
                     <details class="mt-2">
@@ -100,6 +120,13 @@
           </div>
         </form>
       </div>
+
+      {% if view_delay %}
+        <form method="POST" action="/topic_view/" data-view-after="{{ view_delay }}" hidden>
+          {% csrf_token %}
+          <input type="hidden" name="topic_id" value="{{ topic_id }}">
+        </form>
+      {% endif %}
 
       {% if can_post %}
         <div class="card">
