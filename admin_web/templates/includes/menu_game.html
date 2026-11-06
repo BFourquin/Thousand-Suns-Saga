@@ -148,8 +148,8 @@
             <a href="/diplomacy/" class="nav-link {% if request.path == '/diplomacy/' or request.path == '/entente/' %}active{% endif %}">
                 <i class="fas fa-tower-cell nav-icon"></i>
                 <p>{% trans "Diplomatie" %}
-                    {% if nb_entente_applications %}
-                        <span class="badge badge-warning right">{{nb_entente_applications}}</span>
+                    {% if nb_entente_answers %}
+                        <span class="badge badge-warning right">{{nb_entente_answers}}</span>
                     {% endif %}
                 </p>
             </a>

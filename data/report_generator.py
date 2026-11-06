@@ -15,12 +15,20 @@ ENTENTE_REPORTS = {
         'en': ("Application refused", "The entente {entente} refused your application."),
     },
     'entente_member_excluded': {
-        'fr': ("Exclusion d'une entente", "Le fondateur de l'entente {entente} vous en a exclu."),
-        'en': ("Excluded from an entente", "The founder of the entente {entente} excluded you from it."),
+        'fr': ("Exclusion d'une entente", "Vous ne faites plus partie de l'entente {entente}."),
+        'en': ("Excluded from an entente", "You are no longer part of the entente {entente}."),
     },
     'entente_dissolved': {
-        'fr': ("Entente dissoute", "Le fondateur de l'entente {entente} l'a dissoute."),
-        'en': ("Entente dissolved", "The founder of the entente {entente} dissolved it."),
+        'fr': ("Entente dissoute", "Le propriétaire de l'entente {entente} l'a dissoute."),
+        'en': ("Entente dissolved", "The owner of the entente {entente} dissolved it."),
+    },
+    'entente_invitation': {
+        'fr': ("Invitation dans une entente", "L'entente {entente} vous invite à la rejoindre : répondez depuis la page Diplomatie."),
+        'en': ("Invitation to an entente", "The entente {entente} invites you to join it: answer from the Diplomacy page."),
+    },
+    'entente_ownership_received': {
+        'fr': ("Propriété d'une entente", "La propriété de l'entente {entente} vous a été cédée."),
+        'en': ("Ownership of an entente", "The ownership of the entente {entente} was given to you."),
     },
 }
 

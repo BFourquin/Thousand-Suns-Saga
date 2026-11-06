@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 15:03+0100\n"
+"POT-Creation-Date: 2026-11-06 16:06+0100\n"
 "PO-Revision-Date: 2024-06-02 10:00+0000\n"
 "Last-Translator: <benoittd@hotmail.fr>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,7 +41,7 @@ msgid "Nom de la coalition"
 msgstr "Name of the coalition"
 
 #: .\admin_web\templates\game\coalition.html:34
-#: .\admin_web\templates\game\diplomacy.html:60
+#: .\admin_web\templates\game\diplomacy.html:69
 msgid "Fonder"
 msgstr "Found"
 
@@ -173,7 +173,7 @@ msgstr "Resources"
 msgid "Défenses"
 msgstr "Defenses"
 
-#: .\admin_web\templates\game\colony.html:82 .\data\ententes.py:28
+#: .\admin_web\templates\game\colony.html:82 .\data\ententes.py:40
 msgid "Politique"
 msgstr "Politics"
 
@@ -210,7 +210,7 @@ msgstr "Science"
 msgid "Agriculture"
 msgstr "Agriculture"
 
-#: .\admin_web\templates\game\colony.html:122 .\data\ententes.py:28
+#: .\admin_web\templates\game\colony.html:122 .\data\ententes.py:40
 msgid "Militaire"
 msgstr "Military"
 
@@ -230,6 +230,7 @@ msgstr "Upgrade"
 
 #: .\admin_web\templates\game\colony.html:160
 #: .\admin_web\templates\game\colony.html:214
+#: .\admin_web\templates\game\entente.html:134
 #: .\admin_web\templates\game\forum_thread.html:98
 msgid "Modifier"
 msgstr "Edit"
@@ -511,28 +512,35 @@ msgstr "No commandant has finished their cycle yet."
 msgid "Diplomatie"
 msgstr "Diplomacy"
 
-#: .\admin_web\templates\game\diplomacy.html:18
+#: .\admin_web\templates\game\diplomacy.html:19
+#: .\admin_web\templates\includes\forum_invitations.html:6
+msgid "Invitations reçues"
+msgstr "Invitations received"
+
+#: .\admin_web\templates\game\diplomacy.html:27
 msgid "Mes ententes"
 msgstr "My ententes"
 
-#: .\admin_web\templates\game\diplomacy.html:20
+#: .\admin_web\templates\game\diplomacy.html:29
 msgid "Vous ne faites partie d'aucune entente"
 msgstr "You are not part of any entente"
 
-#: .\admin_web\templates\game\diplomacy.html:25
+#: .\admin_web\templates\game\diplomacy.html:34
 msgid "Autres ententes"
 msgstr "Other ententes"
 
-#: .\admin_web\templates\game\diplomacy.html:27
+#: .\admin_web\templates\game\diplomacy.html:36
 msgid "Aucune autre entente connue"
 msgstr "No other known entente"
 
-#: .\admin_web\templates\game\diplomacy.html:33
-#: .\admin_web\templates\game\diplomacy.html:35
+#: .\admin_web\templates\game\diplomacy.html:42
+#: .\admin_web\templates\game\diplomacy.html:44
 msgid "Fonder une entente"
 msgstr "Found an entente"
 
-#: .\admin_web\templates\game\diplomacy.html:45
+#: .\admin_web\templates\game\diplomacy.html:54
+#: .\admin_web\templates\game\entente.html:140
+#: .\admin_web\templates\game\entente.html:164
 #: .\admin_web\templates\game\player_forum_manage.html:28
 #: .\admin_web\templates\game\player_forums.html:47
 #: .\admin_web\templates\includes\ententes_table.html:8
@@ -540,18 +548,18 @@ msgstr "Found an entente"
 msgid "Nom"
 msgstr "Name"
 
-#: .\admin_web\templates\game\diplomacy.html:49
+#: .\admin_web\templates\game\diplomacy.html:58
 msgid "Type d'alliance"
 msgstr "Type of alliance"
 
-#: .\admin_web\templates\game\diplomacy.html:57
-#: .\admin_web\templates\game\entente.html:116
+#: .\admin_web\templates\game\diplomacy.html:66
+#: .\admin_web\templates\game\entente.html:190
 msgid "Description"
 msgstr "Description"
 
-#: .\admin_web\templates\game\diplomacy.html:63 .\data\ententes.py:145
-msgid "Vous avez déjà fondé le maximum de 5 ententes"
-msgstr "You have already founded the maximum of 5 ententes"
+#: .\admin_web\templates\game\diplomacy.html:72 .\data\ententes.py:234
+msgid "Vous possédez déjà le maximum de 5 ententes"
+msgstr "You already own the maximum of 5 ententes"
 
 #: .\admin_web\templates\game\entente.html:29
 msgid ""
@@ -566,101 +574,174 @@ msgid "Cette entente n'a pas de description."
 msgstr "This entente has no description."
 
 #: .\admin_web\templates\game\entente.html:36
-msgid "Fondée par"
-msgstr "Founded by"
+#: .\admin_web\templates\game\entente.html:123
+#: .\admin_web\templates\game\forum.html:22
+#: .\admin_web\templates\includes\ententes_table.html:10
+#: .\admin_web\templates\includes\player_forums_table.html:10
+#: .\data\ententes.py:183
+msgid "Propriétaire"
+msgstr "Owner"
 
 #: .\admin_web\templates\game\entente.html:43
-msgid "Postuler"
-msgstr "Apply"
+msgid "Cette entente vous invite à la rejoindre"
+msgstr "This entente invites you to join it"
 
-#: .\admin_web\templates\game\entente.html:48
-msgid "Message au fondateur (facultatif)"
-msgstr "Message to the founder (optional)"
-
-#: .\admin_web\templates\game\entente.html:51
-msgid "Envoyer ma candidature"
-msgstr "Send my application"
-
-#: .\admin_web\templates\game\entente.html:59
-msgid "Votre candidature attend la réponse du fondateur"
-msgstr "Your application is awaiting the founder's answer"
-
-#: .\admin_web\templates\game\entente.html:64
-msgid "Retirer ma candidature"
-msgstr "Withdraw my application"
-
-#: .\admin_web\templates\game\entente.html:72
-msgid "Candidatures"
-msgstr "Applications"
-
-#: .\admin_web\templates\game\entente.html:89
+#: .\admin_web\templates\game\entente.html:47
+#: .\admin_web\templates\game\entente.html:102
 #: .\admin_web\templates\includes\forum_invitations.html:19
 msgid "Accepter"
 msgstr "Accept"
 
-#: .\admin_web\templates\game\entente.html:90
+#: .\admin_web\templates\game\entente.html:48
+#: .\admin_web\templates\game\entente.html:103
 #: .\admin_web\templates\includes\forum_invitations.html:20
 msgid "Refuser"
 msgstr "Decline"
 
-#: .\admin_web\templates\game\entente.html:95
+#: .\admin_web\templates\game\entente.html:56
+msgid "Postuler"
+msgstr "Apply"
+
+#: .\admin_web\templates\game\entente.html:61
+msgid "Message à l'entente (facultatif)"
+msgstr "Message to the entente (optional)"
+
+#: .\admin_web\templates\game\entente.html:64
+msgid "Envoyer ma candidature"
+msgstr "Send my application"
+
+#: .\admin_web\templates\game\entente.html:72
+msgid "Votre candidature attend une réponse"
+msgstr "Your application is awaiting an answer"
+
+#: .\admin_web\templates\game\entente.html:77
+msgid "Retirer ma candidature"
+msgstr "Withdraw my application"
+
+#: .\admin_web\templates\game\entente.html:85
+msgid "Candidatures"
+msgstr "Applications"
+
+#: .\admin_web\templates\game\entente.html:108
 msgid "Aucune candidature en attente"
 msgstr "No pending application"
 
-#: .\admin_web\templates\game\entente.html:105
-#: .\admin_web\templates\game\entente.html:107
-msgid "Gérer l'entente"
-msgstr "Manage the entente"
-
 #: .\admin_web\templates\game\entente.html:119
+msgid "Rôles"
+msgstr "Roles"
+
+#: .\admin_web\templates\game\entente.html:123
+msgid "unique, toutes les options"
+msgstr "unique, all the options"
+
+#: .\admin_web\templates\game\entente.html:130
+msgid "Aucune option"
+msgstr "No option"
+
+#: .\admin_web\templates\game\entente.html:145
+#: .\admin_web\templates\game\entente.html:193
 #: .\admin_web\templates\game\forum.html:34
 #: .\admin_web\templates\game\forum_thread.html:99
 #: .\admin_web\templates\game\player_forum_manage.html:41
 msgid "Enregistrer"
 msgstr "Save"
 
-#: .\admin_web\templates\game\entente.html:121
+#: .\admin_web\templates\game\entente.html:148
+msgid "Supprimer ce rôle ? Ses membres reprendront le rôle Membre."
+msgstr "Delete this role? Its members will go back to the Member role."
+
+#: .\admin_web\templates\game\entente.html:148
+#: .\admin_web\templates\game\forum_thread.html:57
+#: .\admin_web\templates\game\report.html:85
+#: .\admin_web\templates\game\reports.html:237
+#: .\admin_web\templates\game\reports.html:351
+msgid "Supprimer"
+msgstr "Delete"
+
+#: .\admin_web\templates\game\entente.html:160
+msgid "Créer un rôle"
+msgstr "Create a role"
+
+#: .\admin_web\templates\game\entente.html:168
+msgid "Créer"
+msgstr "Create"
+
+#: .\admin_web\templates\game\entente.html:179
+#: .\admin_web\templates\game\entente.html:181
+msgid "Gérer l'entente"
+msgstr "Manage the entente"
+
+#: .\admin_web\templates\game\entente.html:195
 msgid ""
 "Dissoudre définitivement cette entente ? Cette opération est irréversible."
 msgstr "Permanently dissolve this entente? This cannot be undone."
 
-#: .\admin_web\templates\game\entente.html:121
+#: .\admin_web\templates\game\entente.html:195
 msgid "Dissoudre l'entente"
 msgstr "Dissolve the entente"
 
-#: .\admin_web\templates\game\entente.html:132
+#: .\admin_web\templates\game\entente.html:202
+msgid "Céder la propriété"
+msgstr "Give away the ownership"
+
+#: .\admin_web\templates\game\entente.html:211
+msgid ""
+"Céder définitivement la propriété de cette entente à ce membre ? Vous "
+"deviendrez un simple membre."
+msgstr ""
+"Permanently give the ownership of this entente to this member? You will "
+"become a regular member."
+
+#: .\admin_web\templates\game\entente.html:211
+msgid "Céder"
+msgstr "Give away"
+
+#: .\admin_web\templates\game\entente.html:225
+#: .\admin_web\templates\game\player_forum_manage.html:62
+msgid "Inviter un commandant"
+msgstr "Invite a commandant"
+
+#: .\admin_web\templates\game\entente.html:231
+#: .\admin_web\templates\game\player_forum_manage.html:68
+msgid "Nom du commandant"
+msgstr "Commandant's name"
+
+#: .\admin_web\templates\game\entente.html:233
+#: .\admin_web\templates\game\player_forum_manage.html:70
+msgid "Inviter"
+msgstr "Invite"
+
+#: .\admin_web\templates\game\entente.html:246
 #: .\admin_web\templates\game\player_forum_manage.html:81
 #: .\admin_web\templates\includes\ententes_table.html:11
 #: .\admin_web\templates\includes\player_forums_table.html:11
 msgid "Membres"
 msgstr "Members"
 
-#: .\admin_web\templates\game\entente.html:138
+#: .\admin_web\templates\game\entente.html:252
 msgid "Quitter cette entente ?"
 msgstr "Leave this entente?"
 
-#: .\admin_web\templates\game\entente.html:138
+#: .\admin_web\templates\game\entente.html:252
 #: .\admin_web\templates\game\forum.html:56
 msgid "Quitter"
 msgstr "Leave"
 
-#: .\admin_web\templates\game\entente.html:155
-#: .\admin_web\templates\includes\ententes_table.html:10
-msgid "Fondateur"
-msgstr "Founder"
+#: .\admin_web\templates\game\entente.html:272
+msgid "Rôle de"
+msgstr "Role of"
 
-#: .\admin_web\templates\game\entente.html:161
+#: .\admin_web\templates\game\entente.html:280
+msgid "Attribuer"
+msgstr "Assign"
+
+#: .\admin_web\templates\game\entente.html:284
 msgid "Exclure ce membre de l'entente ?"
 msgstr "Exclude this member from the entente?"
 
-#: .\admin_web\templates\game\entente.html:161
+#: .\admin_web\templates\game\entente.html:284
 msgid "Exclure"
 msgstr "Exclude"
-
-#: .\admin_web\templates\game\forum.html:22
-#: .\admin_web\templates\includes\player_forums_table.html:10
-msgid "Propriétaire"
-msgstr "Owner"
 
 #: .\admin_web\templates\game\forum.html:23
 msgid "Vous avez été banni de ce forum : vous pouvez seulement le lire."
@@ -752,13 +833,6 @@ msgstr "Diplomatic respect"
 #: .\admin_web\templates\game\forum_thread.html:56
 msgid "Supprimer définitivement ce message ?"
 msgstr "Permanently delete this message?"
-
-#: .\admin_web\templates\game\forum_thread.html:57
-#: .\admin_web\templates\game\report.html:85
-#: .\admin_web\templates\game\reports.html:237
-#: .\admin_web\templates\game\reports.html:351
-msgid "Supprimer"
-msgstr "Delete"
 
 #: .\admin_web\templates\game\forum_thread.html:65
 msgid "Score"
@@ -960,19 +1034,7 @@ msgstr "Permanently destroy this forum? This cannot be undone."
 msgid "Détruire définitivement"
 msgstr "Destroy permanently"
 
-#: .\admin_web\templates\game\player_forum_manage.html:62
-msgid "Inviter un commandant"
-msgstr "Invite a commandant"
-
-#: .\admin_web\templates\game\player_forum_manage.html:68
-msgid "Nom du commandant"
-msgstr "Commandant's name"
-
-#: .\admin_web\templates\game\player_forum_manage.html:70
-msgid "Inviter"
-msgstr "Invite"
-
-#: .\admin_web\templates\game\player_forum_manage.html:93
+#: .\admin_web\templates\game\player_forum_manage.html:93 .\data\ententes.py:63
 msgid "Membre"
 msgstr "Member"
 
@@ -1340,6 +1402,14 @@ msgstr "The activity rate will apply to all the buildings of the district."
 msgid "Appliquer"
 msgstr "Apply"
 
+#: .\admin_web\templates\includes\entente_role_options.html:5
+msgid "Options"
+msgstr "Options"
+
+#: .\admin_web\templates\includes\entente_role_options.html:12
+msgid "à venir"
+msgstr "upcoming"
+
 #: .\admin_web\templates\includes\ententes_table.html:19
 msgid "Candidature envoyée"
 msgstr "Application sent"
@@ -1347,10 +1417,6 @@ msgstr "Application sent"
 #: .\admin_web\templates\includes\ententes_table.html:20
 msgid "Candidatures à examiner"
 msgstr "Applications to review"
-
-#: .\admin_web\templates\includes\forum_invitations.html:6
-msgid "Invitations reçues"
-msgstr "Invitations received"
 
 #: .\admin_web\templates\includes\head.html:4
 msgid "Une erreur est survenue, veuillez réessayer"
@@ -1873,58 +1939,126 @@ msgstr "Wolf-Rayet"
 msgid "Nébuleuse"
 msgstr "Nebula"
 
-#: .\data\ententes.py:28
+#: .\data\ententes.py:40
 msgid "Économique"
 msgstr "Economic"
 
-#: .\data\ententes.py:29
+#: .\data\ententes.py:41
 msgid "Scientifique"
 msgstr "Scientific"
 
-#: .\data\ententes.py:29
+#: .\data\ententes.py:41
 msgid "Religieuse"
 msgstr "Religious"
 
-#: .\data\ententes.py:29
+#: .\data\ententes.py:41
 msgid "Autre"
 msgstr "Other"
 
-#: .\data\ententes.py:33
+#: .\data\ententes.py:45
+msgid "Modérer l'Assemblée d'entente"
+msgstr "Moderate the entente's Assembly"
+
+#: .\data\ententes.py:45
+msgid "Vision radar partagée"
+msgstr "Shared radar vision"
+
+#: .\data\ententes.py:46
+msgid "Contrôle des flottes partagées"
+msgstr "Control of the shared fleets"
+
+#: .\data\ententes.py:46
+msgid "Gérer les finances"
+msgstr "Manage the finances"
+
+#: .\data\ententes.py:47
+msgid "Modifier les rôles"
+msgstr "Modify the roles"
+
+#: .\data\ententes.py:47
+msgid "Inviter un membre"
+msgstr "Invite a member"
+
+#: .\data\ententes.py:47
+msgid "Exclure un membre"
+msgstr "Exclude a member"
+
+#: .\data\ententes.py:51
 msgid "Native"
 msgstr "Native"
 
-#: .\data\ententes.py:41
+#: .\data\ententes.py:59
 #, python-format
 msgid "Natifs du secteur %(sector)s"
 msgstr "Natives of sector %(sector)s"
 
-#: .\data\ententes.py:45
+#: .\data\ententes.py:67
 msgid "La description doit faire au plus 5 000 caractères"
 msgstr "The description must be at most 5,000 characters long"
 
-#: .\data\ententes.py:147
+#: .\data\ententes.py:97
+msgid "Vous n'avez pas ce droit dans cette entente"
+msgstr "You do not have this right in this entente"
+
+#: .\data\ententes.py:103 .\data\ententes.py:419
+msgid "Vous n'êtes pas le propriétaire de cette entente"
+msgstr "You are not the owner of this entente"
+
+#: .\data\ententes.py:236
 msgid "Ce type d'entente n'existe pas"
 msgstr "This type of entente does not exist"
 
-#: .\data\ententes.py:150 .\data\forums.py:395
+#: .\data\ententes.py:239 .\data\forums.py:395
 msgid "Le nom doit faire entre 1 et 60 caractères"
 msgstr "The name must be between 1 and 60 characters long"
 
-#: .\data\ententes.py:156 .\data\forums.py:415 .\data\forums.py:443
+#: .\data\ententes.py:245 .\data\forums.py:415 .\data\forums.py:443
 msgid "Ce nom est déjà pris"
 msgstr "This name is already taken"
 
-#: .\data\ententes.py:165
+#: .\data\ententes.py:255
 msgid "Vous ne pouvez pas postuler à cette entente"
 msgstr "You cannot apply to this entente"
 
-#: .\data\ententes.py:166
+#: .\data\ententes.py:256
 msgid "La candidature doit faire au plus 1 000 caractères"
 msgstr "The application must be at most 1,000 characters long"
 
-#: .\data\ententes.py:186
-msgid "Vous n'avez pas fondé cette entente"
-msgstr "You did not found this entente"
+#: .\data\ententes.py:278
+msgid "Cette invitation n'existe plus"
+msgstr "This invitation no longer exists"
+
+#: .\data\ententes.py:310 .\data\forums.py:515
+msgid "Ce commandant est déjà membre"
+msgstr "This commandant is already a member"
+
+#: .\data\ententes.py:328 .\data\ententes.py:397
+msgid "Ce membre a des options que vous n'avez pas"
+msgstr "This member has options that you do not have"
+
+#: .\data\ententes.py:334
+msgid "Le nom du rôle doit faire entre 1 et 40 caractères"
+msgstr "The name of the role must be between 1 and 40 characters long"
+
+#: .\data\ententes.py:336
+msgid "Ce nom est réservé à un rôle par défaut"
+msgstr "This name is reserved for a default role"
+
+#: .\data\ententes.py:350
+msgid "Ce rôle existe déjà dans cette entente"
+msgstr "This role already exists in this entente"
+
+#: .\data\ententes.py:362
+msgid "Ce rôle a des options que vous n'avez pas"
+msgstr "This role has options that you do not have"
+
+#: .\data\ententes.py:383
+msgid "Le rôle par défaut ne peut pas être supprimé"
+msgstr "The default role cannot be deleted"
+
+#: .\data\ententes.py:395 .\data\ententes.py:423
+msgid "Ce commandant n'est pas un membre de cette entente"
+msgstr "This commandant is not a member of this entente"
 
 #: .\data\forums.py:49
 msgid "Le titre doit faire entre 1 et 150 caractères"
@@ -2010,10 +2144,6 @@ msgstr "This forum does not belong to you"
 msgid "Vous faites déjà partie d'une coalition"
 msgstr "You are already part of a coalition"
 
-#: .\data\forums.py:515
-msgid "Ce commandant est déjà membre"
-msgstr "This commandant is already a member"
-
 #: .\data\forums.py:551
 msgid "Vous ne pouvez pas rejoindre ce forum"
 msgstr "You cannot join this forum"
@@ -2057,6 +2187,15 @@ msgstr "Minimalist"
 #: .\data\themes.py:15
 msgid "Sombre épuré, accent indigo"
 msgstr "Clean dark, indigo accent"
+
+#~ msgid "Vous avez déjà fondé le maximum de 5 ententes"
+#~ msgstr "You have already founded the maximum of 5 ententes"
+
+#~ msgid "Fondée par"
+#~ msgstr "Founded by"
+
+#~ msgid "Fondateur"
+#~ msgstr "Founder"
 
 #~ msgid ""
 #~ "Sous la grande coupole de la station qui sert de capitale au secteur, chaque "

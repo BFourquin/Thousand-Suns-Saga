@@ -18,7 +18,7 @@ from backend.login import LOGIN_MAX_FAILURES_PER_ACCOUNT, throttled_authenticate
 from backend.models import CommandantAccount, Server, UserExtended, to_id
 from backend.templatetags.tss_dates import rp_date
 from database.schemas import schema_of, server_schema
-from game.models import Building, Colony, Commandant, ConversationMessage, Coordinate, District, DistrictType, Entente, EntenteMember, Post, Report, StartingValues
+from game.models import Building, Colony, Commandant, ConversationMessage, Coordinate, District, DistrictType, Entente, EntenteMember, EntenteRole, Post, Report, StartingValues
 from backend.utils import commandant_owns_colony
 from data import conversations, ententes, forums
 from data import server_details
@@ -1347,7 +1347,7 @@ class EntentesTests(TestCase):
 
     def test_founder_is_the_first_member(self):
         details = ententes.get_entente('S', self.entente, self.founder)
-        self.assertEqual((details['status'], details['is_founder'], details['can_apply']), ('member', True, False))
+        self.assertEqual((details['status'], details['is_owner'], details['can_apply']), ('member', True, False))
         self.assertEqual(details['category_label'], 'Économique')
         self.assertEqual([member['id'] for member in details['members']], [self.founder])
 
@@ -1357,7 +1357,7 @@ class EntentesTests(TestCase):
                 ententes.found_entente('S', self.visitor, name, category, '')
 
     def test_number_of_founded_ententes_is_limited(self):
-        for number in range(ententes.MAX_FOUNDED_ENTENTES - 1):
+        for number in range(ententes.MAX_OWNED_ENTENTES - 1):
             ententes.found_entente('S', self.founder, f'Ligue {number}', 'other', '')
         with self.assertRaises(GameError):
             ententes.found_entente('S', self.founder, 'Ligue de trop', 'other', '')
@@ -1367,12 +1367,12 @@ class EntentesTests(TestCase):
         ententes.apply_to_entente('S', self.entente, self.visitor, 'Je viens en paix')
         self.assertEqual(self.status(self.visitor), 'applicant')
         self.assertEqual(ententes.get_entente('S', self.entente, self.visitor)['my_application'], 'Je viens en paix')
-        self.assertEqual(ententes.count_applications_to_answer('S', self.founder), 1)
+        self.assertEqual(ententes.count_pending_answers('S', self.founder), 1)
 
         ententes.answer_application('S', self.entente, self.founder, self.visitor, True)
         ententes.answer_application('S', self.entente, self.founder, self.visitor, True)  # Twice sends a single report
         self.assertEqual(self.status(self.visitor), 'member')
-        self.assertEqual(ententes.count_applications_to_answer('S', self.founder), 0)
+        self.assertEqual(ententes.count_pending_answers('S', self.founder), 0)
         self.assertEqual(self.report_titles(self.visitor), ['Candidature acceptée'])
 
     def test_refused_applicant_can_apply_again(self):
@@ -1437,6 +1437,259 @@ class EntentesTests(TestCase):
         ententes.leave_entente('S', native, self.visitor)
         self.assertEqual(self.status(self.visitor, native), 'member')
         self.assertEqual(ententes.get_ententes('S', self.visitor)['mine'][0]['id'], native)
+
+    # Roles
+
+    def join(self, commandant_id):
+        ententes.apply_to_entente('S', self.entente, commandant_id, '')
+        ententes.answer_application('S', self.entente, self.founder, commandant_id, True)
+
+    def role_id(self, name):
+        with server_schema('S'):
+            return EntenteRole.objects.get(entente_id=self.entente, name=name).id
+
+    def role_of(self, commandant_id):
+        members = ententes.get_entente('S', self.entente, self.founder)['members']
+        return next(member['role_name'] for member in members if member['id'] == commandant_id)
+
+    def give_role(self, commandant_id, name, options):
+        ententes.create_role('S', self.entente, self.founder, name, options)
+        ententes.set_member_role('S', self.entente, self.founder, commandant_id, self.role_id(name))
+
+    def third_member(self):
+        with server_schema('S'):
+            third = Commandant.objects.create(user=self.user, commandant_name='Kyu', civilisation_name='Kyu', creation_date=timezone.now()).id
+        self.join(third)
+        return third
+
+    def test_default_roles_are_owner_and_member(self):
+        self.join(self.visitor)
+        self.assertEqual(self.role_of(self.founder), 'Propriétaire')
+        self.assertEqual(self.role_of(self.visitor), 'Membre')
+        details = ententes.get_entente('S', self.entente, self.visitor)
+        self.assertEqual([(role['name'], role['options'], role['nb_members']) for role in details['roles']], [('Membre', [], 1)])
+        self.assertFalse(details['can_invite'] or details['can_manage_roles'])
+
+    def test_ownership_only_changes_hands(self):
+        self.join(self.visitor)
+        with self.assertRaises(GameError):
+            ententes.transfer_ownership('S', self.entente, self.visitor, self.visitor)
+        with self.assertRaises(GameError):  # Not a member
+            ententes.transfer_ownership('S', self.entente, self.founder, self.founder)
+
+        ententes.transfer_ownership('S', self.entente, self.founder, self.visitor)
+        self.assertEqual(self.role_of(self.visitor), 'Propriétaire')
+        self.assertEqual(self.role_of(self.founder), 'Membre')
+        self.assertEqual(self.report_titles(self.visitor)[-1], "Propriété d'une entente")
+        self.assertFalse(ententes.get_entente('S', self.entente, self.founder)['is_owner'])
+        ententes.update_entente_description('S', self.entente, self.visitor, 'Nouveau')
+        with self.assertRaises(GameError):
+            ententes.dissolve_entente('S', self.entente, self.founder)
+
+    def test_owner_has_no_role_to_change(self):
+        self.join(self.visitor)
+        self.give_role(self.visitor, 'Second', ['manage_roles'])
+        with self.assertRaises(GameError):
+            ententes.set_member_role('S', self.entente, self.visitor, self.founder, self.role_id('Second'))
+        with self.assertRaises(GameError):
+            ententes.set_member_role('S', self.entente, self.founder, self.founder, self.role_id('Second'))
+        self.assertEqual(self.role_of(self.founder), 'Propriétaire')
+
+    def test_option_invite_opens_the_applications(self):
+        self.join(self.visitor)
+        third = self.third_member()
+        ententes.leave_entente('S', self.entente, third)
+        ententes.apply_to_entente('S', self.entente, third, 'Secret')
+        self.assertEqual(ententes.get_entente('S', self.entente, self.visitor)['applications'], [])
+        self.assertEqual(ententes.count_pending_answers('S', self.visitor), 0)
+        with self.assertRaises(GameError):
+            ententes.answer_application('S', self.entente, self.visitor, third, True)
+
+        self.give_role(self.visitor, 'Recruteur', ['invite_member'])
+        self.assertEqual(ententes.get_entente('S', self.entente, self.visitor)['applications'][0]['application'], 'Secret')
+        self.assertEqual(ententes.count_pending_answers('S', self.visitor), 1)
+        ententes.answer_application('S', self.entente, self.visitor, third, True)
+        self.assertEqual(self.status(third), 'member')
+
+    def test_option_exclude_stops_at_the_owner_and_at_more_options(self):
+        self.join(self.visitor)
+        third = self.third_member()
+        with self.assertRaises(GameError):
+            ententes.exclude_member('S', self.entente, self.visitor, third)
+
+        self.give_role(self.visitor, 'Garde', ['exclude_member'])
+        ententes.exclude_member('S', self.entente, self.visitor, self.founder)
+        self.assertEqual(self.status(self.founder), 'member')
+
+        self.give_role(third, 'Chef', ['exclude_member', 'manage_finances'])
+        with self.assertRaises(GameError):
+            ententes.exclude_member('S', self.entente, self.visitor, third)
+        details = ententes.get_entente('S', self.entente, self.visitor)
+        self.assertEqual([member['can_exclude'] for member in details['members']], [False, False, False])
+
+        ententes.update_role('S', self.entente, self.founder, self.role_id('Chef'), 'Chef', ['exclude_member'])
+        ententes.exclude_member('S', self.entente, self.visitor, third)
+        self.assertIsNone(self.status(third))
+
+    def test_role_manager_cannot_raise_any_rights(self):
+        self.join(self.visitor)
+        third = self.third_member()
+        self.give_role(self.visitor, 'Second', ['manage_roles'])
+        all_options = list(ententes.role_options())
+
+        # What isn't held can't be given, neither to a new role nor to an existing one
+        ententes.create_role('S', self.entente, self.visitor, 'Faux', all_options)
+        ententes.update_role('S', self.entente, self.visitor, self.role_id('Second'), 'Second', all_options)
+        with server_schema('S'):
+            self.assertEqual(EntenteRole.objects.get(id=self.role_id('Faux')).options, ['manage_roles'])
+            self.assertEqual(EntenteRole.objects.get(id=self.role_id('Second')).options, ['manage_roles'])
+
+        # A role with more options stays out of reach
+        ententes.create_role('S', self.entente, self.founder, 'Chef', ['manage_roles', 'manage_finances'])
+        chef = self.role_id('Chef')
+        for refused in (lambda: ententes.update_role('S', self.entente, self.visitor, chef, 'Hop', []),
+                        lambda: ententes.delete_role('S', self.entente, self.visitor, chef),
+                        lambda: ententes.set_member_role('S', self.entente, self.visitor, self.visitor, chef)):
+            with self.assertRaises(GameError):
+                refused()
+        self.assertEqual(self.role_of(self.visitor), 'Second')
+
+        # And so does a member who holds it
+        ententes.set_member_role('S', self.entente, self.founder, third, chef)
+        with self.assertRaises(GameError):
+            ententes.set_member_role('S', self.entente, self.visitor, third, self.role_id('Second'))
+
+    def test_role_manager_keeps_out_of_the_orders_of_the_owner(self):
+        self.join(self.visitor)
+        self.give_role(self.visitor, 'Second', list(ententes.role_options()))
+        for refused in (lambda: ententes.transfer_ownership('S', self.entente, self.visitor, self.visitor),
+                        lambda: ententes.dissolve_entente('S', self.entente, self.visitor),
+                        lambda: ententes.update_entente_description('S', self.entente, self.visitor, 'Hop')):
+            with self.assertRaises(GameError):
+                refused()
+
+    def test_role_names_and_deletion(self):
+        self.join(self.visitor)
+        self.give_role(self.visitor, 'Second', ['shared_radar'])
+        for name in ('Membre', 'PROPRIÉTAIRE', 'owner', 'second', '', 'x' * 41):
+            with self.subTest(name=name), self.assertRaises(GameError):
+                ententes.create_role('S', self.entente, self.founder, name, [])
+
+        # The default role keeps its name, its options can change, and it can't be deleted
+        with server_schema('S'):
+            default = EntenteRole.objects.get(entente_id=self.entente, is_default=True).id
+        ententes.update_role('S', self.entente, self.founder, default, 'Renommé', ['shared_radar'])
+        with server_schema('S'):
+            self.assertEqual(EntenteRole.objects.get(id=default).name, '')
+            self.assertEqual(EntenteRole.objects.get(id=default).options, ['shared_radar'])
+        with self.assertRaises(GameError):
+            ententes.delete_role('S', self.entente, self.founder, default)
+
+        ententes.delete_role('S', self.entente, self.founder, self.role_id('Second'))
+        self.assertEqual(self.role_of(self.visitor), 'Membre')
+
+    def test_roles_of_another_entente_are_refused(self):
+        self.join(self.visitor)
+        other = ententes.found_entente('S', self.founder, 'Autre', 'other', '')
+        ententes.create_role('S', other, self.founder, 'Etranger', [])
+        with server_schema('S'):
+            foreign = EntenteRole.objects.get(name='Etranger').id
+        with self.assertRaises(GameError):
+            ententes.set_member_role('S', self.entente, self.founder, self.visitor, foreign)
+        with self.assertRaises(GameError):
+            ententes.update_role('S', self.entente, self.founder, foreign, 'Hop', [])
+
+    def test_options_of_the_roles_are_hidden_from_the_outsiders(self):
+        self.assertEqual(ententes.get_entente('S', self.entente, self.visitor)['roles'], [])
+
+    def test_native_entente_has_no_roles(self):
+        native = self.native_entente()
+        details = ententes.get_entente('S', native, self.visitor)
+        self.assertEqual(details['roles'], [])
+        self.assertEqual(details['members'][0]['role_name'], 'Membre')
+        for refused in (lambda: ententes.create_role('S', native, self.visitor, 'Chef', []),
+                        lambda: ententes.invite_to_entente('S', native, self.visitor, 'Paullus')):
+            with self.assertRaises(GameError):
+                refused()
+
+    # Invitations
+
+    def test_invitation_accepted_or_declined(self):
+        ententes.invite_to_entente('S', self.entente, self.founder, 'varro')
+        ententes.invite_to_entente('S', self.entente, self.founder, 'Varro')  # Twice sends a single report
+        self.assertEqual(self.status(self.visitor), 'invited')
+        self.assertEqual(self.report_titles(self.visitor), ['Invitation dans une entente'])
+        self.assertEqual(ententes.count_pending_answers('S', self.visitor), 1)
+        self.assertEqual(ententes.get_ententes('S', self.visitor)['invited'][0]['id'], self.entente)
+
+        ententes.answer_invitation('S', self.entente, self.visitor, False)
+        self.assertIsNone(self.status(self.visitor))
+        with self.assertRaises(GameError):
+            ententes.answer_invitation('S', self.entente, self.visitor, True)
+
+        ententes.invite_to_entente('S', self.entente, self.founder, 'Varro')
+        ententes.answer_invitation('S', self.entente, self.visitor, True)
+        self.assertEqual(self.status(self.visitor), 'member')
+        self.assertEqual(self.role_of(self.visitor), 'Membre')
+        self.assertEqual(ententes.count_pending_answers('S', self.visitor), 0)
+
+    def test_invitation_rights(self):
+        with self.assertRaises(GameError):
+            ententes.invite_to_entente('S', self.entente, self.visitor, 'Paullus')
+        with self.assertRaises(GameError):
+            ententes.invite_to_entente('S', self.entente, self.founder, 'Inconnu')
+        with self.assertRaises(GameError):  # Already a member
+            ententes.invite_to_entente('S', self.entente, self.founder, 'Paullus')
+
+    def test_inviting_an_applicant_admits_them(self):
+        ententes.apply_to_entente('S', self.entente, self.visitor, '')
+        ententes.invite_to_entente('S', self.entente, self.founder, 'Varro')
+        self.assertEqual(self.status(self.visitor), 'member')
+        self.assertEqual(self.role_of(self.visitor), 'Membre')
+
+    def test_pages_of_the_roles(self):
+        url = f'/entente/?entente_id={self.entente}'
+        self.join(self.visitor)
+        self.play(self.user, self.founder)
+        self.assertContains(self.client.get(url), 'Créer un rôle')
+
+        self.client.post(url, {'action': 'create_role', 'role_name': 'Amiral', 'options': ['shared_fleets', 'pirate']})
+        role = self.role_id('Amiral')
+        with server_schema('S'):
+            self.assertEqual(EntenteRole.objects.get(id=role).options, ['shared_fleets'])
+        self.client.post(url, {'action': 'set_role', 'commandant_id': self.visitor, 'role_id': role})
+        self.assertEqual(self.role_of(self.visitor), 'Amiral')
+        response = self.client.post(url, {'action': 'create_role', 'role_name': 'Membre'})
+        self.assertContains(response, 'Ce nom est réservé')
+
+        self.client.post(url, {'action': 'update_role', 'role_id': role, 'role_name': 'Amirale', 'options': ['shared_radar']})
+        self.assertEqual(self.role_of(self.visitor), 'Amirale')
+
+        self.play(self.other_user, self.visitor)
+        response = self.client.get(url)
+        self.assertContains(response, 'Vision radar partagée')
+        self.assertNotContains(response, 'Créer un rôle')
+        self.assertNotContains(response, 'Inviter un commandant')
+        self.assertNotContains(response, 'Céder')
+
+        self.play(self.user, self.founder)
+        self.client.post(url, {'action': 'invite', 'invited_name': 'Paullus'})
+        self.client.post(url, {'action': 'delete_role', 'role_id': role})
+        self.assertEqual(self.role_of(self.visitor), 'Membre')
+        self.client.post(url, {'action': 'transfer', 'commandant_id': self.visitor})
+        self.assertEqual(self.role_of(self.visitor), 'Propriétaire')
+
+    def test_migration_gives_a_default_role_to_the_existing_ententes(self):
+        self.join(self.visitor)
+        native = self.native_entente()
+        with server_schema('S'):
+            EntenteRole.objects.all().delete()
+            import_module('game.migrations.0006_entente_roles').create_default_roles(apps, None)
+            role = EntenteRole.objects.get(entente_id=self.entente)
+            self.assertTrue(role.is_default)
+            self.assertFalse(EntenteRole.objects.filter(entente_id=native).exists())
+            self.assertEqual(EntenteMember.objects.get(entente_id=self.entente, commandant_id=self.visitor).role, role)
+            self.assertIsNone(EntenteMember.objects.get(entente_id=self.entente, commandant_id=self.founder).role)
 
     def test_migration_gathers_the_existing_commandants(self):
         with server_schema('S'):

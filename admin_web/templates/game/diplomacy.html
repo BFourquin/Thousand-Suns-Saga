@@ -14,6 +14,15 @@
 
       {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
 
+      {% if ententes.invited %}
+        <div class="card card-warning card-outline">
+          <div class="card-header"><h3 class="card-title">{% trans "Invitations reçues" %}</h3></div>
+          <div class="card-body p-0">
+            {% include "includes/ententes_table.html" with ententes=ententes.invited %}
+          </div>
+        </div>
+      {% endif %}
+
       <div class="card card-primary card-outline">
         <div class="card-header"><h3 class="card-title">{% trans "Mes ententes" %}</h3></div>
         <div class="card-body p-0">
@@ -38,7 +47,7 @@
           </div>
         </div>
         <div class="card-body">
-          {% if can_found %}
+          {% if can_create %}
             <form method="POST" action="/diplomacy/">
               {% csrf_token %}
               <div class="form-group">
@@ -60,7 +69,7 @@
               <button type="submit" class="btn btn-primary">{% trans "Fonder" %}</button>
             </form>
           {% else %}
-            <p class="mb-0">{% trans "Vous avez déjà fondé le maximum de 5 ententes" %}</p>
+            <p class="mb-0">{% trans "Vous possédez déjà le maximum de 5 ententes" %}</p>
           {% endif %}
         </div>
       </div>

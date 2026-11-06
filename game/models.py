@@ -59,19 +59,35 @@ class Entente(GameModel):
     name = models.CharField(max_length=60, blank=True)  # Empty for a native one : built in the language of the reader
     description = models.TextField(blank=True)
     native_sector = models.CharField(max_length=10, null=True, blank=True, unique=True)
-    founder = models.ForeignKey(Commandant, on_delete=models.CASCADE, null=True, blank=True, related_name='+')
+    # The only commandant with the role of owner, and all its rights. None for a native entente.
+    owner = models.ForeignKey(Commandant, on_delete=models.CASCADE, null=True, blank=True, related_name='+')
     creation_date = models.DateTimeField()
 
     class Meta:
         constraints = [models.UniqueConstraint(Lower('name'), condition=~models.Q(category='native'), name='entente_name_unique')]
 
 
+class EntenteRole(GameModel):
+    entente = models.ForeignKey(Entente, on_delete=models.CASCADE, related_name='roles')
+    name = models.CharField(max_length=40, blank=True)  # Empty for the default role : displayed in the language of the reader
+    is_default = models.BooleanField(default=False)  # The role 'Member', given to whoever enters. Can't be deleted.
+    options = models.JSONField(default=list)  # Keys of data.ententes.role_options
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['entente'], condition=models.Q(is_default=True), name='one_default_role_per_entente'),
+            models.UniqueConstraint('entente', Lower('name'), condition=models.Q(is_default=False), name='entente_role_name_unique'),
+        ]
+
+
 class EntenteMember(GameModel):
     entente = models.ForeignKey(Entente, on_delete=models.CASCADE, related_name='members')
     commandant = models.ForeignKey(Commandant, on_delete=models.CASCADE, related_name='+')
-    status = models.CharField(max_length=10)  # 'applicant' | 'member'
-    application = models.TextField(blank=True)  # Only read by the founder and the applicant
-    datetime = models.DateTimeField()  # Of the application, then of the entry in the entente
+    status = models.CharField(max_length=10)  # 'applicant' | 'invited' | 'member'
+    # None, thus no option, for the owner (see Entente.owner), the members of a native entente and who isn't a member yet
+    role = models.ForeignKey(EntenteRole, on_delete=models.SET_NULL, null=True, blank=True, related_name='members')
+    application = models.TextField(blank=True)  # Not public : only read by the applicant and who can answer
+    datetime = models.DateTimeField()  # Of the application or the invitation, then of the entry in the entente
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['entente', 'commandant'], name='entente_member_unique')]

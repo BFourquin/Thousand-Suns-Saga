@@ -1,0 +1,15 @@
+{% load i18n %}
+{% comment %} Parameters : options (see data.ententes._options_form), prefix making the ids unique on the page {% endcomment %}
+<div class="form-group">
+  <label class="d-block">{% trans "Options" %}</label>
+  {% for option in options %}
+    <div class="form-check">
+      <input type="checkbox" id="{{ prefix }}-{{ option.key }}" name="options" value="{{ option.key }}" class="form-check-input"
+             {% if option.is_checked %}checked{% endif %} {% if not option.can_change %}disabled{% endif %}>
+      <label for="{{ prefix }}-{{ option.key }}" class="form-check-label">
+        {{ option.label }}
+        {% if option.is_upcoming %}<small class="text-muted">({% trans "à venir" %})</small>{% endif %}
+      </label>
+    </div>
+  {% endfor %}
+</div>

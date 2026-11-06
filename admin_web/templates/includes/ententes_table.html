@@ -6,7 +6,7 @@
       <tr>
         <th>{% trans "Nom" %}</th>
         <th>{% trans "Type" %}</th>
-        <th>{% trans "Fondateur" %}</th>
+        <th>{% trans "Propriétaire" %}</th>
         <th class="text-center">{% trans "Membres" %}</th>
       </tr>
     </thead>
@@ -19,7 +19,7 @@
             {% if entente.nb_applications %}<span class="badge badge-warning" title="{% trans "Candidatures à examiner" %}">{{ entente.nb_applications }}</span>{% endif %}
           </td>
           <td>{{ entente.category_label }}</td>
-          <td>{{ entente.founder_name|default:"—" }}</td>
+          <td>{{ entente.owner_name|default:"—" }}</td>
           <td class="text-center">{{ entente.nb_members }}</td>
         </tr>
       {% empty %}
