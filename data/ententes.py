@@ -129,6 +129,15 @@ def join_native_entente(server, commandant):
 
 
 @on_server
+def memberships_of_commandants(server, commandant_ids):
+    # {commandant id: [{'id': ..., 'name': ...}]} for the ententes they are really members of. Public, see get_entente.
+    memberships = {}
+    for row in EntenteMember.objects.filter(commandant_id__in=commandant_ids, status='member').select_related('entente').order_by('entente_id'):
+        memberships.setdefault(row.commandant_id, []).append({'id': row.entente_id, 'name': _entente_name(row.entente)})
+    return memberships
+
+
+@on_server
 def get_ententes(server, commandant_id):
     # The applications only count for who can answer them.
     # shortcut: loads all the ententes of the server, paginate if a server ever has hundreds of them

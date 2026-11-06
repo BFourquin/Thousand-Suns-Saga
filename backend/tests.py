@@ -1,5 +1,6 @@
 import inspect
 import json
+import random
 from datetime import datetime, timedelta, timezone as dt_timezone
 from importlib import import_module
 from unittest.mock import MagicMock, patch
@@ -19,9 +20,9 @@ from backend.models import CommandantAccount, Server, UserExtended, to_id
 from backend.templatetags.tss_dates import rp_date
 from backend.templatetags.tss_text import MAX_DEPTH, bbcode
 from database.schemas import schema_of, server_schema
-from game.models import Building, BuildingType, Colony, Commandant, ConversationMessage, Coordinate, District, DistrictType, Entente, EntenteMember, EntenteRole, Modifier, Post, Report, Resource, StartingValues
+from game.models import Building, BuildingType, Colony, Commandant, ConversationMessage, Coordinate, District, DistrictType, Entente, EntenteMember, EntenteRole, Modifier, Post, Report, Resource, Sector, StartingValues, System
 from backend.utils import commandant_owns_colony
-from data import conversations, ententes, forums
+from data import conversations, ententes, forums, quadrants
 from data import server_details
 from data import cycles
 from data.buildings import construct_building
@@ -1520,6 +1521,132 @@ class ModifiersPageTests(EconomyTestCase):
     def test_filters_are_kept_between_groups(self):
         self.assertContains(self.client.get('/modifiers/', {'scope': 'sector', 'category': 'military'}),
                             'href="?scope=sector&sign=positive&category=military"')
+
+
+class QuadrantRulesTests(SimpleTestCase):
+
+    def test_a_quadrant_is_found_by_its_id_or_by_a_seed(self):
+        self.assertEqual(quadrants.quadrant_id('1001000000:11'), '1001000000:11')
+        self.assertEqual(quadrants.quadrant_id('1001000000055050'), '1001000000:11')
+        self.assertEqual(quadrants.quadrant_id('100100000005505001'), '1001000000:11')
+        for wrong in ('', 'x', '1001000000', '1001000000:2', '1001000000:22', '1001000000150050', "1' OR 1=1"):
+            self.assertIsNone(quadrants.quadrant_id(wrong), wrong)
+
+    def test_neighbours_cross_the_borders_of_the_sectors(self):
+        self.assertEqual(quadrants.neighbour_quadrant('1001000000:00', 0, 1), '1001000000:01')
+        self.assertEqual(quadrants.neighbour_quadrant('1001000000:01', 0, 1), '1001000001:00')
+        self.assertEqual(quadrants.neighbour_quadrant('1001000000:11', 1, 0), '1001001000:01')
+        self.assertIsNone(quadrants.neighbour_quadrant('1001000000:00', -1, 0))
+        self.assertIsNone(quadrants.neighbour_quadrant('1001000000:00', 0, -1))
+
+    def test_deposits_are_stable_and_follow_the_body(self):
+        seed = '100100000005505001'
+        self.assertEqual(quadrants.deposits_of_body(seed, 'jovian', 'standard'), quadrants.deposits_of_body(seed, 'jovian', 'standard'))
+        self.assertEqual(quadrants.deposits_of_body(seed, 'star', 'standard'), {})
+        for number in range(200):
+            deposits = quadrants.deposits_of_body(f'1001000000055{number:03}01', 'jovian', 'gas_rich')
+            self.assertLessEqual(set(deposits), {'hydrogen', 'methane'})
+            self.assertTrue(all(1 <= richness <= 100 for richness in deposits.values()))
+
+    def test_a_rich_system_holds_more(self):
+        seeds = [f'1001000000055{number:03}01' for number in range(200)]
+        total = lambda system_type: sum(sum(quadrants.deposits_of_body(seed, 'asteroid_belt', system_type).values()) for seed in seeds)
+        self.assertGreater(total('resources_rich'), total('standard'))
+        self.assertEqual(total('gas_rich'), total('standard'))
+
+    def test_vortex_networks_are_trees_and_continue_on_both_sides_of_a_border(self):
+        rng = random.Random(1)
+        sectors = {sector: [(rng.randint(0, 99), rng.randint(0, 99)) for _ in range(800)] for sector in ('1001000000', '1001000001', '1001001000')}
+        vortex = quadrants.vortex_of_quadrant('1001000000:11', sectors)
+
+        self.assertEqual(vortex, quadrants.vortex_of_quadrant('1001000000:11', sectors))
+        self.assertGreater(len(vortex['nodes']), 10)
+        for network in set(vortex['nodes'].values()):
+            nodes = [node for node, of_network in vortex['nodes'].items() if of_network == network]
+            links = [link for link in vortex['links'] if link['network'] == network]
+            self.assertEqual(len(links), len(nodes) - 1)
+
+        self.assertEqual({exit_['direction'] for exit_ in vortex['exits']}, {'north', 'south', 'west', 'east'})
+        for exit_ in vortex['exits']:
+            back = quadrants.vortex_of_quadrant(exit_['quadrant'], sectors)['exits']
+            self.assertIn((exit_['to'], exit_['from'], '1001000000:11', exit_['network']),
+                          [(other['from'], other['to'], other['quadrant'], other['network']) for other in back])
+
+
+class QuadrantMapTests(EconomyTestCase):
+
+    def setUp(self):
+        self.client.force_login(self.user)
+        CommandantAccount.objects.create(server_id='S', commandant_id=self.commandant.id, user=self.user, commandant_name='Paullus')
+        UserExtended.objects.update_or_create(user=self.user, defaults={'playing_on_server_id': 'S', 'playing_on_commandant': self.commandant.id})
+        with server_schema('S'):
+            self.commandant.native_system = '1001000000055050'
+            self.commandant.save()
+            self.rival = Commandant.objects.create(user=self.user, commandant_name='Rival', civilisation_name='Rivals', creation_date=timezone.now())
+            Sector.objects.create(seed='1001000000', pos_y=0, pos_x=0, sector_type='native', systems_coordinates=[[55, 50], [60, 70], [10, 10]])
+            for seed, kind in (('1001000000055050', 'native'), ('1001000000060070', 'standard'), ('1001000000010010', 'standard')):
+                System.objects.create(seed=seed, system_type=kind, sector_id=seed[:10], pos_y=seed[10:13], pos_x=seed[13:16])
+                Coordinate.objects.create(seed=seed + '00', type='star', subtype='supergiant', sector_id=seed[:10], system_id=seed, sys_y=int(seed[10:13]),
+                                          sys_x=int(seed[13:16]), sys_coordinate=0, name='Star' + seed[-3:])
+                Coordinate.objects.create(seed=seed + '01', type='asteroid_belt', subtype='standard', sector_id=seed[:10], system_id=seed, sys_y=int(seed[10:13]),
+                                          sys_x=int(seed[13:16]), sys_coordinate=1, name='Belt' + seed[-3:])
+            Colony.objects.create(name='Outpost', owner=self.rival, controller=self.rival, coordinate='100100000006007001', colony_type='start')
+            entente = Entente.objects.create(category='military', name='Pact', owner=self.rival, creation_date=timezone.now())
+            EntenteMember.objects.create(entente=entente, commandant=self.rival, status='member', datetime=timezone.now())
+            EntenteMember.objects.create(entente=entente, commandant=self.commandant, status='applicant', datetime=timezone.now())
+            Resource.objects.create(internal_name='common_metal', data={'internal_name': 'common_metal', 'name_fr': 'Métaux', 'name_en': 'Metals'})
+            Resource.objects.create(internal_name='tungsten', data={'internal_name': 'tungsten', 'name_fr': 'Tungstène', 'name_en': 'Tungsten'})
+
+    def map_of(self, **params):
+        response = self.client.get('/geography_quadrant/', params)
+        self.assertEqual(response.status_code, 200)
+        return response
+
+    def test_only_the_systems_of_the_quadrant_are_on_the_map(self):
+        quadrant = self.map_of(quadrant='1001000000:11').context['quadrant_map']
+        self.assertEqual({system['id'] for system in quadrant['systems']}, {'1001000000055050', '1001000000060070'})
+        self.assertEqual(quadrant['origin'], {'y': 50, 'x': 50})
+
+    def test_the_native_quadrant_is_the_default_and_a_wrong_one_is_reported(self):
+        response = self.map_of()
+        self.assertEqual(response.context['quadrant_map']['id'], '1001000000:11')
+        self.assertFalse(response.context['quadrant_not_found'])
+        for params in ({'quadrant': 'nope'}, {'quadrant': '1001999999:00'}, {'system_id': '12'}):
+            response = self.map_of(**params)
+            self.assertEqual(response.context['quadrant_map']['id'], '1001000000:11')
+            self.assertTrue(response.context['quadrant_not_found'])
+
+    def test_a_system_opens_its_quadrant(self):
+        self.assertEqual(self.map_of(system_id='1001000000010010').context['quadrant_map']['id'], '1001000000:00')
+
+    def test_what_is_known_of_the_others_stays_public(self):
+        response = self.map_of(quadrant='1001000000:11')
+        quadrant = response.context['quadrant_map']
+        rival = next(empire for empire in quadrant['empires'] if empire['id'] == self.rival.id)
+        self.assertEqual(rival['civilisation'], 'Rivals')
+        self.assertEqual(set(rival), {'id', 'commandant', 'civilisation', 'is_mine', 'ententes'})
+        colony = next(system for system in quadrant['systems'] if system['id'] == '1001000000060070')['colonies'][0]
+        self.assertEqual((colony['name'], colony['is_mine'], colony['id']), ('Outpost', False, None))  # No link to the page of a colony of another player
+        self.assertEqual([entente['name'] for entente in quadrant['ententes']], ['Pact'])
+
+    def test_an_application_isnt_a_membership(self):
+        memberships = ententes.memberships_of_commandants('S', [self.commandant.id, self.rival.id])
+        self.assertNotIn(self.commandant.id, memberships)
+        self.assertEqual(memberships[self.rival.id][0]['name'], 'Pact')
+
+    def test_my_colony_links_to_its_page(self):
+        quadrant = self.map_of(quadrant='1001000000:11').context['quadrant_map']
+        colony = next(system for system in quadrant['systems'] if system['id'] == '1001000000055050')
+        self.assertEqual(colony['colonies'][0]['id'], self.colony.id)
+
+    def test_only_the_resources_of_the_server_are_offered(self):
+        known = {resource['id'] for resource in self.map_of(quadrant='1001000000:11').context['quadrant_map']['resources']}
+        self.assertLessEqual(known, {'common_metal', 'tungsten'})
+
+    def test_a_player_name_cant_break_out_of_the_page(self):
+        with server_schema('S'):
+            Commandant.objects.filter(id=self.rival.id).update(civilisation_name='</script><script>alert(1)</script>')
+        self.assertNotContains(self.map_of(quadrant='1001000000:11'), '<script>alert(1)')
 
 
 class EconomyPagesTests(EconomyTestCase):

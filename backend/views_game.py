@@ -10,7 +10,7 @@ import data.themes
 from backend.models import to_id
 from backend.decorators import add_cycle_info, log_player_action, commandant_required
 from backend.utils import request_params, parameters_presents, get_request_user
-from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator, cycles
+from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator, cycles, quadrants
 from data.report import get_commandant_reports, get_report, delete_report, change_report_status, \
     mark_all_reports_as_read, update_nb_unread_reports
 from data.colonies import get_colonies_controlled_by_commandant, get_colonies_at_coordinates
@@ -319,6 +319,29 @@ def geography_system(request, server, commandant):
                              'system_coordinates': system_coordinates,
                              'star': system_coordinates[0],
                              'system_not_found': system_not_found})
+
+
+@login_required(login_url='/player_login/')
+@add_cycle_info
+@log_player_action
+@commandant_required
+def geography_quadrant(request, server, commandant):
+
+    params = request_params(request)
+    language = get_request_user(request)['language']
+
+    # TODO check if commandant has vision on the quadrant, same as geography_system
+
+    requested = params.get('quadrant') or params.get('system_id') or ''
+    quadrant = quadrants.quadrant_id(requested.strip())
+    quadrant_map = quadrants.quadrant_map(server, quadrant, commandant['id'], language) if quadrant else None
+
+    quadrant_not_found = bool(requested) and quadrant_map is None
+    if quadrant_map is None:
+        quadrant_map = quadrants.quadrant_map(server, quadrants.quadrant_id(commandant['native_system']), commandant['id'], language)
+
+    return TemplateResponse(request, 'game/geography_quadrant.html',
+                            {'server': server, 'quadrant_map': quadrant_map, 'quadrant_not_found': quadrant_not_found})
 
 
 ########################################################################################################################

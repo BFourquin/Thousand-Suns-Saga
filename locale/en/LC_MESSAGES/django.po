@@ -3,17 +3,12 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#: .\admin_web\templates\template.html:17
-#: .\admin_web\templates\translations.txt:51
-#: .\admin_web\templates\translations.txt:52
-#: .\admin_web\templates\translations.txt:53
-#: .\admin_web\templates\translations.txt:54
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 18:21+0100\n"
+"POT-Creation-Date: 2026-11-06 19:55+0100\n"
 "PO-Revision-Date: 2024-06-02 10:00+0000\n"
 "Last-Translator: <benoittd@hotmail.fr>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -52,10 +47,11 @@ msgstr "Found"
 
 #: .\admin_web\templates\game\colonies.html:8
 #: .\admin_web\templates\game\colonies.html:233
-#: .\admin_web\templates\game\geography_system.html:104
-#: .\admin_web\templates\game\geography_system.html:154
+#: .\admin_web\templates\game\geography_quadrant.html:51
+#: .\admin_web\templates\game\geography_system.html:105
+#: .\admin_web\templates\game\geography_system.html:155
 #: .\admin_web\templates\game\reports.html:110
-#: .\admin_web\templates\includes\menu_game.html:251
+#: .\admin_web\templates\includes\menu_game.html:251 .\data\quadrants.py:195
 msgid "Colonies"
 msgstr "Colonies"
 
@@ -80,6 +76,7 @@ msgid "Métropoles"
 msgstr "Metropolises"
 
 #: .\admin_web\templates\game\colonies.html:82
+#: .\admin_web\templates\game\geography_quadrant.html:107
 msgid "Territoires"
 msgstr "Territories"
 
@@ -92,8 +89,8 @@ msgid "Avant-postes"
 msgstr "Outposts"
 
 #: .\admin_web\templates\game\colonies.html:109
-#: .\admin_web\templates\game\geography_system.html:121
-#: .\admin_web\templates\game\geography_system.html:156
+#: .\admin_web\templates\game\geography_system.html:122
+#: .\admin_web\templates\game\geography_system.html:157
 msgid "Revendications"
 msgstr "Claims"
 
@@ -141,7 +138,8 @@ msgid "Travailleurs :"
 msgstr "Workers:"
 
 #: .\admin_web\templates\game\colonies.html:298
-#: .\admin_web\templates\game\geography_system.html:115
+#: .\admin_web\templates\game\geography_system.html:116
+#: .\data\quadrants.py:195
 msgid "Aucune colonie"
 msgstr "No colony"
 
@@ -374,8 +372,8 @@ msgstr "Your civilization's name"
 #: .\admin_web\templates\game\create_commandant.html:50
 msgid ""
 "Vous pourrez changer le nom de votre commandant ou de votre civilisation "
-"plus tard pour refléter les évolutions de votre roleplay. Néanmoins, cela ne "
-"sera possible que sur approbation de la communauté."
+"plus tard pour refléter les évolutions de votre roleplay. Néanmoins, cela ne"
+" sera possible que sur approbation de la communauté."
 msgstr ""
 "You can change the name of your commandant or civilization later to reflect "
 "how your roleplay evolves. However, this will only be possible with the "
@@ -413,8 +411,8 @@ msgstr "You are not ready for the next cycle."
 
 #: .\admin_web\templates\game\cycle_monitoring.html:36
 msgid ""
-"Vous n'avez pas encore terminé de donner des ordres pour ce cycle. N'oubliez "
-"pas de signaler lorsque vous avez fini."
+"Vous n'avez pas encore terminé de donner des ordres pour ce cycle. N'oubliez"
+" pas de signaler lorsque vous avez fini."
 msgstr ""
 "You have not finished giving orders for this cycle yet. Remember to report "
 "when you are done."
@@ -564,14 +562,14 @@ msgstr "Type of alliance"
 msgid "Description"
 msgstr "Description"
 
-#: .\admin_web\templates\game\diplomacy.html:73 .\data\ententes.py:234
+#: .\admin_web\templates\game\diplomacy.html:73 .\data\ententes.py:243
 msgid "Vous possédez déjà le maximum de 5 ententes"
 msgstr "You already own the maximum of 5 ententes"
 
 #: .\admin_web\templates\game\entente.html:30
 msgid ""
-"Rassemble d'office tous les commandants natifs de ce secteur : on ne peut ni "
-"y postuler, ni la quitter."
+"Rassemble d'office tous les commandants natifs de ce secteur : on ne peut ni"
+" y postuler, ni la quitter."
 msgstr ""
 "Automatically gathers all the commandants native to this sector: it cannot "
 "be applied to or left."
@@ -585,7 +583,7 @@ msgstr "This entente has no description."
 #: .\admin_web\templates\game\forum.html:23
 #: .\admin_web\templates\includes\ententes_table.html:10
 #: .\admin_web\templates\includes\player_forums_table.html:10
-#: .\data\ententes.py:183
+#: .\data\ententes.py:192
 msgid "Propriétaire"
 msgstr "Owner"
 
@@ -893,6 +891,176 @@ msgstr "Delete the topic"
 msgid "Répondre"
 msgstr "Reply"
 
+#: .\admin_web\templates\game\geography_quadrant.html:15
+msgid "Aucun quadrant à ces coordonnées. Retour à votre quadrant d'origine."
+msgstr "No quadrant at these coordinates. Back to your home quadrant."
+
+#: .\admin_web\templates\game\geography_quadrant.html:24
+#: .\admin_web\templates\game\geography_quadrant.html:25
+msgid "Colorier"
+msgstr "Color by"
+
+#: .\admin_web\templates\game\geography_quadrant.html:26
+msgid "Étoiles"
+msgstr "Stars"
+
+#: .\admin_web\templates\game\geography_quadrant.html:27
+msgid "Empires"
+msgstr "Empires"
+
+#: .\admin_web\templates\game\geography_quadrant.html:28
+msgid "Ententes"
+msgstr "Ententes"
+
+#: .\admin_web\templates\game\geography_quadrant.html:32
+msgid "Réseaux de vortex"
+msgstr "Vortex networks"
+
+#: .\admin_web\templates\game\geography_quadrant.html:35
+#: .\admin_web\templates\game\geography_system.html:28
+#: .\admin_web\templates\game\geography_system.html:43
+msgid "Rechercher"
+msgstr "Search"
+
+#: .\admin_web\templates\game\geography_quadrant.html:37
+msgid "Plus grandes étoiles"
+msgstr "Largest stars"
+
+#: .\admin_web\templates\game\geography_quadrant.html:38
+#: .\admin_web\templates\game\geography_quadrant.html:54
+msgid "Colonisés"
+msgstr "Colonized"
+
+#: .\admin_web\templates\game\geography_quadrant.html:39
+msgid "Habitables"
+msgstr "Habitable"
+
+#: .\admin_web\templates\game\geography_quadrant.html:40
+msgid "Ressources rares"
+msgstr "Rare resources"
+
+#: .\admin_web\templates\game\geography_quadrant.html:41
+msgid "Forte concentration"
+msgstr "High concentration"
+
+#: .\admin_web\templates\game\geography_quadrant.html:42
+msgid "Nœuds de vortex"
+msgstr "Vortex nodes"
+
+#: .\admin_web\templates\game\geography_quadrant.html:45
+msgid "Nom, code ou civilisation"
+msgstr "Name, code or civilization"
+
+#: .\admin_web\templates\game\geography_quadrant.html:48
+msgid "Classe d'étoile, de la plus grande à la plus petite"
+msgstr "Star class, from largest to smallest"
+
+#: .\admin_web\templates\game\geography_quadrant.html:53
+msgid "Tous les systèmes"
+msgstr "All systems"
+
+#: .\admin_web\templates\game\geography_quadrant.html:55
+msgid "Mes colonies"
+msgstr "My colonies"
+
+#: .\admin_web\templates\game\geography_quadrant.html:56
+msgid "Colonies étrangères"
+msgstr "Foreign colonies"
+
+#: .\admin_web\templates\game\geography_quadrant.html:57
+msgid "Inoccupés"
+msgstr "Unoccupied"
+
+#: .\admin_web\templates\game\geography_quadrant.html:60
+msgid "Type de système"
+msgstr "System type"
+
+#: .\admin_web\templates\game\geography_quadrant.html:62
+msgid "Tous les types"
+msgstr "All types"
+
+#: .\admin_web\templates\game\geography_quadrant.html:63
+msgid "Tous les habitables"
+msgstr "All habitable"
+
+#: .\admin_web\templates\game\geography_quadrant.html:66
+#: .\admin_web\templates\game\resources.html:58
+msgid "Ressource"
+msgstr "Resource"
+
+#: .\admin_web\templates\game\geography_quadrant.html:68
+msgid "Toutes les ressources"
+msgstr "All resources"
+
+#: .\admin_web\templates\game\geography_quadrant.html:69
+msgid "N'importe quelle ressource rare"
+msgstr "Any rare resource"
+
+#: .\admin_web\templates\game\geography_quadrant.html:70
+msgid "Rares"
+msgstr "Rare"
+
+#: .\admin_web\templates\game\geography_quadrant.html:71
+msgid "Communes"
+msgstr "Common"
+
+#: .\admin_web\templates\game\geography_quadrant.html:75
+msgid "Concentration minimale dans le système"
+msgstr "Minimum concentration in the system"
+
+#: .\admin_web\templates\game\geography_quadrant.html:79
+msgid "Seulement les nœuds de vortex"
+msgstr "Vortex nodes only"
+
+#: .\admin_web\templates\game\geography_quadrant.html:81
+msgid "Effacer la recherche"
+msgstr "Clear the search"
+
+#: .\admin_web\templates\game\geography_quadrant.html:94
+msgid ""
+"Glisser pour se déplacer · Molette pour zoomer · Clic pour ouvrir un système"
+msgstr "Drag to move · Wheel to zoom · Click to open a system"
+
+#: .\admin_web\templates\game\geography_quadrant.html:97
+msgid "Quadrant au nord"
+msgstr "Quadrant to the north"
+
+#: .\admin_web\templates\game\geography_quadrant.html:98
+msgid "Quadrant au sud"
+msgstr "Quadrant to the south"
+
+#: .\admin_web\templates\game\geography_quadrant.html:99
+msgid "Quadrant à l'ouest"
+msgstr "Quadrant to the west"
+
+#: .\admin_web\templates\game\geography_quadrant.html:100
+msgid "Quadrant à l'est"
+msgstr "Quadrant to the east"
+
+#: .\admin_web\templates\game\geography_quadrant.html:102
+#: .\admin_web\templates\game\geography_system.html:76
+msgid "Contrôles de la vue"
+msgstr "View controls"
+
+#: .\admin_web\templates\game\geography_quadrant.html:103
+#: .\admin_web\templates\game\geography_system.html:79
+msgid "Zoomer"
+msgstr "Zoom in"
+
+#: .\admin_web\templates\game\geography_quadrant.html:104
+#: .\admin_web\templates\game\geography_system.html:78
+msgid "Dézoomer"
+msgstr "Zoom out"
+
+#: .\admin_web\templates\game\geography_quadrant.html:105
+#: .\admin_web\templates\game\geography_system.html:80
+msgid "Vue d'ensemble"
+msgstr "Overview"
+
+#: .\admin_web\templates\game\geography_quadrant.html:106
+msgid "Tous les noms"
+msgstr "All names"
+
 #: .\admin_web\templates\game\geography_system.html:5
 #, python-format
 msgid "Système %(name)s"
@@ -906,13 +1074,8 @@ msgstr "No system at these coordinates. Back to your home system."
 msgid "Code cartographique"
 msgstr "Map code"
 
-#: .\admin_web\templates\game\geography_system.html:28
-#: .\admin_web\templates\game\geography_system.html:43
-msgid "Rechercher"
-msgstr "Search"
-
 #: .\admin_web\templates\game\geography_system.html:32
-#: .\admin_web\templates\game\geography_system.html:99 .\data\modifiers.py:16
+#: .\admin_web\templates\game\geography_system.html:100 .\data\modifiers.py:16
 msgid "Secteur"
 msgstr "Sector"
 
@@ -924,95 +1087,86 @@ msgstr "Latitude"
 msgid "Longitude"
 msgstr "Longitude"
 
-#: .\admin_web\templates\game\geography_system.html:68
+#: .\admin_web\templates\game\geography_system.html:45
+#: .\admin_web\templates\includes\menu_game.html:265
+msgid "Carte du quadrant"
+msgstr "Quadrant map"
+
+#: .\admin_web\templates\game\geography_system.html:69
 msgid "coordonnées"
 msgstr "coordinates"
 
-#: .\admin_web\templates\game\geography_system.html:68
+#: .\admin_web\templates\game\geography_system.html:69
 msgid "coordonnée"
 msgstr "coordinate"
 
-#: .\admin_web\templates\game\geography_system.html:70
+#: .\admin_web\templates\game\geography_system.html:71
 msgid "Votre colonie"
 msgstr "Your colony"
 
-#: .\admin_web\templates\game\geography_system.html:71
+#: .\admin_web\templates\game\geography_system.html:72
 msgid "Autre colonie"
 msgstr "Other colony"
 
-#: .\admin_web\templates\game\geography_system.html:75
-msgid "Contrôles de la vue"
-msgstr "View controls"
-
-#: .\admin_web\templates\game\geography_system.html:76
+#: .\admin_web\templates\game\geography_system.html:77
 msgid "Pause / reprise"
 msgstr "Pause / resume"
 
-#: .\admin_web\templates\game\geography_system.html:77
-msgid "Dézoomer"
-msgstr "Zoom out"
-
-#: .\admin_web\templates\game\geography_system.html:78
-msgid "Zoomer"
-msgstr "Zoom in"
-
-#: .\admin_web\templates\game\geography_system.html:79
-msgid "Vue d'ensemble"
-msgstr "Overview"
-
-#: .\admin_web\templates\game\geography_system.html:81
+#: .\admin_web\templates\game\geography_system.html:82
 msgid ""
-"Glisser pour tourner · Molette pour zoomer · Double-clic pour suivre un astre"
+"Glisser pour tourner · Molette pour zoomer · Double-clic pour suivre un "
+"astre"
 msgstr "Drag to rotate · Wheel to zoom · Double-click to follow a body"
 
-#: .\admin_web\templates\game\geography_system.html:98
-#: .\admin_web\templates\game\geography_system.html:153
+#: .\admin_web\templates\game\geography_system.html:99
+#: .\admin_web\templates\game\geography_system.html:154
 msgid "Code"
 msgstr "Code"
 
-#: .\admin_web\templates\game\geography_system.html:100
+#: .\admin_web\templates\game\geography_system.html:101
+#: .\data\quadrants.py:195
 msgid "Position"
 msgstr "Position"
 
-#: .\admin_web\templates\game\geography_system.html:101
-#: .\admin_web\templates\game\geography_system.html:150
+#: .\admin_web\templates\game\geography_system.html:102
+#: .\admin_web\templates\game\geography_system.html:151
 msgid "Orbite"
 msgstr "Orbit"
 
-#: .\admin_web\templates\game\geography_system.html:118
-#: .\admin_web\templates\game\geography_system.html:155
+#: .\admin_web\templates\game\geography_system.html:119
+#: .\admin_web\templates\game\geography_system.html:156
 #: .\admin_web\templates\game\reports.html:119
-#: .\admin_web\templates\includes\menu_game.html:267
+#: .\admin_web\templates\includes\menu_game.html:274
 msgid "Flottes"
 msgstr "Fleets"
 
-#: .\admin_web\templates\game\geography_system.html:119
+#: .\admin_web\templates\game\geography_system.html:120
 msgid "Aucune flotte détectée"
 msgstr "No fleet detected"
 
-#: .\admin_web\templates\game\geography_system.html:122
+#: .\admin_web\templates\game\geography_system.html:123
 msgid "Aucune revendication"
 msgstr "No claim"
 
-#: .\admin_web\templates\game\geography_system.html:125
+#: .\admin_web\templates\game\geography_system.html:126
 #: .\admin_web\templates\game\modifiers.html:8
-#: .\admin_web\templates\includes\menu_game.html:304
+#: .\admin_web\templates\includes\menu_game.html:311
 msgid "Modificateurs"
 msgstr "Modifiers"
 
-#: .\admin_web\templates\game\geography_system.html:133
+#: .\admin_web\templates\game\geography_system.html:134
 msgid "Suivre cet astre"
 msgstr "Follow this body"
 
-#: .\admin_web\templates\game\geography_system.html:144
+#: .\admin_web\templates\game\geography_system.html:145
 msgid "Relevé du système"
 msgstr "System survey"
 
-#: .\admin_web\templates\game\geography_system.html:151
+#: .\admin_web\templates\game\geography_system.html:152
 msgid "Astre"
 msgstr "Body"
 
-#: .\admin_web\templates\game\geography_system.html:152
+#: .\admin_web\templates\game\geography_system.html:153
 #: .\admin_web\templates\game\modifiers.html:68
 #: .\admin_web\templates\includes\ententes_table.html:9
 msgid "Type"
@@ -1096,7 +1250,8 @@ msgstr "Permanently destroy this forum? This cannot be undone."
 msgid "Détruire définitivement"
 msgstr "Destroy permanently"
 
-#: .\admin_web\templates\game\player_forum_manage.html:94 .\data\ententes.py:63
+#: .\admin_web\templates\game\player_forum_manage.html:94
+#: .\data\ententes.py:63
 msgid "Membre"
 msgstr "Member"
 
@@ -1212,7 +1367,7 @@ msgid "Exploration"
 msgstr "Exploration"
 
 #: .\admin_web\templates\game\reports.html:137
-#: .\admin_web\templates\includes\menu_game.html:283
+#: .\admin_web\templates\includes\menu_game.html:290
 msgid "Technologies"
 msgstr "Technologies"
 
@@ -1274,10 +1429,6 @@ msgstr "Not self-sufficient"
 #: .\admin_web\templates\game\resources.html:47
 msgid "Plein"
 msgstr "Full"
-
-#: .\admin_web\templates\game\resources.html:58
-msgid "Ressource"
-msgstr "Resource"
 
 #: .\admin_web\templates\game\resources.html:59
 msgid "Stockage et ordres commerciaux"
@@ -1546,15 +1697,15 @@ msgstr "Reports"
 msgid "Cartographie"
 msgstr "Cartography"
 
-#: .\admin_web\templates\includes\menu_game.html:274
+#: .\admin_web\templates\includes\menu_game.html:281
 msgid "Armées"
 msgstr "Armies"
 
-#: .\admin_web\templates\includes\menu_game.html:290
+#: .\admin_web\templates\includes\menu_game.html:297
 msgid "Armements"
 msgstr "Weapons"
 
-#: .\admin_web\templates\includes\menu_game.html:297
+#: .\admin_web\templates\includes\menu_game.html:304
 msgid "Conception Vaisseaux"
 msgstr "Ship design"
 
@@ -1958,7 +2109,8 @@ msgstr "Building under construction"
 
 #: .\backend\views_api_buildings.py:167
 msgid "Impossible de détruire la capitale de votre colonie sans l'abandonner"
-msgstr "You cannot destroy your colony's capital without abandoning the colony"
+msgstr ""
+"You cannot destroy your colony's capital without abandoning the colony"
 
 #: .\backend\views_api_commandant.py:19 .\backend\views_api_commandant.py:37
 msgid "Ce serveur n'existe pas"
@@ -2050,15 +2202,15 @@ msgstr "Asteroid belt"
 msgid "Nuage d'Oort"
 msgstr "Oort cloud"
 
-#: .\data\coordinates.py:22
+#: .\data\coordinates.py:22 .\data\quadrants.py:31
 msgid "Monde natal"
 msgstr "Home world"
 
-#: .\data\coordinates.py:23
+#: .\data\coordinates.py:23 .\data\quadrants.py:35
 msgid "Habitabilité faible"
 msgstr "Low habitability"
 
-#: .\data\coordinates.py:24
+#: .\data\coordinates.py:24 .\data\quadrants.py:34
 msgid "Habitabilité moyenne"
 msgstr "Medium habitability"
 
@@ -2110,11 +2262,31 @@ msgstr "Wolf-Rayet"
 msgid "Nébuleuse"
 msgstr "Nebula"
 
+#: .\data\coordinates.py:37
+msgid "Étoile à neutrons"
+msgstr "Neutron star"
+
+#: .\data\coordinates.py:38
+msgid "Pulsar"
+msgstr "Pulsar"
+
+#: .\data\coordinates.py:39
+msgid "Magnétar"
+msgstr "Magnetar"
+
+#: .\data\coordinates.py:40
+msgid "Trou noir"
+msgstr "Black hole"
+
+#: .\data\coordinates.py:41
+msgid "Supernova"
+msgstr "Supernova"
+
 #: .\data\ententes.py:40 .\data\modifiers.py:20
 msgid "Économique"
 msgstr "Economic"
 
-#: .\data\ententes.py:41
+#: .\data\ententes.py:41 .\data\quadrants.py:39
 msgid "Scientifique"
 msgstr "Scientific"
 
@@ -2171,63 +2343,63 @@ msgstr "The description must be at most 5,000 characters long"
 msgid "Vous n'avez pas ce droit dans cette entente"
 msgstr "You do not have this right in this entente"
 
-#: .\data\ententes.py:103 .\data\ententes.py:419
+#: .\data\ententes.py:103 .\data\ententes.py:428
 msgid "Vous n'êtes pas le propriétaire de cette entente"
 msgstr "You are not the owner of this entente"
 
-#: .\data\ententes.py:236
+#: .\data\ententes.py:245
 msgid "Ce type d'entente n'existe pas"
 msgstr "This type of entente does not exist"
 
-#: .\data\ententes.py:239 .\data\forums.py:395
+#: .\data\ententes.py:248 .\data\forums.py:395
 msgid "Le nom doit faire entre 1 et 60 caractères"
 msgstr "The name must be between 1 and 60 characters long"
 
-#: .\data\ententes.py:245 .\data\forums.py:415 .\data\forums.py:443
+#: .\data\ententes.py:254 .\data\forums.py:415 .\data\forums.py:443
 msgid "Ce nom est déjà pris"
 msgstr "This name is already taken"
 
-#: .\data\ententes.py:255
+#: .\data\ententes.py:264
 msgid "Vous ne pouvez pas postuler à cette entente"
 msgstr "You cannot apply to this entente"
 
-#: .\data\ententes.py:256
+#: .\data\ententes.py:265
 msgid "La candidature doit faire au plus 1 000 caractères"
 msgstr "The application must be at most 1,000 characters long"
 
-#: .\data\ententes.py:278
+#: .\data\ententes.py:287
 msgid "Cette invitation n'existe plus"
 msgstr "This invitation no longer exists"
 
-#: .\data\ententes.py:310 .\data\forums.py:515
+#: .\data\ententes.py:319 .\data\forums.py:515
 msgid "Ce commandant est déjà membre"
 msgstr "This commandant is already a member"
 
-#: .\data\ententes.py:328 .\data\ententes.py:397
+#: .\data\ententes.py:337 .\data\ententes.py:406
 msgid "Ce membre a des options que vous n'avez pas"
 msgstr "This member has options that you do not have"
 
-#: .\data\ententes.py:334
+#: .\data\ententes.py:343
 msgid "Le nom du rôle doit faire entre 1 et 40 caractères"
 msgstr "The name of the role must be between 1 and 40 characters long"
 
-#: .\data\ententes.py:336
+#: .\data\ententes.py:345
 msgid "Ce nom est réservé à un rôle par défaut"
 msgstr "This name is reserved for a default role"
 
-#: .\data\ententes.py:350
+#: .\data\ententes.py:359
 msgid "Ce rôle existe déjà dans cette entente"
 msgstr "This role already exists in this entente"
 
-#: .\data\ententes.py:362
+#: .\data\ententes.py:371
 msgid "Ce rôle a des options que vous n'avez pas"
 msgstr "This role has options that you do not have"
 
-#: .\data\ententes.py:383
+#: .\data\ententes.py:392
 msgid "Le rôle par défaut ne peut pas être supprimé"
 msgstr "The default role cannot be deleted"
 
-#: .\data\ententes.py:395 .\data\ententes.py:423
+#: .\data\ententes.py:404 .\data\ententes.py:432
 msgid "Ce commandant n'est pas un membre de cette entente"
 msgstr "This commandant is not a member of this entente"
 
@@ -2355,6 +2527,135 @@ msgstr "Quadrant of %(colony)s"
 msgid "Secteur de %(colony)s"
 msgstr "Sector of %(colony)s"
 
+#: .\data\quadrants.py:24
+msgid "Nord-Ouest"
+msgstr "North-West"
+
+#: .\data\quadrants.py:24
+msgid "Nord-Est"
+msgstr "North-East"
+
+#: .\data\quadrants.py:25
+msgid "Sud-Ouest"
+msgstr "South-West"
+
+#: .\data\quadrants.py:25
+msgid "Sud-Est"
+msgstr "South-East"
+
+#: .\data\quadrants.py:28 .\data\quadrants.py:29
+msgid "Ordinaire"
+msgstr "Ordinary"
+
+#: .\data\quadrants.py:30
+msgid "Sauvage"
+msgstr "Wilderness"
+
+#: .\data\quadrants.py:32
+msgid "Monde-jardin"
+msgstr "Garden world"
+
+#: .\data\quadrants.py:33
+msgid "Habitabilité bonne"
+msgstr "Good habitability"
+
+#: .\data\quadrants.py:36
+msgid "Dangereux"
+msgstr "Dangerous"
+
+#: .\data\quadrants.py:37
+msgid "Riche en ressources"
+msgstr "Rich in resources"
+
+#: .\data\quadrants.py:38
+msgid "Riche en gaz"
+msgstr "Rich in gas"
+
+#: .\data\quadrants.py:195
+msgid "Astres"
+msgstr "Bodies"
+
+#: .\data\quadrants.py:195
+msgid "Vortex"
+msgstr "Vortex"
+
+#: .\data\quadrants.py:196
+msgid "Ouvrir le système"
+msgstr "Open the system"
+
+#: .\data\quadrants.py:196
+msgid "Vers le quadrant voisin"
+msgstr "To the neighbouring quadrant"
+
+#: .\data\quadrants.py:196
+msgid "Rare"
+msgstr "Rare"
+
+#: .\data\quadrants.py:197
+msgid "systèmes correspondent"
+msgstr "systems match"
+
+#: .\data\quadrants.py:197
+msgid "système correspond"
+msgstr "system matches"
+
+#: .\data\quadrants.py:197
+msgid "systèmes"
+msgstr "systems"
+
+#: .\data\quadrants.py:198
+msgid "Aucun système ne correspond"
+msgstr "No system matches"
+
+#: .\data\quadrants.py:198
+msgid "Aucun empire dans ce quadrant"
+msgstr "No empire in this quadrant"
+
+#: .\data\quadrants.py:198
+msgid "Aucune entente dans ce quadrant"
+msgstr "No entente in this quadrant"
+
+#: .\data\quadrants.py:199
+msgid "Réseau"
+msgstr "Network"
+
+#: .\data\quadrants.py:199
+msgid "Alpha"
+msgstr "Alpha"
+
+#: .\data\quadrants.py:199
+msgid "Bêta"
+msgstr "Beta"
+
+#: .\data\quadrants.py:199
+msgid "Gamma"
+msgstr "Gamma"
+
+#: .\data\quadrants.py:199
+msgid "Delta"
+msgstr "Delta"
+
+#: .\data\quadrants.py:199
+msgid "autres résultats"
+msgstr "more results"
+
+#: .\data\quadrants.py:200
+msgid "Gisements"
+msgstr "Deposits"
+
+#: .\data\quadrants.py:200
+msgid "Aucun gisement"
+msgstr "No deposit"
+
+#: .\data\quadrants.py:200
+msgid "Aucun vortex"
+msgstr "No vortex"
+
+#: .\data\quadrants.py:252
+#, python-format
+msgid "Quadrant %(quadrant)s du secteur %(sector)s"
+msgstr "%(quadrant)s quadrant of sector %(sector)s"
+
 #: .\data\themes.py:11
 msgid "Classique"
 msgstr "Classic"
@@ -2405,41 +2706,41 @@ msgstr "Clean dark, indigo accent"
 #~ msgstr "Founder"
 
 #~ msgid ""
-#~ "Sous la grande coupole de la station qui sert de capitale au secteur, "
-#~ "chaque civilisation dispose d'une tribune. Les discours y sont publics, "
-#~ "les accords rarement, et chaque mot prononcé ici finit tôt ou tard dans "
-#~ "les archives du secteur."
+#~ "Sous la grande coupole de la station qui sert de capitale au secteur, chaque"
+#~ " civilisation dispose d'une tribune. Les discours y sont publics, les "
+#~ "accords rarement, et chaque mot prononcé ici finit tôt ou tard dans les "
+#~ "archives du secteur."
 #~ msgstr ""
 #~ "Under the great dome of the station serving as the capital of the sector, "
-#~ "each civilisation has its own rostrum. Speeches are public here, "
-#~ "agreements rarely so, and every word spoken ends up sooner or later in "
-#~ "the archives of the sector."
+#~ "each civilisation has its own rostrum. Speeches are public here, agreements "
+#~ "rarely so, and every word spoken ends up sooner or later in the archives of "
+#~ "the sector."
 
 #~ msgid ""
 #~ "Ici, on pose les uniformes : ce forum est hors du jeu. Questions, bugs, "
-#~ "idées ou simples discussions entre joueurs, ce qui s'y dit n'engage pas "
-#~ "vos commandants."
+#~ "idées ou simples discussions entre joueurs, ce qui s'y dit n'engage pas vos "
+#~ "commandants."
 #~ msgstr ""
 #~ "Uniforms off: this forum is out of character. Questions, bugs, ideas or "
 #~ "simple chats between players, nothing said here binds your commandants."
 
 #~ msgid ""
 #~ "Les portes de cette salle du conseil sont closes et gardées. Seuls les "
-#~ "membres de la coalition y entrent, et ce qui s'y décide ne regarde "
-#~ "qu'eux, jusqu'au jour où le secteur en découvre les conséquences."
+#~ "membres de la coalition y entrent, et ce qui s'y décide ne regarde qu'eux, "
+#~ "jusqu'au jour où le secteur en découvre les conséquences."
 #~ msgstr ""
-#~ "The doors of this council chamber are closed and guarded. Only the "
-#~ "members of the coalition may enter, and what is decided here concerns "
-#~ "them alone, until the day the sector discovers the consequences."
+#~ "The doors of this council chamber are closed and guarded. Only the members "
+#~ "of the coalition may enter, and what is decided here concerns them alone, "
+#~ "until the day the sector discovers the consequences."
 
 #~ msgid ""
 #~ "La fumée flotte sous les néons, les verres s'entrechoquent et les "
 #~ "conversations baissent d'un ton à chaque nouvel arrivant. Dans ce genre "
 #~ "d'endroit, personne ne pose de questions, ou alors à voix basse."
 #~ msgstr ""
-#~ "Smoke drifts under the neon lights, glasses clink and conversations drop "
-#~ "a notch at each newcomer. In a place like this, nobody asks questions, or "
-#~ "only in a whisper."
+#~ "Smoke drifts under the neon lights, glasses clink and conversations drop a "
+#~ "notch at each newcomer. In a place like this, nobody asks questions, or only"
+#~ " in a whisper."
 
 #~ msgid "Section"
 #~ msgstr "Section"
@@ -2463,8 +2764,8 @@ msgstr "Clean dark, indigo accent"
 #~ msgstr "Announcements"
 
 #~ msgid ""
-#~ "Les nouvelles du jeu. Seule l'équipe y ouvre des sujets, tout le monde "
-#~ "peut y réagir."
+#~ "Les nouvelles du jeu. Seule l'équipe y ouvre des sujets, tout le monde peut "
+#~ "y réagir."
 #~ msgstr ""
 #~ "News about the game. Only the team opens topics here, everyone can reply."
 
@@ -2497,9 +2798,6 @@ msgstr "Clean dark, indigo accent"
 
 #~ msgid "Modification"
 #~ msgstr "Edit"
-
-#~ msgid "Cartographie système"
-#~ msgstr "System map"
 
 #~ msgid "Secteur : "
 #~ msgstr "Sector: "

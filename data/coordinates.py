@@ -34,6 +34,11 @@ SUBTYPE_NAMES = {
     'white_dwarf': _('Naine blanche'),
     'wolf_rayet': _('Wolf-Rayet'),
     'nebula': _('Nébuleuse'),
+    'neutron': _('Étoile à neutrons'),
+    'pulsar': _('Pulsar'),
+    'magnetar': _('Magnétar'),
+    'black_hole': _('Trou noir'),
+    'supernova': _('Supernova'),
 }
 
 
