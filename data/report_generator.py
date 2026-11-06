@@ -5,6 +5,7 @@ from data.commandant import get_commandant
 from data.names import localized_name
 from data.resources import get_all_resources_parameters
 from data.user import get_user_by_id
+from game.models import Technology
 
 
 ENTENTE_REPORTS = {
@@ -107,6 +108,23 @@ def generate_report(server, owner_id, report_type, args={}, sender=None, sender_
             for label, key in zip(labels, ('produced', 'consumed', 'missing')) if args[key])
         report['category'] = 'cycle_summary'
         report['category_icon'] = 'fa-coins'
+        report['illustration'] = "images/report/command_center.png"
+
+    elif report_type == 'research_finished':
+        # The technology may have left the Excel since the start of the research : this must not block the end of the cycle
+        technology = Technology.objects.filter(internal_name=args['technology']).first()
+        name = (localized_name(technology.data, lang) or technology.data.get('name')) if technology else args['technology']
+
+        report['title'] = {
+            'fr': "Recherche terminée",
+            'en': "Research completed",
+        }[lang]
+        report['message'] = {
+            'fr': f"Vos scientifiques ont achevé leurs travaux : {name}.",
+            'en': f"Your scientists have completed their work: {name}.",
+        }[lang]
+        report['category'] = 'technologies'
+        report['category_icon'] = 'fa-flask'
         report['illustration'] = "images/report/command_center.png"
 
 

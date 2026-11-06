@@ -1,0 +1,121 @@
+/* Tree of the technologies (js/technologies.js). Dark in every theme, like the maps. */
+
+.tech-current { margin: 0.25rem 0 0.5rem; }
+
+.tech-options { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1.5rem; margin-bottom: 0.5rem; }
+.tech-options label { margin: 0; font-weight: normal; }
+.tech-legend { margin-left: auto; font-size: 0.85rem; }
+
+.tech-tree {
+    --tech-accent: var(--tss-accent-text, #5aa9ff);
+    --tech-done: #3ddc97;
+    --tech-foreign: #ffb020;
+    --tech-muted: #9aa7b8;
+    --tech-line: rgba(255, 255, 255, 0.14);
+    overflow-x: auto;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    background: #0b101a;
+    color: #e9eef5;
+}
+.tech-tree-inner { position: relative; width: max-content; min-width: 100%; }
+.tech-empty { margin: 0; padding: 2rem; text-align: center; color: var(--tech-muted); }
+
+.tech-links { position: absolute; top: 0; left: 0; pointer-events: none; }
+.tech-links path { fill: none; stroke: var(--tech-muted); stroke-width: 1.5; opacity: 0.6; }
+.tech-links path.tech-link-researched { stroke: var(--tech-done); opacity: 1; }
+.tech-links path.tech-link-foreign { stroke: var(--tech-foreign); stroke-dasharray: 4 4; }
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Eras : the latest on top */
+
+.tech-era { display: flex; min-height: 8.5rem; border-top: 1px solid var(--tech-line); }
+.tech-era:first-of-type { border-top: 0; }
+.tech-era:nth-of-type(even) { background: rgba(255, 255, 255, 0.03); }
+.tech-hide-future .tech-era-future, .tech-hide-past .tech-era-past { display: none; }
+
+.tech-era-name {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    flex: none;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.75rem 0.35rem;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    background: #161e2c;
+    color: var(--tech-accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.tech-era-name small { color: var(--tech-muted); font-variant-numeric: tabular-nums; }
+
+.tech-era-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(var(--tech-columns), 4.75rem);
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem 0;
+    padding: 1.25rem 1rem;
+}
+
+
+/* ---------------------------------------------------------------------------------------------------------------- */
+/* Technologies */
+
+.tech-node, .tech-ghost { position: relative; z-index: 1; cursor: pointer; }
+.tech-node:focus-visible, .tech-ghost:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+.tech-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    margin: 0 0.3rem;
+    padding: 0.5rem 0.25rem;
+    border: 2px solid var(--tech-muted);
+    border-radius: 0.5rem;
+    background: #161e2c;
+    color: inherit;
+    font-size: 0.8rem;
+    line-height: 1.2;
+    text-align: center;
+}
+.tech-node:hover { background: #222c3e; }
+.tech-node-icon { font-size: 1.4rem; }
+.tech-node-name { font-weight: 600; overflow-wrap: anywhere; }
+.tech-node small { color: var(--tech-muted); }
+
+.tech-node.tech-researched { border-color: var(--tech-done); }
+.tech-node.tech-researched small, .tech-node.tech-researched .tech-node-icon { color: var(--tech-done); }
+.tech-node.tech-researching { border-color: var(--tech-accent); border-style: dashed; }
+.tech-node.tech-researching small { color: var(--tech-accent); }
+.tech-node.tech-available { border-color: var(--tech-accent); }
+.tech-node.tech-available .tech-node-icon { color: var(--tech-accent); }
+.tech-node.tech-locked { border-color: var(--tech-line); color: var(--tech-muted); }
+
+/* A requisite from another category : a small round icon, never mistaken for a technology of the page */
+.tech-ghost {
+    display: inline-flex;
+    justify-self: center;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 2px dashed var(--tech-foreign, #ffb020);
+    border-radius: 50%;
+    background: #2a2110;
+    color: var(--tech-foreign, #ffb020);
+    font-size: 0.85rem;
+}
+.tech-ghost:hover { background: #3d3016; }
+.tech-ghost.tech-researched { border-style: solid; }
+.tech-ghost.tech-locked { opacity: 0.7; }
+.tech-ghost-legend { width: 1.5rem; height: 1.5rem; font-size: 0.65rem; cursor: default; vertical-align: middle; }

@@ -1,0 +1,86 @@
+
+{% load i18n %}
+{% load static %}
+
+<div class="modal fade" id="modal-tech-{{ tech.internal_name }}" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title"><i class="fas {{ tech.category.icon }}"></i> {{ tech.name }}</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="{% trans 'Fermer' %}">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <p>
+            <span class="badge badge-secondary">{{ tech.category.name }}</span>
+            <span class="badge badge-secondary">{{ tech.era }}</span>
+            <span class="badge badge-info"><i class="fas {{ tech.status_display.icon }}"></i> {{ tech.status_display.name }}</span>
+          </p>
+
+          <p>{% if tech.description %}{{ tech.description }}{% else %}<em>{% trans "Pas encore de description" %}</em>{% endif %}</p>
+
+          {% if tech.requisites_details %}
+          <h5>{% trans "Prérequis" %}</h5>
+          <ul class="list-unstyled">
+            {% for requisite in tech.requisites_details %}
+            <li>
+              <i class="fas {{ requisite.status_display.icon }}" title="{{ requisite.status_display.name }}"></i>
+              {% if requisite.tech_type != selected_category %}
+                <a href="?category={{ requisite.tech_type|urlencode }}">{{ requisite.name }}</a> <small>({{ requisite.category.name }})</small>
+              {% else %}
+                {{ requisite.name }}
+              {% endif %}
+              <span class="sr-only">{{ requisite.status_display.name }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+          {% if tech.unlock %}
+          <h5>{% trans "Débloque" %}</h5>
+          <p>{{ tech.unlock }}</p>
+          {% endif %}
+
+          <h5>{% trans "Coût" %}</h5>
+          <ul class="list-unstyled">
+            {% for resource in tech.costs.values %}
+            <li class="{% if not resource.enough_stockpiles %}text-danger{% endif %}">
+              <img class="img_without_td_padding u-max-width-2rem" src="{% static ""%}{{ resource.illustration }}" alt="">
+              {{ resource.quantity }} {{ resource.unit_notation }} {{ resource.name }}
+              <small>({% trans "Stock" %} : {{ resource.commandant_storage }})</small>
+            </li>
+            {% endfor %}
+          </ul>
+
+          <h5>{% trans "Durée" %}</h5>
+          <p>{{ tech.cycles }} {% trans "cycle(s)" %}</p>
+        </div>
+
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Fermer" %}</button>
+
+          {% if tech.status == 'researching' %}
+            <span>{{ tech.cycles_left }} {% trans "cycle(s) restant(s)" %}</span>
+          {% elif tech.status == 'locked' %}
+            <span>{% trans "Prérequis manquants" %}</span>
+          {% elif tech.status == 'available' %}
+            <form method="POST" data-api-url="api_start_research">
+              {% csrf_token %}
+              <input type="hidden" name="technology" value="{{ tech.internal_name }}">
+              {% if current_research %}
+                <button type="submit" class="btn btn-secondary" disabled>{% trans "Une recherche est déjà en cours" %}</button>
+              {% elif tech.enough_stockpiles %}
+                <button type="submit" class="btn btn-primary">{% trans "Lancer la recherche" %}</button>
+              {% else %}
+                <button type="submit" class="btn btn-danger" disabled>{% trans "Ressources insuffisantes" %}</button>
+              {% endif %}
+            </form>
+          {% endif %}
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>

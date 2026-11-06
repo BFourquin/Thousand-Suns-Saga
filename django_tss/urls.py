@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 from django.urls import include, re_path
 
 from backend import views_public, views_game, views_admin, views_game_colonies, views_forums, views_diplomacy
-from backend import views_api_user, views_api_commandant, views_api_buildings
+from backend import views_api_user, views_api_commandant, views_api_buildings, views_api_research
 
 
 app_name = "admin"
@@ -39,6 +39,7 @@ urlpatterns = [
     path('api_create_commandant/', views_api_commandant.api_create_commandant),
 
     # BUILDINGS & DISTRICTS
+    path('api_start_research/', views_api_research.api_start_research),
     path('api_build_district/', views_api_buildings.api_build_district),
     path('api_build_building/', views_api_buildings.api_build_building),
     path('api_delete_district/', views_api_buildings.api_delete_district),
@@ -74,6 +75,7 @@ urlpatterns = [
 
     path('resources/', views_game.resources, name='resources'),
     path('modifiers/', views_game.modifiers, name='modifiers'),
+    path('technologies/', views_game.technologies, name='technologies'),
 
     path('colonies/', views_game_colonies.colonies, name='colonies'),
     path('colony/', views_game_colonies.colony, name='colony'),

@@ -20,7 +20,7 @@ from backend.models import CommandantAccount, Server, UserExtended, to_id
 from backend.templatetags.tss_dates import rp_date
 from backend.templatetags.tss_text import MAX_DEPTH, bbcode
 from database.schemas import schema_of, server_schema
-from game.models import Building, BuildingType, Colony, Commandant, ConversationMessage, Coordinate, District, DistrictType, Entente, EntenteMember, EntenteRole, Modifier, Post, Report, Resource, Sector, StartingValues, System
+from game.models import Building, BuildingType, Colony, Commandant, ConversationMessage, Coordinate, District, DistrictType, Entente, EntenteMember, EntenteRole, Modifier, Post, Report, Resource, Sector, StartingValues, System, Technology
 from backend.utils import commandant_owns_colony
 from data import conversations, ententes, forums, quadrants
 from data import server_details
@@ -38,7 +38,7 @@ from data.report import change_report_status, delete_report, get_report
 from data.resources import add_resources, pay_resources
 
 API_LOGGED_URLS = ['/api_create_commandant/', '/api_build_district/', '/api_build_building/', '/api_delete_district/',
-                   '/api_district_set_activation_percent/']
+                   '/api_district_set_activation_percent/', '/api_start_research/']
 
 
 def player():
@@ -1689,6 +1689,146 @@ class EconomyPagesTests(EconomyTestCase):
         row = next(resource for resource in response.context['resources'] if resource['name'] == 'water')
         self.assertEqual((row['stock'], row['produced'], row['consumed'], row['balance'], row['self_sustainability']), (3, 4, 2, 2, 200))
         self.assertContains(response, '200 %')
+
+
+class ResearchTests(EconomyTestCase):
+
+    TECHS = (
+        {'internal_name': 'root', 'name': 'Root', 'tech_type': 'social', 'tech_level': 0, 'price': {'steel': 2}, 'difficulty': 2},
+        {'internal_name': 'next', 'name': 'Next', 'tech_type': 'social', 'tech_level': 0, 'requisite': 'root', 'unlock': 'Campement'},
+        {'internal_name': 'later', 'name': 'Later', 'tech_type': 'social', 'tech_level': 1, 'requisite': 'next', 'price': {'steel': 1000}},
+        {'internal_name': 'other', 'name': 'Other', 'tech_type': 'biology', 'tech_level': 1, 'requisite': 'root'},
+        {'internal_name': 'both', 'name': 'Both', 'tech_type': 'social', 'tech_level': 2, 'requisite': 'later, other '},
+        {'internal_name': 'also', 'name': 'Also', 'tech_type': 'social', 'tech_level': 2, 'requisite': 'other'},
+        {'internal_name': 'no_level', 'name': 'No level', 'tech_type': 'biology', 'tech_level': None, 'requisite': 'other'},
+        {'internal_name': 'itself', 'name': 'Itself', 'tech_type': 'biology', 'tech_level': 3, 'requisite': 'itself'},
+    )
+
+    def setUp(self):
+        self.client.force_login(self.user)
+        CommandantAccount.objects.create(server_id='S', commandant_id=self.commandant.id, user=self.user, commandant_name='Paullus')
+        UserExtended.objects.update_or_create(user=self.user, defaults={'playing_on_server_id': 'S', 'playing_on_commandant': self.commandant.id})
+        with server_schema('S'):
+            Resource.objects.create(internal_name='merchandises_low_tech', data={'internal_name': 'merchandises_low_tech', 'name_fr': 'Marchandises',
+                                                                                 'unit_notation': 'Mt', 'icon': 'x.png'})
+            for tech in self.TECHS:
+                Technology.objects.create(internal_name=tech['internal_name'], data=tech)
+
+    def set_researches(self, **researches):
+        with server_schema('S'):
+            Commandant.objects.filter(id=self.commandant.id).update(technologies=researches)
+
+    def researches(self):
+        return get_commandant('S', self.commandant.id)['technologies']
+
+    def tree(self, **params):
+        response = self.client.get('/technologies/', params)
+        self.assertEqual(response.status_code, 200)
+        return response
+
+    def post_start(self, technology):
+        return self.client.post('/api_start_research/', {'technology': technology})
+
+    def test_research_pays_at_start_and_ends_with_the_cycles(self):
+        self.assertEqual(self.post_start('root').status_code, 200)
+        self.assertEqual((self.researches(), self.resources()['steel']), ({'root': 2}, 8))
+
+        cycles.end_cycle('S')
+        self.assertEqual(self.researches(), {'root': 1})
+        with server_schema('S'):
+            self.assertFalse(Report.objects.filter(owner=self.commandant.id, category='technologies').exists())
+
+        cycles.end_cycle('S')
+        self.assertEqual(self.researches(), {'root': 0})
+        with server_schema('S'):
+            self.assertIn('Root', Report.objects.get(owner=self.commandant.id, category='technologies').message)
+
+        cycles.end_cycle('S')  # Nothing left in progress
+        self.assertEqual(self.researches(), {'root': 0})
+
+    def test_refused_researches_cost_nothing(self):
+        for technology, researches in (('unknown', {}), ('', {}),
+                                       ('next', {}),  # Its requisite is missing
+                                       ('next', {'root': 1}),  # Its requisite is still in progress
+                                       ('root', {'root': 0}),  # Already researched
+                                       ('other', {'root': 0, 'next': 1}),  # Another one in progress
+                                       ('later', {'root': 0, 'next': 0}),  # Too expensive
+                                       ('itself', {})):  # Requires itself, until the Excel is fixed
+            self.set_researches(**researches)
+            self.assertEqual(self.post_start(technology).status_code, 400, technology)
+            self.assertEqual((self.researches(), self.resources()['steel']), (researches, 10), technology)
+
+    def test_every_requisite_of_the_list_is_needed(self):
+        self.set_researches(root=0, next=0, later=0)
+        self.assertEqual(self.post_start('both').status_code, 400)
+        with server_schema('S'):
+            Commandant.objects.filter(id=self.commandant.id).update(resources={'merchandises_low_tech': 6})
+        self.set_researches(root=0, next=0, later=0, other=0)
+        self.assertEqual(self.post_start('both').status_code, 200)
+        self.assertEqual(self.researches()['both'], 3)  # The default duration of its era
+        self.assertEqual(self.resources()['merchandises_low_tech'], 0)  # The default price of its era
+
+    def test_one_page_per_category_with_the_latest_era_on_top(self):
+        context = self.tree().context
+        self.assertEqual(list(context['categories']), ['social', 'biology'])
+        self.assertEqual(context['selected_category'], 'social')
+        self.assertEqual([era['name'] for era in context['eras']], ['Middle-Tech', 'Low-Tech', 'Époque coloniale'])
+        self.assertEqual(self.tree(category='biology').context['selected_category'], 'biology')
+        self.assertEqual(self.tree(category='unknown').context['selected_category'], 'social')
+
+    def test_requisite_of_another_category_is_one_small_icon(self):
+        response = self.tree()
+        techs = {tech['internal_name']: tech for tech in response.context['techs']}
+        self.assertEqual(sorted(techs), ['also', 'both', 'later', 'next', 'other', 'root'])
+        self.assertTrue(techs['other']['foreign'])
+        self.assertContains(response, 'id="tech-node-other" class="tech-ghost', count=1)
+        self.assertContains(response, 'id="modal-tech-other"', count=1)
+        self.assertEqual(techs['both']['parents'], ['later', 'other'])
+
+    def test_no_two_technologies_on_the_same_spot(self):
+        for category in ('social', 'biology'):
+            spots = [(tech['level'], tech['grid_row'], tech['grid_column']) for tech in self.tree(category=category).context['techs']]
+            self.assertEqual(len(spots), len(set(spots)), spots)
+
+    def test_later_rows_are_above_in_the_era(self):
+        techs = {tech['internal_name']: tech for tech in self.tree().context['techs']}
+        self.assertLess(techs['next']['grid_row'], techs['root']['grid_row'])
+
+    def test_era_without_a_level_follows_its_requisite(self):
+        techs = {tech['internal_name']: tech for tech in self.tree(category='biology').context['techs']}
+        self.assertEqual(techs['no_level']['level'], 1)
+        self.assertEqual(techs['itself']['status'], 'locked')
+        self.assertEqual(techs['itself']['parents'], [])
+
+    def eras(self):
+        return {era['name']: era['kind'] for era in self.tree().context['eras']}
+
+    def test_eras_future_and_past(self):
+        self.assertEqual(self.eras(), {'Middle-Tech': 'future', 'Low-Tech': 'future', 'Époque coloniale': 'open'})
+
+        self.set_researches(root=0)  # 'other' becomes available in the next era : nothing researchable is ever hidden
+        self.assertEqual(self.eras(), {'Middle-Tech': 'future', 'Low-Tech': 'open', 'Époque coloniale': 'open'})
+
+        self.set_researches(root=0, next=0)
+        self.assertEqual(self.eras(), {'Middle-Tech': 'future', 'Low-Tech': 'open', 'Époque coloniale': 'past'})
+
+    def test_last_era_stays_when_everything_is_researched(self):
+        self.set_researches(**{tech['internal_name']: 0 for tech in self.TECHS})
+        self.assertEqual(self.eras(), {'Middle-Tech': 'open', 'Low-Tech': 'past', 'Époque coloniale': 'past'})
+
+    def test_modal_gives_the_costs_and_the_order(self):
+        response = self.tree()
+        techs = {tech['internal_name']: tech for tech in response.context['techs']}
+        self.assertEqual(techs['root']['costs']['steel']['quantity'], 2)
+        self.assertEqual(techs['root']['cycles'], 2)
+        self.assertEqual(techs['next']['costs']['merchandises_low_tech']['quantity'], 2)  # The default of the empty column
+        self.assertEqual(techs['next']['cycles'], 1)
+        self.assertContains(response, 'Campement')
+        self.assertContains(response, 'value="root"')
+        self.assertNotContains(response, 'value="next"')  # Locked
+
+        self.set_researches(root=1)
+        self.assertContains(self.tree(), 'class="tech-current"')
 
 
 class CreateCommandantTests(TestCase):

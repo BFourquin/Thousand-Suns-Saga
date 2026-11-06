@@ -17,6 +17,7 @@ from data.colonies import get_colonies_controlled_by_commandant, get_colonies_at
 from data.commandant import get_commandants
 from data.economy import cycle_balance
 from data.modifiers import CATEGORIES, SCOPES, modifiers_of_commandant
+from data.research import research_tree
 from data.resources import get_all_resources_parameters, get_resources_categories, get_resources_subcategories
 from data.names import localized_name
 
@@ -421,4 +422,13 @@ def modifiers(request, server, commandant):
     return TemplateResponse(request, 'game/modifiers.html',
                             {'server': server, 'modifiers': modifiers_list, 'scopes': SCOPES, 'categories': CATEGORIES,
                              'selected_scope': selected_scope, 'selected_sign': selected_sign, 'selected_category': selected_category})
+
+
+@login_required(login_url='/player_login/')
+@add_cycle_info
+@log_player_action
+@commandant_required
+def technologies(request, server, commandant):
+    tree = research_tree(server, commandant, get_request_user(request)['language'], request_params(request).get('category'))
+    return TemplateResponse(request, 'game/technologies.html', {'server': server} | tree)
 

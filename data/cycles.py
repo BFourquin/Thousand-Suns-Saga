@@ -7,6 +7,7 @@ from data.server_details import get_tz
 from data.commandant import update_commandant
 from data.economy import apply_cycle_economy
 from data.modifiers import tick_modifiers
+from data.research import apply_cycle_research
 
 
 @on_server
@@ -112,3 +113,4 @@ def end_cycle(server_name):
 
     apply_cycle_economy(server_name)
     tick_modifiers(server_name)
+    apply_cycle_research(server_name)

@@ -1,0 +1,98 @@
+
+{% load i18n %}
+{% load static %}
+
+
+{% include "includes/head.html" with title="Technologies" page_css="css/technologies.css" %}
+
+{% include "includes/menu_game.html" with page_title=_("Technologies") %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Main content -->
+    <section class="content">
+
+      <div class="col-12">
+
+        <div class="resource-filters">
+            <div>
+                {% for key, category in categories.items %}
+                <a class="btn btn-app {% if selected_category == key %}btn-secondary{% else %}btn-default{% endif %}" href="?category={{ key|urlencode }}">
+                    <i class="fas {{ category.icon }}"></i>
+                    {{ category.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if current_research %}
+        <p class="tech-current">
+            <i class="fas fa-hourglass-half"></i>
+            {% trans "Recherche en cours :" %}
+            <a href="?category={{ current_research.tech_type|urlencode }}"><b>{{ current_research.name }}</b></a>
+            — {{ current_research.cycles_left }} {% trans "cycle(s) restant(s)" %}
+        </p>
+        {% endif %}
+
+        <div class="tech-options">
+            <label><input type="checkbox" id="tech-hide-future" checked> {% trans "Masquer les époques futures" %}</label>
+            <label><input type="checkbox" id="tech-hide-past" checked> {% trans "Masquer les époques antérieures entièrement recherchées" %}</label>
+            <span class="tech-legend">
+                {% trans "Ce petit symbole est un prérequis d'une autre catégorie :" %}
+                <span class="tech-ghost tech-ghost-legend"><i class="fas fa-link"></i></span>
+            </span>
+        </div>
+
+        <div class="tech-tree tech-hide-future tech-hide-past" id="tech-tree" data-columns="{{ columns }}">
+          <div class="tech-tree-inner" id="tech-tree-inner">
+            <svg class="tech-links" id="tech-links" aria-hidden="true"></svg>
+
+            {% for era in eras %}
+            <section class="tech-era tech-era-{{ era.kind }}">
+                <h2 class="tech-era-name">{{ era.name }}<small>{{ era.nb_researched }}/{{ era.nodes|length }}</small></h2>
+                <div class="tech-era-grid">
+                    {% for tech in era.nodes %}
+                      {% if tech.foreign %}
+                        <button type="button" id="tech-node-{{ tech.internal_name }}" class="tech-ghost tech-{{ tech.status }}"
+                                data-toggle="modal" data-target="#modal-tech-{{ tech.internal_name }}"
+                                data-column="{{ tech.grid_column }}" data-row="{{ tech.grid_row }}"
+                                title="{{ tech.category.name }} : {{ tech.name }} ({{ tech.status_display.name }})"
+                                aria-label="{% trans "Prérequis d'une autre catégorie" %} : {{ tech.name }}, {{ tech.category.name }}, {{ tech.status_display.name }}">
+                            <i class="fas {{ tech.category.icon }}"></i>
+                        </button>
+                      {% else %}
+                        <button type="button" id="tech-node-{{ tech.internal_name }}" class="tech-node tech-{{ tech.status }}"
+                                data-toggle="modal" data-target="#modal-tech-{{ tech.internal_name }}"
+                                data-column="{{ tech.grid_column }}" data-row="{{ tech.grid_row }}" data-parents="{{ tech.parents|join:',' }}">
+                            <i class="fas {{ tech.category.icon }} tech-node-icon"></i>
+                            <span class="tech-node-name">{{ tech.name }}</span>
+                            <small><i class="fas {{ tech.status_display.icon }}"></i>
+                                {% if tech.status == 'researching' %}{{ tech.cycles_left }} {% trans "cycle(s) restant(s)" %}{% else %}{{ tech.status_display.name }}{% endif %}</small>
+                        </button>
+                      {% endif %}
+                    {% endfor %}
+                </div>
+            </section>
+            {% empty %}
+            <p class="tech-empty">{% trans "Aucune technologie" %}</p>
+            {% endfor %}
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  {% for tech in techs %}
+    {% include "includes/technologies/modal_technology.html" %}
+  {% endfor %}
+
+</div><!-- ./wrapper -->
+
+<script src="{% static 'js/technologies.js' %}" defer></script>
+
+</body>
+</html>

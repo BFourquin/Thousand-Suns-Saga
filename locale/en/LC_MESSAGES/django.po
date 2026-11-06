@@ -2696,6 +2696,96 @@ msgstr "Minimalist"
 msgid "Sombre épuré, accent indigo"
 msgstr "Clean dark, indigo accent"
 
+msgid "Société"
+msgstr "Society"
+
+msgid "Biologie"
+msgstr "Biology"
+
+msgid "Énergie"
+msgstr "Energy"
+
+msgid "Électronique"
+msgstr "Electronics"
+
+msgid "Nanorobotique"
+msgstr "Nanorobotics"
+
+msgid "Von Neumann"
+msgstr "Von Neumann"
+
+msgid "Époque coloniale"
+msgstr "Colonial era"
+
+msgid "Singularité"
+msgstr "Singularity"
+
+msgid "Recherchée"
+msgstr "Researched"
+
+msgid "En cours"
+msgstr "In progress"
+
+msgid "Disponible"
+msgstr "Available"
+
+msgid "Verrouillée"
+msgstr "Locked"
+
+msgid "Technologie inconnue"
+msgstr "Unknown technology"
+
+msgid "Une recherche est déjà en cours"
+msgstr "A research is already in progress"
+
+msgid "Cette technologie n'est pas disponible"
+msgstr "This technology is not available"
+
+msgid "Ressources insuffisantes"
+msgstr "Not enough resources"
+
+msgid "Recherche lancée"
+msgstr "Research started"
+
+msgid "Recherche en cours :"
+msgstr "Current research:"
+
+msgid "Masquer les époques futures"
+msgstr "Hide future eras"
+
+msgid "Masquer les époques antérieures entièrement recherchées"
+msgstr "Hide earlier eras that are fully researched"
+
+msgid "Ce petit symbole est un prérequis d'une autre catégorie :"
+msgstr "This small symbol is a requisite from another category:"
+
+msgid "Prérequis d'une autre catégorie"
+msgstr "Requisite from another category"
+
+msgid "Aucune technologie"
+msgstr "No technology"
+
+msgid "Fermer"
+msgstr "Close"
+
+msgid "Pas encore de description"
+msgstr "No description yet"
+
+msgid "Prérequis"
+msgstr "Requisites"
+
+msgid "Débloque"
+msgstr "Unlocks"
+
+msgid "cycle(s)"
+msgstr "cycle(s)"
+
+msgid "Prérequis manquants"
+msgstr "Missing requisites"
+
+msgid "Lancer la recherche"
+msgstr "Start the research"
+
 #~ msgid "Vous avez déjà fondé le maximum de 5 ententes"
 #~ msgstr "You have already founded the maximum of 5 ententes"
 

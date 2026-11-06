@@ -4,14 +4,9 @@ from game.models import Technology
 from database.schemas import on_server
 
 
-# shortcut: every civilisation stays at the level of its start (the one of district_territory), until researching exists
+# shortcut: every civilisation stays at the level of its start (the one of district_territory), until the levels 1-15 of
+# the buildings are linked to the eras 0-5 of the technologies (data/research.py)
 CIVILISATION_TECH_LEVEL = 9
-
-
-tech_types = ['general theory',
-              'social', 'biology', 'electronic', 'energy'
-              'spaceship', 'weaponry', 'military doctrine',
-              'planetology', 'industry', '']
 
 
 def tech(internal_name, name, tech_type, description, tech_level, modifiers, price, difficulty):
