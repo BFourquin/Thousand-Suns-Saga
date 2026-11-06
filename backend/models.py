@@ -72,3 +72,36 @@ class UserExtended(models.Model):
     theme = models.CharField(max_length=20, default='classic')
     playing_on_server = models.ForeignKey(Server, null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
     playing_on_commandant = models.BigIntegerField(null=True, blank=True)  # In the schema of playing_on_server
+
+
+########################################################################################################################
+# FORUMS
+
+
+class ForumTopic(GameModel):
+    # Base of the topics of each server (game.Topic) and of the out-of-character forum common to all of them (HrpTopic)
+    title = models.CharField(max_length=150)
+    last_post_date = models.DateTimeField()
+
+    class Meta:
+        abstract = True
+
+
+class ForumPost(GameModel):
+    body = models.TextField()
+    datetime = models.DateTimeField()
+
+    class Meta:
+        abstract = True
+
+
+class HrpTopic(ForumTopic):
+    section = models.CharField(max_length=20, db_index=True)  # See data/hrp_forum.py
+    # SET_NULL : a thread outlives the account of one of its authors
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='+')
+    last_author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='+')
+
+
+class HrpPost(ForumPost):
+    topic = models.ForeignKey(HrpTopic, on_delete=models.CASCADE, related_name='posts')
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='+')

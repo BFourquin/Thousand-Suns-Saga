@@ -20,7 +20,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, re_path
 
-from backend import views_public, views_game, views_admin, views_game_colonies
+from backend import views_public, views_game, views_admin, views_game_colonies, views_forums
 from backend import views_api_user, views_api_commandant, views_api_buildings
 
 
@@ -80,6 +80,19 @@ urlpatterns = [
 
     path('reports/', views_game.reports, name='reports'),
     path('report/', views_game.report, name='report'),
+
+    path('assembly/', views_forums.assembly, name='assembly'),
+    path('forum/', views_forums.forum, name='forum'),
+    path('topic/', views_forums.topic, name='topic'),
+    path('player_forums/', views_forums.player_forums, name='player_forums'),
+    path('player_forum_manage/', views_forums.player_forum_manage, name='player_forum_manage'),
+
+    path('conversations/', views_forums.conversations_list, name='conversations'),
+    path('conversation/', views_forums.conversation, name='conversation'),
+
+    path('hrp/', views_forums.hrp, name='hrp'),
+    path('hrp_section/', views_forums.hrp_section, name='hrp_section'),
+    path('hrp_topic/', views_forums.hrp_topic, name='hrp_topic'),
 
 
     ####################################################################################################################

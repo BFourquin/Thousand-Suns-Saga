@@ -1,0 +1,23 @@
+{% load i18n %}
+{% comment %} Parameter : pages, a Paginator page. keep-params keeps the id of the forum or of the topic in the URL. {% endcomment %}
+{% if pages.has_other_pages %}
+  <div class="btn-group">
+    {% if pages.has_previous %}
+      <a href="{{ request.path }}?page={{ pages.previous_page_number }}" rel="keep-params" class="btn btn-default btn-sm" aria-label="{% trans "Page précédente" %}">
+        <i class="fas fa-chevron-left"></i>
+      </a>
+    {% else %}
+      <button class="btn btn-default btn-sm" disabled aria-label="{% trans "Page précédente" %}"><i class="fas fa-chevron-left"></i></button>
+    {% endif %}
+
+    <span class="btn btn-default btn-sm disabled">{{ pages.number }} / {{ pages.paginator.num_pages }}</span>
+
+    {% if pages.has_next %}
+      <a href="{{ request.path }}?page={{ pages.next_page_number }}" rel="keep-params" class="btn btn-default btn-sm" aria-label="{% trans "Page suivante" %}">
+        <i class="fas fa-chevron-right"></i>
+      </a>
+    {% else %}
+      <button class="btn btn-default btn-sm" disabled aria-label="{% trans "Page suivante" %}"><i class="fas fa-chevron-right"></i></button>
+    {% endif %}
+  </div>
+{% endif %}

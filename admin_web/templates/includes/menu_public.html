@@ -78,6 +78,13 @@
             </a>
           </li>
 
+          <li class="nav-item">
+            <a href="/hrp/" class="nav-link {% if request.path == '/hrp/' or request.path == '/hrp_section/' or request.path == '/hrp_topic/' %}active{% endif %}">
+              <i class="fas fa-comments nav-icon"></i>
+              <p>{% trans "Forum HRP" %}</p>
+            </a>
+          </li>
+
           {% else %}
 
           <li class="nav-item">

@@ -1,0 +1,97 @@
+
+{% load i18n %}
+{% load static %}
+
+{% trans "Messages privés" as page_title_text %}
+{% include "includes/head.html" with title=page_title_text %}
+
+{% include "includes/menu_game.html" with page_title=page_title_text %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Main content -->
+    <section class="content">
+
+      {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+
+      <div class="card {% if not recipient and not error %}collapsed-card{% endif %}">
+        <div class="card-header">
+          <h3 class="card-title">{% trans "Nouvelle conversation" %}</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="{% trans "Nouvelle conversation" %}">
+              <i class="fas {% if recipient or error %}fa-minus{% else %}fa-plus{% endif %}"></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <form method="POST" action="/conversations/">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="conversation-recipient">{% trans "Destinataire" %}</label>
+              <input type="text" id="conversation-recipient" name="recipient" class="form-control" list="commandant-names" maxlength="100" required value="{{ recipient }}">
+              <datalist id="commandant-names">
+                {% for name in commandant_names %}<option value="{{ name }}"></option>{% endfor %}
+              </datalist>
+            </div>
+            <div class="form-group">
+              <label for="conversation-subject">{% trans "Sujet" %}</label>
+              <input type="text" id="conversation-subject" name="subject" class="form-control" maxlength="150" required value="{{ request.POST.subject }}">
+            </div>
+            <div class="form-group">
+              <label for="conversation-body">{% trans "Message" %}</label>
+              <textarea id="conversation-body" name="body" class="form-control" rows="6" maxlength="20000" required>{{ request.POST.body }}</textarea>
+            </div>
+            <button type="submit" name="action" value="new" class="btn btn-primary">{% trans "Envoyer" %}</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card card-primary card-outline">
+        <div class="card-header">
+          <h3 class="card-title">{% trans "Conversations" %}</h3>
+          <div class="card-tools">{% include "includes/pagination.html" with pages=conversations %}</div>
+        </div>
+
+        <form method="POST" action="/conversations/">
+          {% csrf_token %}
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover table-striped mb-0">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>{% trans "Date" %}</th>
+                    <th>{% trans "Correspondant" %}</th>
+                    <th>{% trans "Sujet" %}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for conversation in conversations %}
+                    <tr class="pointer_cursor {% if conversation.has_unread %}unread{% if dark_mode %}-dark{% endif %}{% endif %}" data-href="/conversation/?conversation_id={{ conversation.id }}">
+                      <td><input type="checkbox" name="conversations[]" value="{{ conversation.id }}" aria-label="{{ conversation.subject }}"></td>
+                      <td class="u-white-space-nowrap">{{ conversation.last_message_date|date:"d/m/Y H:i" }}</td>
+                      <td>{{ conversation.correspondents }}</td>
+                      <td class="text-break"><a href="/conversation/?conversation_id={{ conversation.id }}">{{ conversation.subject }}</a></td>
+                    </tr>
+                  {% empty %}
+                    <tr><td colspan="4" class="text-center text-muted py-4">{% trans "Aucune conversation" %}</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button type="submit" class="btn btn-default btn-sm"><i class="far fa-trash-alt"></i> {% trans "Supprimer la sélection" %}</button>
+          </div>
+        </form>
+      </div>
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+</div><!-- ./wrapper -->
+
+</body>
+</html>

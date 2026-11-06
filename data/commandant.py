@@ -102,6 +102,11 @@ def get_commandant_by_name(server, name):
 
 
 @on_server
+def get_commandant_names(server):
+    return list(Commandant.objects.order_by('commandant_name').values_list('commandant_name', flat=True))
+
+
+@on_server
 def update_commandant(server, commandant_id, param, value):
     Commandant.objects.filter(id=commandant_id).update(**{param: value})
 

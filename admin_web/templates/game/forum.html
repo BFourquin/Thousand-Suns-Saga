@@ -1,0 +1,121 @@
+
+{% load i18n %}
+{% load static %}
+
+{% comment %} List of topics, of a forum of the server (forum is given) or of a section of the HRP forum {% endcomment %}
+
+{% include "includes/head.html" with title=forum_title %}
+
+{% if commandant %}
+  {% include "includes/menu_game.html" with page_title=forum_title %}  <!-- include body start -->
+{% else %}
+  {% include "includes/menu_public.html" with page_title=forum_title %}  <!-- include body start -->
+{% endif %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Main content -->
+    <section class="content">
+
+      {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+
+      <div class="card card-primary card-outline">
+        <div class="card-header">
+          <h3 class="card-title">
+            {% if back_url %}<a href="{{ back_url }}">{{ back_label }}</a> &gt;{% endif %}
+            {{ forum_title }}
+            {% if forum.is_private %}<i class="fas fa-lock" title="{% trans "Privé" %}"></i>{% endif %}
+          </h3>
+          <div class="card-tools">
+            <form method="POST" action="{{ request.get_full_path }}" class="d-inline">
+              {% csrf_token %}
+              {% if forum.is_owner %}
+                <a href="/player_forum_manage/?forum_id={{ forum.id }}" class="btn btn-default btn-sm"><i class="fas fa-gear"></i> {% trans "Gérer" %}</a>
+              {% elif forum.kind == 'player' and forum.membership == 'member' %}
+                <button type="submit" name="action" value="leave" class="btn btn-default btn-sm"><i class="fas fa-right-from-bracket"></i> {% trans "Quitter" %}</button>
+              {% elif forum.kind == 'player' and forum.membership != 'banned' %}
+                <button type="submit" name="action" value="join" class="btn btn-primary btn-sm"><i class="fas fa-right-to-bracket"></i> {% trans "Rejoindre" %}</button>
+              {% endif %}
+            </form>
+          </div>
+        </div>
+
+        {% if forum_description or forum.owner_name or forum.membership == 'banned' %}
+          <div class="card-body text-break">
+            {% if forum_description %}<p>{{ forum_description|linebreaksbr }}</p>{% endif %}
+            {% if forum.owner_name %}<small class="text-muted">{% trans "Propriétaire" %} : {{ forum.owner_name }}</small>{% endif %}
+            {% if forum.membership == 'banned' %}<div class="text-danger">{% trans "Vous avez été banni de ce forum : vous pouvez seulement le lire." %}</div>{% endif %}
+          </div>
+        {% endif %}
+
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+              <thead>
+                <tr>
+                  <th>{% trans "Sujet" %}</th>
+                  <th>{% trans "Auteur" %}</th>
+                  <th class="text-center">{% trans "Réponses" %}</th>
+                  <th>{% trans "Dernier message" %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for topic in topics %}
+                  <tr class="pointer_cursor" data-href="{{ topic_url }}?topic_id={{ topic.id }}">
+                    <td class="text-break"><a href="{{ topic_url }}?topic_id={{ topic.id }}">{{ topic.title }}</a></td>
+                    <td>{{ topic.author_name }}</td>
+                    <td class="text-center">{{ topic.nb_replies }}</td>
+                    <td class="u-white-space-nowrap">
+                      <a href="{{ topic_url }}?topic_id={{ topic.id }}&page=last" title="{% trans "Aller au dernier message" %}">{{ topic.last_post_date|date:"d/m/Y H:i" }}</a>
+                      <br><small class="text-muted">{{ topic.last_author_name }}</small>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="4" class="text-center text-muted py-4">{% trans "Aucun sujet pour l'instant" %}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {% if topics.has_other_pages %}
+          <div class="card-footer text-right">{% include "includes/pagination.html" with pages=topics %}</div>
+        {% endif %}
+      </div>
+
+      {% if can_create_topic %}
+        <div class="card {% if not error %}collapsed-card{% endif %}">
+          <div class="card-header">
+            <h3 class="card-title">{% trans "Créer un nouveau sujet" %}</h3>
+            <div class="card-tools">
+              <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="{% trans "Créer un nouveau sujet" %}">
+                <i class="fas {% if error %}fa-minus{% else %}fa-plus{% endif %}"></i>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <form method="POST" action="{{ request.get_full_path }}">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="topic-title">{% trans "Titre" %}</label>
+                <input type="text" id="topic-title" name="title" class="form-control" maxlength="150" required value="{{ request.POST.title }}">
+              </div>
+              <div class="form-group">
+                <label for="topic-body">{% trans "Message" %}</label>
+                <textarea id="topic-body" name="body" class="form-control" rows="8" maxlength="20000" required>{{ request.POST.body }}</textarea>
+              </div>
+              <button type="submit" name="action" value="new_topic" class="btn btn-primary">{% trans "Publier" %}</button>
+            </form>
+          </div>
+        </div>
+      {% endif %}
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+</div><!-- ./wrapper -->
+
+</body>
+</html>

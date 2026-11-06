@@ -1,0 +1,58 @@
+
+{% load i18n %}
+{% load static %}
+
+{% trans "Forum HRP" as page_title_text %}
+{% include "includes/head.html" with title=page_title_text %}
+
+{% if commandant %}
+  {% include "includes/menu_game.html" with page_title=page_title_text %}  <!-- include body start -->
+{% else %}
+  {% include "includes/menu_public.html" with page_title=page_title_text %}  <!-- include body start -->
+{% endif %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Main content -->
+    <section class="content">
+
+      <div class="card card-primary card-outline">
+        <div class="card-header"><h3 class="card-title">{% trans "Forum HRP" %}</h3></div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+              <thead>
+                <tr>
+                  <th>{% trans "Section" %}</th>
+                  <th class="text-center">{% trans "Sujets" %}</th>
+                  <th class="text-center">{% trans "Messages" %}</th>
+                  <th>{% trans "Dernier message" %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for section in sections %}
+                  <tr class="pointer_cursor" data-href="/hrp_section/?section={{ section.id }}">
+                    <td>
+                      <i class="fas {{ section.icon }} mr-2"></i><a href="/hrp_section/?section={{ section.id }}">{{ section.name }}</a>
+                      <br><small class="text-muted">{{ section.description }}</small>
+                    </td>
+                    <td class="text-center">{{ section.nb_topics|default:0 }}</td>
+                    <td class="text-center">{{ section.nb_posts|default:0 }}</td>
+                    <td class="u-white-space-nowrap">{{ section.last_post_date|date:"d/m/Y H:i"|default:"—" }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+</div><!-- ./wrapper -->
+
+</body>
+</html>

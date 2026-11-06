@@ -1,0 +1,98 @@
+
+{% load i18n %}
+{% load static %}
+
+{% comment %} Messages of a topic of a forum of the server (forum is given), of the HRP forum, or of a conversation {% endcomment %}
+
+{% include "includes/head.html" with title=thread_title %}
+
+{% if commandant %}
+  {% include "includes/menu_game.html" with page_title=back_label %}  <!-- include body start -->
+{% else %}
+  {% include "includes/menu_public.html" with page_title=back_label %}  <!-- include body start -->
+{% endif %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Main content -->
+    <section class="content">
+
+      {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+
+      <div class="card card-primary card-outline">
+        <div class="card-header">
+          <h3 class="card-title text-break">
+            <a href="{{ back_url }}">{{ back_label }}</a> &gt; {{ thread_title }}
+            {% if thread_subtitle %}<small class="text-muted">— {{ thread_subtitle }}</small>{% endif %}
+          </h3>
+          <div class="card-tools">{% include "includes/pagination.html" with pages=posts %}</div>
+        </div>
+
+        <form method="POST" action="{{ request.get_full_path }}">
+          {% csrf_token %}
+          <div class="card-body p-0">
+            {% for post in posts %}
+              <div class="media p-3 border-bottom">
+                {% if post.author_portrait %}
+                  <img src="{% static "" %}{{ post.author_portrait }}" class="img-size-50 mr-3" alt="">
+                {% endif %}
+                <div class="media-body text-break">
+                  <div class="d-flex flex-wrap justify-content-between">
+                    <div>
+                      {% if forum and post.author_id and post.author_id != commandant.id %}
+                        <a href="/conversations/?to={{ post.author_name|urlencode }}" title="{% trans "Lui écrire" %}"><strong>{{ post.author_name }}</strong></a>
+                      {% else %}
+                        <strong>{{ post.author_name }}</strong>
+                      {% endif %}
+                      <small class="text-muted ml-2">{{ post.datetime|date:"d/m/Y H:i" }}</small>
+                    </div>
+                    {% if can_moderate %}
+                      <button type="submit" name="delete_post" value="{{ post.id }}" class="btn btn-default btn-xs"
+                              formnovalidate data-confirm="{% trans "Supprimer définitivement ce message ?" %}"
+                              title="{% trans "Supprimer" %}" aria-label="{% trans "Supprimer" %}"><i class="far fa-trash-alt"></i></button>
+                    {% endif %}
+                  </div>
+                  <div class="mt-2">{{ post.body|urlize|linebreaksbr }}</div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="card-footer d-flex justify-content-between">
+            <div>
+              {% if can_moderate %}
+                <button type="submit" name="delete_topic" value="1" class="btn btn-default btn-sm"
+                        data-confirm="{% trans "Supprimer définitivement ce sujet et tous ses messages ?" %}">
+                  <i class="far fa-trash-alt"></i> {% trans "Supprimer le sujet" %}
+                </button>
+              {% endif %}
+            </div>
+            {% include "includes/pagination.html" with pages=posts %}
+          </div>
+        </form>
+      </div>
+
+      {% if can_post %}
+        <div class="card">
+          <div class="card-header"><h3 class="card-title">{% trans "Répondre" %}</h3></div>
+          <div class="card-body">
+            <form method="POST" action="{{ request.get_full_path }}">
+              {% csrf_token %}
+              <div class="form-group">
+                <textarea name="body" class="form-control" rows="6" maxlength="20000" required aria-label="{% trans "Message" %}">{{ request.POST.body }}</textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">{% trans "Envoyer" %}</button>
+            </form>
+          </div>
+        </div>
+      {% endif %}
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+</div><!-- ./wrapper -->
+
+</body>
+</html>

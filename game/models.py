@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models.functions import Lower
 from django.forms.models import model_to_dict
 
-from backend.models import GameModel, to_id
+from backend.models import ForumPost, ForumTopic, GameModel, to_id
 from database.schemas import current_server
 
 
@@ -137,6 +137,66 @@ class Cycle(GameModel):
         for field in self.COMMANDANTS_LISTS:
             cycle[field] = sorted(getattr(self, field).values_list('id', flat=True))
         return cycle
+
+
+########################################################################################################################
+# FORUMS AND PRIVATE MESSAGES
+
+
+class Forum(GameModel):
+    # 'assembly' : the forum open to the whole server, created by the migrations. 'player' : managed by its owner.
+    kind = models.CharField(max_length=10, default='player')
+    name = models.CharField(max_length=60)
+    description = models.TextField(blank=True)
+    is_private = models.BooleanField(default=False)
+    owner = models.ForeignKey(Commandant, on_delete=models.CASCADE, null=True, blank=True, related_name='+')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(Lower('name'), name='forum_name_unique'),
+            models.UniqueConstraint(fields=['kind'], condition=models.Q(kind='assembly'), name='one_assembly_per_server'),
+        ]
+
+
+class ForumMember(GameModel):
+    forum = models.ForeignKey(Forum, on_delete=models.CASCADE, related_name='members')
+    commandant = models.ForeignKey(Commandant, on_delete=models.CASCADE, related_name='+')
+    status = models.CharField(max_length=10)  # 'invited' | 'member' | 'banned'
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['forum', 'commandant'], name='forum_member_unique')]
+
+
+class Topic(ForumTopic):
+    forum = models.ForeignKey(Forum, on_delete=models.CASCADE, related_name='topics')
+    # SET_NULL : a thread outlives one of its authors
+    author = models.ForeignKey(Commandant, on_delete=models.SET_NULL, null=True, related_name='+')
+    last_author = models.ForeignKey(Commandant, on_delete=models.SET_NULL, null=True, related_name='+')
+
+
+class Post(ForumPost):
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='posts')
+    author = models.ForeignKey(Commandant, on_delete=models.SET_NULL, null=True, related_name='+')
+
+
+class Conversation(GameModel):
+    subject = models.CharField(max_length=150)
+    last_message_date = models.DateTimeField()
+
+
+class ConversationMember(GameModel):
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='members')
+    commandant = models.ForeignKey(Commandant, on_delete=models.CASCADE, related_name='+')
+    has_unread = models.BooleanField(default=False)
+    hidden = models.BooleanField(default=False)  # Removed from its list by this commandant, back at the next message
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['conversation', 'commandant'], name='conversation_member_unique')]
+
+
+class ConversationMessage(ForumPost):
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
+    author = models.ForeignKey(Commandant, on_delete=models.SET_NULL, null=True, related_name='+')
 
 
 ########################################################################################################################

@@ -1,0 +1,96 @@
+
+{% load i18n %}
+{% load static %}
+
+{% trans "Tavernes" as page_title_text %}
+{% include "includes/head.html" with title=page_title_text %}
+
+{% include "includes/menu_game.html" with page_title=page_title_text %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Main content -->
+    <section class="content">
+
+      {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+
+      {% if player_forums.invited %}
+        <div class="card card-warning card-outline">
+          <div class="card-header"><h3 class="card-title">{% trans "Invitations reçues" %}</h3></div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table mb-0">
+                <tbody>
+                  {% for forum in player_forums.invited %}
+                    <tr>
+                      <td class="text-break">{{ forum.name }} {% if forum.is_private %}<i class="fas fa-lock" title="{% trans "Privé" %}"></i>{% endif %}</td>
+                      <td>{{ forum.owner_name }}</td>
+                      <td class="text-right u-white-space-nowrap">
+                        <form method="POST" action="/player_forums/">
+                          {% csrf_token %}
+                          <input type="hidden" name="forum_id" value="{{ forum.id }}">
+                          <button type="submit" name="action" value="accept" class="btn btn-primary btn-sm">{% trans "Accepter" %}</button>
+                          <button type="submit" name="action" value="decline" class="btn btn-default btn-sm">{% trans "Refuser" %}</button>
+                        </form>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="card card-primary card-outline">
+        <div class="card-header"><h3 class="card-title">{% trans "Mes tavernes" %}</h3></div>
+        <div class="card-body p-0">
+          {% include "includes/player_forums_table.html" with forums=player_forums.member empty_text=_("Vous ne fréquentez aucune taverne") %}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">{% trans "Tavernes connues" %}</h3></div>
+        <div class="card-body p-0">
+          {% include "includes/player_forums_table.html" with forums=player_forums.others empty_text=_("Aucune autre taverne ouverte à tous") %}
+        </div>
+      </div>
+
+      <div class="card {% if not error %}collapsed-card{% endif %}">
+        <div class="card-header">
+          <h3 class="card-title">{% trans "Ouvrir une taverne" %}</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="{% trans "Ouvrir une taverne" %}">
+              <i class="fas {% if error %}fa-minus{% else %}fa-plus{% endif %}"></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <form method="POST" action="/player_forums/">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="forum-name">{% trans "Nom" %}</label>
+              <input type="text" id="forum-name" name="name" class="form-control" maxlength="60" required value="{{ request.POST.name }}">
+            </div>
+            <div class="form-group">
+              <label for="forum-description">{% trans "Description" %}</label>
+              <textarea id="forum-description" name="description" class="form-control" rows="3" maxlength="2000">{{ request.POST.description }}</textarea>
+            </div>
+            <div class="form-group form-check">
+              <input type="checkbox" id="forum-private" name="is_private" class="form-check-input" {% if request.POST.is_private %}checked{% endif %}>
+              <label for="forum-private" class="form-check-label">{% trans "Taverne privée (entrée sur invitation uniquement)" %}</label>
+            </div>
+            <button type="submit" name="action" value="create" class="btn btn-primary">{% trans "Ouvrir" %}</button>
+          </form>
+        </div>
+      </div>
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+</div><!-- ./wrapper -->
+
+</body>
+</html>

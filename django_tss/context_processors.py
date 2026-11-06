@@ -1,5 +1,7 @@
 
 from data import server_details
+from data.conversations import count_unread_conversations
+from data.forums import count_invitations
 from data.themes import get_theme_or_default
 from backend.utils import get_active_server_and_commandant_from_request, get_request_user
 
@@ -29,4 +31,6 @@ def commandant_and_server(request):
     server, commandant = get_active_server_and_commandant_from_request(request)
     return {'server': server,
             'commandant': commandant,
-            'server_details': server_details.get_server_details(server) if server else None}
+            'server_details': server_details.get_server_details(server) if server else None,
+            'nb_unread_conversations': count_unread_conversations(server, commandant['id']) if commandant else 0,
+            'nb_forum_invitations': count_invitations(server, commandant['id']) if commandant else 0}

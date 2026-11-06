@@ -1,0 +1,124 @@
+
+{% load i18n %}
+{% load static %}
+
+{% include "includes/head.html" with title=forum.name %}
+
+{% trans "Gérer ma taverne" as page_title_text %}
+{% include "includes/menu_game.html" with page_title=page_title_text %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Main content -->
+    <section class="content">
+
+      <p><a href="/forum/?forum_id={{ forum.id }}" class="btn btn-default"><i class="fas fa-arrow-left"></i> {{ forum.name }}</a></p>
+
+      {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+
+      <div class="row">
+        <div class="col-lg-6">
+
+          <div class="card card-primary card-outline">
+            <div class="card-header"><h3 class="card-title">{% trans "Enseigne" %}</h3></div>
+            <div class="card-body">
+              <form method="POST" action="{{ request.get_full_path }}">
+                {% csrf_token %}
+                <div class="form-group">
+                  <label for="forum-name">{% trans "Nom" %}</label>
+                  <input type="text" id="forum-name" name="name" class="form-control" maxlength="60" required value="{{ forum.name }}">
+                </div>
+                <div class="form-group">
+                  <label for="forum-description">{% trans "Description" %}</label>
+                  <textarea id="forum-description" name="description" class="form-control" rows="4" maxlength="2000">{{ forum.description }}</textarea>
+                </div>
+                <div class="form-group form-check">
+                  <input type="checkbox" id="forum-private" name="is_private" class="form-check-input" {% if forum.is_private %}checked{% endif %}>
+                  <label for="forum-private" class="form-check-label">{% trans "Taverne privée (entrée sur invitation uniquement)" %}</label>
+                </div>
+                <button type="submit" name="action" value="save" class="btn btn-primary">{% trans "Enregistrer" %}</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="card card-danger card-outline">
+            <div class="card-header"><h3 class="card-title">{% trans "Destruction" %}</h3></div>
+            <div class="card-body">
+              <p>{% trans "Détruire la taverne supprime définitivement ses sujets et ses messages." %}</p>
+              <form method="POST" action="{{ request.get_full_path }}">
+                {% csrf_token %}
+                <button type="submit" name="action" value="destroy" class="btn btn-danger"
+                        data-confirm="{% trans "Détruire définitivement cette taverne ? Cette opération est irréversible." %}">{% trans "Détruire définitivement" %}</button>
+              </form>
+            </div>
+          </div>
+
+        </div>
+        <div class="col-lg-6">
+
+          <div class="card">
+            <div class="card-header"><h3 class="card-title">{% trans "Inviter un commandant" %}</h3></div>
+            <div class="card-body">
+              <form method="POST" action="{{ request.get_full_path }}">
+                {% csrf_token %}
+                <div class="input-group">
+                  <input type="text" name="invited_name" class="form-control" list="commandant-names" maxlength="100" required
+                         aria-label="{% trans "Nom du commandant" %}" placeholder="{% trans "Nom du commandant" %}" value="{{ request.POST.invited_name }}">
+                  <div class="input-group-append">
+                    <button type="submit" name="action" value="invite" class="btn btn-primary">{% trans "Inviter" %}</button>
+                  </div>
+                </div>
+                <datalist id="commandant-names">
+                  {% for name in commandant_names %}<option value="{{ name }}"></option>{% endfor %}
+                </datalist>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h3 class="card-title">{% trans "Clientèle" %}</h3></div>
+            <div class="card-body p-0">
+              <form method="POST" action="{{ request.get_full_path }}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="remove">
+                <div class="table-responsive">
+                  <table class="table mb-0">
+                    <tbody>
+                      {% for member in members %}
+                        <tr>
+                          <td><img src="{% static "" %}{{ member.portrait }}" class="img-size-32 mr-2" alt="">{{ member.name }}</td>
+                          <td>
+                            {% if member.status == 'member' %}{% trans "Membre" %}
+                            {% elif member.status == 'invited' %}{% trans "Invité" %}
+                            {% else %}{% trans "Banni" %}{% endif %}
+                          </td>
+                          <td class="text-right">
+                            {% if member.id != commandant.id %}
+                              <button type="submit" name="commandant_id" value="{{ member.id }}" class="btn btn-default btn-sm">
+                                {% if member.status == 'member' %}{% trans "Bannir" %}
+                                {% elif member.status == 'invited' %}{% trans "Annuler l'invitation" %}
+                                {% else %}{% trans "Lever le bannissement" %}{% endif %}
+                              </button>
+                            {% endif %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+</div><!-- ./wrapper -->
+
+</body>
+</html>
