@@ -1,6 +1,7 @@
 
 {% load i18n %}
 {% load static %}
+{% load tss_dates %}
 
 {% comment %} Messages of a topic of a forum of the server (forum is given) or of a conversation {% endcomment %}
 
@@ -30,8 +31,12 @@
           <div class="card-body p-0">
             {% for post in posts %}
               <div class="media p-3 border-bottom" id="post-{{ post.id }}">
-                {% if post.author_portrait %}
-                  <img src="{% static "" %}{{ post.author_portrait }}" class="img-size-50 mr-3" alt="">
+                {% if post.author_images %}
+                  <div class="d-flex flex-column flex-shrink-0 mr-3">
+                    {% for path, label in post.author_images %}
+                      <img src="{% static "" %}{{ path }}" class="img-size-50 mb-1" alt="{{ label }}" title="{{ label }}">
+                    {% endfor %}
+                  </div>
                 {% endif %}
                 <div class="media-body text-break">
                   <div class="d-flex flex-wrap justify-content-between">
@@ -41,7 +46,8 @@
                       {% else %}
                         <strong>{{ post.author_name }}</strong>
                       {% endif %}
-                      <small class="text-muted ml-2">{{ post.datetime|date:"d/m/Y H:i" }}</small>
+                      <small class="text-muted ml-2">{{ post.datetime|rp_date }}</small>
+                      {% if forum %}<small class="d-block text-muted">{% trans "Respect diplomatique" %} : {{ post.author_respect }}</small>{% endif %}
                     </div>
                     {% if can_moderate %}
                       <button type="submit" name="delete_post" value="{{ post.id }}" class="btn btn-default btn-xs"
@@ -78,7 +84,7 @@
                       {% for version in post.previous_versions %}
                         <blockquote class="mt-2 mb-1">
                           {{ version.body|urlize|linebreaksbr }}
-                          <small class="d-block text-muted">{% trans "Remplacée le" %} {{ version.replaced_at|date:"d/m/Y H:i" }}</small>
+                          <small class="d-block text-muted">{% trans "Remplacée le" %} {{ version.replaced_at|rp_date }}</small>
                         </blockquote>
                       {% endfor %}
                     </details>

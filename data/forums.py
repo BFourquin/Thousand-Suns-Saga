@@ -30,6 +30,8 @@ MAX_OWNED_TAVERNS = 5
 EDIT_DELAY = timedelta(minutes=15)
 VIEW_DELAY_SECONDS = 20  # Time on a topic with the tab active before it counts as a view, in tss.js
 LAST_CLOSED_FLAGS = 50
+# shortcut: every coalition has the same flag, add a field to Forum when they can choose theirs
+COALITION_FLAG = 'images/commandants/default.jpg'
 
 
 ########################################################################################################################
@@ -55,6 +57,16 @@ def author_name(author):
     return author.commandant_name if author else _("Commandant disparu")
 
 
+def author_images(author, coalition_name):
+    # What is displayed on the left of a message, as (path, label). Up to three : avatar, flag of the empire, of the coalition.
+    if author is None:
+        return []
+    images = [(author.portrait, author.commandant_name), (author.flag, author.civilisation_name)]
+    if coalition_name:
+        images.append((COALITION_FLAG, coalition_name))
+    return [image for image in images if image[0]]
+
+
 def page_of_posts(posts, page, viewer_id, message_kind):
     # page : a number, or 'last' to reach the most recent messages
 
@@ -65,11 +77,13 @@ def page_of_posts(posts, page, viewer_id, message_kind):
     flagged = set(MessageFlag.objects.filter(reporter_id=viewer_id, message_kind=message_kind,
                                              message_id__in=[post.id for post in page_posts])
                   .values_list('message_id', flat=True))
+    coalitions = dict(ForumMember.objects.filter(commandant_id__in=[post.author_id for post in page_posts], status='member',
+                                                 forum__kind='coalition').values_list('commandant_id', 'forum__name'))
     now = timezone.now()
 
     page.object_list = [{
         'id': post.id, 'author_id': post.author_id, 'author_name': author_name(post.author),
-        'author_portrait': post.author.portrait if post.author else None,
+        'author_images': author_images(post.author, coalitions.get(post.author_id)),
         'body': post.body, 'datetime': post.datetime,
         'previous_versions': [{'body': version['body'], 'replaced_at': datetime.fromisoformat(version['replaced_at'])}
                               for version in post.previous_versions],
@@ -192,8 +206,13 @@ def get_posts(server, topic_id, page, commandant_id):
                  .order_by('commandant__commandant_name')):
         votes.setdefault((vote.post_id, vote.category), []).append(vote.commandant)
 
+    # All the votes received on this server, but out of the game : what is said on the HRP forum earns no diplomatic respect
+    respect = dict(PostVote.objects.filter(post__author_id__in=[post['author_id'] for post in posts])
+                   .exclude(post__topic__forum__kind='hrp').values_list('post__author_id').annotate(Count('id')))
+
     categories = vote_categories(Forum.objects.filter(topics=to_id(topic_id)).values_list('kind', flat=True).first())
     for post in posts:
+        post['author_respect'] = respect.get(post['author_id'], 0)
         post['votes'] = [{'category': category, 'label': label,
                           'voters': [voter.commandant_name for voter in votes.get((post['id'], category), [])],
                           'is_mine': any(voter.id == commandant_id for voter in votes.get((post['id'], category), []))}

@@ -1,6 +1,7 @@
 
 {% load i18n %}
 {% load static %}
+{% load tss_dates %}
 
 {% trans "Messages privés" as page_title_text %}
 {% include "includes/head.html" with title=page_title_text %}
@@ -69,7 +70,7 @@
                   {% for conversation in conversations %}
                     <tr class="pointer_cursor" data-href="/conversation/?conversation_id={{ conversation.id }}">
                       <td><input type="checkbox" name="conversations[]" value="{{ conversation.id }}" aria-label="{{ conversation.subject }}"></td>
-                      <td class="u-white-space-nowrap">{{ conversation.last_message_date|date:"d/m/Y H:i" }}</td>
+                      <td class="u-white-space-nowrap">{{ conversation.last_message_date|rp_date }}</td>
                       <td>{{ conversation.correspondents }}</td>
                       <td class="text-break">
                         {% if conversation.has_unread %}<span class="badge badge-warning">{% trans "Nouveau" %}</span>{% endif %}

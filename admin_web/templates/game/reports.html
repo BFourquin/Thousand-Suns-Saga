@@ -1,6 +1,7 @@
 
 {% load i18n %}
 {% load static %}
+{% load tss_dates %}
 
 
 {% include "includes/head.html" with title="Rapports" %}
@@ -307,7 +308,7 @@
                         </td>
 
                         <td class="mailbox-attachment d-none d-sm-table-cell"><i class="fas {{report.category_icon}}"></i></td>
-                        <td class="mailbox-date d-none d-sm-table-cell">{{report.datetime}}</td>
+                        <td class="mailbox-date d-none d-sm-table-cell">{{report.datetime|rp_date}}</td>
 
 
                         <td class="mailbox-date pointer_cursor" data-href="/report/?report_id={{report.id}}">

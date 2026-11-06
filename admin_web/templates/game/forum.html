@@ -1,6 +1,7 @@
 
 {% load i18n %}
 {% load static %}
+{% load tss_dates %}
 
 {% include "includes/head.html" with title=forum.name %}
 
@@ -83,7 +84,7 @@
                     <td class="text-center">{{ topic.nb_replies }}</td>
                     <td class="text-center">{{ topic.nb_views }}</td>
                     <td class="u-white-space-nowrap">
-                      <a href="/topic/?topic_id={{ topic.id }}&page=last" title="{% trans "Aller au dernier message" %}">{{ topic.last_post_date|date:"d/m/Y H:i" }}</a>
+                      <a href="/topic/?topic_id={{ topic.id }}&page=last" title="{% trans "Aller au dernier message" %}">{{ topic.last_post_date|rp_date }}</a>
                       <br><small class="text-muted">{{ topic.last_author_name }}</small>
                     </td>
                   </tr>

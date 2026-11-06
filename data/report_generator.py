@@ -18,7 +18,7 @@ def generate_report(server, owner_id, report_type, args={}, sender=None, sender_
         'category': 'other',
         'category_icon': 'fa-file-alt',
         'datetime': timezone.now(),
-        'tss_calendar': timezone.now(),#.strftime(),  # TODO tss_calendar
+        'tss_calendar': timezone.now(),  # Turned into the date of the game when displayed : see the rp_date filter
         'illustration': None,
         'title': '',
         'message': '',

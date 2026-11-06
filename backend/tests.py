@@ -1,6 +1,6 @@
 import inspect
 import json
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone as dt_timezone
 from unittest.mock import MagicMock, patch
 
 from django.contrib.auth.models import AnonymousUser, User
@@ -14,6 +14,7 @@ from backend import views_game
 from backend.decorators import commandant_required
 from backend.login import LOGIN_MAX_FAILURES_PER_ACCOUNT, throttled_authenticate
 from backend.models import CommandantAccount, Server, UserExtended, to_id
+from backend.templatetags.tss_dates import rp_date
 from database.schemas import schema_of, server_schema
 from game.models import Building, Colony, Commandant, ConversationMessage, Coordinate, District, DistrictType, Post, Report, StartingValues
 from backend.utils import commandant_owns_colony
@@ -775,6 +776,73 @@ class ForumsTests(TestCase):
         forums.vote_post('S', second['id'], self.visitor, 'humour')
         forums.delete_post('S', second['id'], self.visitor, True)
         self.assertEqual(forums.get_posts('S', topic_id, 1, self.owner)[0]['score'], 1)
+
+    # What is displayed next to a message
+
+    def test_respect_adds_up_the_votes_received_in_the_game(self):
+        topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Un')
+        forums.reply_to_topic('S', topic_id, self.owner, 'Deux')
+        first, second = forums.get_posts('S', topic_id, 1, self.visitor)
+        forums.vote_post('S', first['id'], self.visitor, 'humour')
+        forums.vote_post('S', first['id'], self.staff_commandant, 'fitting')
+        forums.vote_post('S', second['id'], self.visitor, 'humour')
+        hrp_topic_id = forums.create_topic('S', forums.get_forum_id('S', 'hrp'), self.owner, 'Bug', 'Texte')
+        forums.vote_post('S', forums.get_posts('S', hrp_topic_id, 1, self.owner)[0]['id'], self.visitor, 'humour')
+
+        self.assertEqual(forums.get_posts('S', hrp_topic_id, 1, self.owner)[0]['author_respect'], 3)  # Also shown there
+        self.play(self.other_user, self.visitor)
+        self.assertContains(self.client.get(f'/topic/?topic_id={topic_id}'), 'Respect diplomatique : 3')
+
+        forums.delete_post('S', second['id'], self.visitor, True)
+        self.assertEqual(forums.get_posts('S', topic_id, 1, self.visitor)[0]['author_respect'], 2)
+
+        conversation_id = conversations.start_conversation('S', self.owner, 'Varro', 'Pacte', 'Secret')
+        self.assertNotContains(self.client.get(f'/conversation/?conversation_id={conversation_id}'), 'Respect diplomatique')
+
+    def test_up_to_three_images_next_to_a_message(self):
+        with server_schema('S'):
+            Commandant.objects.filter(id=self.owner).update(portrait='images/a.jpg', flag='images/b.jpg')
+        topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Un')
+        forums.reply_to_topic('S', topic_id, self.visitor, 'Sans image')
+        url = f'/topic/?topic_id={topic_id}'
+        images = lambda: forums.get_posts('S', topic_id, 1, self.visitor)[0]['author_images']
+
+        self.assertEqual(images(), [('images/a.jpg', 'Paullus'), ('images/b.jpg', 'Paullus')])
+        self.assertEqual(forums.get_posts('S', topic_id, 1, self.visitor)[1]['author_images'], [])
+
+        coalition_id = forums.create_coalition('S', self.owner, 'La Ligue')
+        self.assertEqual(images()[2], (forums.COALITION_FLAG, 'La Ligue'))
+        self.play(self.other_user, self.visitor)
+        self.assertContains(self.client.get(url), 'alt="La Ligue"')
+
+        conversation_id = conversations.start_conversation('S', self.owner, 'Varro', 'Pacte', 'Secret')
+        self.assertContains(self.client.get(f'/conversation/?conversation_id={conversation_id}'), 'alt="La Ligue"')
+
+        forums.destroy_player_forum('S', coalition_id, self.owner)
+        self.assertEqual(len(images()), 2)
+
+    def test_game_dates_are_in_the_future_with_the_real_one_when_hovering(self):
+        self.assertEqual(rp_date(None), '')
+        self.play(self.user, self.owner)
+        date = datetime(2026, 11, 6, 14, 5, tzinfo=dt_timezone.utc)
+        self.assertEqual(rp_date(date), '<span title="Date réelle : 06/11/2026 14:05">06/11/3026 14:05</span>')
+        self.assertIn('29/02/3000', rp_date(datetime(2000, 2, 29, tzinfo=dt_timezone.utc)))  # Fictional : not a leap year
+
+        year = timezone.now().year
+        rp_year, real_date = f'/{year + 1000} ', f'title="Date réelle : '
+        topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Un')
+        conversations.start_conversation('S', self.visitor, 'Paullus', 'Pacte', 'Secret')
+        forums.create_player_forum('S', self.visitor, 'La Cantine', '', False)
+        tavern_topic = forums.create_topic('S', forums.get_player_forums('S', self.visitor)['member'][0]['id'], self.visitor, 'Menu', 'Du jour')
+        with server_schema('S'):
+            report = Report.objects.create(owner_id=self.owner, category='other', category_icon='fa-file-alt', datetime=timezone.now(),
+                                           tss_calendar=timezone.now(), title='Bienvenue', message='Texte')
+
+        for url in (f'/forum/?forum_id={self.assembly_id}', f'/topic/?topic_id={topic_id}', '/conversations/', '/player_forums/',
+                    '/reports/', f'/report/?report_id={report.id}'):
+            response = self.client.get(url)
+            self.assertContains(response, rp_year, msg_prefix=url)
+            self.assertContains(response, real_date, msg_prefix=url)
 
     # View counter
 

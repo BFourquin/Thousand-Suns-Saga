@@ -36,8 +36,8 @@ def create_commandant(server, user, commandant_name, civilisation_name):
             civilisation_name=civilisation_name,
             gender='m',  # TODO gender
 
-            portrait='images/commandants/default_flag.jpg',
-            flag='images/commandants/default_portrait.jpg',
+            portrait='images/commandants/default_portrait.jpg',
+            flag='images/commandants/default_flag.jpg',
 
             status='active',
             user_id=user['id'],

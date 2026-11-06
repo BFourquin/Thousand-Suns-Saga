@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 14:18+0100\n"
+"POT-Creation-Date: 2026-11-06 14:53+0100\n"
 "PO-Revision-Date: 2024-06-02 10:00+0000\n"
 "Last-Translator: <benoittd@hotmail.fr>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -48,7 +48,7 @@ msgstr "Found"
 #: .\admin_web\templates\game\colonies.html:233
 #: .\admin_web\templates\game\geography_system.html:104
 #: .\admin_web\templates\game\geography_system.html:154
-#: .\admin_web\templates\game\reports.html:109
+#: .\admin_web\templates\game\reports.html:110
 #: .\admin_web\templates\includes\menu_game.html:247
 msgid "Colonies"
 msgstr "Colonies"
@@ -98,9 +98,9 @@ msgstr "Filter by markers"
 #: .\admin_web\templates\game\colonies.html:237
 #: .\admin_web\templates\game\colonies.html:238
 #: .\admin_web\templates\game\colonies.html:241
-#: .\admin_web\templates\game\reports.html:214
 #: .\admin_web\templates\game\reports.html:215
-#: .\admin_web\templates\game\reports.html:218
+#: .\admin_web\templates\game\reports.html:216
+#: .\admin_web\templates\game\reports.html:219
 msgid "Recherche"
 msgstr "Search"
 
@@ -157,7 +157,7 @@ msgstr "Population"
 
 #: .\admin_web\templates\game\colony.html:73
 #: .\admin_web\templates\game\colony.html:116
-#: .\admin_web\templates\game\reports.html:100
+#: .\admin_web\templates\game\reports.html:101
 #: .\admin_web\templates\includes\menu_game.html:231
 msgid "Economie"
 msgstr "Economy"
@@ -229,7 +229,7 @@ msgstr "Upgrade"
 
 #: .\admin_web\templates\game\colony.html:160
 #: .\admin_web\templates\game\colony.html:214
-#: .\admin_web\templates\game\forum_thread.html:92
+#: .\admin_web\templates\game\forum_thread.html:98
 msgid "Modifier"
 msgstr "Edit"
 
@@ -269,60 +269,60 @@ msgstr "free slots"
 msgid "emplacement libre"
 msgstr "free slot"
 
-#: .\admin_web\templates\game\conversations.html:5
+#: .\admin_web\templates\game\conversations.html:6
 #: .\admin_web\templates\includes\menu_game.html:205
 #: .\backend\views_forums.py:282
 msgid "Messages privés"
 msgstr "Private messages"
 
-#: .\admin_web\templates\game\conversations.html:19
-#: .\admin_web\templates\game\conversations.html:21
+#: .\admin_web\templates\game\conversations.html:20
+#: .\admin_web\templates\game\conversations.html:22
 msgid "Nouvelle conversation"
 msgstr "New conversation"
 
-#: .\admin_web\templates\game\conversations.html:30
+#: .\admin_web\templates\game\conversations.html:31
 msgid "Destinataire"
 msgstr "Recipient"
 
-#: .\admin_web\templates\game\conversations.html:37
-#: .\admin_web\templates\game\conversations.html:65
-#: .\admin_web\templates\game\forum.html:68
+#: .\admin_web\templates\game\conversations.html:38
+#: .\admin_web\templates\game\conversations.html:66
+#: .\admin_web\templates\game\forum.html:69
 msgid "Sujet"
 msgstr "Topic"
 
-#: .\admin_web\templates\game\conversations.html:41
-#: .\admin_web\templates\game\forum.html:121
-#: .\admin_web\templates\game\forum_thread.html:140
+#: .\admin_web\templates\game\conversations.html:42
+#: .\admin_web\templates\game\forum.html:122
+#: .\admin_web\templates\game\forum_thread.html:146
 msgid "Message"
 msgstr "Message"
 
-#: .\admin_web\templates\game\conversations.html:44
-#: .\admin_web\templates\game\forum_thread.html:142
+#: .\admin_web\templates\game\conversations.html:45
+#: .\admin_web\templates\game\forum_thread.html:148
 msgid "Envoyer"
 msgstr "Send"
 
-#: .\admin_web\templates\game\conversations.html:51
+#: .\admin_web\templates\game\conversations.html:52
 msgid "Conversations"
 msgstr "Conversations"
 
-#: .\admin_web\templates\game\conversations.html:63
+#: .\admin_web\templates\game\conversations.html:64
 msgid "Date"
 msgstr "Date"
 
-#: .\admin_web\templates\game\conversations.html:64
+#: .\admin_web\templates\game\conversations.html:65
 msgid "Correspondant"
 msgstr "Correspondent"
 
-#: .\admin_web\templates\game\conversations.html:75
-#: .\admin_web\templates\game\forum.html:79
+#: .\admin_web\templates\game\conversations.html:76
+#: .\admin_web\templates\game\forum.html:80
 msgid "Nouveau"
 msgstr "New"
 
-#: .\admin_web\templates\game\conversations.html:80
+#: .\admin_web\templates\game\conversations.html:81
 msgid "Aucune conversation"
 msgstr "No conversation"
 
-#: .\admin_web\templates\game\conversations.html:87
+#: .\admin_web\templates\game\conversations.html:88
 msgid "Supprimer la sélection"
 msgstr "Delete selection"
 
@@ -503,132 +503,136 @@ msgstr "Finished for:"
 msgid "Aucun commandant n'a encore terminé son cycle."
 msgstr "No commandant has finished their cycle yet."
 
-#: .\admin_web\templates\game\forum.html:21
-#: .\admin_web\templates\includes\player_forums_table.html:9
+#: .\admin_web\templates\game\forum.html:22
+#: .\admin_web\templates\includes\player_forums_table.html:10
 msgid "Propriétaire"
 msgstr "Owner"
 
-#: .\admin_web\templates\game\forum.html:22
+#: .\admin_web\templates\game\forum.html:23
 msgid "Vous avez été banni de ce forum : vous pouvez seulement le lire."
 msgstr "You have been banned from this forum: you can only read it."
 
-#: .\admin_web\templates\game\forum.html:26
+#: .\admin_web\templates\game\forum.html:27
 msgid "Modifier le texte d'ambiance"
 msgstr "Edit the ambiance text"
 
-#: .\admin_web\templates\game\forum.html:31
+#: .\admin_web\templates\game\forum.html:32
 #: .\admin_web\templates\game\player_forum_manage.html:32
 #: .\admin_web\templates\game\player_forums.html:51
 msgid "Texte d'ambiance"
 msgstr "Ambiance text"
 
-#: .\admin_web\templates\game\forum.html:33
-#: .\admin_web\templates\game\forum_thread.html:93
+#: .\admin_web\templates\game\forum.html:34
+#: .\admin_web\templates\game\forum_thread.html:99
 #: .\admin_web\templates\game\player_forum_manage.html:41
 msgid "Enregistrer"
 msgstr "Save"
 
-#: .\admin_web\templates\game\forum.html:44
+#: .\admin_web\templates\game\forum.html:45
 #: .\admin_web\templates\game\player_forums.html:5
 #: .\admin_web\templates\includes\menu_game.html:194
 msgid "Tavernes"
 msgstr "Taverns"
 
-#: .\admin_web\templates\game\forum.html:46
+#: .\admin_web\templates\game\forum.html:47
 #: .\admin_web\templates\includes\forum_invitations.html:13
-#: .\admin_web\templates\includes\player_forums_table.html:19
+#: .\admin_web\templates\includes\player_forums_table.html:20
 msgid "Privé"
 msgstr "Private"
 
-#: .\admin_web\templates\game\forum.html:51
-#: .\admin_web\templates\game\reports.html:200
+#: .\admin_web\templates\game\forum.html:52
+#: .\admin_web\templates\game\reports.html:201
 msgid "Tout marquer comme lu"
 msgstr "Mark all as read"
 
-#: .\admin_web\templates\game\forum.html:53
+#: .\admin_web\templates\game\forum.html:54
 #: .\admin_web\templates\game\player_forum_manage.html:7
 msgid "Gérer"
 msgstr "Manage"
 
-#: .\admin_web\templates\game\forum.html:55
+#: .\admin_web\templates\game\forum.html:56
 msgid "Quitter"
 msgstr "Leave"
 
-#: .\admin_web\templates\game\forum.html:57
+#: .\admin_web\templates\game\forum.html:58
 #: .\admin_web\templates\public\servers_list.html:131
 msgid "Rejoindre"
 msgstr "Join"
 
-#: .\admin_web\templates\game\forum.html:69
+#: .\admin_web\templates\game\forum.html:70
 msgid "Auteur"
 msgstr "Author"
 
-#: .\admin_web\templates\game\forum.html:70
+#: .\admin_web\templates\game\forum.html:71
 msgid "Réponses"
 msgstr "Replies"
 
-#: .\admin_web\templates\game\forum.html:71
+#: .\admin_web\templates\game\forum.html:72
 msgid "Vues"
 msgstr "Views"
 
-#: .\admin_web\templates\game\forum.html:72
-#: .\admin_web\templates\includes\player_forums_table.html:11
+#: .\admin_web\templates\game\forum.html:73
+#: .\admin_web\templates\includes\player_forums_table.html:12
 msgid "Dernier message"
 msgstr "Last message"
 
-#: .\admin_web\templates\game\forum.html:86
+#: .\admin_web\templates\game\forum.html:87
 msgid "Aller au dernier message"
 msgstr "Go to the last message"
 
-#: .\admin_web\templates\game\forum.html:91
+#: .\admin_web\templates\game\forum.html:92
 msgid "Aucun sujet pour l'instant"
 msgstr "No topic yet"
 
-#: .\admin_web\templates\game\forum.html:106
-#: .\admin_web\templates\game\forum.html:108
+#: .\admin_web\templates\game\forum.html:107
+#: .\admin_web\templates\game\forum.html:109
 msgid "Créer un nouveau sujet"
 msgstr "Create a new topic"
 
-#: .\admin_web\templates\game\forum.html:117
+#: .\admin_web\templates\game\forum.html:118
 msgid "Titre"
 msgstr "Title"
 
-#: .\admin_web\templates\game\forum.html:124
+#: .\admin_web\templates\game\forum.html:125
 msgid "Publier"
 msgstr "Publish"
 
-#: .\admin_web\templates\game\forum_thread.html:42
+#: .\admin_web\templates\game\forum_thread.html:47
 msgid "Lui écrire"
 msgstr "Write to them"
 
-#: .\admin_web\templates\game\forum_thread.html:50
+#: .\admin_web\templates\game\forum_thread.html:52
+msgid "Respect diplomatique"
+msgstr "Diplomatic respect"
+
+#: .\admin_web\templates\game\forum_thread.html:56
 msgid "Supprimer définitivement ce message ?"
 msgstr "Permanently delete this message?"
 
-#: .\admin_web\templates\game\forum_thread.html:51
-#: .\admin_web\templates\game\report.html:84
-#: .\admin_web\templates\game\reports.html:236
-#: .\admin_web\templates\game\reports.html:350
+#: .\admin_web\templates\game\forum_thread.html:57
+#: .\admin_web\templates\game\report.html:85
+#: .\admin_web\templates\game\reports.html:237
+#: .\admin_web\templates\game\reports.html:351
 msgid "Supprimer"
 msgstr "Delete"
 
-#: .\admin_web\templates\game\forum_thread.html:59
+#: .\admin_web\templates\game\forum_thread.html:65
 msgid "Score"
 msgstr "Score"
 
-#: .\admin_web\templates\game\forum_thread.html:69
+#: .\admin_web\templates\game\forum_thread.html:75
 msgid "Détail des votes"
 msgstr "Votes in detail"
 
-#: .\admin_web\templates\game\forum_thread.html:79
+#: .\admin_web\templates\game\forum_thread.html:85
 msgid "Message modifié : voir les versions précédentes"
 msgstr "Edited message: see the previous versions"
 
-#: .\admin_web\templates\game\forum_thread.html:83
+#: .\admin_web\templates\game\forum_thread.html:89
 msgid "Remplacée le"
 msgstr "Replaced on"
 
-#: .\admin_web\templates\game\forum_thread.html:91
+#: .\admin_web\templates\game\forum_thread.html:97
 msgid ""
 "Modifier (possible 15 minutes après l'envoi, les versions précédentes "
 "restent visibles)"
@@ -636,31 +640,31 @@ msgstr ""
 "Edit (possible for 15 minutes after sending, the previous versions stay "
 "visible)"
 
-#: .\admin_web\templates\game\forum_thread.html:99
+#: .\admin_web\templates\game\forum_thread.html:105
 msgid "Signaler à l'équipe"
 msgstr "Report to the team"
 
-#: .\admin_web\templates\game\forum_thread.html:101
+#: .\admin_web\templates\game\forum_thread.html:107
 msgid "Motif (facultatif)"
 msgstr "Reason (optional)"
 
-#: .\admin_web\templates\game\forum_thread.html:102
+#: .\admin_web\templates\game\forum_thread.html:108
 msgid "Signaler"
 msgstr "Report"
 
-#: .\admin_web\templates\game\forum_thread.html:105
+#: .\admin_web\templates\game\forum_thread.html:111
 msgid "Signalé à l'équipe"
 msgstr "Reported to the team"
 
-#: .\admin_web\templates\game\forum_thread.html:116
+#: .\admin_web\templates\game\forum_thread.html:122
 msgid "Supprimer définitivement ce sujet et tous ses messages ?"
 msgstr "Permanently delete this topic and all its messages?"
 
-#: .\admin_web\templates\game\forum_thread.html:117
+#: .\admin_web\templates\game\forum_thread.html:123
 msgid "Supprimer le sujet"
 msgstr "Delete the topic"
 
-#: .\admin_web\templates\game\forum_thread.html:135
+#: .\admin_web\templates\game\forum_thread.html:141
 msgid "Répondre"
 msgstr "Reply"
 
@@ -753,7 +757,7 @@ msgstr "Orbit"
 
 #: .\admin_web\templates\game\geography_system.html:118
 #: .\admin_web\templates\game\geography_system.html:155
-#: .\admin_web\templates\game\reports.html:118
+#: .\admin_web\templates\game\reports.html:119
 #: .\admin_web\templates\includes\menu_game.html:263
 msgid "Flottes"
 msgstr "Fleets"
@@ -793,7 +797,7 @@ msgstr "Presentation"
 
 #: .\admin_web\templates\game\player_forum_manage.html:28
 #: .\admin_web\templates\game\player_forums.html:47
-#: .\admin_web\templates\includes\player_forums_table.html:8
+#: .\admin_web\templates\includes\player_forums_table.html:9
 msgid "Nom"
 msgstr "Name"
 
@@ -831,7 +835,7 @@ msgid "Inviter"
 msgstr "Invite"
 
 #: .\admin_web\templates\game\player_forum_manage.html:81
-#: .\admin_web\templates\includes\player_forums_table.html:10
+#: .\admin_web\templates\includes\player_forums_table.html:11
 msgid "Membres"
 msgstr "Members"
 
@@ -884,122 +888,122 @@ msgstr "Open a tavern"
 msgid "Ouvrir"
 msgstr "Open"
 
-#: .\admin_web\templates\game\player_forums.html:61 .\data\forums.py:411
+#: .\admin_web\templates\game\player_forums.html:61 .\data\forums.py:430
 msgid "Vous possédez déjà le maximum de 5 tavernes"
 msgstr "You already own the maximum of 5 taverns"
 
-#: .\admin_web\templates\game\report.html:8
-#: .\admin_web\templates\game\reports.html:270
+#: .\admin_web\templates\game\report.html:9
+#: .\admin_web\templates\game\reports.html:271
 msgid "Rapport"
 msgstr "Report"
 
-#: .\admin_web\templates\game\report.html:75
-#: .\admin_web\templates\game\reports.html:8
-#: .\admin_web\templates\game\reports.html:210
-#: .\admin_web\templates\game\reports.html:270
+#: .\admin_web\templates\game\report.html:76
+#: .\admin_web\templates\game\reports.html:9
+#: .\admin_web\templates\game\reports.html:211
+#: .\admin_web\templates\game\reports.html:271
 #: .\admin_web\templates\includes\menu_game.html:139
 #: .\admin_web\templates\translations.txt:16
 msgid "Rapports"
 msgstr "Reports"
 
-#: .\admin_web\templates\game\report.html:77
-#: .\admin_web\templates\game\reports.html:258
-#: .\admin_web\templates\game\reports.html:372
+#: .\admin_web\templates\game\report.html:78
+#: .\admin_web\templates\game\reports.html:259
+#: .\admin_web\templates\game\reports.html:373
 msgid "Archiver"
 msgstr "Archive"
 
-#: .\admin_web\templates\game\report.html:79
-#: .\admin_web\templates\game\reports.html:263
-#: .\admin_web\templates\game\reports.html:377
+#: .\admin_web\templates\game\report.html:80
+#: .\admin_web\templates\game\reports.html:264
+#: .\admin_web\templates\game\reports.html:378
 msgid "Désarchiver"
 msgstr "Unarchive"
 
-#: .\admin_web\templates\game\report.html:82
-#: .\admin_web\templates\game\reports.html:250
-#: .\admin_web\templates\game\reports.html:364
+#: .\admin_web\templates\game\report.html:83
+#: .\admin_web\templates\game\reports.html:251
+#: .\admin_web\templates\game\reports.html:365
 msgid "Marquer comme non-lu"
 msgstr "Mark as unread"
 
-#: .\admin_web\templates\game\reports.html:31
+#: .\admin_web\templates\game\reports.html:32
 msgid "Catégories"
 msgstr "Categories"
 
-#: .\admin_web\templates\game\reports.html:45
-#: .\admin_web\templates\game\reports.html:190
+#: .\admin_web\templates\game\reports.html:46
+#: .\admin_web\templates\game\reports.html:191
 msgid "Tous les rapports"
 msgstr "All reports"
 
-#: .\admin_web\templates\game\reports.html:55
+#: .\admin_web\templates\game\reports.html:56
 msgid "Bilan de cycle"
 msgstr "Cycle summary"
 
-#: .\admin_web\templates\game\reports.html:64
+#: .\admin_web\templates\game\reports.html:65
 msgid "Combats spatiaux"
 msgstr "Space battles"
 
-#: .\admin_web\templates\game\reports.html:73
+#: .\admin_web\templates\game\reports.html:74
 msgid "Combats terrestres"
 msgstr "Ground battles"
 
-#: .\admin_web\templates\game\reports.html:82
+#: .\admin_web\templates\game\reports.html:83
 #: .\admin_web\templates\includes\menu_game.html:132
 msgid "Gouvernement"
 msgstr "Government"
 
-#: .\admin_web\templates\game\reports.html:91
+#: .\admin_web\templates\game\reports.html:92
 #: .\admin_web\templates\includes\menu_game.html:150
 msgid "Diplomatie"
 msgstr "Diplomacy"
 
-#: .\admin_web\templates\game\reports.html:127
+#: .\admin_web\templates\game\reports.html:128
 msgid "Exploration"
 msgstr "Exploration"
 
-#: .\admin_web\templates\game\reports.html:136
+#: .\admin_web\templates\game\reports.html:137
 #: .\admin_web\templates\includes\menu_game.html:279
 msgid "Technologies"
 msgstr "Technologies"
 
-#: .\admin_web\templates\game\reports.html:145
+#: .\admin_web\templates\game\reports.html:146
 msgid "Autres"
 msgstr "Other"
 
-#: .\admin_web\templates\game\reports.html:159
+#: .\admin_web\templates\game\reports.html:160
 #: .\admin_web\templates\includes\menu_public.html:112
 msgid "Archives"
 msgstr "Archives"
 
-#: .\admin_web\templates\game\reports.html:172
+#: .\admin_web\templates\game\reports.html:173
 msgid "Non-lus seulement"
 msgstr "Unread only"
 
-#: .\admin_web\templates\game\reports.html:178
+#: .\admin_web\templates\game\reports.html:179
 msgid "Rapports courants"
 msgstr "Current reports"
 
-#: .\admin_web\templates\game\reports.html:184
+#: .\admin_web\templates\game\reports.html:185
 msgid "Rapports archivés"
 msgstr "Archived reports"
 
-#: .\admin_web\templates\game\reports.html:202
+#: .\admin_web\templates\game\reports.html:203
 msgid "Télécharger les rapports"
 msgstr "Download the reports"
 
-#: .\admin_web\templates\game\reports.html:231
-#: .\admin_web\templates\game\reports.html:345
+#: .\admin_web\templates\game\reports.html:232
+#: .\admin_web\templates\game\reports.html:346
 msgid "Tout sélectionner"
 msgstr "Select all"
 
-#: .\admin_web\templates\game\reports.html:244
-#: .\admin_web\templates\game\reports.html:358
+#: .\admin_web\templates\game\reports.html:245
+#: .\admin_web\templates\game\reports.html:359
 msgid "Marquer comme lu"
 msgstr "Mark as read"
 
-#: .\admin_web\templates\game\reports.html:270
+#: .\admin_web\templates\game\reports.html:271
 msgid "Page"
 msgstr "Page"
 
-#: .\admin_web\templates\game\reports.html:330
+#: .\admin_web\templates\game\reports.html:331
 msgid "Aucun rapport"
 msgstr "No report"
 
@@ -1257,11 +1261,11 @@ msgstr "Cycle finished"
 msgid "Centre de commande"
 msgstr "Command center"
 
-#: .\admin_web\templates\includes\menu_game.html:159 .\data\forums.py:140
+#: .\admin_web\templates\includes\menu_game.html:159 .\data\forums.py:154
 msgid "Assemblée Sectorielle"
 msgstr "Sector Assembly"
 
-#: .\admin_web\templates\includes\menu_game.html:171 .\data\forums.py:140
+#: .\admin_web\templates\includes\menu_game.html:171 .\data\forums.py:154
 msgid "Forum HRP"
 msgstr "OOC forum"
 
@@ -1579,6 +1583,11 @@ msgstr "Too many login attempts, please try again in a few minutes"
 msgid "Identifiants incorrects"
 msgstr "Incorrect credentials"
 
+#: .\backend\templatetags\tss_dates.py:16
+#, python-format
+msgid "Date réelle : %s"
+msgstr "Real date: %s"
+
 #: .\backend\views_api_buildings.py:16
 msgid "Aucun commandant actif"
 msgstr "No active commandant"
@@ -1648,8 +1657,8 @@ msgstr "You cannot write to yourself"
 msgid "Cette conversation n'existe plus"
 msgstr "This conversation no longer exists"
 
-#: .\data\conversations.py:63 .\data\conversations.py:73 .\data\forums.py:243
-#: .\data\forums.py:253
+#: .\data\conversations.py:63 .\data\conversations.py:73 .\data\forums.py:262
+#: .\data\forums.py:272
 msgid "Ce message n'existe plus"
 msgstr "This message no longer exists"
 
@@ -1742,103 +1751,103 @@ msgstr "Wolf-Rayet"
 msgid "Nébuleuse"
 msgstr "Nebula"
 
-#: .\data\forums.py:47
+#: .\data\forums.py:49
 msgid "Le titre doit faire entre 1 et 150 caractères"
 msgstr "The title must be between 1 and 150 characters long"
 
-#: .\data\forums.py:51
+#: .\data\forums.py:53
 msgid "Le message doit faire entre 1 et 20 000 caractères"
 msgstr "The message must be between 1 and 20,000 characters long"
 
-#: .\data\forums.py:55
+#: .\data\forums.py:57
 msgid "Commandant disparu"
 msgstr "Vanished commandant"
 
-#: .\data\forums.py:88
+#: .\data\forums.py:102
 msgid "Ce message ne peut plus être modifié"
 msgstr "This message can no longer be edited"
 
-#: .\data\forums.py:99
+#: .\data\forums.py:113
 msgid "Vous ne pouvez pas signaler votre propre message"
 msgstr "You cannot report your own message"
 
-#: .\data\forums.py:101
+#: .\data\forums.py:115
 msgid "Le motif doit faire au plus 1 000 caractères"
 msgstr "The reason must be at most 1,000 characters long"
 
-#: .\data\forums.py:112
+#: .\data\forums.py:126
 msgid "Aucun commandant ne porte ce nom sur ce serveur"
 msgstr "No commandant has this name on this server"
 
-#: .\data\forums.py:156
+#: .\data\forums.py:170
 msgid "Vous ne pouvez pas modifier ce texte"
 msgstr "You cannot edit this text"
 
-#: .\data\forums.py:208
+#: .\data\forums.py:227
 msgid "Vous ne pouvez pas écrire dans ce forum"
 msgstr "You cannot write in this forum"
 
-#: .\data\forums.py:233
+#: .\data\forums.py:252
 msgid "Ce sujet n'existe plus"
 msgstr "This topic no longer exists"
 
-#: .\data\forums.py:259
+#: .\data\forums.py:278
 msgid "Message adapté"
 msgstr "Fitting message"
 
-#: .\data\forums.py:259
+#: .\data\forums.py:278
 msgid "Message remarquable"
 msgstr "Remarkable message"
 
-#: .\data\forums.py:259
+#: .\data\forums.py:278
 msgid "Humour décapant"
 msgstr "Biting humour"
 
-#: .\data\forums.py:261
+#: .\data\forums.py:280
 msgid "Role play intéressant"
 msgstr "Interesting roleplay"
 
-#: .\data\forums.py:271
+#: .\data\forums.py:290
 msgid "Vous ne pouvez pas noter ce message"
 msgstr "You cannot rate this message"
 
-#: .\data\forums.py:273
+#: .\data\forums.py:292
 msgid "Vous ne pouvez pas noter votre propre message"
 msgstr "You cannot rate your own message"
 
-#: .\data\forums.py:299
+#: .\data\forums.py:318
 msgid "Vous ne pouvez pas supprimer ce message"
 msgstr "You cannot delete this message"
 
-#: .\data\forums.py:307
+#: .\data\forums.py:326
 msgid "Vous ne pouvez pas supprimer ce sujet"
 msgstr "You cannot delete this topic"
 
-#: .\data\forums.py:376
+#: .\data\forums.py:395
 msgid "Le nom doit faire entre 1 et 60 caractères"
 msgstr "The name must be between 1 and 60 characters long"
 
-#: .\data\forums.py:380
+#: .\data\forums.py:399
 msgid "Le texte d'ambiance doit faire au plus 5 000 caractères"
 msgstr "The ambiance text must be at most 5,000 characters long"
 
-#: .\data\forums.py:386
+#: .\data\forums.py:405
 msgid "Ce forum ne vous appartient pas"
 msgstr "This forum does not belong to you"
 
-#: .\data\forums.py:396 .\data\forums.py:424
+#: .\data\forums.py:415 .\data\forums.py:443
 msgid "Ce nom est déjà pris"
 msgstr "This name is already taken"
 
-#: .\data\forums.py:478 .\data\forums.py:524
+#: .\data\forums.py:497 .\data\forums.py:543
 msgid "Vous faites déjà partie d'une coalition"
 msgstr "You are already part of a coalition"
 
-#: .\data\forums.py:496
+#: .\data\forums.py:515
 msgid "Ce commandant est déjà membre"
 msgstr "This commandant is already a member"
 
-#: .\data\forums.py:532
+#: .\data\forums.py:551
 msgid "Vous ne pouvez pas rejoindre ce forum"
 msgstr "You cannot join this forum"
 

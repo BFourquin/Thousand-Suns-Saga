@@ -1,6 +1,7 @@
 
 {% load i18n %}
 {% load static %}
+{% load tss_dates %}
 
 
 {% include "includes/head.html" with title=report.title %}
@@ -35,7 +36,7 @@
                     <div class="d-flex flex-wrap justify-content-between align-items-center">
                       <div class="py-2">
                         <h4>{{ report.title }}</h4>
-                        <h6 class="grey_text mb-0">{{ report.tss_calendar }}</h6>
+                        <h6 class="grey_text mb-0">{{ report.tss_calendar|rp_date }}</h6>
                       </div>
 
                       <!-- Sender's information and image aligned next to each other -->
