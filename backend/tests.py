@@ -823,15 +823,11 @@ class ForumsTests(TestCase):
         forums.destroy_player_forum('S', coalition_id, self.owner)
         self.assertEqual(len(images()), 2)
 
-    def test_game_dates_are_in_the_future_with_the_real_one_when_hovering(self):
+    def test_game_dates_show_the_real_date_until_the_rule_is_decided(self):
         self.assertEqual(rp_date(None), '')
         self.play(self.user, self.owner)
-        date = datetime(2026, 11, 6, 14, 5, tzinfo=dt_timezone.utc)
-        self.assertEqual(rp_date(date), '<span title="Date réelle : 06/11/2026 14:05">06/11/3026 14:05</span>')
-        self.assertIn('29/02/3000', rp_date(datetime(2000, 2, 29, tzinfo=dt_timezone.utc)))  # Fictional : not a leap year
+        self.assertEqual(rp_date(datetime(2026, 11, 6, 14, 5, tzinfo=dt_timezone.utc)), '06/11/2026 14:05')
 
-        year = timezone.now().year
-        rp_year, real_date = f'/{year + 1000} ', f'title="Date réelle : '
         topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Un')
         conversations.start_conversation('S', self.visitor, 'Paullus', 'Pacte', 'Secret')
         forums.create_player_forum('S', self.visitor, 'La Cantine', '', False)
@@ -842,9 +838,7 @@ class ForumsTests(TestCase):
 
         for url in (f'/forum/?forum_id={self.assembly_id}', f'/topic/?topic_id={topic_id}', '/conversations/', '/player_forums/',
                     '/reports/', f'/report/?report_id={report.id}'):
-            response = self.client.get(url)
-            self.assertContains(response, rp_year, msg_prefix=url)
-            self.assertContains(response, real_date, msg_prefix=url)
+            self.assertContains(self.client.get(url), f'/{timezone.now().year} ', msg_prefix=url)
 
     # View counter
 

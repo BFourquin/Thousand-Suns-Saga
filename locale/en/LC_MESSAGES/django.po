@@ -1711,11 +1711,6 @@ msgstr "Too many login attempts, please try again in a few minutes"
 msgid "Identifiants incorrects"
 msgstr "Incorrect credentials"
 
-#: .\backend\templatetags\tss_dates.py:16
-#, python-format
-msgid "Date réelle : %s"
-msgstr "Real date: %s"
-
 #: .\backend\views_api_buildings.py:16
 msgid "Aucun commandant actif"
 msgstr "No active commandant"
