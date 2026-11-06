@@ -1,0 +1,17 @@
+{% comment %} Parameter : flag {% endcomment %}
+<div><strong>{{ flag.location }}</strong></div>
+<small class="text-muted">
+  Signalé par {{ flag.reporter_name }} le {{ flag.datetime|date:"d/m/Y H:i" }}{% if flag.reason %} : {{ flag.reason }}{% endif %}
+</small>
+<blockquote class="mt-2 mb-1">
+  <strong>{{ flag.author_name }}</strong><br>
+  {{ flag.body|linebreaksbr }}
+</blockquote>
+{% if flag.previous_versions %}
+  <details>
+    <summary><small>Versions précédentes ({{ flag.previous_versions|length }})</small></summary>
+    {% for version in flag.previous_versions %}
+      <blockquote class="mt-2 mb-1">{{ version.body|linebreaksbr }}</blockquote>
+    {% endfor %}
+  </details>
+{% endif %}

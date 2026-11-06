@@ -1,0 +1,62 @@
+
+{% load static %}
+
+{% include "includes/head.html" with title="TSS Admin : Signalements" %}
+
+{% include "includes/menu_admin.html" %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <h1>Signalements — Serveur {{request.GET.server_name_selected}}</h1>
+      </div>
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+
+      <div class="card card-warning card-outline">
+        <div class="card-header"><h3 class="card-title">À traiter ({{flags.open|length}})</h3></div>
+        <div class="card-body p-0">
+          {% for flag in flags.open %}
+            <div class="p-3 border-bottom text-break">
+              {% include "admin/admin_message_flag.html" %}
+              <form method="POST" action="{{ request.get_full_path }}" class="mt-2">
+                {% csrf_token %}
+                <input type="hidden" name="flag_id" value="{{ flag.id }}">
+                <button type="submit" name="action" value="close" class="btn btn-default btn-sm">Classer sans suite</button>
+                <button type="submit" name="action" value="delete_message" class="btn btn-danger btn-sm"
+                        data-confirm="Supprimer définitivement ce message ?">Supprimer le message</button>
+              </form>
+            </div>
+          {% empty %}
+            <p class="text-center text-muted py-4 mb-0">Aucun signalement à traiter</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      {% if flags.closed %}
+        <div class="card">
+          <div class="card-header"><h3 class="card-title">Derniers signalements traités</h3></div>
+          <div class="card-body p-0">
+            {% for flag in flags.closed %}
+              <div class="p-3 border-bottom text-break">
+                {% include "admin/admin_message_flag.html" %}
+                <small class="text-muted">Traité par {{ flag.handled_by }}</small>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+</div><!-- ./wrapper -->
+
+</body>
+</html>

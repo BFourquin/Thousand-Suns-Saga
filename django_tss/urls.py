@@ -82,6 +82,8 @@ urlpatterns = [
     path('report/', views_game.report, name='report'),
 
     path('assembly/', views_forums.assembly, name='assembly'),
+    path('hrp/', views_forums.hrp, name='hrp'),
+    path('coalition/', views_forums.coalition, name='coalition'),
     path('forum/', views_forums.forum, name='forum'),
     path('topic/', views_forums.topic, name='topic'),
     path('player_forums/', views_forums.player_forums, name='player_forums'),
@@ -90,9 +92,6 @@ urlpatterns = [
     path('conversations/', views_forums.conversations_list, name='conversations'),
     path('conversation/', views_forums.conversation, name='conversation'),
 
-    path('hrp/', views_forums.hrp, name='hrp'),
-    path('hrp_section/', views_forums.hrp_section, name='hrp_section'),
-    path('hrp_topic/', views_forums.hrp_topic, name='hrp_topic'),
 
 
     ####################################################################################################################
@@ -114,6 +113,7 @@ urlpatterns = [
 
     path('admin_geography/', views_admin.admin_geography, name='admin_geography'),
     path('admin_technology/', views_admin.admin_technology, name='admin_technology'),
+    path('admin_message_flags/', views_admin.admin_message_flags, name='admin_message_flags'),
 
 
     ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

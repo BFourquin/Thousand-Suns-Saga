@@ -14,33 +14,7 @@
 
       {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
 
-      {% if player_forums.invited %}
-        <div class="card card-warning card-outline">
-          <div class="card-header"><h3 class="card-title">{% trans "Invitations reçues" %}</h3></div>
-          <div class="card-body p-0">
-            <div class="table-responsive">
-              <table class="table mb-0">
-                <tbody>
-                  {% for forum in player_forums.invited %}
-                    <tr>
-                      <td class="text-break">{{ forum.name }} {% if forum.is_private %}<i class="fas fa-lock" title="{% trans "Privé" %}"></i>{% endif %}</td>
-                      <td>{{ forum.owner_name }}</td>
-                      <td class="text-right u-white-space-nowrap">
-                        <form method="POST" action="/player_forums/">
-                          {% csrf_token %}
-                          <input type="hidden" name="forum_id" value="{{ forum.id }}">
-                          <button type="submit" name="action" value="accept" class="btn btn-primary btn-sm">{% trans "Accepter" %}</button>
-                          <button type="submit" name="action" value="decline" class="btn btn-default btn-sm">{% trans "Refuser" %}</button>
-                        </form>
-                      </td>
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      {% endif %}
+      {% include "includes/forum_invitations.html" with invitations=player_forums.invited %}
 
       <div class="card card-primary card-outline">
         <div class="card-header"><h3 class="card-title">{% trans "Mes tavernes" %}</h3></div>
@@ -58,7 +32,7 @@
 
       <div class="card {% if not error %}collapsed-card{% endif %}">
         <div class="card-header">
-          <h3 class="card-title">{% trans "Ouvrir une taverne" %}</h3>
+          <h3 class="card-title">{% trans "Ouvrir une taverne" %} ({{ player_forums.nb_owned }}/{{ max_owned }})</h3>
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="{% trans "Ouvrir une taverne" %}">
               <i class="fas {% if error %}fa-minus{% else %}fa-plus{% endif %}"></i>
@@ -66,22 +40,26 @@
           </div>
         </div>
         <div class="card-body">
-          <form method="POST" action="/player_forums/">
-            {% csrf_token %}
-            <div class="form-group">
-              <label for="forum-name">{% trans "Nom" %}</label>
-              <input type="text" id="forum-name" name="name" class="form-control" maxlength="60" required value="{{ request.POST.name }}">
-            </div>
-            <div class="form-group">
-              <label for="forum-description">{% trans "Description" %}</label>
-              <textarea id="forum-description" name="description" class="form-control" rows="3" maxlength="2000">{{ request.POST.description }}</textarea>
-            </div>
-            <div class="form-group form-check">
-              <input type="checkbox" id="forum-private" name="is_private" class="form-check-input" {% if request.POST.is_private %}checked{% endif %}>
-              <label for="forum-private" class="form-check-label">{% trans "Taverne privée (entrée sur invitation uniquement)" %}</label>
-            </div>
-            <button type="submit" name="action" value="create" class="btn btn-primary">{% trans "Ouvrir" %}</button>
-          </form>
+          {% if can_create %}
+            <form method="POST" action="/player_forums/">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="forum-name">{% trans "Nom" %}</label>
+                <input type="text" id="forum-name" name="name" class="form-control" maxlength="60" required value="{{ request.POST.name }}">
+              </div>
+              <div class="form-group">
+                <label for="forum-ambiance">{% trans "Texte d'ambiance" %}</label>
+                <textarea id="forum-ambiance" name="ambiance" class="form-control" rows="4" maxlength="5000">{{ request.POST.ambiance }}</textarea>
+              </div>
+              <div class="form-group form-check">
+                <input type="checkbox" id="forum-private" name="is_private" class="form-check-input" {% if request.POST.is_private %}checked{% endif %}>
+                <label for="forum-private" class="form-check-label">{% trans "Taverne privée (entrée sur invitation uniquement)" %}</label>
+              </div>
+              <button type="submit" name="action" value="create" class="btn btn-primary">{% trans "Ouvrir" %}</button>
+            </form>
+          {% else %}
+            <p class="mb-0">{% trans "Vous possédez déjà le maximum de 5 tavernes" %}</p>
+          {% endif %}
         </div>
       </div>
 

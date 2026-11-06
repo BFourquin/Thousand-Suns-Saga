@@ -2,15 +2,11 @@
 {% load i18n %}
 {% load static %}
 
-{% comment %} Messages of a topic of a forum of the server (forum is given), of the HRP forum, or of a conversation {% endcomment %}
+{% comment %} Messages of a topic of a forum of the server (forum is given) or of a conversation {% endcomment %}
 
 {% include "includes/head.html" with title=thread_title %}
 
-{% if commandant %}
-  {% include "includes/menu_game.html" with page_title=back_label %}  <!-- include body start -->
-{% else %}
-  {% include "includes/menu_public.html" with page_title=back_label %}  <!-- include body start -->
-{% endif %}
+{% include "includes/menu_game.html" with page_title=back_label %}  <!-- include body start -->
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -28,6 +24,7 @@
           <div class="card-tools">{% include "includes/pagination.html" with pages=posts %}</div>
         </div>
 
+        {% comment %} One form for the buttons of all the messages. No "required" inside : a field hidden in a closed details would block the others. {% endcomment %}
         <form method="POST" action="{{ request.get_full_path }}">
           {% csrf_token %}
           <div class="card-body p-0">
@@ -48,11 +45,43 @@
                     </div>
                     {% if can_moderate %}
                       <button type="submit" name="delete_post" value="{{ post.id }}" class="btn btn-default btn-xs"
-                              formnovalidate data-confirm="{% trans "Supprimer définitivement ce message ?" %}"
+                              data-confirm="{% trans "Supprimer définitivement ce message ?" %}"
                               title="{% trans "Supprimer" %}" aria-label="{% trans "Supprimer" %}"><i class="far fa-trash-alt"></i></button>
                     {% endif %}
                   </div>
+
                   <div class="mt-2">{{ post.body|urlize|linebreaksbr }}</div>
+
+                  {% if post.previous_versions %}
+                    <details class="mt-2">
+                      <summary><small class="text-muted">{% trans "Message modifié : voir les versions précédentes" %} ({{ post.previous_versions|length }})</small></summary>
+                      {% for version in post.previous_versions %}
+                        <blockquote class="mt-2 mb-1">
+                          {{ version.body|urlize|linebreaksbr }}
+                          <small class="d-block text-muted">{% trans "Remplacée le" %} {{ version.replaced_at|date:"d/m/Y H:i" }}</small>
+                        </blockquote>
+                      {% endfor %}
+                    </details>
+                  {% endif %}
+
+                  {% if post.can_edit and can_post %}
+                    <details class="mt-2">
+                      <summary><small>{% trans "Modifier (possible 15 minutes après l'envoi, les versions précédentes restent visibles)" %}</small></summary>
+                      <textarea name="edited_body_{{ post.id }}" class="form-control mt-2" rows="5" maxlength="20000" aria-label="{% trans "Modifier" %}">{{ post.body }}</textarea>
+                      <button type="submit" name="edit_post" value="{{ post.id }}" class="btn btn-primary btn-sm mt-2">{% trans "Enregistrer" %}</button>
+                    </details>
+                  {% endif %}
+
+                  {% if post.can_flag %}
+                    <details class="mt-2">
+                      <summary><small class="text-muted">{% trans "Signaler à l'équipe" %}</small></summary>
+                      <textarea name="flag_reason_{{ post.id }}" class="form-control mt-2" rows="2" maxlength="1000"
+                                aria-label="{% trans "Motif (facultatif)" %}" placeholder="{% trans "Motif (facultatif)" %}"></textarea>
+                      <button type="submit" name="flag_post" value="{{ post.id }}" class="btn btn-default btn-sm mt-2">{% trans "Signaler" %}</button>
+                    </details>
+                  {% elif post.is_flagged %}
+                    <small class="d-block mt-2 text-muted"><i class="fas fa-flag"></i> {% trans "Signalé à l'équipe" %}</small>
+                  {% endif %}
                 </div>
               </div>
             {% endfor %}

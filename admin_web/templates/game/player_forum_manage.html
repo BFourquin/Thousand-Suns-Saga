@@ -4,8 +4,8 @@
 
 {% include "includes/head.html" with title=forum.name %}
 
-{% trans "Gérer ma taverne" as page_title_text %}
-{% include "includes/menu_game.html" with page_title=page_title_text %}  <!-- include body start -->
+{% trans "Gérer" as manage_text %}
+{% include "includes/menu_game.html" with page_title=manage_text %}  <!-- include body start -->
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -20,7 +20,7 @@
         <div class="col-lg-6">
 
           <div class="card card-primary card-outline">
-            <div class="card-header"><h3 class="card-title">{% trans "Enseigne" %}</h3></div>
+            <div class="card-header"><h3 class="card-title">{% trans "Présentation" %}</h3></div>
             <div class="card-body">
               <form method="POST" action="{{ request.get_full_path }}">
                 {% csrf_token %}
@@ -29,13 +29,15 @@
                   <input type="text" id="forum-name" name="name" class="form-control" maxlength="60" required value="{{ forum.name }}">
                 </div>
                 <div class="form-group">
-                  <label for="forum-description">{% trans "Description" %}</label>
-                  <textarea id="forum-description" name="description" class="form-control" rows="4" maxlength="2000">{{ forum.description }}</textarea>
+                  <label for="forum-ambiance">{% trans "Texte d'ambiance" %}</label>
+                  <textarea id="forum-ambiance" name="ambiance" class="form-control" rows="6" maxlength="5000" placeholder="{{ forum.ambiance }}">{{ forum.description }}</textarea>
                 </div>
-                <div class="form-group form-check">
-                  <input type="checkbox" id="forum-private" name="is_private" class="form-check-input" {% if forum.is_private %}checked{% endif %}>
-                  <label for="forum-private" class="form-check-label">{% trans "Taverne privée (entrée sur invitation uniquement)" %}</label>
-                </div>
+                {% if forum.kind == 'player' %}
+                  <div class="form-group form-check">
+                    <input type="checkbox" id="forum-private" name="is_private" class="form-check-input" {% if forum.is_private %}checked{% endif %}>
+                    <label for="forum-private" class="form-check-label">{% trans "Taverne privée (entrée sur invitation uniquement)" %}</label>
+                  </div>
+                {% endif %}
                 <button type="submit" name="action" value="save" class="btn btn-primary">{% trans "Enregistrer" %}</button>
               </form>
             </div>
@@ -44,11 +46,11 @@
           <div class="card card-danger card-outline">
             <div class="card-header"><h3 class="card-title">{% trans "Destruction" %}</h3></div>
             <div class="card-body">
-              <p>{% trans "Détruire la taverne supprime définitivement ses sujets et ses messages." %}</p>
+              <p>{% trans "Détruire ce forum supprime définitivement ses sujets et ses messages." %}</p>
               <form method="POST" action="{{ request.get_full_path }}">
                 {% csrf_token %}
                 <button type="submit" name="action" value="destroy" class="btn btn-danger"
-                        data-confirm="{% trans "Détruire définitivement cette taverne ? Cette opération est irréversible." %}">{% trans "Détruire définitivement" %}</button>
+                        data-confirm="{% trans "Détruire définitivement ce forum ? Cette opération est irréversible." %}">{% trans "Détruire définitivement" %}</button>
               </form>
             </div>
           </div>
@@ -76,7 +78,7 @@
           </div>
 
           <div class="card">
-            <div class="card-header"><h3 class="card-title">{% trans "Clientèle" %}</h3></div>
+            <div class="card-header"><h3 class="card-title">{% trans "Membres" %}</h3></div>
             <div class="card-body p-0">
               <form method="POST" action="{{ request.get_full_path }}">
                 {% csrf_token %}

@@ -1,0 +1,50 @@
+
+{% load i18n %}
+{% load static %}
+
+{% trans "Assemblée de coalition" as page_title_text %}
+{% include "includes/head.html" with title=page_title_text %}
+
+{% include "includes/menu_game.html" with page_title=page_title_text %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Main content -->
+    <section class="content">
+
+      {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+
+      <div class="card">
+        <div class="card-body text-break">
+          <div class="font-italic">{{ ambiance|linebreaks }}</div>
+          <p class="mb-0">{% trans "Vous ne faites partie d'aucune coalition." %}</p>
+        </div>
+      </div>
+
+      {% include "includes/forum_invitations.html" %}
+
+      <div class="card card-primary card-outline">
+        <div class="card-header"><h3 class="card-title">{% trans "Fonder une coalition" %}</h3></div>
+        <div class="card-body">
+          <form method="POST" action="/coalition/">
+            {% csrf_token %}
+            <div class="input-group">
+              <input type="text" name="name" class="form-control" maxlength="60" required
+                     aria-label="{% trans "Nom de la coalition" %}" placeholder="{% trans "Nom de la coalition" %}" value="{{ request.POST.name }}">
+              <div class="input-group-append">
+                <button type="submit" name="action" value="create" class="btn btn-primary">{% trans "Fonder" %}</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+</div><!-- ./wrapper -->
+
+</body>
+</html>

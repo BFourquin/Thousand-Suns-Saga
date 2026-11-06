@@ -2,15 +2,9 @@
 {% load i18n %}
 {% load static %}
 
-{% comment %} List of topics, of a forum of the server (forum is given) or of a section of the HRP forum {% endcomment %}
+{% include "includes/head.html" with title=forum.name %}
 
-{% include "includes/head.html" with title=forum_title %}
-
-{% if commandant %}
-  {% include "includes/menu_game.html" with page_title=forum_title %}  <!-- include body start -->
-{% else %}
-  {% include "includes/menu_public.html" with page_title=forum_title %}  <!-- include body start -->
-{% endif %}
+{% include "includes/menu_game.html" with page_title=forum.name %}  <!-- include body start -->
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -19,19 +13,43 @@
 
       {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
 
+      <!-- Text of ambiance -->
+      <div class="card">
+        <div class="card-body text-break">
+          <div class="font-italic">{{ forum.ambiance|linebreaks }}</div>
+          {% if forum.owner_name %}<small class="text-muted">{% trans "Propriétaire" %} : {{ forum.owner_name }}</small>{% endif %}
+          {% if forum.membership == 'banned' %}<div class="text-danger">{% trans "Vous avez été banni de ce forum : vous pouvez seulement le lire." %}</div>{% endif %}
+
+          {% if can_edit_ambiance %}
+            <details>
+              <summary><small>{% trans "Modifier le texte d'ambiance" %}</small></summary>
+              <form method="POST" action="{{ request.get_full_path }}" class="mt-2">
+                {% csrf_token %}
+                <div class="form-group">
+                  <textarea name="ambiance" class="form-control" rows="6" maxlength="5000"
+                            aria-label="{% trans "Texte d'ambiance" %}" placeholder="{{ forum.ambiance }}">{{ forum.description }}</textarea>
+                </div>
+                <button type="submit" name="action" value="save_ambiance" class="btn btn-primary btn-sm">{% trans "Enregistrer" %}</button>
+              </form>
+            </details>
+          {% endif %}
+        </div>
+      </div>
+
       <div class="card card-primary card-outline">
         <div class="card-header">
           <h3 class="card-title">
-            {% if back_url %}<a href="{{ back_url }}">{{ back_label }}</a> &gt;{% endif %}
-            {{ forum_title }}
+            {% if forum.kind == 'player' %}<a href="/player_forums/">{% trans "Tavernes" %}</a> &gt;{% endif %}
+            {{ forum.name }}
             {% if forum.is_private %}<i class="fas fa-lock" title="{% trans "Privé" %}"></i>{% endif %}
           </h3>
           <div class="card-tools">
             <form method="POST" action="{{ request.get_full_path }}" class="d-inline">
               {% csrf_token %}
+              <button type="submit" name="action" value="mark_as_read" class="btn btn-default btn-sm"><i class="fas fa-check-double"></i> {% trans "Tout marquer comme lu" %}</button>
               {% if forum.is_owner %}
                 <a href="/player_forum_manage/?forum_id={{ forum.id }}" class="btn btn-default btn-sm"><i class="fas fa-gear"></i> {% trans "Gérer" %}</a>
-              {% elif forum.kind == 'player' and forum.membership == 'member' %}
+              {% elif forum.owner and forum.membership == 'member' %}
                 <button type="submit" name="action" value="leave" class="btn btn-default btn-sm"><i class="fas fa-right-from-bracket"></i> {% trans "Quitter" %}</button>
               {% elif forum.kind == 'player' and forum.membership != 'banned' %}
                 <button type="submit" name="action" value="join" class="btn btn-primary btn-sm"><i class="fas fa-right-to-bracket"></i> {% trans "Rejoindre" %}</button>
@@ -39,14 +57,6 @@
             </form>
           </div>
         </div>
-
-        {% if forum_description or forum.owner_name or forum.membership == 'banned' %}
-          <div class="card-body text-break">
-            {% if forum_description %}<p>{{ forum_description|linebreaksbr }}</p>{% endif %}
-            {% if forum.owner_name %}<small class="text-muted">{% trans "Propriétaire" %} : {{ forum.owner_name }}</small>{% endif %}
-            {% if forum.membership == 'banned' %}<div class="text-danger">{% trans "Vous avez été banni de ce forum : vous pouvez seulement le lire." %}</div>{% endif %}
-          </div>
-        {% endif %}
 
         <div class="card-body p-0">
           <div class="table-responsive">
@@ -61,12 +71,15 @@
               </thead>
               <tbody>
                 {% for topic in topics %}
-                  <tr class="pointer_cursor" data-href="{{ topic_url }}?topic_id={{ topic.id }}">
-                    <td class="text-break"><a href="{{ topic_url }}?topic_id={{ topic.id }}">{{ topic.title }}</a></td>
+                  <tr class="pointer_cursor" data-href="/topic/?topic_id={{ topic.id }}{% if topic.is_unread %}&page=unread{% endif %}">
+                    <td class="text-break">
+                      {% if topic.is_unread %}<span class="badge badge-warning">{% trans "Nouveau" %}</span>{% endif %}
+                      <a href="/topic/?topic_id={{ topic.id }}{% if topic.is_unread %}&page=unread{% endif %}" class="{% if topic.is_unread %}font-weight-bold{% endif %}">{{ topic.title }}</a>
+                    </td>
                     <td>{{ topic.author_name }}</td>
                     <td class="text-center">{{ topic.nb_replies }}</td>
                     <td class="u-white-space-nowrap">
-                      <a href="{{ topic_url }}?topic_id={{ topic.id }}&page=last" title="{% trans "Aller au dernier message" %}">{{ topic.last_post_date|date:"d/m/Y H:i" }}</a>
+                      <a href="/topic/?topic_id={{ topic.id }}&page=last" title="{% trans "Aller au dernier message" %}">{{ topic.last_post_date|date:"d/m/Y H:i" }}</a>
                       <br><small class="text-muted">{{ topic.last_author_name }}</small>
                     </td>
                   </tr>
@@ -83,7 +96,7 @@
         {% endif %}
       </div>
 
-      {% if can_create_topic %}
+      {% if forum.can_post %}
         <div class="card {% if not error %}collapsed-card{% endif %}">
           <div class="card-header">
             <h3 class="card-title">{% trans "Créer un nouveau sujet" %}</h3>

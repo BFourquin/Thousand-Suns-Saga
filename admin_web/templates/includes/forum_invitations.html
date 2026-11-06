@@ -1,0 +1,29 @@
+{% load i18n %}
+{% comment %} Parameter : invitations. Answered on the current page. {% endcomment %}
+{% if invitations %}
+  <div class="card card-warning card-outline">
+    <div class="card-header"><h3 class="card-title">{% trans "Invitations reçues" %}</h3></div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <tbody>
+            {% for forum in invitations %}
+              <tr>
+                <td class="text-break">{{ forum.name }} {% if forum.is_private %}<i class="fas fa-lock" title="{% trans "Privé" %}"></i>{% endif %}</td>
+                <td>{{ forum.owner_name }}</td>
+                <td class="text-right u-white-space-nowrap">
+                  <form method="POST" action="{{ request.path }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="forum_id" value="{{ forum.id }}">
+                    <button type="submit" name="action" value="accept" class="btn btn-primary btn-sm">{% trans "Accepter" %}</button>
+                    <button type="submit" name="action" value="decline" class="btn btn-default btn-sm">{% trans "Refuser" %}</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endif %}

@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models.functions import Lower
 from django.forms.models import model_to_dict
 
-from backend.models import ForumPost, ForumTopic, GameModel, to_id
+from backend.models import GameModel, to_id
 from database.schemas import current_server
 
 
@@ -144,10 +144,11 @@ class Cycle(GameModel):
 
 
 class Forum(GameModel):
-    # 'assembly' : the forum open to the whole server, created by the migrations. 'player' : managed by its owner.
+    # 'assembly', 'hrp' : one per server, created by the migrations, the second one only shown on the servers without
+    # mandatory roleplay. 'player' (taverns), 'coalition' (always private) : managed by their owner.
     kind = models.CharField(max_length=10, default='player')
     name = models.CharField(max_length=60)
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True)  # Text of ambiance displayed above the forum, a default one when empty
     is_private = models.BooleanField(default=False)
     owner = models.ForeignKey(Commandant, on_delete=models.CASCADE, null=True, blank=True, related_name='+')
 
@@ -155,6 +156,7 @@ class Forum(GameModel):
         constraints = [
             models.UniqueConstraint(Lower('name'), name='forum_name_unique'),
             models.UniqueConstraint(fields=['kind'], condition=models.Q(kind='assembly'), name='one_assembly_per_server'),
+            models.UniqueConstraint(fields=['kind'], condition=models.Q(kind='hrp'), name='one_hrp_forum_per_server'),
         ]
 
 
@@ -167,11 +169,33 @@ class ForumMember(GameModel):
         constraints = [models.UniqueConstraint(fields=['forum', 'commandant'], name='forum_member_unique')]
 
 
-class Topic(ForumTopic):
+class Topic(GameModel):
+    title = models.CharField(max_length=150)
+    last_post_date = models.DateTimeField()
     forum = models.ForeignKey(Forum, on_delete=models.CASCADE, related_name='topics')
     # SET_NULL : a thread outlives one of its authors
     author = models.ForeignKey(Commandant, on_delete=models.SET_NULL, null=True, related_name='+')
     last_author = models.ForeignKey(Commandant, on_delete=models.SET_NULL, null=True, related_name='+')
+
+
+class TopicRead(GameModel):
+    # Where a commandant stopped reading a topic : it is unread as long as its last post is more recent
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='+')
+    commandant = models.ForeignKey(Commandant, on_delete=models.CASCADE, related_name='+')
+    last_read_date = models.DateTimeField()
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['topic', 'commandant'], name='topic_read_unique')]
+
+
+class ForumPost(GameModel):
+    # Base of the messages of the forums and of the conversations
+    body = models.TextField()
+    datetime = models.DateTimeField()
+    previous_versions = models.JSONField(default=list)  # [{'body': ..., 'replaced_at': ISO date}], the oldest first
+
+    class Meta:
+        abstract = True
 
 
 class Post(ForumPost):
@@ -197,6 +221,24 @@ class ConversationMember(GameModel):
 class ConversationMessage(ForumPost):
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
     author = models.ForeignKey(Commandant, on_delete=models.SET_NULL, null=True, related_name='+')
+
+
+class MessageFlag(GameModel):
+    # A message reported to the team. What it says is copied : the flag outlives an edit or a deletion of the message.
+    message_kind = models.CharField(max_length=15)  # 'post' | 'conversation'
+    message_id = models.BigIntegerField()
+    reporter = models.ForeignKey(Commandant, on_delete=models.SET_NULL, null=True, related_name='+')
+    reason = models.TextField(blank=True)
+    datetime = models.DateTimeField()
+    author_name = models.CharField(max_length=100)
+    location = models.CharField(max_length=300)
+    body = models.TextField()
+    previous_versions = models.JSONField(default=list)
+    status = models.CharField(max_length=10, default='open', db_index=True)  # 'open' | 'closed'
+    handled_by = models.CharField(max_length=150, blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['message_kind', 'message_id', 'reporter'], name='message_flag_unique')]
 
 
 ########################################################################################################################

@@ -16,6 +16,7 @@
           <td class="text-break">
             <a href="/forum/?forum_id={{ forum.id }}">{{ forum.name }}</a>
             {% if forum.is_private %}<i class="fas fa-lock" title="{% trans "Privé" %}"></i>{% endif %}
+            {% if forum.nb_unread %}<span class="badge badge-warning">{{ forum.nb_unread }}</span>{% endif %}
           </td>
           <td>{{ forum.owner_name }}</td>
           <td class="text-center">{{ forum.nb_members }}</td>

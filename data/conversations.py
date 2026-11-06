@@ -7,6 +7,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
+from data import forums
 from data.errors import GameError
 from data.forums import clean_body, clean_title, find_commandant, page_of_posts
 from database.schemas import on_server
@@ -55,6 +56,25 @@ def send_message(server, conversation_id, commandant_id, body):
 
 
 @on_server
+@transaction.atomic
+def edit_message(server, message_id, commandant_id, body):
+    message = ConversationMessage.objects.select_for_update().filter(id=to_id(message_id)).first()
+    if message is None:
+        raise GameError(_("Ce message n'existe plus"))
+    forums.edit_message(message, commandant_id, body)  # Refuses anyone but its author
+
+
+@on_server
+def flag_message(server, message_id, commandant_id, reason):
+    # Only this message reaches the team, not the rest of the conversation
+    message = (ConversationMessage.objects.select_related('author', 'conversation')
+               .filter(id=to_id(message_id), conversation__members__commandant_id=commandant_id).first())
+    if message is None:
+        raise GameError(_("Ce message n'existe plus"))
+    forums.flag_message('conversation', message, commandant_id, reason, _("Message privé : %s") % message.conversation.subject)
+
+
+@on_server
 def get_conversations(server, commandant_id, page):
     memberships = (ConversationMember.objects.filter(commandant_id=commandant_id, hidden=False)
                    .select_related('conversation').prefetch_related('conversation__members__commandant')
@@ -81,8 +101,8 @@ def get_conversation(server, conversation_id, commandant_id):
 
 
 @on_server
-def get_messages(server, conversation_id, page):
-    return page_of_posts(ConversationMessage.objects.filter(conversation_id=to_id(conversation_id)), page)
+def get_messages(server, conversation_id, page, commandant_id):
+    return page_of_posts(ConversationMessage.objects.filter(conversation_id=to_id(conversation_id)), page, commandant_id, 'conversation')
 
 
 @on_server

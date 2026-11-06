@@ -21,7 +21,7 @@ from backend.login import throttled_authenticate
 from backend.utils import request_params
 from database.schemas import server_schema
 from game.models import Coordinate, Sector, System
-from data import server_details, user, technology, sectors, systems, coordinates, map_generator
+from data import server_details, user, technology, sectors, systems, coordinates, map_generator, forums
 
 logger = logging.getLogger(__name__)
 
@@ -132,6 +132,25 @@ def admin_technology(request):
 
     techs = list(technology.get_all_technologies(params['server_name_selected']))
     return render(request, 'admin/admin_technology.html', {'technologies': techs})
+
+
+# ######################################################################################################################
+# MESSAGES REPORTED BY THE PLAYERS
+
+@staff_member_required(login_url='/admin_login/')
+def admin_message_flags(request):
+    server = request.GET.get('server_name_selected')
+    if not server or not server_details.get_server_details(server):
+        return redirect(admin_servers_states)
+
+    if request.method == 'POST':
+        if request.POST.get('action') == 'close':
+            forums.close_flag(server, request.POST.get('flag_id'), request.user.username)
+        elif request.POST.get('action') == 'delete_message':
+            forums.delete_flagged_message(server, request.POST.get('flag_id'), request.user.username)
+        return redirect(request.get_full_path())
+
+    return render(request, 'admin/admin_message_flags.html', {'flags': forums.get_flags(server)})
 
 
 # ######################################################################################################################

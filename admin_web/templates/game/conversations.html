@@ -67,11 +67,14 @@
                 </thead>
                 <tbody>
                   {% for conversation in conversations %}
-                    <tr class="pointer_cursor {% if conversation.has_unread %}unread{% if dark_mode %}-dark{% endif %}{% endif %}" data-href="/conversation/?conversation_id={{ conversation.id }}">
+                    <tr class="pointer_cursor" data-href="/conversation/?conversation_id={{ conversation.id }}">
                       <td><input type="checkbox" name="conversations[]" value="{{ conversation.id }}" aria-label="{{ conversation.subject }}"></td>
                       <td class="u-white-space-nowrap">{{ conversation.last_message_date|date:"d/m/Y H:i" }}</td>
                       <td>{{ conversation.correspondents }}</td>
-                      <td class="text-break"><a href="/conversation/?conversation_id={{ conversation.id }}">{{ conversation.subject }}</a></td>
+                      <td class="text-break">
+                        {% if conversation.has_unread %}<span class="badge badge-warning">{% trans "Nouveau" %}</span>{% endif %}
+                        <a href="/conversation/?conversation_id={{ conversation.id }}" class="{% if conversation.has_unread %}font-weight-bold{% endif %}">{{ conversation.subject }}</a>
+                      </td>
                     </tr>
                   {% empty %}
                     <tr><td colspan="4" class="text-center text-muted py-4">{% trans "Aucune conversation" %}</td></tr>

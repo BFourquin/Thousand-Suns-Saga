@@ -1,5 +1,6 @@
 import inspect
 import json
+from datetime import timedelta
 from unittest.mock import MagicMock, patch
 
 from django.contrib.auth.models import AnonymousUser, User
@@ -14,9 +15,9 @@ from backend.decorators import commandant_required
 from backend.login import LOGIN_MAX_FAILURES_PER_ACCOUNT, throttled_authenticate
 from backend.models import CommandantAccount, Server, UserExtended, to_id
 from database.schemas import schema_of, server_schema
-from game.models import Building, Colony, Commandant, Coordinate, District, DistrictType, Report, StartingValues
+from game.models import Building, Colony, Commandant, ConversationMessage, Coordinate, District, DistrictType, Post, Report, StartingValues
 from backend.utils import commandant_owns_colony
-from data import conversations, forums, hrp_forum
+from data import conversations, forums
 from data import server_details
 from data import cycles
 from data.commandant import civilisation_name_taken, commandant_name_taken, create_commandant, delete_commandant, get_commandant
@@ -291,10 +292,13 @@ class ForumsTests(TestCase):
         make_server('S')
         make_server('Other')
         with server_schema('S'):
-            cls.owner, cls.visitor = [
+            cls.owner, cls.visitor, cls.staff_commandant = [
                 Commandant.objects.create(user=user, commandant_name=name, civilisation_name=name, creation_date=timezone.now()).id
-                for user, name in ((cls.user, 'Paullus'), (cls.other_user, 'Varro'))]
+                for user, name in ((cls.user, 'Paullus'), (cls.other_user, 'Varro'), (cls.staff, 'Censeur'))]
         cycles.create_cycle_entry('S')
+
+    def setUp(self):
+        self.assembly_id = forums.get_forum_id('S', 'assembly')
 
     def play(self, user, commandant_id):
         UserExtended.objects.update_or_create(user=user, defaults={'playing_on_server_id': 'S', 'playing_on_commandant': commandant_id,
@@ -304,22 +308,45 @@ class ForumsTests(TestCase):
     def private_forum(self):
         return forums.create_player_forum('S', self.owner, 'Le Repaire', '', True)
 
+    def invitations(self, commandant_id):
+        return sum(forums.get_forum_badges('S', commandant_id)[kind] for kind in ('player', 'coalition'))
+
+    def age_messages(self, model, minutes):
+        with server_schema('S'):
+            model.objects.update(datetime=timezone.now() - timedelta(minutes=minutes))
+
     # Forums of the server
 
-    def test_each_server_has_its_assembly(self):
-        self.assertNotEqual(forums.get_assembly_id('S'), None)
-        self.assertEqual(forums.get_forum('S', forums.get_assembly_id('S'), self.owner)['can_post'], True)
-        forums.create_topic('S', forums.get_assembly_id('S'), self.owner, 'Discours', 'Citoyens...')
-        self.assertEqual(forums.get_topics('Other', forums.get_assembly_id('Other'), 1).paginator.count, 0)
+    def test_each_server_has_its_assembly_and_its_hrp_forum(self):
+        for kind in ('assembly', 'hrp'):
+            self.assertTrue(forums.get_forum('S', forums.get_forum_id('S', kind), self.owner)['can_post'])
+        forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Citoyens...')
+        self.assertEqual(forums.get_topics('Other', forums.get_forum_id('Other', 'assembly'), 1, self.owner).paginator.count, 0)
+
+    def test_hrp_forum_only_exists_without_mandatory_roleplay(self):
+        hrp_id = forums.get_forum_id('S', 'hrp')
+        topic_id = forums.create_topic('S', hrp_id, self.owner, 'Bug', 'Texte')
+        self.play(self.user, self.owner)
+        self.assertContains(self.client.get('/assembly/', follow=True), 'href="/hrp/"')
+
+        server_details.change_server_param('S', 'roleplay', 'RP')
+        self.assertIsNone(forums.get_forum('S', hrp_id, self.owner))
+        self.assertIsNone(forums.get_topic('S', topic_id, self.owner))
+        with self.assertRaises(GameError), transaction.atomic():
+            forums.reply_to_topic('S', topic_id, self.owner, 'Texte')
+        self.assertNotContains(self.client.get('/assembly/', follow=True), 'href="/hrp/"')
+        self.assertEqual(self.client.get('/hrp/', follow=True).redirect_chain[-1][0], '/player_forums/')
 
     def test_private_forum_stays_closed_to_the_others(self):
         forum_id = self.private_forum()
         topic_id = forums.create_topic('S', forum_id, self.owner, 'Secret', 'Le plan')
+        post_id = forums.get_posts('S', topic_id, 1, self.owner)[0]['id']
         self.assertIsNone(forums.get_forum('S', forum_id, self.visitor))
         self.assertIsNone(forums.get_topic('S', topic_id, self.visitor))
         self.assertEqual(forums.get_player_forums('S', self.visitor)['others'], [])
         for refused in (lambda: forums.create_topic('S', forum_id, self.visitor, 'Hop', 'Hop'),
                         lambda: forums.reply_to_topic('S', topic_id, self.visitor, 'Hop'),
+                        lambda: forums.flag_post('S', post_id, self.visitor, ''),
                         lambda: forums.join_forum('S', forum_id, self.visitor),
                         lambda: forums.delete_topic('S', topic_id, self.visitor, False),
                         # The staff can't moderate what it can't read
@@ -332,11 +359,11 @@ class ForumsTests(TestCase):
     def test_invitation_opens_a_private_forum(self):
         forum_id = self.private_forum()
         forums.invite_to_forum('S', forum_id, self.owner, 'varro')  # Whatever the case
-        self.assertEqual(forums.count_invitations('S', self.visitor), 1)
+        self.assertEqual(self.invitations(self.visitor), 1)
         self.assertIsNone(forums.get_forum('S', forum_id, self.visitor))  # Not before accepting
 
         forums.answer_invitation('S', forum_id, self.visitor, True)
-        self.assertEqual(forums.count_invitations('S', self.visitor), 0)
+        self.assertEqual(self.invitations(self.visitor), 0)
         self.assertTrue(forums.get_forum('S', forum_id, self.visitor)['can_post'])
 
     def test_banned_member_reads_a_public_forum_but_stays_out(self):
@@ -362,33 +389,312 @@ class ForumsTests(TestCase):
 
     def test_forum_name_is_unique_whatever_the_case(self):
         forum_id = forums.create_player_forum('S', self.owner, 'La Cantine', '', False)
-        with self.assertRaises(GameError):
+        with self.assertRaises(GameError), transaction.atomic():
             forums.create_player_forum('S', self.visitor, 'LA CANTINE', '', False)
         other_id = forums.create_player_forum('S', self.visitor, 'Le Port', '', False)
         with self.assertRaises(GameError):
             forums.update_player_forum('S', other_id, self.visitor, 'la cantine', '', False)
         self.assertEqual(forums.get_forum('S', forum_id, self.owner)['name'], 'La Cantine')
 
+    def test_a_commandant_owns_five_taverns_at_most(self):
+        for number in range(forums.MAX_OWNED_TAVERNS):
+            last_id = forums.create_player_forum('S', self.owner, f'Taverne {number}', '', False)
+        with self.assertRaises(GameError), transaction.atomic():
+            forums.create_player_forum('S', self.owner, 'Une de trop', '', False)
+
+        self.play(self.user, self.owner)
+        self.assertContains(self.client.get('/player_forums/'), 'maximum de 5 tavernes')
+        self.assertNotContains(self.client.get('/player_forums/'), 'value="create"')
+
+        forums.create_player_forum('S', self.visitor, 'Celle de Varro', '', False)  # Each one has its own limit
+        forums.create_coalition('S', self.owner, 'La Ligue')  # A coalition is no tavern
+        forums.destroy_player_forum('S', last_id, self.owner)  # And a destroyed one gives its place back
+        forums.create_player_forum('S', self.owner, 'Une de plus', '', False)
+
+    def test_ambiance_text(self):
+        forum_id = forums.create_player_forum('S', self.owner, 'La Cantine', '', False)
+        self.assertEqual(forums.get_forum('S', forum_id, self.owner)['ambiance'], forums.default_ambiance('player'))
+        forums.update_player_forum('S', forum_id, self.owner, 'La Cantine', 'Une odeur de friture.', False)
+        self.assertEqual(forums.get_forum('S', forum_id, self.owner)['ambiance'], 'Une odeur de friture.')
+
+        with self.assertRaises(GameError):
+            forums.update_forum_ambiance('S', self.assembly_id, False, 'Pirate')
+        forums.update_forum_ambiance('S', forum_id, True, 'Pirate')  # The team's text is only for the forums without owner
+        self.assertEqual(forums.get_forum('S', forum_id, self.owner)['ambiance'], 'Une odeur de friture.')
+
+        url = f'/forum/?forum_id={self.assembly_id}'
+        self.play(self.user, self.owner)
+        self.client.post(url, {'action': 'save_ambiance', 'ambiance': 'Pirate'})
+        self.assertContains(self.client.get(url), forums.default_ambiance('assembly').split("'")[0])
+        self.assertNotContains(self.client.get(url), 'name="ambiance"')
+
+        self.play(self.staff, self.staff_commandant)
+        self.client.post(url, {'action': 'save_ambiance', 'ambiance': 'La coupole résonne.'})
+        self.assertContains(self.client.get(url), 'La coupole résonne.')
+        self.assertContains(self.client.get(url), 'name="ambiance"')
+
     def test_deleting_the_last_post_removes_the_topic(self):
-        assembly_id = forums.get_assembly_id('S')
-        topic_id = forums.create_topic('S', assembly_id, self.owner, 'Discours', 'Un')
+        topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Un')
         forums.reply_to_topic('S', topic_id, self.visitor, 'Deux')
-        first, second = forums.get_posts('S', topic_id, 1)
+        first, second = forums.get_posts('S', topic_id, 1, self.owner)
         with self.assertRaises(GameError):
             forums.delete_post('S', second['id'], self.visitor, False)  # Nobody moderates the assembly but the staff
 
         self.assertTrue(forums.delete_post('S', second['id'], self.visitor, True))
-        topic_row = forums.get_topics('S', assembly_id, 1)[0]
+        topic_row = forums.get_topics('S', self.assembly_id, 1, self.owner)[0]
         self.assertEqual((topic_row['nb_replies'], topic_row['last_author_name']), (0, 'Paullus'))
         self.assertFalse(forums.delete_post('S', first['id'], self.visitor, True))
         self.assertIsNone(forums.get_topic('S', topic_id, self.owner))
 
     def test_invalid_texts_are_refused(self):
-        assembly_id = forums.get_assembly_id('S')
         for title, body in (('', 'Texte'), ('Titre', '   '), ('x' * 151, 'Texte'), ('Titre', 'x' * 20001), ('\x00', 'Texte')):
             with self.assertRaises(GameError), transaction.atomic():
-                forums.create_topic('S', assembly_id, self.owner, title, body)
-        self.assertEqual(forums.get_topics('S', assembly_id, 1).paginator.count, 0)
+                forums.create_topic('S', self.assembly_id, self.owner, title, body)
+        self.assertEqual(forums.get_topics('S', self.assembly_id, 1, self.owner).paginator.count, 0)
+
+    # Edition of a message
+
+    def test_edit_keeps_the_previous_versions(self):
+        topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Premiere version')
+        post_id = forums.get_posts('S', topic_id, 1, self.owner)[0]['id']
+
+        forums.edit_post('S', post_id, self.owner, 'Première version')
+        forums.edit_post('S', post_id, self.owner, 'Première version')  # Unchanged : no new version
+        forums.edit_post('S', post_id, self.owner, 'Tout autre chose')
+
+        post = forums.get_posts('S', topic_id, 1, self.visitor)[0]  # Everybody can check
+        self.assertEqual(post['body'], 'Tout autre chose')
+        self.assertEqual([version['body'] for version in post['previous_versions']], ['Premiere version', 'Première version'])
+
+        self.play(self.other_user, self.visitor)
+        response = self.client.get(f'/topic/?topic_id={topic_id}')
+        self.assertContains(response, 'Premiere version')
+        self.assertContains(response, 'versions précédentes')
+
+    def test_only_the_author_edits_during_fifteen_minutes(self):
+        topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Texte')
+        post_id = forums.get_posts('S', topic_id, 1, self.owner)[0]['id']
+        url = f'/topic/?topic_id={topic_id}'
+
+        for commandant_id in (self.visitor, self.staff_commandant):
+            self.assertFalse(forums.get_posts('S', topic_id, 1, commandant_id)[0]['can_edit'])
+            with self.assertRaises(GameError), transaction.atomic():
+                forums.edit_post('S', post_id, commandant_id, 'Pirate')
+        with self.assertRaises(GameError), transaction.atomic():
+            forums.edit_post('S', post_id, self.owner, '   ')
+
+        self.play(self.user, self.owner)
+        self.assertContains(self.client.get(url), f'name="edit_post" value="{post_id}"')
+        self.client.post(url, {'edit_post': post_id, f'edited_body_{post_id}': 'Corrigé'})
+        self.assertEqual(forums.get_posts('S', topic_id, 1, self.owner)[0]['body'], 'Corrigé')
+
+        self.age_messages(Post, 14)
+        self.assertTrue(forums.get_posts('S', topic_id, 1, self.owner)[0]['can_edit'])
+        self.age_messages(Post, 16)  # Even with an edit a few minutes ago : the delay counts from the sending
+        self.assertFalse(forums.get_posts('S', topic_id, 1, self.owner)[0]['can_edit'])
+        self.assertNotContains(self.client.get(url), 'name="edit_post"')
+        self.assertContains(self.client.post(url, {'edit_post': post_id, f'edited_body_{post_id}': 'Trop tard'}), 'ne peut plus être modifié')
+        self.assertEqual(forums.get_posts('S', topic_id, 1, self.owner)[0]['body'], 'Corrigé')
+
+    def test_banned_member_can_not_edit_anymore(self):
+        forum_id = forums.create_player_forum('S', self.owner, 'La Cantine', '', False)
+        forums.join_forum('S', forum_id, self.visitor)
+        topic_id = forums.create_topic('S', forum_id, self.visitor, 'Sujet', 'Texte')
+        post_id = forums.get_posts('S', topic_id, 1, self.visitor)[0]['id']
+        forums.remove_from_forum('S', forum_id, self.owner, self.visitor)
+        with self.assertRaises(GameError), transaction.atomic():
+            forums.edit_post('S', post_id, self.visitor, 'Pirate')
+
+    def test_private_message_can_be_edited_with_the_same_rules(self):
+        conversation_id = conversations.start_conversation('S', self.owner, 'Varro', 'Pacte', 'Premiere version')
+        message_id = conversations.get_messages('S', conversation_id, 1, self.owner)[0]['id']
+        with self.assertRaises(GameError), transaction.atomic():
+            conversations.edit_message('S', message_id, self.visitor, 'Pirate')
+
+        url = f'/conversation/?conversation_id={conversation_id}'
+        self.play(self.user, self.owner)
+        self.client.post(url, {'edit_post': message_id, f'edited_body_{message_id}': 'Première version'})
+        message = conversations.get_messages('S', conversation_id, 1, self.visitor)[0]
+        self.assertEqual(message['body'], 'Première version')
+        self.assertEqual(message['previous_versions'][0]['body'], 'Premiere version')
+
+        self.age_messages(ConversationMessage, 16)
+        with self.assertRaises(GameError), transaction.atomic():
+            conversations.edit_message('S', message_id, self.owner, 'Trop tard')
+
+    # Unread topics
+
+    def test_topic_is_unread_until_its_last_post_is_displayed(self):
+        topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Texte')
+        for number in range(forums.POSTS_PER_PAGE):  # 2 pages
+            forums.reply_to_topic('S', topic_id, self.owner, f'Réponse {number}')
+        is_unread = lambda: forums.get_topics('S', self.assembly_id, 1, self.visitor)[0]['is_unread']
+        url = f'/topic/?topic_id={topic_id}'
+        self.play(self.other_user, self.visitor)
+
+        self.assertTrue(is_unread())
+        self.assertEqual(forums.get_forum_badges('S', self.visitor)['assembly'], 1)
+        self.client.get(url)  # Only the first page
+        self.assertTrue(is_unread())
+
+        # The link of an unread topic goes to the first page with something new
+        self.assertRedirects(self.client.get(url + '&page=unread'), url + '&page=2')
+        self.assertFalse(is_unread())
+        self.assertEqual(forums.get_forum_badges('S', self.visitor)['assembly'], 0)
+
+        self.client.get(url)  # Coming back to the beginning unreads nothing
+        self.assertFalse(is_unread())
+
+        forums.reply_to_topic('S', topic_id, self.owner, 'Du nouveau')
+        self.assertTrue(is_unread())
+        self.assertEqual(forums.get_forum_badges('S', self.owner)['assembly'], 1)  # Paullus hasn't opened it yet
+
+    def test_author_has_read_what_he_just_wrote(self):
+        self.play(self.user, self.owner)
+        url = f'/forum/?forum_id={self.assembly_id}'
+        response = self.client.post(url, {'action': 'new_topic', 'title': 'Discours', 'body': 'Texte'}, follow=True)
+        topic_url = response.redirect_chain[-1][0]
+        self.assertEqual(forums.get_forum_badges('S', self.owner)['assembly'], 0)
+        self.client.post(topic_url, {'body': 'Suite'}, follow=True)
+        self.assertEqual(forums.get_forum_badges('S', self.owner)['assembly'], 0)
+
+    def test_all_the_topics_of_a_forum_can_be_marked_as_read(self):
+        for number in range(3):
+            forums.create_topic('S', self.assembly_id, self.owner, f'Sujet {number}', 'Texte')
+        self.assertEqual(forums.get_forum_badges('S', self.visitor)['assembly'], 3)
+
+        self.play(self.other_user, self.visitor)
+        self.client.post(f'/forum/?forum_id={self.assembly_id}', {'action': 'mark_as_read'})
+        self.assertEqual(forums.get_forum_badges('S', self.visitor)['assembly'], 0)
+        forums.mark_forum_as_read('S', self.assembly_id, self.visitor)  # Twice changes nothing
+
+    def test_only_the_forums_of_a_member_count_as_unread(self):
+        forum_id = forums.create_player_forum('S', self.owner, 'La Cantine', '', False)
+        forums.create_topic('S', forum_id, self.owner, 'Sujet', 'Texte')
+        self.assertEqual(forums.get_forum_badges('S', self.visitor)['player'], 0)
+        forums.join_forum('S', forum_id, self.visitor)
+        self.assertEqual(forums.get_forum_badges('S', self.visitor)['player'], 1)
+        self.assertEqual(forums.get_player_forums('S', self.visitor)['member'][0]['nb_unread'], 1)
+        forums.remove_from_forum('S', forum_id, self.owner, self.visitor)
+        self.assertEqual(forums.get_forum_badges('S', self.visitor)['player'], 0)
+
+    # Reports to the team
+
+    def test_flag_keeps_what_the_message_said(self):
+        topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Insulte')
+        post_id = forums.get_posts('S', topic_id, 1, self.visitor)[0]['id']
+        self.assertTrue(forums.get_posts('S', topic_id, 1, self.visitor)[0]['can_flag'])
+        self.assertFalse(forums.get_posts('S', topic_id, 1, self.owner)[0]['can_flag'])  # Not one's own message
+        with self.assertRaises(GameError):
+            forums.flag_post('S', post_id, self.owner, '')
+
+        self.play(self.other_user, self.visitor)
+        url = f'/topic/?topic_id={topic_id}'
+        self.client.post(url, {'flag_post': post_id, f'flag_reason_{post_id}': 'Propos injurieux'})
+        self.client.post(url, {'flag_post': post_id, f'flag_reason_{post_id}': 'Encore'})  # Counted once
+        self.assertContains(self.client.get(url), "Signalé à l'équipe")
+        self.assertEqual(forums.count_open_flags('S'), 1)
+
+        forums.edit_post('S', post_id, self.owner, 'Bonjour')  # Hiding it afterwards is useless
+        flag = forums.get_flags('S')['open'][0]
+        self.assertEqual((flag['body'], flag['reason'], flag['author_name'], flag['reporter_name']),
+                         ('Insulte', 'Propos injurieux', 'Paullus', 'Varro'))
+        self.assertIn('Discours', flag['location'])
+
+    def test_private_message_can_be_flagged_by_its_members_only(self):
+        conversation_id = conversations.start_conversation('S', self.owner, 'Varro', 'Pacte', 'Menace')
+        message_id = conversations.get_messages('S', conversation_id, 1, self.visitor)[0]['id']
+        with self.assertRaises(GameError):
+            conversations.flag_message('S', message_id, self.staff_commandant, '')
+        with self.assertRaises(GameError):
+            conversations.flag_message('S', message_id, self.owner, '')  # Its author
+
+        conversations.flag_message('S', message_id, self.visitor, '')
+        self.assertEqual(forums.get_flags('S')['open'][0]['body'], 'Menace')
+
+    def test_team_handles_the_flags_from_the_administration(self):
+        topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Insulte')
+        forums.reply_to_topic('S', topic_id, self.owner, 'Normal')
+        insult_id, normal_id = [post['id'] for post in forums.get_posts('S', topic_id, 1, self.visitor)]
+        forums.flag_post('S', insult_id, self.visitor, '')
+        forums.flag_post('S', normal_id, self.visitor, '')
+        conversation_id = conversations.start_conversation('S', self.owner, 'Varro', 'Pacte', 'Menace')
+        conversations.flag_message('S', conversations.get_messages('S', conversation_id, 1, self.visitor)[0]['id'], self.visitor, '')
+        url = '/admin_message_flags/?server_name_selected=S'
+
+        self.client.force_login(self.user)
+        self.assertEqual(self.client.get(url).status_code, 302)
+        self.client.post(url, {'action': 'close', 'flag_id': forums.get_flags('S')['open'][0]['id']})
+        self.assertEqual(forums.count_open_flags('S'), 3)
+
+        self.play(self.staff, self.staff_commandant)
+        self.assertContains(self.client.get('/assembly/', follow=True), 'admin_message_flags')
+        self.assertContains(self.client.get(url), 'Menace')
+        flags = {flag['body']: flag['id'] for flag in forums.get_flags('S')['open']}
+
+        self.client.post(url, {'action': 'close', 'flag_id': flags['Normal']})
+        self.assertEqual(len(forums.get_posts('S', topic_id, 1, self.visitor)), 2)
+
+        self.client.post(url, {'action': 'delete_message', 'flag_id': flags['Insulte']})
+        self.assertEqual([post['body'] for post in forums.get_posts('S', topic_id, 1, self.visitor)], ['Normal'])
+
+        self.client.post(url, {'action': 'delete_message', 'flag_id': flags['Menace']})
+        self.assertIsNone(conversations.get_conversation('S', conversation_id, self.owner))  # Its only message
+
+        closed = forums.get_flags('S')['closed']
+        self.assertEqual(forums.count_open_flags('S'), 0)
+        self.assertEqual({flag['handled_by'] for flag in closed}, {'staff'})
+        self.assertContains(self.client.get(url), 'Insulte')  # Still readable afterwards
+        self.assertRedirects(self.client.get('/admin_message_flags/?server_name_selected=unknown'), '/admin_servers_states/', fetch_redirect_response=False)
+
+    def test_player_does_not_see_the_flags_entry(self):
+        self.play(self.user, self.owner)
+        self.assertNotContains(self.client.get('/assembly/', follow=True), 'admin_message_flags')
+
+    # Coalitions
+
+    def test_coalition_is_private_and_unique_for_a_commandant(self):
+        coalition_id = forums.create_coalition('S', self.owner, 'La Ligue')
+        self.assertTrue(forums.get_forum('S', coalition_id, self.owner)['can_post'])
+        self.assertIsNone(forums.get_forum('S', coalition_id, self.visitor))
+        with self.assertRaises(GameError):
+            forums.join_forum('S', coalition_id, self.visitor)
+        with self.assertRaises(GameError), transaction.atomic():
+            forums.create_coalition('S', self.owner, 'Une autre')
+
+        # Stays private whatever is sent
+        forums.update_player_forum('S', coalition_id, self.owner, 'La Ligue', '', False)
+        self.assertIsNone(forums.get_forum('S', coalition_id, self.visitor))
+
+        rival_id = forums.create_coalition('S', self.visitor, 'Le Pacte')
+        forums.invite_to_forum('S', coalition_id, self.owner, 'Varro')
+        self.assertEqual([forum['name'] for forum in forums.get_coalition_invitations('S', self.visitor)], ['La Ligue'])
+        with self.assertRaises(GameError), transaction.atomic():
+            forums.answer_invitation('S', coalition_id, self.visitor, True)
+        self.assertIsNone(forums.get_forum('S', coalition_id, self.visitor))
+
+        forums.destroy_player_forum('S', rival_id, self.visitor)
+        forums.answer_invitation('S', coalition_id, self.visitor, True)
+        self.assertEqual(forums.get_coalition_id('S', self.visitor), coalition_id)
+
+        forums.leave_forum('S', coalition_id, self.visitor)
+        self.assertIsNone(forums.get_coalition_id('S', self.visitor))
+
+    def test_coalition_pages(self):
+        self.play(self.user, self.owner)
+        self.assertContains(self.client.get('/coalition/'), "aucune coalition")
+        self.assertContains(self.client.post('/coalition/', {'action': 'create', 'name': ''}), 'entre 1 et 60')
+
+        response = self.client.post('/coalition/', {'action': 'create', 'name': 'La Ligue'}, follow=True)
+        coalition_id = forums.get_coalition_id('S', self.owner)
+        self.assertEqual(response.redirect_chain[-1][0], f'/forum/?forum_id={coalition_id}')
+        self.assertContains(response, 'La Ligue')
+        self.assertContains(response, forums.default_ambiance('coalition').split("'")[0])
+
+        manage_url = f'/player_forum_manage/?forum_id={coalition_id}'
+        self.assertNotContains(self.client.get(manage_url), 'name="is_private"')
+        self.client.post(manage_url, {'action': 'destroy'})
+        self.assertIsNone(forums.get_coalition_id('S', self.owner))
 
     # Private messages
 
@@ -398,8 +704,7 @@ class ForumsTests(TestCase):
         self.assertEqual(conversations.count_unread_conversations('S', self.owner), 0)
         self.assertEqual(conversations.get_conversation('S', conversation_id, self.visitor)['correspondents'], 'Paullus')
 
-        with server_schema('S'):
-            third = Commandant.objects.create(user=self.user, commandant_name='Tiers', civilisation_name='Tiers', creation_date=timezone.now()).id
+        third = self.staff_commandant
         self.assertIsNone(conversations.get_conversation('S', conversation_id, third))
         with self.assertRaises(GameError):
             conversations.send_message('S', conversation_id, third, 'Hop')
@@ -423,68 +728,38 @@ class ForumsTests(TestCase):
         conversations.hide_conversations('S', [conversation_id], self.visitor)
         conversations.hide_conversations('S', [conversation_id], self.owner)
         self.assertIsNone(conversations.get_conversation('S', conversation_id, self.owner))  # Removed by all : deleted
-        self.assertEqual(conversations.get_messages('S', conversation_id, 1).paginator.count, 0)
-
-    # HRP forum
-
-    def test_only_the_staff_opens_announcements(self):
-        with self.assertRaises(GameError):
-            hrp_forum.create_topic('announcements', self.user.id, False, 'Mise à jour', 'Texte')
-        with self.assertRaises(GameError):
-            hrp_forum.create_topic('unknown', self.user.id, True, 'Mise à jour', 'Texte')
-        topic_id = hrp_forum.create_topic('announcements', self.staff.id, True, 'Mise à jour', 'Texte')
-        hrp_forum.reply_to_topic(topic_id, self.user.id, 'Merci !')
-        self.assertEqual(hrp_forum.get_posts(topic_id, 1)[1]['author_name'], 'player')
-
-    def test_only_the_staff_moderates_hrp(self):
-        topic_id = hrp_forum.create_topic('misc', self.user.id, False, 'Salut', 'Texte')
-        post_id = hrp_forum.get_posts(topic_id, 1)[0]['id']
-        with self.assertRaises(GameError):
-            hrp_forum.delete_post(post_id, False)
-        with self.assertRaises(GameError):
-            hrp_forum.delete_topic(topic_id, False)
-        self.assertFalse(hrp_forum.delete_post(post_id, True))
-        self.assertIsNone(hrp_forum.get_topic(topic_id))
-
-    def test_hrp_thread_outlives_a_deleted_account(self):
-        gone = User.objects.create_user('gone', 'g@example.com', 'x')
-        topic_id = hrp_forum.create_topic('misc', gone.id, False, 'Salut', 'Texte')
-        gone.delete()
-        self.assertEqual(hrp_forum.get_posts(topic_id, 1)[0]['author_name'], 'Compte supprimé')
+        self.assertEqual(conversations.get_messages('S', conversation_id, 1, self.owner).paginator.count, 0)
 
     # Pages
 
     def test_every_page_answers(self):
         self.play(self.user, self.owner)
-        assembly_id = forums.get_assembly_id('S')
-        topic_id = forums.create_topic('S', assembly_id, self.owner, 'Discours', 'Texte')
+        hrp_id = forums.get_forum_id('S', 'hrp')
+        topic_id = forums.create_topic('S', self.assembly_id, self.owner, 'Discours', 'Texte')
         forum_id = self.private_forum()
         conversation_id = conversations.start_conversation('S', self.owner, 'Varro', 'Pacte', 'Texte')
-        hrp_topic_id = hrp_forum.create_topic('misc', self.user.id, False, 'Salut', 'Texte')
 
-        for url in (f'/forum/?forum_id={assembly_id}', f'/forum/?forum_id={forum_id}', f'/topic/?topic_id={topic_id}',
-                    '/player_forums/', f'/player_forum_manage/?forum_id={forum_id}', '/conversations/',
-                    f'/conversation/?conversation_id={conversation_id}', '/hrp/', '/hrp_section/?section=misc',
-                    f'/hrp_topic/?topic_id={hrp_topic_id}'):
+        for url in (f'/forum/?forum_id={self.assembly_id}', f'/forum/?forum_id={hrp_id}', f'/forum/?forum_id={forum_id}',
+                    f'/topic/?topic_id={topic_id}', '/player_forums/', f'/player_forum_manage/?forum_id={forum_id}',
+                    '/coalition/', '/conversations/', f'/conversation/?conversation_id={conversation_id}'):
             self.assertEqual(self.client.get(url).status_code, 200, url)
-        self.assertRedirects(self.client.get('/assembly/'), f'/forum/?forum_id={assembly_id}')
+        self.assertRedirects(self.client.get('/assembly/'), f'/forum/?forum_id={self.assembly_id}')
+        self.assertRedirects(self.client.get('/hrp/'), f'/forum/?forum_id={hrp_id}')
 
-    def test_hrp_needs_an_account_but_no_commandant(self):
+    def test_no_forum_without_a_commandant(self):
         self.assertEqual(self.client.get('/hrp/').status_code, 302)
         self.client.force_login(self.staff)
-        self.assertEqual(self.client.get('/hrp/').status_code, 200)
-        self.assertEqual(self.client.get('/hrp_section/?section=announcements').status_code, 200)
-        self.assertRedirects(self.client.get('/assembly/'), '/user_account/', fetch_redirect_response=False)
+        for url in ('/assembly/', '/hrp/', '/coalition/', '/forum/'):
+            self.assertRedirects(self.client.get(url), '/user_account/', fetch_redirect_response=False)
 
     def test_forbidden_or_unknown_ids_send_back_to_a_list(self):
         forum_id = self.private_forum()
         self.play(self.other_user, self.visitor)
         for url, destination in ((f'/forum/?forum_id={forum_id}', '/player_forums/'),
                                  (f'/player_forum_manage/?forum_id={forum_id}', '/player_forums/'),
-                                 (f'/player_forum_manage/?forum_id={forums.get_assembly_id("S")}', '/player_forums/'),
+                                 (f'/player_forum_manage/?forum_id={self.assembly_id}', '/player_forums/'),
                                  ('/forum/?forum_id=abc', '/player_forums/'), ('/topic/?topic_id=abc', '/assembly/'),
-                                 ('/conversation/?conversation_id=abc', '/conversations/'),
-                                 ('/hrp_section/?section=abc', '/hrp/'), ('/hrp_topic/?topic_id=abc', '/hrp/')):
+                                 ('/conversation/?conversation_id=abc', '/conversations/')):
             self.assertRedirects(self.client.get(url), destination, fetch_redirect_response=False)
 
     def test_owner_manages_his_forum_from_its_page(self):
@@ -492,16 +767,16 @@ class ForumsTests(TestCase):
         url = f'/player_forum_manage/?forum_id={forum_id}'
         self.play(self.user, self.owner)
 
-        self.client.post(url, {'action': 'save', 'name': 'Le Repaire', 'description': 'Texte', 'is_private': 'on'})
+        self.client.post(url, {'action': 'save', 'name': 'Le Repaire', 'ambiance': 'Texte', 'is_private': 'on'})
         forum = forums.get_forum('S', forum_id, self.owner)
-        self.assertEqual((forum['name'], forum['description'], forum['is_private']), ('Le Repaire', 'Texte', True))
+        self.assertEqual((forum['name'], forum['ambiance'], forum['is_private']), ('Le Repaire', 'Texte', True))
 
         self.client.post(url, {'action': 'invite', 'invited_name': 'Varro'})
-        self.assertEqual(forums.count_invitations('S', self.visitor), 1)
+        self.assertEqual(self.invitations(self.visitor), 1)
         self.assertContains(self.client.post(url, {'action': 'invite', 'invited_name': 'Inconnu'}), 'Aucun commandant')
 
         self.client.post(url, {'action': 'remove', 'commandant_id': self.visitor})
-        self.assertEqual(forums.count_invitations('S', self.visitor), 0)
+        self.assertEqual(self.invitations(self.visitor), 0)
 
         self.client.post(url, {'action': 'destroy'})
         self.assertIsNone(forums.get_forum('S', forum_id, self.owner))
@@ -521,13 +796,13 @@ class ForumsTests(TestCase):
 
         self.play(self.other_user, self.visitor)
         self.assertNotContains(self.client.get(url), 'name="delete_post"')
-        post_id = forums.get_posts('S', topic_id, 1)[1]['id']
+        post_id = forums.get_posts('S', topic_id, 1, self.visitor)[1]['id']
         self.assertContains(self.client.post(url, {'delete_post': post_id}), 'Vous ne pouvez pas supprimer')
 
         self.play(self.user, self.owner)
         self.assertContains(self.client.get(url), 'name="delete_post"')
         self.assertRedirects(self.client.post(url, {'delete_post': post_id}), url)
-        self.assertEqual(forums.get_posts('S', topic_id, 1).paginator.count, 1)
+        self.assertEqual(forums.get_posts('S', topic_id, 1, self.owner).paginator.count, 1)
         self.assertRedirects(self.client.post(url, {'delete_topic': '1'}), f'/forum/?forum_id={forum_id}')
         self.assertIsNone(forums.get_topic('S', topic_id, self.owner))
 
@@ -539,16 +814,29 @@ class ForumsTests(TestCase):
 
     def test_messages_are_escaped_and_their_links_clickable(self):
         self.play(self.user, self.owner)
-        assembly_id = forums.get_assembly_id('S')
-        self.client.post(f'/forum/?forum_id={assembly_id}', {'action': 'new_topic', 'title': '<b>Titre</b>',
-                                                             'body': '<script>alert(1)</script>\nhttps://example.com'})
-        response = self.client.get(f'/forum/?forum_id={assembly_id}')
+        self.client.post(f'/forum/?forum_id={self.assembly_id}', {'action': 'new_topic', 'title': '<b>Titre</b>',
+                                                                  'body': '<script>alert(1)</script>\nhttps://example.com'})
+        response = self.client.get(f'/forum/?forum_id={self.assembly_id}')
         self.assertContains(response, '&lt;b&gt;Titre&lt;/b&gt;')
-        topic_id = forums.get_topics('S', assembly_id, 1)[0]['id']
+        topic_id = forums.get_topics('S', self.assembly_id, 1, self.owner)[0]['id']
+        forums.edit_post('S', forums.get_posts('S', topic_id, 1, self.owner)[0]['id'], self.owner, '<img src=x onerror=alert(2)>')
+        forums.flag_post('S', forums.get_posts('S', topic_id, 1, self.owner)[0]['id'], self.visitor, '<i>Motif</i>')
+
         response = self.client.get(f'/topic/?topic_id={topic_id}')
         self.assertNotContains(response, '<script>alert(1)')
-        self.assertContains(response, '&lt;script&gt;alert(1)&lt;/script&gt;<br>')
+        self.assertNotContains(response, '<img src=x')
+        self.assertContains(response, '&lt;script&gt;alert(1)&lt;/script&gt;<br>')  # In the previous version
         self.assertContains(response, 'href="https://example.com"')
+
+        self.play(self.staff, self.staff_commandant)
+        response = self.client.get('/admin_message_flags/?server_name_selected=S')
+        self.assertNotContains(response, '<img src=x')
+        self.assertNotContains(response, '<i>Motif</i>')
+
+    def test_ambiance_is_escaped(self):
+        forum_id = forums.create_player_forum('S', self.owner, 'La Cantine', '<script>alert(3)</script>', False)
+        self.play(self.user, self.owner)
+        self.assertNotContains(self.client.get(f'/forum/?forum_id={forum_id}'), '<script>alert(3)')
 
     def test_get_changes_nothing(self):
         forum_id = forums.create_player_forum('S', self.owner, 'La Cantine', '', False)
@@ -559,8 +847,8 @@ class ForumsTests(TestCase):
     def test_post_needs_a_csrf_token(self):
         client = Client(enforce_csrf_checks=True)
         client.force_login(self.user)
-        for url in ('/forum/', '/topic/', '/player_forums/', '/player_forum_manage/', '/conversations/', '/conversation/',
-                    '/hrp_section/', '/hrp_topic/'):
+        for url in ('/forum/', '/topic/', '/player_forums/', '/player_forum_manage/', '/coalition/', '/conversations/',
+                    '/conversation/', '/admin_message_flags/'):
             self.assertEqual(client.post(url).status_code, 403, url)
 
 
