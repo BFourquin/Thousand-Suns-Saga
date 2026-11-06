@@ -2328,6 +2328,56 @@ class EntentesTests(TestCase):
         self.assertIsNone(ententes.get_entente('S', self.entente, self.founder))
 
 
+class ArchivesTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        user = User.objects.create_user('player', 'p@example.com', 'x')
+        make_server('Current')
+        server_details.create_server('Old', 1, status='stop', admin_only_visibility=False)
+        server_details.create_server('Dead', 1, status='dead', admin_only_visibility=False)
+        server_details.create_server('Trial', 1, status='test', admin_only_visibility=False)
+        server_details.create_server('Hidden', 1, status='open', admin_only_visibility=True)
+        with server_schema('Old'):
+            cls.author = Commandant.objects.create(user=user, commandant_name='Paullus', civilisation_name='Rome', creation_date=timezone.now()).id
+        cls.topic_id = forums.create_topic('Old', forums.get_forum_id('Old', 'assembly'), cls.author, 'Discours du senat', 'Citoyens...')
+
+    def test_anybody_finds_the_current_and_past_servers_but_no_other(self):
+        response = self.client.get('/archives/')
+        self.assertEqual([server['server_name'] for server in response.context['servers']], ['Dead', 'Old', 'Current'])
+        self.assertNotContains(response, 'Trial')
+        self.assertNotContains(response, 'Hidden')
+
+    def test_anybody_reads_an_assembly_without_any_form(self):
+        for url, text in (('/archives/?server=Old', 'Discours du senat'), (f'/archives/?server=Old&topic_id={self.topic_id}', 'Citoyens...')):
+            response = self.client.get(url)
+            self.assertContains(response, text)
+            for tag in ('<form', '<textarea', '<button type="submit"'):
+                self.assertNotContains(response, tag)
+
+    def test_writing_is_refused(self):
+        for url in ('/archives/?server=Old', f'/archives/?server=Old&topic_id={self.topic_id}'):
+            self.assertEqual(self.client.post(url, {'action': 'new_topic', 'title': 'Spam', 'body': 'Spam'}).status_code, 405)
+        self.assertEqual(forums.get_topics('Old', forums.get_forum_id('Old', 'assembly'), 1, None).paginator.count, 1)
+
+    def test_reading_counts_nothing(self):
+        self.client.get(f'/archives/?server=Old&topic_id={self.topic_id}')
+        self.assertEqual(forums.get_topics('Old', forums.get_forum_id('Old', 'assembly'), 1, None)[0]['nb_views'], 0)
+
+    def test_other_forums_stay_out_of_the_archives(self):
+        public_tavern = forums.create_player_forum('Old', self.author, 'La Taverne', '', False)
+        private_tavern = forums.create_player_forum('Old', self.author, 'Le Repaire', '', True)
+        coalition = forums.create_coalition('Old', self.author, 'La Ligue')
+        for forum_id in (public_tavern, private_tavern, coalition, forums.get_forum_id('Old', 'hrp')):
+            topic_id = forums.create_topic('Old', forum_id, self.author, 'Secret', 'Secret')
+            self.assertRedirects(self.client.get(f'/archives/?server=Old&topic_id={topic_id}'), '/archives/', fetch_redirect_response=False)
+
+    def test_forbidden_or_unknown_ids_send_back_to_the_list(self):
+        for url in ('/archives/?server=Trial', '/archives/?server=Trial&topic_id=1', '/archives/?server=Hidden','/archives/?server=Nope', '/archives/?server=',
+                    '/archives/?server=Old&topic_id=abc', '/archives/?server=Old&topic_id=999999', '/archives/?server=Old&topic_id='):
+            self.assertRedirects(self.client.get(url), '/archives/', fetch_redirect_response=False)
+
+
 class TextFormattingTests(SimpleTestCase):
 
     def test_styles_alignments_sizes_and_colors(self):

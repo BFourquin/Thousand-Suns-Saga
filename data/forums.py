@@ -221,6 +221,13 @@ def get_posts(server, topic_id, page, commandant_id):
     return posts
 
 
+@on_server
+def get_assembly_topic(server, topic_id):
+    # For the public archives, read without commandant : None for a topic of any other forum, even a public tavern
+    topic = Topic.objects.filter(id=to_id(topic_id), forum__kind='assembly').first()
+    return {'id': topic.id, 'title': topic.title} if topic else None
+
+
 def _forum_open_to_posts(server, forum_id, commandant_id):
     forum = get_forum(server, forum_id, commandant_id)
     if not forum or not forum['can_post']:

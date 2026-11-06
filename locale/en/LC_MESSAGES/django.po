@@ -2731,6 +2731,18 @@ msgstr "Researched"
 msgid "En cours"
 msgstr "In progress"
 
+#: .dmin_web	emplates\publicrchives.html
+msgid "État"
+msgstr "Status"
+
+#: .dmin_web	emplates\publicrchives.html
+msgid "Terminé"
+msgstr "Over"
+
+#: .dmin_web	emplates\publicrchives.html
+msgid "Aucune archive pour l'instant"
+msgstr "No archives yet"
+
 msgid "Disponible"
 msgstr "Available"
 

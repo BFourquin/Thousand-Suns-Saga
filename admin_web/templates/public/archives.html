@@ -1,0 +1,166 @@
+
+{% load static %}
+{% load i18n %}
+{% load tss_dates %}
+{% load tss_text %}
+
+{% comment %} Three levels, read only and without any form : the servers, the topics of an assembly, the messages of a topic {% endcomment %}
+
+{% trans "Archives" as page_title_text %}
+{% include "includes/head.html" with title=page_title_text %}
+
+{% include "includes/menu_public.html" with page_title=page_title_text %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Main content -->
+    <section class="content">
+
+      <div class="card card-primary card-outline">
+
+        {% if topic %}
+
+          <div class="card-header">
+            <h3 class="card-title text-break">
+              <a href="/archives/">{% trans "Archives" %}</a> &gt;
+              <a href="/archives/?server={{ archive_server|urlencode }}">{{ archive_server }}</a> &gt;
+              {{ topic.title }}
+            </h3>
+            <div class="card-tools">{% include "includes/pagination.html" with pages=posts %}</div>
+          </div>
+
+          <div class="card-body p-0">
+            {% for post in posts %}
+              <div class="media p-3 border-bottom" id="post-{{ post.id }}">
+                {% if post.author_images %}
+                  <div class="d-flex flex-column flex-shrink-0 mr-3">
+                    {% for path, label in post.author_images %}
+                      <img src="{% static "" %}{{ path }}" class="img-size-50 mb-1" alt="{{ label }}" title="{{ label }}">
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                <div class="media-body text-break">
+                  <strong>{{ post.author_name }}</strong>
+                  <small class="text-muted ml-2">{{ post.datetime|rp_date }}</small>
+                  <small class="d-block text-muted">{% trans "Respect diplomatique" %} : {{ post.author_respect }}</small>
+
+                  <div class="mt-2">{{ post.body|bbcode }}</div>
+
+                  {% if post.score %}
+                    <details class="mt-2">
+                      <summary><small><strong>{% trans "Score" %} : {{ post.score }}</strong></small></summary>
+                      {% for vote in post.votes %}
+                        {% if vote.voters %}<small class="d-block">{{ vote.label }} : {{ vote.voters|join:", " }}</small>{% endif %}
+                      {% endfor %}
+                    </details>
+                  {% endif %}
+
+                  {% if post.previous_versions %}
+                    <details class="mt-2">
+                      <summary><small class="text-muted">{% trans "Message modifié : voir les versions précédentes" %} ({{ post.previous_versions|length }})</small></summary>
+                      {% for version in post.previous_versions %}
+                        <blockquote class="mt-2 mb-1">
+                          {{ version.body|bbcode }}
+                          <small class="d-block text-muted">{% trans "Remplacée le" %} {{ version.replaced_at|rp_date }}</small>
+                        </blockquote>
+                      {% endfor %}
+                    </details>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+          {% if posts.has_other_pages %}
+            <div class="card-footer text-right">{% include "includes/pagination.html" with pages=posts %}</div>
+          {% endif %}
+
+        {% elif archive_server %}
+
+          <div class="card-header">
+            <h3 class="card-title">
+              <a href="/archives/">{% trans "Archives" %}</a> &gt;
+              {{ archive_server }} &gt; {% trans "Assemblée Sectorielle" %}
+            </h3>
+          </div>
+
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover table-striped mb-0">
+                <thead>
+                  <tr>
+                    <th>{% trans "Sujet" %}</th>
+                    <th>{% trans "Auteur" %}</th>
+                    <th class="text-center">{% trans "Réponses" %}</th>
+                    <th class="text-center">{% trans "Vues" %}</th>
+                    <th>{% trans "Dernier message" %}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for topic_row in topics %}
+                    <tr>
+                      <td class="text-break"><a href="/archives/?server={{ archive_server|urlencode }}&topic_id={{ topic_row.id }}">{{ topic_row.title }}</a></td>
+                      <td>{{ topic_row.author_name }}</td>
+                      <td class="text-center">{{ topic_row.nb_replies }}</td>
+                      <td class="text-center">{{ topic_row.nb_views }}</td>
+                      <td class="u-white-space-nowrap">
+                        <a href="/archives/?server={{ archive_server|urlencode }}&topic_id={{ topic_row.id }}&page=last" title="{% trans "Aller au dernier message" %}">{{ topic_row.last_post_date|rp_date }}</a>
+                        <br><small class="text-muted">{{ topic_row.last_author_name }}</small>
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr><td colspan="5" class="text-center text-muted py-4">{% trans "Aucun sujet pour l'instant" %}</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {% if topics.has_other_pages %}
+            <div class="card-footer text-right">{% include "includes/pagination.html" with pages=topics %}</div>
+          {% endif %}
+
+        {% else %}
+
+          <div class="card-header">
+            <h3 class="card-title">{% trans "Assemblée Sectorielle" %}</h3>
+          </div>
+
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover table-striped mb-0">
+                <thead>
+                  <tr>
+                    <th>{% trans "Serveur" %}</th>
+                    <th>{% trans "Date d'ouverture" %}</th>
+                    <th>{% trans "État" %}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for server_row in servers %}
+                    <tr>
+                      <td><a href="/archives/?server={{ server_row.server_name|urlencode }}">{{ server_row.server_name }}</a></td>
+                      <td>{{ server_row.opening_date|date:'d/m/Y' }}</td>
+                      <td>{% if server_row.status == 'open' or server_row.status == 'close' %}{% trans "En cours" %}{% else %}{% trans "Terminé" %}{% endif %}</td>
+                    </tr>
+                  {% empty %}
+                    <tr><td colspan="3" class="text-center text-muted py-4">{% trans "Aucune archive pour l'instant" %}</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        {% endif %}
+
+      </div>
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+</div><!-- ./wrapper -->
+
+</body>
+</html>

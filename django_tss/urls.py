@@ -62,6 +62,7 @@ urlpatterns = [
 
 
     path('servers_list/', views_public.servers_list, name='servers_list'),
+    path('archives/', views_public.archives, name='archives'),
 
 
 
