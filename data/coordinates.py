@@ -4,7 +4,8 @@ from functools import lru_cache
 
 from django.utils.translation import gettext_lazy as _
 
-from backend.models import Coordinate
+from game.models import Coordinate
+from database.schemas import on_server
 from django_tss.settings import BASE_DIR, STATIC_ROOT
 
 
@@ -66,22 +67,26 @@ def get_coordinate_image(coordinate):
     return random.Random(int(coordinate['id'])).choice(images)
 
 
+@on_server
 def get_coordinates_of_system(server, system):
     # All the coordinates of a system in a single query, sorted from the star to the outer orbits
-    rows = Coordinate.objects.filter(server=server, seed__in=system['system_coordinates'].keys()).order_by('sys_coordinate')
+    rows = Coordinate.objects.filter(seed__in=system['system_coordinates'].keys()).order_by('sys_coordinate')
     return [coordinate.as_dict() for coordinate in rows]
 
 
+@on_server
 def get_coordinate(server, seed):
-    coordinate = Coordinate.objects.filter(server=server, seed=str(seed)).first()
+    coordinate = Coordinate.objects.filter(seed=str(seed)).first()
     return coordinate.as_dict() if coordinate else None
 
 
+@on_server
 def get_all_coordinates(server):
-    return [coordinate.as_dict() for coordinate in Coordinate.objects.filter(server=server).order_by('seed')]
+    return [coordinate.as_dict() for coordinate in Coordinate.objects.all().order_by('seed')]
 
 
+@on_server
 def set_coordinate(server, coordinate):
     # Will replace previous entry if one exist
-    Coordinate.objects.update_or_create(server_id=server, seed=coordinate['seed'],
+    Coordinate.objects.update_or_create(seed=coordinate['seed'],
                                         defaults={k: v for k, v in coordinate.items() if k not in ('id', 'seed')})

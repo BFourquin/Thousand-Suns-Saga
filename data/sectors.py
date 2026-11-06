@@ -1,21 +1,26 @@
 
-from backend.models import Sector
+from game.models import Sector
+from database.schemas import on_server
 
 
+@on_server
 def get_sector(server, y, x):
-    sector = Sector.objects.filter(server=server, pos_y=y, pos_x=x).first()
+    sector = Sector.objects.filter(pos_y=y, pos_x=x).first()
     return sector.as_dict() if sector else None
 
 
+@on_server
 def get_all_sectors(server):
-    return [sector.as_dict() for sector in Sector.objects.filter(server=server).order_by('seed')]
+    return [sector.as_dict() for sector in Sector.objects.all().order_by('seed')]
 
 
+@on_server
 def get_sector_by_seed(server, seed):
-    sector = Sector.objects.filter(server=server, seed=str(seed)).first()
+    sector = Sector.objects.filter(seed=str(seed)).first()
     return sector.as_dict() if sector else None
 
 
+@on_server
 def get_direct_neighbours_sectors(server, y, x):
     neighbours_sectors = [
         get_sector(server, y-1, x),
@@ -27,6 +32,7 @@ def get_direct_neighbours_sectors(server, y, x):
     return neighbours_sectors
 
 
+@on_server
 def get_diagonal_neighbours_sectors(server, y, x):
     neighbours_sectors = [
         get_sector(server, y-1, x-1),
@@ -38,7 +44,8 @@ def get_diagonal_neighbours_sectors(server, y, x):
     return neighbours_sectors
 
 
+@on_server
 def set_sector(server, sector):
     # Will replace previous entry if one exist
-    Sector.objects.update_or_create(server_id=server, seed=sector['seed'],
+    Sector.objects.update_or_create(seed=sector['seed'],
                                     defaults={k: v for k, v in sector.items() if k not in ('id', 'seed')})

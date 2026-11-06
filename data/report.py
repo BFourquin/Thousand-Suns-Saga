@@ -1,13 +1,15 @@
 
 from django.db import transaction
 
-from backend.models import Report, to_id
+from game.models import Report, to_id
+from database.schemas import on_server
 from data.report_generator import generate_report
 from data.commandant import update_commandant
 
 
 
 
+@on_server
 @transaction.atomic
 def create_report(server, owner_id, report_type, args={}, sender=None, sender_image=None):
 
@@ -17,11 +19,13 @@ def create_report(server, owner_id, report_type, args={}, sender=None, sender_im
     update_nb_unread_reports(server, owner_id)
 
 
+@on_server
 def get_report(server, id, owner_id):
     report = Report.objects.filter(id=to_id(id), owner=owner_id).first()
     return report.as_dict() if report else None
 
 
+@on_server
 def get_commandant_reports(server, commandant_id, filter_status=None, filter_category=None, search_text=None):
 
     reports_list = [report.as_dict() for report in Report.objects.filter(owner=commandant_id).order_by('id')]
@@ -57,10 +61,12 @@ def get_commandant_reports(server, commandant_id, filter_status=None, filter_cat
 
 
 
+@on_server
 def change_report_status(server, report_id, owner_id, status):
     Report.objects.filter(id=to_id(report_id), owner=owner_id).update(status=status)
 
 
+@on_server
 def delete_report(server, report_id, owner_id):
     Report.objects.filter(id=to_id(report_id), owner=owner_id).delete()
 
@@ -68,6 +74,7 @@ def delete_report(server, report_id, owner_id):
 ########################################################################################################################
 #
 
+@on_server
 def mark_all_reports_as_read(server, commandant_id, category=None):
 
     reports = get_commandant_reports(server, commandant_id, filter_status='unread', filter_category=category)[0]
@@ -75,6 +82,7 @@ def mark_all_reports_as_read(server, commandant_id, category=None):
         change_report_status(server, report['id'], commandant_id, 'read')
 
 
+@on_server
 def unread_reports_counting(server, commandant_id, reports_list=None):
     # Return a dict of the number of unread reports by category
     # nb_unread_reports = {'all': 5, 'space_combat: 2, ...}
@@ -100,6 +108,7 @@ def unread_reports_counting(server, commandant_id, reports_list=None):
     return nb_unread_reports
 
 
+@on_server
 def update_nb_unread_reports(server, commandant_id):
     nb_unread_reports = Report.objects.filter(owner=commandant_id, status='unread').count()
     update_commandant(server, commandant_id, 'nb_unread_reports', nb_unread_reports)

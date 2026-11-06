@@ -1,14 +1,16 @@
 
 import pylightxl as xl
-from backend.models import Resource, ResourceCategory, ResourceSubcategory
+from database.schemas import on_server
+from game.models import Resource, ResourceCategory, ResourceSubcategory
 
 
-def load_resources(excel_tech_path, sheet_resources_name, server_name, delete_actual_resources):
+@on_server
+def load_resources(server_name, excel_tech_path, sheet_resources_name, delete_actual_resources):
 
     if delete_actual_resources:
-        Resource.objects.filter(server=server_name).delete()
-        ResourceCategory.objects.filter(server=server_name).delete()
-        ResourceSubcategory.objects.filter(server=server_name).delete()
+        Resource.objects.all().delete()
+        ResourceCategory.objects.all().delete()
+        ResourceSubcategory.objects.all().delete()
 
     with open(excel_tech_path, 'rb') as f:
         xldb = xl.readxl(f)
@@ -35,7 +37,7 @@ def load_resources(excel_tech_path, sheet_resources_name, server_name, delete_ac
                 resources.pop('', None)  # Remove empty rows
 
                 print(row)
-                Resource.objects.create(server_id=server_name, internal_name=resources['internal_name'], data=resources)
+                Resource.objects.create(internal_name=resources['internal_name'], data=resources)
 
 
         # CATEGORY AND SUB-CATEGORY DECLARATION
@@ -66,4 +68,4 @@ def load_resources(excel_tech_path, sheet_resources_name, server_name, delete_ac
                 resources_cat.pop('', None)  # Remove empty rows
 
                 print(row)
-                model.objects.create(server_id=server_name, internal_name=resources_cat['internal_name'], data=resources_cat)
+                model.objects.create(internal_name=resources_cat['internal_name'], data=resources_cat)

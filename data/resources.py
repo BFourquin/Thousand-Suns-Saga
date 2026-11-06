@@ -2,20 +2,24 @@ from data.names import localized_name
 
 from django.db import transaction
 
-from backend.models import Commandant, Resource, ResourceCategory, ResourceSubcategory
+from game.models import Commandant, Resource, ResourceCategory, ResourceSubcategory
+from database.schemas import on_server
 from data.commandant import get_commandant
 
 
 
+@on_server
 def get_all_resources_parameters(server_name):
-    return [resource.as_dict() for resource in Resource.objects.filter(server=server_name).order_by('id')]
+    return [resource.as_dict() for resource in Resource.objects.all().order_by('id')]
 
 
+@on_server
 def get_resource_parameters(server_name, resource_name):
-    resource = Resource.objects.filter(server=server_name, internal_name=resource_name).first()
+    resource = Resource.objects.filter(internal_name=resource_name).first()
     return resource.as_dict() if resource else None
 
 
+@on_server
 def add_infos_to_resources_dict(server_name, resources_dict, commandant=None, language=None):
     # Add necessary interface info (like name and illustrations) from a simple {resource: quantity} dict
     # Return : { resource : {quantity:int, name:str, enough_stockpiles:bool, illustration:str} }
@@ -38,17 +42,20 @@ def add_infos_to_resources_dict(server_name, resources_dict, commandant=None, la
 # RESOURCES CATEGORIES AND SUB-CATEGORIES
 
 
+@on_server
 def get_resources_categories(server_name):
-    return [category.as_dict() for category in ResourceCategory.objects.filter(server=server_name).order_by('id')]
+    return [category.as_dict() for category in ResourceCategory.objects.all().order_by('id')]
 
 
+@on_server
 def get_resources_subcategories(server_name):
-    return [category.as_dict() for category in ResourceSubcategory.objects.filter(server=server_name).order_by('id')]
+    return [category.as_dict() for category in ResourceSubcategory.objects.all().order_by('id')]
 
 
 ########################################################################################################################
 
 
+@on_server
 def check_enough_resource(server, commandant_id, resource, quantity):
     commandant = get_commandant(server, commandant_id)
 
@@ -57,6 +64,7 @@ def check_enough_resource(server, commandant_id, resource, quantity):
     return commandant['resources'][resource] >= quantity
 
 
+@on_server
 def check_enough_resources_dict(server, commandant_id, resources_dict, return_missing_details=False):
     commandant = get_commandant(server, commandant_id)
 
@@ -73,6 +81,7 @@ def check_enough_resources_dict(server, commandant_id, resources_dict, return_mi
 ########################################################################################################################
 
 
+@on_server
 @transaction.atomic
 def pay_resources(server, commandant_id, cost):
     # The commandant is locked between the check and the debit : two simultaneous orders can't spend the same stock
@@ -81,7 +90,7 @@ def pay_resources(server, commandant_id, cost):
     if not cost:
         return True
 
-    commandant = Commandant.objects.select_for_update().filter(server=server, id=commandant_id).first()
+    commandant = Commandant.objects.select_for_update().filter(id=commandant_id).first()
     if not commandant or any(commandant.resources.get(resource, 0) < quantity for resource, quantity in cost.items()):
         return False
 
@@ -91,10 +100,11 @@ def pay_resources(server, commandant_id, cost):
     return True
 
 
+@on_server
 @transaction.atomic
 def add_resources(server, commandant_id, gains):
     if gains:
-        commandant = Commandant.objects.select_for_update().get(server=server, id=commandant_id)
+        commandant = Commandant.objects.select_for_update().get(id=commandant_id)
         for resource, quantity in gains.items():
             commandant.resources[resource] = commandant.resources.get(resource, 0) + quantity
         commandant.save(update_fields=['resources'])
@@ -103,6 +113,7 @@ def add_resources(server, commandant_id, gains):
 ########################################################################################################################
 
 
+@on_server
 def give_starting_resources(server_name, commandant_id):
 
     ...  # TODO

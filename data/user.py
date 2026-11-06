@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.forms.models import model_to_dict
 
-from backend.models import Commandant, UserExtended
+from backend.models import CommandantAccount, UserExtended
 
 
 # Django come with already managed user table that should not be altered
@@ -26,11 +26,11 @@ def user_as_dict(user):
     # Create extended entry if not existent (happen to superuser created from a console)
     extended = UserExtended.objects.get_or_create(user=user)[0]
 
-    accounts = list(Commandant.objects.filter(user=user).order_by('id').values_list('id', 'status'))
+    accounts = list(CommandantAccount.objects.filter(user=user).order_by('id').values_list('server', 'commandant_id', 'status'))
     return model_to_dict(user, exclude=['password', 'groups', 'user_permissions']) | \
         model_to_dict(extended, exclude=['user']) | \
-        {'accounts': [id for id, status in accounts if status == 'active'],
-         'dead_accounts': [id for id, status in accounts if status != 'active']}
+        {'accounts': [(server, id) for server, id, status in accounts if status == 'active'],
+         'dead_accounts': [(server, id) for server, id, status in accounts if status != 'active']}
 
 
 def get_user_by_id(id):

@@ -1,14 +1,16 @@
 
 import ast
 import pylightxl as xl
-from backend.models import BuildingType, DistrictType
+from database.schemas import on_server
+from game.models import BuildingType, DistrictType
 
 
-def load_buildings(excel_tech_path, sheet_resources_name, server_name, delete_actual_buildings):
+@on_server
+def load_buildings(server_name, excel_tech_path, sheet_resources_name, delete_actual_buildings):
 
     if delete_actual_buildings:
-        BuildingType.objects.filter(server=server_name).delete()
-        DistrictType.objects.filter(server=server_name).delete()
+        BuildingType.objects.all().delete()
+        DistrictType.objects.all().delete()
 
     with open(excel_tech_path, 'rb') as f:
         xldb = xl.readxl(f)
@@ -62,4 +64,4 @@ def load_buildings(excel_tech_path, sheet_resources_name, server_name, delete_ac
                 districts_cat.pop('', None)  # Remove empty rows
 
                 print(districts_cat)
-                model.objects.create(server_id=server_name, internal_name=districts_cat['internal_name'], data=districts_cat)
+                model.objects.create(internal_name=districts_cat['internal_name'], data=districts_cat)

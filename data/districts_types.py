@@ -1,11 +1,13 @@
 
 from data.names import localized_name
-from backend.models import DistrictType
+from game.models import DistrictType
+from database.schemas import on_server
 
 
+@on_server
 def get_district_type(server, internal_name, language=None):
 
-    district = DistrictType.objects.filter(server=server, internal_name=internal_name).first()
+    district = DistrictType.objects.filter(internal_name=internal_name).first()
     if not district:
         return None
 
@@ -15,8 +17,9 @@ def get_district_type(server, internal_name, language=None):
     return district
 
 
+@on_server
 def get_all_districts_types(server, language=None):
-    districts = [district.as_dict() for district in DistrictType.objects.filter(server=server).order_by('id')]
+    districts = [district.as_dict() for district in DistrictType.objects.all().order_by('id')]
 
     if language:
         for i in range(len(districts)):
@@ -24,6 +27,7 @@ def get_all_districts_types(server, language=None):
     return districts
 
 
+@on_server
 def get_all_buildable_districts_types(server, commandant, language=None):
 
     districts = get_all_districts_types(server)

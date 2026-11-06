@@ -6,6 +6,7 @@ from django.utils import timezone
 from data.cycles import get_current_cycle
 from data.commandant import get_commandants, update_commandant
 from backend.utils import get_active_server_and_commandant_from_request, get_request_user
+from database.schemas import server_schema
 
 
 def log_player_action(view_func):
@@ -101,5 +102,6 @@ def commandant_required(view_func):
         server, commandant = get_active_server_and_commandant_from_request(request)
         if not server or not commandant:
             return redirect('/user_account/')
-        return view_func(request, server, commandant, *args, **kwargs)
+        with server_schema(server):  # Once for the whole view instead of at each call to the data layer
+            return view_func(request, server, commandant, *args, **kwargs)
     return wrapper

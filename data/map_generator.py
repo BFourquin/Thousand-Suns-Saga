@@ -1,5 +1,6 @@
 
-from backend.models import MapGeneratorParameter
+from game.models import MapGeneratorParameter
+from database.schemas import on_server
 
 
 def get_seed_type(seed):
@@ -16,28 +17,33 @@ def get_seed_type(seed):
         raise Exception(str(seed) + ' is not a recognized seed length')
 
 
+@on_server
 def set_map_generator_parameters(server, map_generator_params, mg_type='global'):
 
-    MapGeneratorParameter.objects.filter(server=server, mg_type=mg_type).delete()
+    MapGeneratorParameter.objects.filter(mg_type=mg_type).delete()
 
     for param in map_generator_params:
-        MapGeneratorParameter.objects.create(server_id=server, mg_type=mg_type, data=param)
+        MapGeneratorParameter.objects.create(mg_type=mg_type, data=param)
 
 
+@on_server
 def get_map_generator_parameters(server, mg_type=None):
 
     if not mg_type or mg_type == 'global':
-        return MapGeneratorParameter.objects.filter(server=server, mg_type='global').first().as_dict()
-    return [param.as_dict() for param in MapGeneratorParameter.objects.filter(server=server, mg_type=mg_type).order_by('id')]
+        return MapGeneratorParameter.objects.filter(mg_type='global').first().as_dict()
+    return [param.as_dict() for param in MapGeneratorParameter.objects.filter(mg_type=mg_type).order_by('id')]
 
 
+@on_server
 def get_mg_params_sector_type(server, sector_type):
-    return MapGeneratorParameter.objects.filter(server=server, mg_type='sectors', data__sector_type=sector_type).first().as_dict()
+    return MapGeneratorParameter.objects.filter(mg_type='sectors', data__sector_type=sector_type).first().as_dict()
 
 
+@on_server
 def get_mg_system_type(server, system_type):
-    return MapGeneratorParameter.objects.filter(server=server, mg_type='systems_types', data__system_type=system_type).first().as_dict()
+    return MapGeneratorParameter.objects.filter(mg_type='systems_types', data__system_type=system_type).first().as_dict()
 
 
+@on_server
 def get_mg_system_composition(server, solar_type):
-    return MapGeneratorParameter.objects.filter(server=server, mg_type='systems_compositions', data__solar_type=solar_type).first().as_dict()
+    return MapGeneratorParameter.objects.filter(mg_type='systems_compositions', data__solar_type=solar_type).first().as_dict()

@@ -1,19 +1,22 @@
 
-from backend.models import Building, BuildingType, to_id
+from game.models import Building, BuildingType, to_id
+from database.schemas import on_server
 from data import colonies, buildings_types, districts
 
 
+@on_server
 def get_building(server, id):
-    building = Building.objects.filter(home_district__colony__owner__server=server, id=to_id(id)).first()
+    building = Building.objects.filter(id=to_id(id)).first()
     return building.as_dict() if building else None
 
 
+@on_server
 def get_district_buildings(server, district_id, append_building_type=False):
 
     buildings = [building.as_dict() for building in Building.objects.filter(home_district=district_id).order_by('id')]
 
     if append_building_type:
-        types = BuildingType.objects.filter(server=server, internal_name__in={b['building_type'] for b in buildings})
+        types = BuildingType.objects.filter(internal_name__in={b['building_type'] for b in buildings})
         types = {building_type.internal_name: building_type.as_dict() for building_type in types}
         for building in buildings:
             building['building_type_data'] = types.get(building['building_type'])
@@ -21,13 +24,15 @@ def get_district_buildings(server, district_id, append_building_type=False):
     return buildings
 
 
+@on_server
 def update_building(server, building_id, param, value):
-    Building.objects.filter(home_district__colony__owner__server=server, id=building_id).update(**{param: value})
+    Building.objects.filter(id=building_id).update(**{param: value})
 
 
 ########################################################################################################################
 
 
+@on_server
 def construct_building(server, district_id, building_type):
 
     home_district = districts.get_district(server, district_id)
@@ -48,6 +53,7 @@ def construct_building(server, district_id, building_type):
     districts.recalculate_buildings_slots(server, district_id)
 
 
+@on_server
 def delete_building(server, building_id, refund_ratio=0.75):
 
     building = get_building(server, building_id)
@@ -73,6 +79,7 @@ def delete_building(server, building_id, refund_ratio=0.75):
             # TODO refund on destruction
 
 
+@on_server
 def set_activation_percent_building(server, building_id, activation_percent):
 
     if activation_percent < 0:

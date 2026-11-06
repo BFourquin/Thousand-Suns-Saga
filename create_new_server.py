@@ -9,6 +9,7 @@ django.setup()
 
 from django.db import transaction
 
+from database.schemas import server_schema
 from database.load_technologies import load_technologies
 from database.load_resources import load_resources
 from database.load_buildings import load_buildings
@@ -71,21 +72,21 @@ server_details.create_server(server_name, version, status=server_status, admin_o
 
 
 # TECHNOLOGIES
-load_technologies(excel_tech_path=excel_server_params,
+load_technologies(server_name,
+                  excel_tech_path=excel_server_params,
                   sheet_tech_name='Techs',
-                  server_name=server_name,
                   delete_actual_techs=True)
 
 # RESOURCES
-load_resources(excel_tech_path=excel_server_params,
+load_resources(server_name,
+               excel_tech_path=excel_server_params,
                sheet_resources_name='Resources',
-               server_name=server_name,
                delete_actual_resources=True)
 
 # BUILDINGS
-load_buildings(excel_tech_path=excel_server_params,
+load_buildings(server_name,
+               excel_tech_path=excel_server_params,
                sheet_resources_name='Buildings',
-               server_name=server_name,
                delete_actual_buildings=True)
 
 # NEW PLAYERS STARTING VALUES
@@ -97,7 +98,7 @@ map_generator.remove_past_generation(server_name)
 
 map_generator.load_map_generator_parameters(server_name, excel_server_params)
 
-with transaction.atomic():  # A single commit instead of one per row : much faster, and no half generated map
+with transaction.atomic(), server_schema(server_name):  # A single commit instead of one per row : much faster, and no half generated map
     mg_sectors.generate_sectors(server_name, hide_visualisation)
 
 # STATISTICS

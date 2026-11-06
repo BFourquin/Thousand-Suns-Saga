@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 from django.contrib.auth.models import AnonymousUser, User
 from django.core.cache import cache
-from django.db import IntegrityError, transaction
+from django.db import DatabaseError, IntegrityError, connection, transaction
 from django.test import Client, RequestFactory, SimpleTestCase, TestCase
 from django.urls import Resolver404, resolve
 from django.utils import timezone
@@ -12,14 +12,17 @@ from django.utils import timezone
 from backend import views_game
 from backend.decorators import commandant_required
 from backend.login import LOGIN_MAX_FAILURES_PER_ACCOUNT, throttled_authenticate
-from backend.models import Building, Colony, Commandant, Coordinate, District, DistrictType, Report, Server, StartingValues, to_id
+from backend.models import CommandantAccount, Server, UserExtended, to_id
+from database.schemas import schema_of, server_schema
+from game.models import Building, Colony, Commandant, Coordinate, District, DistrictType, Report, StartingValues
 from backend.utils import commandant_owns_colony
 from data import server_details
 from data import cycles
-from data.commandant import civilisation_name_taken, commandant_name_taken, create_commandant
+from data.commandant import civilisation_name_taken, commandant_name_taken, create_commandant, delete_commandant, get_commandant
 from data.coordinates import get_coordinate_image
 from data.districts import create_district, delete_district
 from data.errors import GameError
+from data.user import get_user_by_name
 from data.report import change_report_status, delete_report, get_report
 from data.resources import add_resources, pay_resources
 
@@ -273,30 +276,38 @@ class ServersMenuTests(SimpleTestCase):
         self.assertGreater(names.call_count, calls)
 
 
+def make_server(name):
+    return server_details.create_server(name, 1, status='open', admin_only_visibility=False)
+
+
 class GameRulesTests(TestCase):
-    # On the real database : these rules rely on its constraints and row locks
+    # On the real database : these rules rely on its schemas, constraints and row locks
 
-    def setUp(self):
-        self.user = User.objects.create_user('player', 'p@example.com', 'x')
-        self.server = self.make_server('S')
-        self.commandant = self.make_commandant(self.server, 'Paullus', 'Empire', resources={'steel': 100})
-        self.colony = Colony.objects.create(name='Home', owner=self.commandant, controller=self.commandant,
-                                            coordinate='100100000005505001', colony_type='start')
-        for name, category, slots in (('central', 'central_district', 1), ('mine', 'mining', 0)):
-            DistrictType.objects.create(server=self.server, internal_name=name, data={
-                'internal_name': name, 'category': category, 'districts_slots': slots, 'buildings_slots': 5,
-                'build_population': 10, 'hp': 100, 'build_cost': {'steel': 40}})
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user('player', 'p@example.com', 'x')
+        make_server('S')
+        make_server('Other')
+        cls.commandant = cls.make_commandant('S', 'Paullus', 'Empire', resources={'steel': 100})
+        with server_schema('S'):
+            cls.colony = Colony.objects.create(name='Home', owner=cls.commandant, controller=cls.commandant,
+                                               coordinate='100100000005505001', colony_type='start')
+            for name, category, slots in (('central', 'central_district', 1), ('mine', 'mining', 0)):
+                DistrictType.objects.create(internal_name=name, data={
+                    'internal_name': name, 'category': category, 'districts_slots': slots, 'buildings_slots': 5,
+                    'build_population': 10, 'hp': 100, 'build_cost': {'steel': 40}})
 
-    def make_server(self, name):
-        return Server.objects.create(server_name=name, version=1, gameplay='saga', status='open', language='fr', roleplay='HRP',
-                                     creation_date=timezone.now(), opening_date=timezone.now(), timezone='Europe/Paris')
-
-    def make_commandant(self, server, name, civilisation, resources=None):
-        return Commandant.objects.create(server=server, user=self.user, commandant_name=name, civilisation_name=civilisation,
-                                         creation_date=timezone.now(), resources=resources or {})
+    @classmethod
+    def make_commandant(cls, server, name, civilisation, resources=None):
+        with server_schema(server):
+            commandant = Commandant.objects.create(user=cls.user, commandant_name=name, civilisation_name=civilisation,
+                                                   creation_date=timezone.now(), resources=resources or {})
+        CommandantAccount.objects.create(server_id=server, commandant_id=commandant.id, user=cls.user, commandant_name=name)
+        return commandant
 
     def stock(self):
-        return Commandant.objects.get(id=self.commandant.id).resources['steel']
+        with server_schema('S'):
+            return Commandant.objects.get(id=self.commandant.id).resources['steel']
 
     def test_ids_from_requests(self):
         self.assertEqual(to_id('12'), 12)
@@ -305,20 +316,55 @@ class GameRulesTests(TestCase):
         self.assertIsNone(get_report('S', 'abc', self.commandant.id))
         self.assertIsNone(get_report('S', '9' * 40, self.commandant.id))
 
+    def test_servers_are_separated(self):
+        self.assertIsNotNone(get_commandant('S', self.commandant.id))
+        self.assertIsNone(get_commandant('Other', self.commandant.id))
+        self.assertEqual(get_commandant('S', self.commandant.id)['server'], 'S')
+
+    def test_game_tables_are_out_of_reach_outside_a_server(self):
+        with self.assertRaises(DatabaseError), transaction.atomic():
+            Commandant.objects.count()
+
+    def test_schema_is_given_back_after_an_error(self):
+        with self.assertRaises(ValueError):
+            with server_schema('S'):
+                raise ValueError
+        with connection.cursor() as cursor:
+            cursor.execute('SHOW search_path')
+            self.assertEqual(cursor.fetchone()[0], '"TSS_main_server"')
+
+    def test_server_name_can_not_escape_its_schema(self):
+        with self.assertRaises(DatabaseError), transaction.atomic():
+            get_commandant('S"; DROP TABLE auth_user; --', 1)
+        self.assertTrue(User.objects.exists())
+
     def test_commandant_name_is_unique_on_every_server_whatever_the_case(self):
-        other = self.make_server('Other')
         self.assertTrue(commandant_name_taken('PAULLUS'))
         self.assertFalse(commandant_name_taken('Someone'))
         with self.assertRaises(IntegrityError), transaction.atomic():
-            self.make_commandant(other, 'PAULLUS', 'Other civilisation')
+            self.make_commandant('Other', 'PAULLUS', 'Other civilisation')
 
     def test_civilisation_name_is_unique_by_server(self):
-        other = self.make_server('Other')
         self.assertTrue(civilisation_name_taken('S', 'EMPIRE'))
         self.assertFalse(civilisation_name_taken('Other', 'EMPIRE'))
-        self.make_commandant(other, 'Second', 'Empire')
+        self.make_commandant('Other', 'Second', 'Empire')
         with self.assertRaises(IntegrityError), transaction.atomic():
-            self.make_commandant(self.server, 'Third', 'EMPIRE')
+            self.make_commandant('S', 'Third', 'EMPIRE')
+
+    def test_accounts_of_a_player(self):
+        other = self.make_commandant('Other', 'Second', 'Empire')
+        self.assertEqual(get_user_by_name('player')['accounts'], [('S', self.commandant.id), ('Other', other.id)])
+        self.assertEqual(server_details.get_server_details('Other')['active_commandants'], [other.id])
+        self.assertEqual(server_details.get_server_details('Other')['active_users'], [self.user.id])
+        server_details.set_dead_commandant('Other', other.id)
+        self.assertEqual(get_user_by_name('player')['dead_accounts'], [('Other', other.id)])
+        self.assertEqual(server_details.get_server_details('Other')['dead_commandants'], [other.id])
+
+    def test_deleting_a_commandant_removes_its_account(self):
+        UserExtended.objects.update_or_create(user=self.user, defaults={'playing_on_server_id': 'S', 'playing_on_commandant': self.commandant.id})
+        delete_commandant('S', self.commandant.id)
+        self.assertFalse(commandant_name_taken('Paullus'))
+        self.assertIsNone(get_user_by_name('player')['playing_on_commandant'])
 
     def test_payment(self):
         self.assertTrue(pay_resources('S', self.commandant.id, {'steel': 60, 'food': 0}))
@@ -329,43 +375,54 @@ class GameRulesTests(TestCase):
         self.assertTrue(pay_resources('S', self.commandant.id, {}))
         self.assertFalse(pay_resources('Other', self.commandant.id, {'steel': 1}))
         add_resources('S', self.commandant.id, {'steel': 5, 'gold': 2})
-        self.assertEqual(Commandant.objects.get(id=self.commandant.id).resources, {'steel': 45, 'gold': 2})
+        self.assertEqual(get_commandant('S', self.commandant.id)['resources'], {'steel': 45, 'gold': 2})
 
     def test_report_of_another_commandant_is_out_of_reach(self):
-        other = self.make_commandant(self.server, 'Second', 'Other')
-        report = Report.objects.create(owner=self.commandant, category='other', category_icon='x', datetime=timezone.now(),
-                                       tss_calendar=timezone.now(), title='t', message='m')
+        other = self.make_commandant('S', 'Second', 'Other')
+        with server_schema('S'):
+            report = Report.objects.create(owner=self.commandant, category='other', category_icon='x', datetime=timezone.now(),
+                                           tss_calendar=timezone.now(), title='t', message='m')
         self.assertIsNone(get_report('S', report.id, other.id))
         change_report_status('S', report.id, other.id, 'read')
         delete_report('S', report.id, other.id)
-        self.assertEqual(Report.objects.get(id=report.id).status, 'unread')
+        self.assertEqual(get_report('S', report.id, self.commandant.id)['status'], 'unread')
         change_report_status('S', report.id, self.commandant.id, 'read')
         self.assertEqual(get_report('S', str(report.id), self.commandant.id)['status'], 'read')
 
     def test_district_slots(self):
         self.assertTrue(create_district('S', self.colony.id, 'central'))
-        self.assertEqual(Colony.objects.get(id=self.colony.id).districts_slots_total, 1)
         self.assertTrue(create_district('S', self.colony.id, 'mine'))
         self.assertFalse(create_district('S', self.colony.id, 'mine'))
-        self.assertEqual(self.colony.districts.count(), 2)
-        self.assertEqual(Colony.objects.get(id=self.colony.id).districts_slots_occupied, 1)
+        with server_schema('S'):
+            colony = Colony.objects.get(id=self.colony.id)
+            self.assertEqual(colony.districts.count(), 2)
+            self.assertEqual((colony.districts_slots_total, colony.districts_slots_occupied), (1, 1))
 
     def test_deleting_a_district_refunds_once_and_removes_its_buildings(self):
         create_district('S', self.colony.id, 'central')
         create_district('S', self.colony.id, 'mine')
-        district = self.colony.districts.get(category='mining')
-        Building.objects.create(building_type='b', home_district=district)
+        with server_schema('S'):
+            district = District.objects.get(category='mining')
+            Building.objects.create(building_type='b', home_district=district)
         self.assertTrue(delete_district('S', self.commandant.id, district.id))
         self.assertFalse(delete_district('S', self.commandant.id, district.id))
         self.assertEqual(self.stock(), 130)  # 75 % of 40
-        self.assertFalse(Building.objects.exists())
-        self.assertEqual(Colony.objects.get(id=self.colony.id).districts_slots_occupied, 0)
+        with server_schema('S'):
+            self.assertFalse(Building.objects.exists())
+            self.assertEqual(Colony.objects.get(id=self.colony.id).districts_slots_occupied, 0)
 
-    def test_deleting_a_server_removes_all_its_content(self):
-        create_district('S', self.colony.id, 'central')
-        Server.objects.filter(pk='S').delete()
-        for model in (Commandant, Colony, District, DistrictType):
-            self.assertFalse(model.objects.exists(), model)
+    def test_deleting_a_server_removes_its_schema_and_nothing_else(self):
+        UserExtended.objects.update_or_create(user=self.user, defaults={'playing_on_server_id': 'S', 'playing_on_commandant': self.commandant.id})
+        server_details.delete_server_details('S')
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT schema_name FROM information_schema.schemata')
+            schemas = [row[0] for row in cursor.fetchall()]
+        self.assertNotIn(schema_of('S'), schemas)
+        self.assertIn(schema_of('Other'), schemas)
+        self.assertFalse(CommandantAccount.objects.exists())
+        self.assertTrue(User.objects.filter(username='player').exists())
+        user = get_user_by_name('player')
+        self.assertEqual((user['playing_on_server'], user['playing_on_commandant']), (None, None))
 
     def test_cycles(self):
         cycles.create_cycle_entry('S')
@@ -374,54 +431,66 @@ class GameRulesTests(TestCase):
         cycles.mark_commandant_cycle_finished('S', commandant_id)
         cycle = cycles.get_current_cycle('S')
         self.assertEqual((cycle['commandants_cycle_playing'], cycle['commandants_cycle_finished']), ([], [commandant_id]))
-        self.assertIsNotNone(Commandant.objects.get(id=commandant_id).time_cycle_finished)
+        self.assertIsNotNone(get_commandant('S', commandant_id)['time_cycle_finished'])
         cycles.mark_commandant_cycle_absent('S', str(commandant_id))
         cycles.end_cycle('S')
         cycle = cycles.get_current_cycle('S')
         self.assertEqual(cycle['cycle_nb'], 2)
         self.assertEqual(cycle['commandants_cycle_absent'], [commandant_id])
         self.assertEqual(cycle['commandants_cycle_playing'], [])
-        self.assertIsNone(Commandant.objects.get(id=commandant_id).time_cycle_finished)
+        self.assertIsNone(get_commandant('S', commandant_id)['time_cycle_finished'])
 
 
 class CreateCommandantTests(TestCase):
 
-    def setUp(self):
-        self.user = User.objects.create_user('player', 'p@example.com', 'x')
-        Server.objects.create(server_name='S', version=1, gameplay='saga', status='open', language='fr', roleplay='HRP',
-                              creation_date=timezone.now(), opening_date=timezone.now(), timezone='Europe/Paris')
-        self.planets = [100100000005505001, 100100000007905001]
-        StartingValues.objects.create(server_id='S', start_type='default_land_colony', available_native_planets=self.planets,
-                                      starting_resources={'steel': 10})
-        DistrictType.objects.create(server_id='S', internal_name='district_territory', data={
-            'category': 'central_district', 'districts_slots': 3, 'buildings_slots': 5, 'build_population': 10, 'hp': 100})
-        for planet in self.planets:
-            Coordinate.objects.create(server_id='S', seed=str(planet), type='telluric', sector_id='1', system_id='1',
-                                      sys_y=1, sys_x=1, sys_coordinate=1, name='Planet')
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user('player', 'p@example.com', 'x')
+        make_server('S')
+        make_server('Other')
+        cls.planets = [100100000005505001, 100100000007905001]
+        for server in ('S', 'Other'):
+            with server_schema(server):
+                StartingValues.objects.create(start_type='default_land_colony', available_native_planets=cls.planets,
+                                              starting_resources={'steel': 10})
+                DistrictType.objects.create(internal_name='district_territory', data={
+                    'category': 'central_district', 'districts_slots': 3, 'buildings_slots': 5, 'build_population': 10, 'hp': 100})
+                for planet in cls.planets:
+                    Coordinate.objects.create(seed=str(planet), type='telluric', sector_id='1', system_id='1',
+                                              sys_y=1, sys_x=1, sys_coordinate=1, name='Planet')
+
+    def planets_left(self, server='S'):
+        with server_schema(server):
+            return StartingValues.objects.get().available_native_planets
 
     def test_creation_links_everything_and_takes_the_planet(self):
         create_commandant('S', 'player', 'Paullus', 'Empire')
-        commandant = Commandant.objects.get().as_dict()
+        with server_schema('S'):
+            commandant = Commandant.objects.get().as_dict()
+            self.assertEqual(Colony.objects.get().as_dict()['districts_slots_total'], 3)
         self.assertEqual(commandant['resources'], {'steel': 10})
         self.assertEqual(commandant['nb_unread_reports'], 1)
-        self.assertEqual(Colony.objects.get().as_dict()['districts_slots_total'], 3)
-        left = StartingValues.objects.get().available_native_planets
+        left = self.planets_left()
         self.assertEqual(len(left), 1)
         self.assertNotIn(int(commandant['native_planet']), left)
         self.assertEqual(server_details.get_server_details('S')['active_commandants'], [commandant['id']])
-        self.assertEqual(server_details.get_server_details('S')['active_users'], [self.user.id])
+        self.assertEqual(get_user_by_name('player')['accounts'], [('S', commandant['id'])])
+        self.assertEqual(len(self.planets_left('Other')), 2)
 
-    def test_taken_name_is_a_game_error_and_changes_nothing(self):
+    def test_name_taken_on_another_server_is_a_game_error_and_changes_nothing(self):
         create_commandant('S', 'player', 'Paullus', 'Empire')
         with self.assertRaises(GameError):
-            create_commandant('S', 'player', 'PAULLUS', 'Other')
-        self.assertEqual(Commandant.objects.count(), 1)
-        self.assertEqual(len(StartingValues.objects.get().available_native_planets), 1)
+            create_commandant('Other', 'player', 'PAULLUS', 'Other')
+        with server_schema('Other'):
+            self.assertFalse(Commandant.objects.exists())
+        self.assertEqual(len(self.planets_left('Other')), 2)
 
-    def test_failure_midway_leaves_nothing(self):
+    def test_failure_midway_leaves_nothing_in_either_schema(self):
         with patch('data.report.generate_report', side_effect=ValueError):
             with self.assertRaises(ValueError):
                 create_commandant('S', 'player', 'Paullus', 'Empire')
-        self.assertFalse(Commandant.objects.exists())
-        self.assertFalse(Colony.objects.exists())
-        self.assertEqual(len(StartingValues.objects.get().available_native_planets), 2)
+        self.assertFalse(CommandantAccount.objects.exists())
+        with server_schema('S'):
+            self.assertFalse(Commandant.objects.exists())
+            self.assertFalse(Colony.objects.exists())
+        self.assertEqual(len(self.planets_left()), 2)

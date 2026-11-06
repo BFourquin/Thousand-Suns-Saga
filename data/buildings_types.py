@@ -1,11 +1,13 @@
 
 from data.names import localized_name
-from backend.models import BuildingType
+from game.models import BuildingType
+from database.schemas import on_server
 
 
+@on_server
 def get_building_type(server, internal_name, language=None):
 
-    building = BuildingType.objects.filter(server=server, internal_name=internal_name).first()
+    building = BuildingType.objects.filter(internal_name=internal_name).first()
     if not building:
         return None
 
@@ -15,8 +17,9 @@ def get_building_type(server, internal_name, language=None):
     return building
 
 
+@on_server
 def get_all_buildings_types(server, language=None):
-    buildings = [building.as_dict() for building in BuildingType.objects.filter(server=server).order_by('id')]
+    buildings = [building.as_dict() for building in BuildingType.objects.all().order_by('id')]
 
     if language:
         for i in range(len(buildings)):
@@ -24,6 +27,7 @@ def get_all_buildings_types(server, language=None):
     return buildings
 
 
+@on_server
 def get_all_buildable_buildings_types(server, commandant, language=None):
     # TODO /!\ copier coller des districts à vérifier !!!
 

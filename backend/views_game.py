@@ -42,14 +42,14 @@ def user_account(request):
         return redirect('/user_account/')
 
     accounts = []
-    for account_id in user['accounts']:
-        account = data.commandant.get_commandant_from_any_server(account_id)
+    for account_server, account_id in user['accounts']:
+        account = data.commandant.get_commandant(account_server, account_id)
         if account:
             accounts.append(account)
 
     dead_accounts = []
-    for account_id in user['dead_accounts']:
-        dead_account = data.commandant.get_commandant_from_any_server(account_id)
+    for account_server, account_id in user['dead_accounts']:
+        dead_account = data.commandant.get_commandant(account_server, account_id)
         if dead_account:
             dead_accounts.append(dead_account)
 
@@ -90,10 +90,8 @@ def commandant_login(request):
     commandant_id = params['commandant_id']
     server_name = params['server']
 
-    if to_id(commandant_id) not in user['accounts']:
-        # Check if suspicious connection to another player's commandant
-        if data.commandant.get_commandant(server_name, commandant_id):
-            ... # TODO log suspicious use to another player's commandant
+    if (server_name, to_id(commandant_id)) not in user['accounts']:
+        ... # TODO log suspicious use to another player's commandant
         return redirect('/user_account/')
 
     commandant = data.commandant.get_commandant(server_name, commandant_id)

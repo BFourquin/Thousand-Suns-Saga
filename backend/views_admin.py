@@ -19,7 +19,8 @@ from bokeh.embed import components
 
 from backend.login import throttled_authenticate
 from backend.utils import request_params
-from backend.models import Coordinate, Sector, System
+from database.schemas import server_schema
+from game.models import Coordinate, Sector, System
 from data import server_details, user, technology, sectors, systems, coordinates, map_generator
 
 logger = logging.getLogger(__name__)
@@ -179,9 +180,10 @@ def admin_geography(request):
 
     geography_page = None
     if params['target'] in GEOGRAPHY_TABLES:
-        rows = GEOGRAPHY_TABLES[params['target']].objects.filter(server=server).order_by('seed')
-        geography_page = Paginator(rows, GEOGRAPHY_PAGE_SIZE).get_page(params.get('page'))
-        geography_table = [row.as_dict() for row in geography_page.object_list]
+        with server_schema(server):
+            rows = GEOGRAPHY_TABLES[params['target']].objects.order_by('seed')
+            geography_page = Paginator(rows, GEOGRAPHY_PAGE_SIZE).get_page(params.get('page'))
+            geography_table = [row.as_dict() for row in geography_page.object_list]
 
     if params['target'] == "sectors":
         geography_table = unclutter_sectors_table(geography_table)

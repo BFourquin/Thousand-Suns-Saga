@@ -1,8 +1,11 @@
 from django.core.cache import cache
+from django.db import transaction
 from django.utils import timezone
 from dateutil import tz
 
-from backend.models import Commandant, Server
+from backend.models import CommandantAccount, Server, UserExtended
+from database.schemas import create_server_schema, drop_server_schema, on_server
+from game.models import Commandant
 
 
 SERVERS_MENU_CACHE_KEY = 'servers_menu'
@@ -17,6 +20,7 @@ server_status = ('open',  # users can create an account and play
                  'dead')  # everything shut down
 
 
+@transaction.atomic
 def create_server(server_name, version, status='test', admin_only_visibility=True,
                   language='fr', roleplay='HRP', gameplay='saga', timezone_name='Europe/Paris'):
 
@@ -25,16 +29,18 @@ def create_server(server_name, version, status='test', admin_only_visibility=Tru
     if status not in server_status:
         raise Exception("'" + status + "' is not valid as a server state.")
 
-    return Server.objects.create(server_name=server_name,
-                                 version=version,
-                                 gameplay=gameplay,
-                                 status=status,
-                                 admin_only_visibility=admin_only_visibility,
-                                 creation_date=timezone.now(),
-                                 opening_date=timezone.now(),
-                                 language=language,
-                                 roleplay=roleplay,
-                                 timezone=timezone_name)
+    server = Server.objects.create(server_name=server_name,
+                                   version=version,
+                                   gameplay=gameplay,
+                                   status=status,
+                                   admin_only_visibility=admin_only_visibility,
+                                   creation_date=timezone.now(),
+                                   opening_date=timezone.now(),
+                                   language=language,
+                                   roleplay=roleplay,
+                                   timezone=timezone_name)
+    create_server_schema(server_name)
+    return server
 
 
 def get_servers_names(open_servers=True, playable_servers=True, test_servers=True, old_servers=True, admin_visibility=False):
@@ -85,13 +91,19 @@ def change_server_param(server_name, param, param_value):
     Server.objects.filter(pk=server_name).update(**{param: param_value})
 
 
+@transaction.atomic
 def delete_server_details(server_name):
-    # To be used only on test servers ! Everything belonging to the server goes with it (ON DELETE CASCADE)
+    # To be used only on test servers ! Everything belonging to the server goes with it
+    UserExtended.objects.filter(playing_on_server=server_name).update(playing_on_commandant=None)
+    drop_server_schema(server_name)
     return Server.objects.filter(pk=server_name).delete()
 
 
 ########################################################################################################################
 # Commandants lists
 
+@on_server
+@transaction.atomic
 def set_dead_commandant(server_name, commandant_id):
-    Commandant.objects.filter(server=server_name, id=commandant_id).update(status='dead')
+    Commandant.objects.filter(id=commandant_id).update(status='dead')
+    CommandantAccount.objects.filter(server=server_name, commandant_id=commandant_id).update(status='dead')

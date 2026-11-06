@@ -1,5 +1,6 @@
 
-from backend.models import Statistic
+from game.models import Statistic
+from database.schemas import on_server
 
 mg_stats_buffer = {}  # Used as alternative to write many thousand times updates in the DB
 
@@ -16,15 +17,17 @@ Statistics have one entry for each stats_category :
 """
 
 
+@on_server
 def get_statistics_category(server, stats_category):
     """Get a whole stats_category"""
 
-    stats_entry = Statistic.objects.filter(server=server, stats_category=stats_category).first()
+    stats_entry = Statistic.objects.filter(stats_category=stats_category).first()
 
     if stats_entry:
         return stats_entry.stats
 
 
+@on_server
 def get_statistic(server, stats_category, stat_name):
     """Get a single stat in a stats_category"""
 
@@ -33,10 +36,12 @@ def get_statistic(server, stats_category, stat_name):
         return stats[stat_name]
     
 
+@on_server
 def set_statistics_category(server, stats_category, stats):
-    Statistic.objects.update_or_create(server_id=server, stats_category=stats_category, defaults={'stats': stats})
+    Statistic.objects.update_or_create(stats_category=stats_category, defaults={'stats': stats})
 
 
+@on_server
 def set_statistic(server, stats_category, stat_name, stat_value):
 
     stats = get_statistics_category(server, stats_category)
@@ -45,6 +50,7 @@ def set_statistic(server, stats_category, stat_name, stat_value):
     set_statistics_category(server, stats_category, stats)
 
 """
+@on_server
 def insert_statistics_buffer_into_db(server, stats_category):
 
     print("MG BUFFER >")

@@ -1,6 +1,7 @@
 
 
-from backend.models import Technology
+from game.models import Technology
+from database.schemas import on_server
 
 
 tech_types = ['general theory',
@@ -25,5 +26,6 @@ def tech(internal_name, name, tech_type, description, tech_level, modifiers, pri
             }
 
 
+@on_server
 def get_all_technologies(server_name):
-    return [technology.as_dict() for technology in Technology.objects.filter(server=server_name).order_by('id')]
+    return [technology.as_dict() for technology in Technology.objects.all().order_by('id')]

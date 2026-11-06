@@ -113,14 +113,13 @@ or create a new one from scratch with the exemple provided in TSS.xlsx
 
 Modify create_new_server.py with the appropriate server name and parameters and run the script.
 
-All the game servers live in the same PostgreSQL database.
+All the game servers live in the same PostgreSQL database : the schema TSS_main_server holds the accounts and
+the list of servers, each game server has its own schema TSS_{server name}.
 
-***
-### MIGRATING AN OLD MONGODB DATABASE
+After a change of the models of the app game, apply the migrations to every server :
+> python manage.py makemigrations game \
+> python manage.py migrate_servers
 
-Once the steps above are done, on an empty database (MongoDB must be running, it is only read) :
-> python -m pip install pymongo \
-> python database/import_from_mongo.py
 
 ***
 ### TRANSLATION

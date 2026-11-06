@@ -60,7 +60,7 @@ def get_active_server_and_commandant_from_request(request):
         user = get_request_user(request)
         server = user['playing_on_server'] if user else None
         commandant_id = user['playing_on_commandant'] if user else None
-        commandant = get_commandant(server, commandant_id) if commandant_id else None
+        commandant = get_commandant(server, commandant_id) if server and commandant_id else None
         request.tss_active_commandant = (server, commandant)
 
     return request.tss_active_commandant

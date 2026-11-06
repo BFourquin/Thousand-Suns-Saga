@@ -4,7 +4,9 @@ from django.db import IntegrityError, transaction
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from backend.models import Commandant, to_id
+from backend.models import CommandantAccount, UserExtended
+from game.models import Commandant, to_id
+from database.schemas import on_server
 from data.errors import GameError
 from data import starting_values as sv
 from data.user import get_user_by_name
@@ -12,6 +14,7 @@ from actions import colonize
 from backend import utils
 
 
+@on_server
 @transaction.atomic
 def create_commandant(server, user, commandant_name, civilisation_name):
 
@@ -36,7 +39,6 @@ def create_commandant(server, user, commandant_name, civilisation_name):
             portrait='images/commandants/default_flag.jpg',
             flag='images/commandants/default_portrait.jpg',
 
-            server_id=server,
             status='active',
             user_id=user['id'],
             creation_date=timezone.now(),
@@ -52,6 +54,8 @@ def create_commandant(server, user, commandant_name, civilisation_name):
             technologies=starting_values['starting_technologies'],
             player_modifiers=starting_values['starting_modifiers'],
         )
+        CommandantAccount.objects.create(server_id=server, commandant_id=commandant.id, user_id=user['id'],
+                                         commandant_name=commandant_name)
     except IntegrityError:  # A simultaneous creation took the name after the check of the view
         raise GameError(_("Ce nom de commandant est déjà pris"))
 
@@ -71,38 +75,43 @@ def create_commandant(server, user, commandant_name, civilisation_name):
 
 def commandant_name_taken(name):
     # Case insensitive, on every server
-    return Commandant.objects.filter(commandant_name__iexact=name).exists()
+    return CommandantAccount.objects.filter(commandant_name__iexact=name).exists()
 
 
+@on_server
 def civilisation_name_taken(server, name):
     # Case insensitive, on this server only
-    return Commandant.objects.filter(server=server, civilisation_name__iexact=name).exists()
+    return Commandant.objects.filter(civilisation_name__iexact=name).exists()
 
 
+@on_server
 def get_commandant(server, id):
-    commandant = Commandant.objects.filter(server=server, id=to_id(id)).first()
+    commandant = Commandant.objects.filter(id=to_id(id)).first()
     return commandant.as_dict() if commandant else None
 
 
+@on_server
 def get_commandants(server, ids):
-    return [commandant.as_dict() for commandant in Commandant.objects.filter(server=server, id__in=ids)]
+    return [commandant.as_dict() for commandant in Commandant.objects.filter(id__in=ids)]
 
 
+@on_server
 def get_commandant_by_name(server, name):
-    commandant = Commandant.objects.filter(server=server, commandant_name=name).first()
+    commandant = Commandant.objects.filter(commandant_name=name).first()
     return commandant.as_dict() if commandant else None
 
 
-def get_commandant_from_any_server(id):
-    commandant = Commandant.objects.filter(id=id).first()
-    return commandant.as_dict() if commandant else None
-
-
+@on_server
 def update_commandant(server, commandant_id, param, value):
-    Commandant.objects.filter(server=server, id=commandant_id).update(**{param: value})
+    Commandant.objects.filter(id=commandant_id).update(**{param: value})
 
 
+@on_server
+@transaction.atomic
 def delete_commandant(server, commandant_id):
     # /!\ TEST AND ADMIN ACTION ONLY (removal of the commandant and of everything belonging to it)
     # Use commandant_death() instead for normal endgame or death of a player
-    Commandant.objects.filter(server=server, id=commandant_id).delete()
+    Commandant.objects.filter(id=commandant_id).delete()
+    CommandantAccount.objects.filter(server=server, commandant_id=commandant_id).delete()
+    UserExtended.objects.filter(playing_on_server=server, playing_on_commandant=commandant_id).update(
+        playing_on_server=None, playing_on_commandant=None)

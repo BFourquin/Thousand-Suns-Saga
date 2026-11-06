@@ -56,7 +56,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
-    'backend'
+    'backend',
+    'game',
 ]
 
 MIDDLEWARE = [
@@ -105,8 +106,11 @@ DATABASES = {
         'PASSWORD': POSTGRES_SECRETS['password'],
         'HOST': POSTGRES_SECRETS['host'],
         'PORT': POSTGRES_SECRETS['port'],
+        'OPTIONS': {'options': '-c search_path="TSS_main_server"'},  # See database/schemas.py
     },
 }
+
+DATABASE_ROUTERS = ['database.schemas.ServerSchemaRouter']
 
 
 # Password validation

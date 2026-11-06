@@ -3,7 +3,8 @@ import os
 import random
 from datetime import datetime
 
-from backend.models import Coordinate, Sector, StartingValues, System
+from database.schemas import on_server
+from game.models import Coordinate, Sector, StartingValues, System
 from data import map_generator
 from geography import mg_sectors, solar, planet
 from stats import stats_geography
@@ -83,9 +84,10 @@ def load_map_generator_parameters(server_name, excel_path):
     map_generator.set_map_generator_parameters(server_name, mg_systems_config, mg_type='systems_compositions')
 
 
+@on_server
 def remove_past_generation(server):
     for model in (Sector, System, Coordinate):
-        model.objects.filter(server=server).delete()
+        model.objects.all().delete()
 
     # These planets don't exist anymore
-    StartingValues.objects.filter(server=server).update(available_native_planets=[])
+    StartingValues.objects.update(available_native_planets=[])
