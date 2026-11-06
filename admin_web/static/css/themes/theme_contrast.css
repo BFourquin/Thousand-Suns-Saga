@@ -1,0 +1,27 @@
+/* THEME "Haut contraste" : noir pur, blanc et jaune, pensee pour la lisibilite */
+
+body[data-theme="contrast"] {
+    --tss-bg: #000000;
+    --tss-bg-dim: #000000;
+    --tss-surface: #000000;
+    --tss-surface-2: #1a1a1a;
+    --tss-border: #ffffff;
+    --tss-text: #ffffff;
+    --tss-text-muted: #e6e6e6;
+    --tss-accent: #ffe600;
+    --tss-accent-text: #ffe600;
+    --tss-accent-contrast: #000000;
+    --tss-warn: #ffe600;
+    --tss-danger: #ff8a8a;
+    --tss-success: #7dffb0;
+    --tss-sidebar-bg: #000000;
+    --tss-sidebar-active: #1a1a1a;
+    --tss-radius: 0;
+    --tss-border-width: 2px;
+    --tss-font-mono: 'Source Sans Pro', 'Segoe UI', sans-serif;
+}
+
+body[data-theme="contrast"] a:not(.btn):not(.nav-link):not(.dropdown-item) { text-decoration: underline; }
+body[data-theme="contrast"] .card-title { font-weight: 700; }
+body[data-theme="contrast"] .btn { font-weight: 700; }
+body[data-theme="contrast"] :focus-visible { outline: 3px solid var(--tss-accent); outline-offset: 2px; }

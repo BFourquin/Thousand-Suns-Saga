@@ -1,0 +1,32 @@
+/* THEME "Neon 1984" : violet nuit, rose et cyan fluo, tout brille */
+
+body[data-theme="synthwave"] {
+    --tss-bg: #12062b;
+    --tss-bg-dim: linear-gradient(180deg, rgba(14, 4, 34, 0.90) 55%, rgba(120, 20, 120, 0.72));
+    --tss-surface: #1c0b3f;
+    --tss-surface-2: #2a1158;
+    --tss-border: #6b2a9e;
+    --tss-text: #fdf2ff;
+    --tss-text-muted: #c9aee3;
+    --tss-accent: #ff2fa0;
+    --tss-accent-text: #ff7ec7;
+    --tss-accent-contrast: #1a0220;
+    --tss-warn: #ffe14d;
+    --tss-success: #2ff3e0;
+    --tss-sidebar-bg: #0f0524;
+    --tss-sidebar-active: rgba(255, 47, 160, 0.16);
+    --tss-radius: 4px;
+    --tss-glow: 0 0 12px rgba(255, 47, 160, 0.60);
+    --tss-title-transform: uppercase;
+    --tss-title-spacing: 0.08em;
+    --tss-brand-size: 0.9rem;
+    --tss-brand-spacing: 0.02em;
+    --tss-font-body: 'Inter', 'Segoe UI', sans-serif;
+    --tss-font-title: 'Rajdhani', 'Inter', sans-serif;
+}
+
+body[data-theme="synthwave"] .card { box-shadow: 0 0 0 1px rgba(255, 47, 160, 0.55), 0 0 18px rgba(255, 47, 160, 0.22); }
+body[data-theme="synthwave"] .card-title { font-weight: 700; font-size: 1.2rem; color: #2ff3e0; text-shadow: 0 0 8px rgba(47, 243, 224, 0.6); }
+body[data-theme="synthwave"] .content-header h1,
+body[data-theme="synthwave"] .content-header h2 { color: #ff7ec7; text-shadow: 0 0 12px rgba(255, 47, 160, 0.8); }
+body[data-theme="synthwave"] .btn-primary { font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }

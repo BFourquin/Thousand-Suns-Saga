@@ -3,7 +3,7 @@ from data import server_details
 from data.conversations import count_unread_conversations
 from data.ententes import count_pending_answers
 from data.forums import count_all_open_flags, get_forum_badges
-from data.themes import get_theme_or_default
+from data.themes import get_theme_or_default, LIGHT_THEMES
 from backend.utils import get_active_server_and_commandant_from_request, get_request_user
 
 
@@ -17,8 +17,8 @@ def user_account(request):
     user_account = get_request_user(request)
     theme = get_theme_or_default(user_account.get('theme') if user_account else None)
 
-    # Every theme but the classic one is a dark theme
-    dark_mode = (user_account['dark_mode'] if user_account else True) if theme == 'classic' else True
+    # Only the classic theme lets the player choose between dark and light
+    dark_mode = (user_account['dark_mode'] if user_account else True) if theme == 'classic' else theme not in LIGHT_THEMES
 
     context = {'dark_mode': dark_mode, 'theme': theme}
     if user_account:

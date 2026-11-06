@@ -106,7 +106,8 @@ body[data-theme]:where(:not([data-theme="classic"])) .main-header.navbar {
     background-color: var(--tss-sidebar-bg);
     border-bottom: var(--tss-border-width) solid var(--tss-border);
 }
-body[data-theme]:where(:not([data-theme="classic"])) .main-header .nav-link { color: var(--tss-text); }
+/* --tss-sidebar-text : set by the light themes, whose header and sidebar stay dark (the logo is white) */
+body[data-theme]:where(:not([data-theme="classic"])) .main-header .nav-link { color: var(--tss-sidebar-text, var(--tss-text)); }
 
 body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar {
     background-color: var(--tss-sidebar-bg) !important;
@@ -118,7 +119,7 @@ body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar .brand-link {
     border-bottom: var(--tss-border-width) solid var(--tss-border);
 }
 body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar .nav-sidebar > .nav-item > .nav-link {
-    color: var(--tss-text);
+    color: var(--tss-sidebar-text, var(--tss-text));
     border-radius: var(--tss-radius);
     border-left: 3px solid transparent;
 }
@@ -128,7 +129,7 @@ body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar .nav-sidebar 
 body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar .nav-sidebar > .nav-item > .nav-link.active,
 body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar .nav-sidebar > .nav-item.menu-open > .nav-link {
     background-color: var(--tss-sidebar-active);
-    color: var(--tss-text);
+    color: var(--tss-sidebar-text, var(--tss-text));
     border-left-color: var(--tss-accent);
     box-shadow: var(--tss-glow);
 }
@@ -299,6 +300,7 @@ body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar .brand-link .
     overflow: hidden;
     text-overflow: ellipsis;
     vertical-align: middle;
+    color: var(--tss-sidebar-text, inherit);
     font-size: var(--tss-brand-size, 1.05rem);
     letter-spacing: var(--tss-brand-spacing, normal);
 }

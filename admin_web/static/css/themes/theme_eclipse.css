@@ -1,0 +1,27 @@
+/* THEME "Eclipse" : noir et blanc, sans couleur, une couronne de lumiere autour de l'actif */
+
+body[data-theme="eclipse"] {
+    --tss-bg: #000000;
+    --tss-bg-dim: radial-gradient(circle at 50% 50%, transparent 20%, rgba(0, 0, 0, 0.75) 70%), rgba(0, 0, 0, 0.78);
+    --tss-surface: #0d0d0d;
+    --tss-surface-2: #181818;
+    --tss-border: #333333;
+    --tss-text: #ededed;
+    --tss-text-muted: #a3a3a3;
+    --tss-accent: #ededed;
+    --tss-accent-text: #ffffff;
+    --tss-accent-contrast: #000000;
+    --tss-sidebar-bg: #060606;
+    --tss-sidebar-active: #181818;
+    --tss-radius: 3px;
+    --tss-glow: 0 0 16px rgba(255, 255, 255, 0.30);
+    --tss-title-spacing: 0.14em;
+    --tss-title-transform: uppercase;
+    --tss-brand-size: 0.95rem;
+    --tss-brand-spacing: 0.04em;
+    --tss-font-body: 'Barlow', 'Segoe UI', sans-serif;
+    --tss-font-title: 'Barlow Condensed', 'Barlow', sans-serif;
+}
+
+body[data-theme="eclipse"] .card-header { background-color: transparent; }
+body[data-theme="eclipse"] .card-title { font-weight: 500; }

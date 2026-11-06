@@ -68,6 +68,7 @@ urlpatterns = [
 
     # IN GAME
     path('user_account/', views_game.user_account, name='user_account'),
+    path('themes/', views_game.themes, name='themes'),
 
     path('create_commandant/', views_game.create_commandant, name='create_commandant'),
     path('commandant_login/', views_game.commandant_login, name='commandant_login'),

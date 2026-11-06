@@ -1,0 +1,30 @@
+/* THEME "Pourpre imperial" : velours cramoisi, dorures et capitales gravees */
+
+body[data-theme="imperial"] {
+    --tss-bg: #16060a;
+    --tss-bg-dim: rgba(20, 5, 9, 0.84);
+    --tss-surface: #240b12;
+    --tss-surface-2: #33101a;
+    --tss-border: #6b4a1e;
+    --tss-text: #f6e9d8;
+    --tss-text-muted: #c9a99a;
+    --tss-accent: #b3122e;
+    --tss-accent-text: #e8b64c;
+    --tss-accent-contrast: #ffffff;
+    --tss-sidebar-bg: #1a070c;
+    --tss-sidebar-active: rgba(232, 182, 76, 0.13);
+    --tss-radius: 2px;
+    --tss-glow: 0 0 10px rgba(232, 182, 76, 0.30);
+    --tss-title-spacing: 0.05em;
+    --tss-brand-size: 0.8rem;
+    --tss-brand-spacing: 0;
+    --tss-font-body: 'Inter', 'Segoe UI', sans-serif;
+    --tss-font-title: 'Cinzel', Georgia, serif;
+}
+
+body[data-theme="imperial"] .card { border-top: 2px solid #e8b64c; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5); }
+body[data-theme="imperial"] .card-header { background-image: linear-gradient(90deg, rgba(179, 18, 46, 0.35), transparent 70%); }
+body[data-theme="imperial"] .card-title { font-weight: 600; color: #e8b64c; }
+body[data-theme="imperial"] .main-sidebar .nav-sidebar > .nav-item > .nav-link.active { border-left-color: #e8b64c; }
+body[data-theme="imperial"] .btn-primary { border-color: #e8b64c; font-weight: 600; }
+body[data-theme="imperial"] .table thead th { color: #e8b64c; }

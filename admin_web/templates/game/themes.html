@@ -1,0 +1,89 @@
+
+{% load static %}
+{% load i18n %}
+
+{% include "includes/head.html" with title="Thèmes graphiques" %}
+
+{% include "includes/menu_public.html" with page_title=_("Thèmes graphiques") %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+
+          <div class="col-lg-8">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">{% trans "Choisissez votre thème"%}</h3>
+              </div>
+              <div class="card-body">
+                <form action="/themes/" method="POST" class="theme-picker">
+                  {% csrf_token %}
+                  {% for t in themes %}
+                  <button type="submit" name="theme" value="{{ t.id }}" id="theme-{{ t.id }}" class="theme-card"
+                          {% if theme == t.id %}aria-current="true"{% endif %}>
+                    <span class="theme-preview" style="--p-bg: {{ t.swatches.0 }}; --p-surface: {{ t.swatches.1 }}; --p-accent: {{ t.swatches.2 }};">
+                      <span class="theme-preview-panel"><span></span><span></span><span></span></span>
+                    </span>
+                    <span class="theme-name">{{ t.name }}</span>
+                    <span class="theme-desc">{{ t.description }}</span>
+                  </button>
+                  {% endfor %}
+                </form>
+              </div>
+            </div>
+
+            <a href="/user_account/" class="btn btn-default"><i class="fas fa-arrow-left"></i> {% trans "Mon compte" %}</a>
+          </div>
+
+          <!-- The usual components of the game, as displayed by the current theme -->
+          <div class="col-lg-4">
+            <div class="card theme-sample">
+              <div class="card-header p-2">
+                <ul class="nav nav-pills">
+                  <li class="nav-item"><span class="nav-link active">{% trans "Aperçu" %}</span></li>
+                  <li class="nav-item"><span class="nav-link">{% trans "Colonies" %}</span></li>
+                </ul>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title float-none mb-2">{% trans "Système de Véga" %}</h3>
+                <p>{% trans "Un texte courant," %} <a href="#theme-{{ theme }}">{% trans "un lien" %}</a> <span class="text-muted">{% trans "et une note discrète." %}</span></p>
+
+                <table class="table table-sm table-striped">
+                  <thead><tr><th>{% trans "Ressource" %}</th><th class="text-right">{% trans "Stock" %}</th></tr></thead>
+                  <tbody>
+                    <tr><td>{% trans "Énergie" %}</td><td class="text-right">1 240</td></tr>
+                    <tr><td>{% trans "Métaux" %}</td><td class="text-right">8 615</td></tr>
+                    <tr><td>{% trans "Population" %}</td><td class="text-right">42 000</td></tr>
+                  </tbody>
+                </table>
+
+                <p>
+                  <span class="badge badge-success">{% trans "Actif" %}</span>
+                  <span class="badge badge-warning">{% trans "En attente" %}</span>
+                  <span class="badge badge-danger">{% trans "Alerte" %}</span>
+                </p>
+
+                <input type="text" class="form-control mb-3" placeholder="{% trans 'Champ de saisie' %}" aria-label="{% trans 'Champ de saisie' %}">
+
+                <button type="button" class="btn btn-primary">{% trans "Valider" %}</button>
+                <button type="button" class="btn btn-default">{% trans "Annuler" %}</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+</div><!-- ./wrapper -->
+
+</body>
+</html>

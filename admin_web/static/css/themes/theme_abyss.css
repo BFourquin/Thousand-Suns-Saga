@@ -1,0 +1,27 @@
+/* THEME "Abysses" : grand fond oceanique, bleu-vert et bioluminescence */
+
+body[data-theme="abyss"] {
+    --tss-bg: #021418;
+    --tss-bg-dim: radial-gradient(ellipse at 50% 120%, rgba(25, 230, 184, 0.20), transparent 60%), rgba(1, 16, 20, 0.82);
+    --tss-surface: #06252b;
+    --tss-surface-2: #0a333b;
+    --tss-border: #14555f;
+    --tss-text: #dcfbf7;
+    --tss-text-muted: #8fc9c2;
+    --tss-accent: #19e6b8;
+    --tss-accent-text: #4df0cb;
+    --tss-accent-contrast: #01201a;
+    --tss-sidebar-bg: #021a1f;
+    --tss-sidebar-active: rgba(25, 230, 184, 0.12);
+    --tss-radius: 10px;
+    --tss-glow: 0 0 14px rgba(25, 230, 184, 0.35);
+    --tss-card-blur: 6px;
+    --tss-card-alpha: 0.84;
+    --tss-font-body: 'Manrope', 'Segoe UI', sans-serif;
+    --tss-font-title: 'Manrope', 'Segoe UI', sans-serif;
+}
+
+body[data-theme="abyss"] .card { box-shadow: 0 0 22px rgba(25, 230, 184, 0.10); overflow: hidden; }
+body[data-theme="abyss"] .card-title { font-weight: 600; }
+body[data-theme="abyss"] .content-header h1,
+body[data-theme="abyss"] .content-header h2 { color: var(--tss-accent-text); text-shadow: 0 0 14px rgba(25, 230, 184, 0.45); }

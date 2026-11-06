@@ -1,0 +1,26 @@
+/* THEME "Station polaire" : clair, blanc glacier et bleu instrument, menu sombre */
+
+body[data-theme="polar"] {
+    --tss-bg: #e9eff5;
+    --tss-bg-dim: rgba(233, 239, 245, 0.95);
+    --tss-surface: #ffffff;
+    --tss-surface-2: #eef3f8;
+    --tss-border: #c7d3df;
+    --tss-text: #1b2a38;
+    --tss-text-muted: #566879;
+    --tss-accent: #0b6bcb;
+    --tss-accent-text: #0a5aab;
+    --tss-accent-contrast: #ffffff;
+    --tss-warn: #b26a00;
+    --tss-danger: #c62a3a;
+    --tss-success: #12805c;
+    --tss-sidebar-bg: #12202f;
+    --tss-sidebar-active: rgba(255, 255, 255, 0.10);
+    --tss-sidebar-text: #e6eef6;
+    --tss-radius: 8px;
+    --tss-font-body: 'Inter', 'Segoe UI', sans-serif;
+    --tss-font-title: 'Inter', 'Segoe UI', sans-serif;
+}
+
+body[data-theme="polar"] .card { box-shadow: 0 2px 10px rgba(27, 42, 56, 0.08); overflow: hidden; }
+body[data-theme="polar"] .card-title { font-weight: 600; }

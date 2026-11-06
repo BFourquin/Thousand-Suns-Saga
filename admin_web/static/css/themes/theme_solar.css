@@ -1,0 +1,33 @@
+/* THEME "Eruption solaire" : braises sombres, degrade de plasma orange et or */
+
+body[data-theme="solar"] {
+    --tss-bg: #140805;
+    --tss-bg-dim: radial-gradient(circle at 100% 0, rgba(255, 91, 31, 0.28), transparent 50%), rgba(18, 7, 3, 0.80);
+    --tss-surface: #22100a;
+    --tss-surface-2: #321710;
+    --tss-border: #6e2f16;
+    --tss-text: #fff0e3;
+    --tss-text-muted: #d6a98f;
+    --tss-accent: #ff7a18;
+    --tss-accent-text: #ffa45c;
+    --tss-accent-contrast: #1c0a00;
+    --tss-warn: #ffc53d;
+    --tss-sidebar-bg: #190a05;
+    --tss-sidebar-active: rgba(255, 122, 24, 0.15);
+    --tss-radius: 6px;
+    --tss-glow: 0 0 12px rgba(255, 122, 24, 0.45);
+    --tss-brand-size: 1rem;
+    --tss-font-body: 'Barlow', 'Segoe UI', sans-serif;
+    --tss-font-title: 'Barlow', 'Segoe UI', sans-serif;
+}
+
+/* A flare along the top of each panel */
+body[data-theme="solar"] .card { overflow: hidden; }
+body[data-theme="solar"] .card::before {
+    content: "";
+    display: block;
+    height: 3px;
+    background: linear-gradient(90deg, #ff3d00, #ff7a18, #ffc53d, transparent);
+}
+body[data-theme="solar"] .card-title { font-weight: 600; }
+body[data-theme="solar"] .btn-primary { background-image: linear-gradient(120deg, #ff5b1f, #ffb300); border-color: transparent; font-weight: 600; }

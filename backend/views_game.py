@@ -39,9 +39,6 @@ def user_account(request):
         if 'dark_mode' in params and params['dark_mode'] in ('true', 'false'):
             data.user.update_user(user, 'dark_mode', params['dark_mode'] == 'true')
 
-        if 'theme' in params and data.themes.is_valid_theme(params['theme']):
-            data.user.update_user(user, 'theme', params['theme'])
-
         return redirect('/user_account/')
 
     accounts = []
@@ -58,7 +55,20 @@ def user_account(request):
 
     return TemplateResponse(request, 'game/user_account.html',
                             {'current_user': dict(user), 'accounts': accounts, 'dead_accounts': dead_accounts,
-                             'themes': data.themes.themes_for_template()})
+                             'theme_name': data.themes.THEMES[data.themes.get_theme_or_default(user.get('theme'))][0]})
+
+
+@login_required(login_url='/player_login/')
+def themes(request):
+
+    if request.method == 'POST':
+        theme = request.POST.get('theme')
+        if data.themes.is_valid_theme(theme):
+            data.user.update_user(get_request_user(request), 'theme', theme)
+            return redirect(f'/themes/#theme-{theme}')
+        return redirect('/themes/')
+
+    return TemplateResponse(request, 'game/themes.html', {'themes': data.themes.themes_for_template()})
 
 
 

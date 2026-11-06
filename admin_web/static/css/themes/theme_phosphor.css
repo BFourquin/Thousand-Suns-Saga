@@ -1,0 +1,39 @@
+/* THEME "Terminal phosphore" : ecran cathodique vert, tout en monospace, lignes de balayage */
+
+body[data-theme="phosphor"] {
+    --tss-bg: #030a05;
+    --tss-bg-dim: rgba(2, 8, 4, 0.94);
+    --tss-surface: #07140b;
+    --tss-surface-2: #0c2012;
+    --tss-border: #1f5a30;
+    --tss-text: #a6ffbb;
+    --tss-text-muted: #66c280;
+    --tss-accent: #39ff6e;
+    --tss-accent-text: #39ff6e;
+    --tss-accent-contrast: #021006;
+    --tss-sidebar-bg: #040d07;
+    --tss-sidebar-active: rgba(57, 255, 110, 0.12);
+    --tss-radius: 0;
+    --tss-glow: 0 0 8px rgba(57, 255, 110, 0.45);
+    --tss-title-transform: uppercase;
+    --tss-title-spacing: 0.05em;
+    --tss-brand-size: 0.8rem;
+    --tss-font-body: 'JetBrains Mono', Consolas, monospace;
+    --tss-font-title: 'JetBrains Mono', Consolas, monospace;
+    --tss-font-mono: 'JetBrains Mono', Consolas, monospace;
+    font-size: 0.9rem;
+    text-shadow: 0 0 3px rgba(57, 255, 110, 0.35);
+}
+
+/* Scanlines, above everything but never catching a click */
+body[data-theme="phosphor"]::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px);
+    pointer-events: none;
+    z-index: 2000;
+}
+body[data-theme="phosphor"] .btn-primary { text-shadow: none; }
+body[data-theme="phosphor"] .card-title { font-size: 1rem; font-weight: 600; }
+body[data-theme="phosphor"] .card-title::before { content: "> "; color: var(--tss-accent); }

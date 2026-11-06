@@ -1,0 +1,27 @@
+/* THEME "Nebuleuse" : verre depoli violet et magenta, formes douces */
+
+body[data-theme="nebula"] {
+    --tss-bg: #120a24;
+    --tss-bg-dim: radial-gradient(circle at 80% 10%, rgba(197, 108, 255, 0.22), transparent 55%), radial-gradient(circle at 10% 90%, rgba(255, 108, 181, 0.16), transparent 50%), rgba(14, 7, 30, 0.70);
+    --tss-surface: #1e1238;
+    --tss-surface-2: #2a1a4d;
+    --tss-border: #4a2f7d;
+    --tss-text: #efe8ff;
+    --tss-text-muted: #b3a3d6;
+    --tss-accent: #c56cff;
+    --tss-accent-text: #d79bff;
+    --tss-accent-contrast: #1a0829;
+    --tss-sidebar-bg: #0f0820;
+    --tss-sidebar-active: rgba(197, 108, 255, 0.16);
+    --tss-radius: 14px;
+    --tss-glow: 0 0 14px rgba(197, 108, 255, 0.40);
+    --tss-card-blur: 10px;
+    --tss-card-alpha: 0.72;
+    --tss-font-body: 'Manrope', 'Segoe UI', sans-serif;
+    --tss-font-title: 'Manrope', 'Segoe UI', sans-serif;
+}
+
+body[data-theme="nebula"] .card { box-shadow: 0 8px 32px rgba(90, 40, 180, 0.30); overflow: hidden; }
+body[data-theme="nebula"] .card-header { background-color: rgba(255, 255, 255, 0.04); }
+body[data-theme="nebula"] .card-title { font-weight: 700; }
+body[data-theme="nebula"] .btn-primary { background-image: linear-gradient(120deg, #c56cff, #ff6cb5); border-color: transparent; font-weight: 700; }
