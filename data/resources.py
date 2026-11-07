@@ -13,19 +13,17 @@ def get_all_resources_parameters(server_name):
     return [resource.as_dict() for resource in Resource.objects.all().order_by('id')]
 
 
-@on_server
-def get_resource_parameters(server_name, resource_name):
-    resource = Resource.objects.filter(internal_name=resource_name).first()
-    return resource.as_dict() if resource else None
+def get_resources_by_name(server_name):
+    return {resource['internal_name']: resource for resource in get_all_resources_parameters(server_name)}
 
 
-@on_server
-def add_infos_to_resources_dict(server_name, resources_dict, commandant=None, language=None):
+def add_infos_to_resources_dict(resources, resources_dict, commandant=None, language=None):
     # Add necessary interface info (like name and illustrations) from a simple {resource: quantity} dict
+    # resources : from get_resources_by_name, read once by the caller as this is called for each row of a menu
     # Return : { resource : {quantity:int, name:str, enough_stockpiles:bool, illustration:str} }
 
     for res_internal_name, quantity in resources_dict.items():
-        resource_declaration = get_resource_parameters(server_name, res_internal_name)
+        resource_declaration = resources[res_internal_name]
         resources_dict[res_internal_name] = {
             'internal_name': res_internal_name,
             'name': localized_name(resource_declaration, language or 'en'),

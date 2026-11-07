@@ -1847,6 +1847,17 @@ class AuditFixesTests(EconomyTestCase):
         self.assertEqual(self.post_district('future').status_code, 400)
         self.assertEqual(self.nb_districts(), before)
 
+    def test_the_colony_page_does_not_ask_the_database_for_each_resource(self):
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get('/colony/', {'colony_id': self.colony.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(sum('"game_resource"' in query['sql'] for query in queries), 2)  # One per menu
+        self.assertLessEqual(sum('set_config' in query['sql'] for query in queries), 10)
+
+        farming = next(district for district in response.context['buildable_districts'] if district['internal_name'] == 'farming')
+        self.assertEqual(farming['maintenance']['steel']['name'], 'steel')
+        self.assertEqual(farming['maintenance']['steel']['commandant_storage'], 10)
+
     def make_report(self, status='unread', title='Report'):
         with server_schema('S'):
             return Report.objects.create(owner=self.commandant, status=status, category='other', category_icon='x', title=title, message='m',

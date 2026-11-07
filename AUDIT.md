@@ -8,7 +8,7 @@ Ce document remplace l'audit du 2026-11-05, qui décrivait encore le code MongoD
 
 **Charge supposée :** une pré-alpha sur un seul processus, avec quelques dizaines de joueurs et des cycles lancés à la main.
 
-**Tests :** 229 tests, tous verts.
+**Tests :** 230 tests, tous verts.
 
 ## Résumé
 
@@ -26,7 +26,7 @@ Ce document remplace l'audit du 2026-11-05, qui décrivait encore le code MongoD
 | 10 | Noms mal nettoyés | Corrigé |
 | 11 | Droits du staff dans l'administration | Corrigé |
 | 12 | Erreurs 500 sur des requêtes mal formées | **À faire** |
-| 13 | Trop de requêtes sur la page colonie | **À faire** |
+| 13 | Trop de requêtes sur la page colonie | Corrigé |
 | 14 | `settings_opensource.py` périmé | Corrigé, `settings.py` est versionné |
 | 15 | Code mort | Trié : bokeh et le code remplacé sont retirés, le reste attend une décision |
 | 16 | Dépendances anciennes et non épinglées | **À faire** |
@@ -63,14 +63,6 @@ Ce document remplace l'audit du 2026-11-05, qui décrivait encore le code MongoD
 - **Problème :** `request_params` fusionne GET et POST, et renvoie une liste si un paramètre est répété. `activation_percent` absent donne une erreur 500, et `technology` envoyé deux fois aussi.
 - **Correction :** utiliser `request.POST.get` dans les API, et supprimer le doublon de `request_params` dans `views_api_user.py`.
 - **Sinon :** le joueur reçoit une erreur brute et les journaux se remplissent de bruit.
-
-### 13. La page colonie fait 170 requêtes pour un seul district
-
-`data/resources.py:28`.
-
-- **Problème :** pour afficher les menus de construction, `add_infos_to_resources_dict` lit la base une fois par ressource, pour chaque type de district et de bâtiment. Mesures avec les vraies données Excel : 170 requêtes sur `/colony/`, et environ 35 sur une page simple. Sur une page simple, une partie vient des fonctions de données appelées hors de `server_schema`, chacune ajoutant deux `set_config`.
-- **Correction :** charger toutes les ressources une seule fois en début de fonction, et entourer `commandant_and_server` et `add_cycle_info` d'un `server_schema`.
-- **Sinon :** c'est la page la plus utilisée et elle ralentira avec les joueurs.
 
 ### 15. Fonctions inutilisées sans remplaçant : décision à prendre
 
@@ -115,6 +107,7 @@ Deux templates ne sont utilisés nulle part : `admin/admin_raw_json.html` et `te
 - **8.** Les rapports sont filtrés et paginés dans la base, les plus récents d'abord. La recherche ignore la casse et passe en GET.
 - **10.** Les espaces et le caractère nul sont retirés des noms, les comptes et e-mails sont uniques sans tenir compte de la casse, et la longueur du pseudo suit le message (5 à 25).
 - **11.** Toute l'administration, signalements compris, est réservée aux superusers, et seuls `status`, `admin_only_visibility` et `exclusive` sont modifiables avec des valeurs fixes. Le staff garde la modération des forums et le passage de cycle.
+- **13.** Les ressources sont lues une seule fois par menu (`get_resources_by_name`) au lieu d'une fois par ligne, ce qui profite aussi à la page Technologies. Les compteurs du menu et les infos de cycle partagent chacun un seul changement de schéma. Mesures avec les vraies données Excel : `/colony/` passe de 167 à 43 requêtes et `/technologies/` de 42 à 33. Les pages simples perdent 6 requêtes et font 33 à 39 requêtes.
 - **14.** `settings.py` est versionné, ses valeurs confidentielles restent dans `secrets/`, et la copie open source est supprimée.
 - **15.** Sont retirés :
   - bokeh, ses templates et sa dépendance ;

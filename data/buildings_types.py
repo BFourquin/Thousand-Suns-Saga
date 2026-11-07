@@ -54,12 +54,13 @@ def get_all_buildable_buildings_types(server, commandant, language=None):
             buildings.remove(building)
 
     # More info on resources cost and maintenance
-    from data.resources import add_infos_to_resources_dict, get_resource_parameters
+    from data.resources import add_infos_to_resources_dict, get_resources_by_name
+    resources = get_resources_by_name(server)
     for i in range(len(buildings)):
-        buildings[i]['build_cost'] = add_infos_to_resources_dict(server, buildings[i]['build_cost'], commandant, language)
-        buildings[i]['maintenance'] = add_infos_to_resources_dict(server, buildings[i]['maintenance'], commandant, language)
-        production = {resource: quantity for resource, quantity in production_of(buildings[i]).items() if get_resource_parameters(server, resource)}
-        production = add_infos_to_resources_dict(server, production, commandant, language)
+        buildings[i]['build_cost'] = add_infos_to_resources_dict(resources, buildings[i]['build_cost'], commandant, language)
+        buildings[i]['maintenance'] = add_infos_to_resources_dict(resources, buildings[i]['maintenance'], commandant, language)
+        production = {resource: quantity for resource, quantity in production_of(buildings[i]).items() if resource in resources}
+        production = add_infos_to_resources_dict(resources, production, commandant, language)
         buildings[i]['resources_columns'] = (production, buildings[i]['build_cost'], buildings[i]['maintenance'])
 
         # Check if any resource is missing to build it

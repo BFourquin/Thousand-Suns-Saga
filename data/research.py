@@ -7,7 +7,7 @@ from database.schemas import on_server
 from data.errors import GameError
 from data.names import localized_name
 from data.report import create_report
-from data.resources import add_infos_to_resources_dict, pay_resources
+from data.resources import add_infos_to_resources_dict, get_resources_by_name, pay_resources
 from game.models import Commandant, Technology
 
 
@@ -145,12 +145,13 @@ def research_tree(server, commandant, language, selected=None):
                     nodes.setdefault(requisite, technologies[requisite])
             nodes[name] = tech
 
+    resources = get_resources_by_name(server)
     for name, tech in nodes.items():
         if not tech['foreign']:
             # A technology requiring itself can't be researched, but must not hang the layout
             tech['parents'] = [requisite for requisite in tech['requisites'] if requisite in nodes and requisite != name]
         tech['requisites_details'] = [technologies[requisite] for requisite in tech['requisites'] if requisite in technologies]
-        tech['costs'] = add_infos_to_resources_dict(server, dict(tech['price']), commandant, language)
+        tech['costs'] = add_infos_to_resources_dict(resources, dict(tech['price']), commandant, language)
         tech['enough_stockpiles'] = all(cost['enough_stockpiles'] for cost in tech['costs'].values())
 
     columns = int(_place_nodes(nodes) * 2)

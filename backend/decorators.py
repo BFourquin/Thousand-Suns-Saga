@@ -59,10 +59,10 @@ def add_cycle_info(view_func):
             user_account = get_request_user(request)
             if user_account and user_account.get("playing_on_server"):
                 server_name = user_account["playing_on_server"]
-                cycle = get_current_cycle(server_name)
-
-                commandants = {commandant['id']: commandant for commandant in get_commandants(
-                    server_name, cycle['commandants_cycle_playing'] + cycle['commandants_cycle_finished'])}
+                with server_schema(server_name):
+                    cycle = get_current_cycle(server_name)
+                    commandants = {commandant['id']: commandant for commandant in get_commandants(
+                        server_name, cycle['commandants_cycle_playing'] + cycle['commandants_cycle_finished'])}
 
                 commandants_cycle_playing = [commandants[_id] for _id in cycle['commandants_cycle_playing'] if _id in commandants]
                 commandants_cycle_finished = [commandants[_id] for _id in cycle['commandants_cycle_finished'] if _id in commandants]

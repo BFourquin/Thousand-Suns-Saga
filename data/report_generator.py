@@ -3,7 +3,7 @@ from django.utils import timezone
 
 from data.commandant import get_commandant
 from data.names import localized_name
-from data.resources import get_all_resources_parameters
+from data.resources import get_resources_by_name
 from data.user import get_user_by_id
 from game.models import Technology
 
@@ -95,7 +95,7 @@ def generate_report(server, owner_id, report_type, args={}, sender=None, sender_
         report['illustration'] = "images/report/command_center.png"
 
     elif report_type == 'cycle_economy':
-        resources = {resource['internal_name']: resource for resource in get_all_resources_parameters(server)}
+        resources = get_resources_by_name(server)
         labels = {'fr': ("Produit", "Consommé", "Pénuries"), 'en': ("Produced", "Consumed", "Shortages")}[lang]
 
         report['title'] = {
