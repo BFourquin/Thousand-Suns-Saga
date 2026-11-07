@@ -10,20 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
-
-raise Exception('Every confidential data have been removed for security reason, ask an admin for the real settings.py')
-
-
 import os
 from configparser import ConfigParser
 from pathlib import Path
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # Confidential values : secrets/ is not versioned, see the README
 
@@ -37,13 +31,25 @@ def read_secrets(file_name, section):
 DJANGO_SECRETS = read_secrets('django.ini', 'django')
 POSTGRES_SECRETS = read_secrets('postgres.ini', 'postgres')
 
+
+# Server address and ports
+
+SITE_URL = DJANGO_SECRETS['site_url']
+SERVER_PORT = '33000'
+STATIC_PORT = '33100'
+
+
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = DJANGO_SECRETS['secret_key']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -56,6 +62,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'rosetta',
+    'hijack',
+    'hijack.contrib.admin',
     'backend',
     'game',
 ]
@@ -64,12 +73,14 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'backend.middleware.UserLanguageMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'hijack.middleware.HijackUserMiddleware',
 
 ]
 
@@ -86,7 +97,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django_tss.context_processors.servers_details'
+
+                'django_tss.context_processors.servers_details',
+                'django_tss.context_processors.user_account',
+                'django_tss.context_processors.commandant_and_server',
             ],
         },
     },
@@ -113,6 +127,8 @@ DATABASES = {
 DATABASE_ROUTERS = ['database.schemas.ServerSchemaRouter']
 
 
+
+
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
@@ -135,28 +151,28 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
+LANGUAGE_CODE = 'fr'
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
+LOCALE_PATHS = (os.path.join(BASE_DIR, "locale"),)
+LANGUAGES = [("en", "English"), ("fr", "Français"),]
+
+ROSETTA_SHOW_AT_ADMIN_PANEL = True
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
+STATIC_URL = SITE_URL + ':' + STATIC_PORT + '/'
+STATIC_ROOT = 'admin_web/static'
 
-STATIC_URL = 'http://127.0.0.1:8100/'  # '/static/'
 
 # Access-Control-Allow-Origin needed to get some ressources from the static server
 CORS_ALLOWED_ORIGINS = [
-    'http://127.0.0.1:8100'
+    SITE_URL + ':' + STATIC_PORT
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 

@@ -48,8 +48,6 @@ Template : AdminLTE
   > cd {project folder} \
   > python -m pip install -r requirements.txt
 
-Ask Iranis#8652 on Discord for the valid django_tss/settings.py file, or make one from django_tss/settings_opensource.py
-
 
 **Secrets**
 
