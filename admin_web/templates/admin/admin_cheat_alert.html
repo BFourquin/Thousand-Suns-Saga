@@ -1,0 +1,13 @@
+<div class="p-3 border-bottom text-break">
+  <span class="badge {% if alert.severity == 'high' %}badge-danger{% elif alert.severity == 'medium' %}badge-warning{% else %}badge-secondary{% endif %}">{{ alert.severity }}</span>
+  <strong>{{ alert.server_id }}</strong> · {{ alert.rule }} · {{ alert.message }}
+  <br><small class="text-muted">
+    Vue {{ alert.nb_seen }} fois, du {{ alert.first_seen }} au {{ alert.last_seen }}{% if alert.handled_by %} · Classée par {{ alert.handled_by }}{% endif %}
+    {% if alert.details %}<br>{{ alert.details }}{% endif %}
+  </small>
+  <form method="POST" action="/admin_cheat_alerts/" class="mt-2">
+    {% csrf_token %}
+    <input type="hidden" name="alert_id" value="{{ alert.id }}">
+    <button type="submit" name="action" value="{{ action }}" class="btn btn-default btn-sm">{{ action_label }}</button>
+  </form>
+</div>

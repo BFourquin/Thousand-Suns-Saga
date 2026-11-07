@@ -5,6 +5,7 @@ from django.views.decorators.http import require_POST
 
 from backend.utils import request_params, get_active_server_and_commandant_from_request, commandant_owns_colony
 from backend.api_ui_interactions import api_pop_up, api_pop_up_and_redirect, api_login_required, api_orders_open
+from backend.decorators import log_player_action
 from data.resources import check_enough_resources_dict, pay_resources
 from data.districts import create_district, delete_district, get_district
 from data.districts_types import get_district_type, is_buildable_district
@@ -25,6 +26,7 @@ def invalid_colony():
 
 @require_POST
 @api_login_required
+@log_player_action
 @api_orders_open
 def api_build_district(request):
 
@@ -75,6 +77,7 @@ def api_build_district(request):
 
 @require_POST
 @api_login_required
+@log_player_action
 @api_orders_open
 def api_build_building(request):
 
@@ -108,6 +111,7 @@ def api_build_building(request):
 
 @require_POST
 @api_login_required
+@log_player_action
 @api_orders_open
 def api_district_set_activation_percent(request):
 
@@ -149,6 +153,7 @@ def api_district_set_activation_percent(request):
 
 @require_POST
 @api_login_required
+@log_player_action
 @api_orders_open
 def api_delete_district(request):
 

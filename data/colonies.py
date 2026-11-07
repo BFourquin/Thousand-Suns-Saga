@@ -80,9 +80,8 @@ def recalculate_districts_slots(server, colony_id):
     update_colony(server, colony_id, 'districts_slots_total', slots_total)
     update_colony(server, colony_id, 'districts_slots_occupied', slots_occupied)
 
-    if colony['districts_slots_occupied'] > colony['districts_slots_total']:
-        ...
-        # TODO cheat log
-        # cheat_log()
+    if slots_occupied > slots_total:
+        cheat_log('Plus de districts que de places sur une colonie', {'colony': colony_id, 'occupied': slots_occupied, 'total': slots_total},
+                  server, None, colony['owner'])
 
     return slots_total, slots_occupied

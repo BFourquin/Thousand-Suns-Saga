@@ -12,11 +12,13 @@ from django.core.paginator import Paginator
 from hijack.signals import hijack_started, hijack_ended
 
 
+from anticheat.rules import scans_status
 from backend.login import throttled_authenticate
+from backend.models import to_id
 from backend.utils import request_params
 from database.schemas import server_schema
 from game.models import Coordinate, Sector, System
-from data import server_details, user, technology, sectors, systems, coordinates, map_generator, forums
+from data import admin, server_details, user, technology, sectors, systems, coordinates, map_generator, forums
 
 logger = logging.getLogger(__name__)
 
@@ -140,6 +142,20 @@ def admin_message_flags(request):
     servers = [selected_server] if selected_server else server_details.get_servers_names(admin_visibility=True)
     return render(request, 'admin/admin_message_flags.html', {
         'flags': forums.get_reported_messages(servers, more_than), 'more_than': more_than})
+
+
+# ######################################################################################################################
+# ANTICHEAT
+
+@superuser_required
+def admin_cheat_alerts(request):
+    if request.method == 'POST':
+        alert_id = to_id(request.POST.get('alert_id'))
+        if alert_id:
+            admin.set_alert_open(alert_id, request.POST.get('action') == 'reopen', request.user.username)
+        return redirect('admin_cheat_alerts')
+
+    return render(request, 'admin/admin_cheat_alerts.html', {'alerts': admin.get_alerts(), 'scans': scans_status()})
 
 
 # ######################################################################################################################

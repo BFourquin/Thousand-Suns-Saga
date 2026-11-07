@@ -4,6 +4,7 @@ from django.shortcuts import redirect
 from django.utils import timezone
 
 from data.cycles import get_current_cycle
+from data.admin import cheat_log, log_action
 from data.commandant import get_commandants, update_commandant
 from backend.utils import get_active_server_and_commandant_from_request, get_request_user, orders_closed
 from database.schemas import server_schema
@@ -13,13 +14,14 @@ def log_player_action(view_func):
     """
     Décorateur pour enregistrer le moment où un joueur déclenche une action.
     - Met à jour le champ time_last_activity du commandant
-    - Prépare la collecte des infos pour un log complet (TODO)
+    - L'inscrit dans le journal de l'anti-triche, sauf quand un admin a pris le contrôle du compte
     """
 
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         user = getattr(request, "user", None)
         now = timezone.now()
+        server, commandant = None, None
 
         if user and user.is_authenticated:
             server, commandant = get_active_server_and_commandant_from_request(request)
@@ -27,24 +29,19 @@ def log_player_action(view_func):
             if server and commandant and not orders_closed(request):  # Looking at an old game is no activity in it
                 update_commandant(server, commandant['id'], "time_last_activity", now)
 
-        # --- TODO ---
-        # Enregistrer en base ou autre :
-        # - user_id
-        # - méthode HTTP
-        # - path
-        # - GET / POST data
-        # - datetime
-        # Exemple :
-        # log_action({
-        #     "user": user.username,
-        #     "method": request.method,
-        #     "path": request.path,
-        #     "params": request.GET.dict(),
-        #     "data": request.POST.dict(),
-        #     "timestamp": now,
-        # })
+        if not server or not commandant or getattr(user, 'is_hijacked', False):
+            return view_func(request, *args, **kwargs)
 
-        return view_func(request, *args, **kwargs)
+        if request.method == 'POST' and orders_closed(request):
+            cheat_log('Ordre envoyé en mode consultation', request.path[:200], server, user.id, commandant['id'])
+
+        status = 500  # What is raised by the view is an error too : a probing of ids ends there
+        try:
+            response = view_func(request, *args, **kwargs)
+            status = response.status_code
+            return response
+        finally:
+            log_action(request, server, commandant['id'], status)
     return wrapper
 
 

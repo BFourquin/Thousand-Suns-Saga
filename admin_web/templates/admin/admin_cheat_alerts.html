@@ -1,0 +1,77 @@
+
+{% load static %}
+
+{% include "includes/head.html" with title="TSS Admin : Anti-triche" %}
+
+{% include "includes/menu_admin.html" %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <h1>Anti-triche</h1>
+      </div>
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">Scans quotidiens</h3></div>
+        <div class="card-body p-0">
+          <table class="table table-sm mb-0">
+            <thead><tr><th>Serveur</th><th>Heure du scan (locale)</th><th>Dernier scan</th><th>État</th></tr></thead>
+            <tbody>
+              {% for scan in scans %}
+                <tr>
+                  <td>{{ scan.server }}</td>
+                  <td>{{ scan.hour }} h ({{ scan.timezone }})</td>
+                  <td>{{ scan.last_scan.started_at|default:"Jamais" }}</td>
+                  <td>
+                    {% if scan.late %}<span class="badge badge-danger">En retard : la tâche horaire tourne-t-elle ?</span>
+                    {% elif scan.last_scan.errors %}<span class="badge badge-warning" title="{{ scan.last_scan.errors }}">Règles en erreur</span>
+                    {% else %}<span class="badge badge-success">OK</span>{% endif %}
+                  </td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4" class="text-center text-muted">Aucun serveur à surveiller</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card card-warning card-outline">
+        <div class="card-header">
+          <h3 class="card-title">À traiter : {{ alerts.open|length }} alerte{{ alerts.open|length|pluralize }}</h3>
+        </div>
+        <div class="card-body p-0">
+          {% for alert in alerts.open %}
+            {% include "admin/admin_cheat_alert.html" with action="close" action_label="Classer sans suite" %}
+          {% empty %}
+            <p class="text-center text-muted py-4 mb-0">Aucune alerte à traiter</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      {% if alerts.closed %}
+        <div class="card">
+          <div class="card-header"><h3 class="card-title">Dernières alertes classées</h3></div>
+          <div class="card-body p-0">
+            {% for alert in alerts.closed %}
+              {% include "admin/admin_cheat_alert.html" with action="reopen" action_label="Rouvrir" %}
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+</div><!-- ./wrapper -->
+
+</body>
+</html>

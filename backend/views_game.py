@@ -16,6 +16,7 @@ import data.commandant
 from data import server_details, systems, coordinates, cycles, quadrants
 from data.report import get_commandant_reports, get_report, delete_report, change_report_status, \
     mark_all_reports_as_read, update_nb_unread_reports
+from data.admin import cheat_log
 from data.colonies import get_colonies_at_coordinates
 from data.commandant import get_commandants
 from data.economy import cycle_balance
@@ -105,7 +106,8 @@ def commandant_login(request):
 
     # Also a dead one : its player can still look at what it was
     if (server_name, to_id(commandant_id)) not in user['accounts'] + user['dead_accounts']:
-        ... # TODO log suspicious use to another player's commandant
+        if server_name in server_details.get_servers_names(admin_visibility=True):
+            cheat_log("Connexion au commandant d'un autre joueur", {'commandant_id': commandant_id[:20]}, server_name, request.user.id, to_id(commandant_id))
         return redirect('/user_account/')
 
     commandant = data.commandant.get_commandant(server_name, commandant_id)

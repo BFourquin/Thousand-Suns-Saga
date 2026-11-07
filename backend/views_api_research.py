@@ -2,6 +2,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from backend.api_ui_interactions import api_pop_up, api_pop_up_and_redirect, api_login_required, api_orders_open
+from backend.decorators import log_player_action
 from backend.utils import request_params, get_active_server_and_commandant_from_request, get_request_user
 from backend.views_api_buildings import no_active_commandant
 from data.errors import GameError
@@ -10,6 +11,7 @@ from data.research import start_research
 
 @require_POST
 @api_login_required
+@log_player_action
 @api_orders_open
 def api_start_research(request):
 

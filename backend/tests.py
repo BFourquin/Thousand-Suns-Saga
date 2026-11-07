@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch
 
 from django.apps import apps
 from django.contrib.auth.models import AnonymousUser, User
+from django.core.management import call_command
 from django.core.cache import cache
 from django.db import DatabaseError, IntegrityError, connection, transaction
 from django.test import Client, RequestFactory, SimpleTestCase, TestCase
@@ -14,10 +15,12 @@ from django.test.utils import CaptureQueriesContext
 from django.urls import Resolver404, resolve
 from django.utils import timezone
 
+from anticheat.models import ActionLog, Alert, LoginLog, Scan
+from anticheat.rules import alternating_accounts, bots, purge_old_logs, refused_actions, scan_due_servers, shared_ip
 from backend import views_game
-from backend.decorators import commandant_required
+from backend.decorators import commandant_required, log_player_action
 from backend.login import LOGIN_MAX_FAILURES_PER_ACCOUNT, throttled_authenticate
-from backend.models import CommandantAccount, Server, UserExtended, to_id
+from backend.models import SERVER_HOURS, CommandantAccount, Server, UserExtended, to_id
 from backend.templatetags.tss_dates import rp_date
 from backend.templatetags.tss_text import MAX_DEPTH, bbcode
 from database.schemas import schema_of, server_schema
@@ -26,8 +29,10 @@ from backend.utils import commandant_owns_colony
 from data import conversations, ententes, forums, quadrants
 from data import server_details
 from data import cycles
+from data.admin import raise_alert, set_alert_open
 from data.buildings import construct_building
 from data.buildings_types import is_buildable
+from data.colonies import recalculate_districts_slots
 from data.commandant import civilisation_name_taken, commandant_name_taken, create_commandant, delete_commandant, get_commandant
 from data.coordinates import get_coordinate_image
 from data.districts import create_district, delete_district
@@ -35,6 +40,7 @@ from data.economy import cycle_balance
 from data.errors import GameError
 from data.modifiers import add_modifier
 from data.user import get_user_by_name
+from geography.map_generator import excel_importer
 from data.report import change_report_status, delete_report, get_commandant_reports, get_report, mark_all_reports_as_read, update_nb_unread_reports
 from data.resources import add_resources, pay_resources
 
@@ -119,6 +125,9 @@ class ApiDistrictsTests(SimpleTestCase):
         patcher = patch('backend.api_ui_interactions.orders_closed', return_value=False)
         patcher.start()
         self.addCleanup(patcher.stop)
+        journal = patch('backend.decorators.get_active_server_and_commandant_from_request', return_value=(None, None))
+        journal.start()
+        self.addCleanup(journal.stop)
 
     def active(self):
         return patch('backend.views_api_buildings.get_active_server_and_commandant_from_request',
@@ -153,6 +162,9 @@ class LoginThrottleTests(SimpleTestCase):
 
     def setUp(self):
         cache.clear()
+        patcher = patch('backend.login.log_login')
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
     def attempt(self, password='wrong', username='player'):
         request = RequestFactory().post('/player_login/', {'username': username, 'password': password})
@@ -2824,3 +2836,346 @@ class TextFormattingTests(SimpleTestCase):
         self.assertEqual(bbcode('[b][i]a[/b]c[/i]'), '<strong><em>a</em></strong>c[/i]')
         self.assertEqual(bbcode('[b]' * 1000).count('<strong>'), MAX_DEPTH)
         self.assertEqual(bbcode('[b]' * 1000).count('</strong>'), MAX_DEPTH)
+
+
+class ServerConfigTests(TestCase):
+
+    def test_the_sheet_config_of_the_excels_reaches_the_server(self):
+        for excel, gameplay in (('TSS.xlsx', 'saga'), ('TSS_boardgame.xlsx', 'skirmish')):
+            make_server(excel)
+            server_details.set_server_config(excel, excel_importer(excel, 'Config')[0])
+            details = server_details.get_server_details(excel)
+            self.assertEqual(details['gameplay'], gameplay)
+            self.assertEqual((details['hour_cycle'], details['hour_first_combat_round'], details['hour_anticheat_checks']), (22, 8, 4))
+
+    def test_a_wrong_config_stops_the_creation(self):
+        make_server('S')
+        valid = {'gameplay_type': 'saga', **{hour: 3 for hour in SERVER_HOURS}}
+        server_details.set_server_config('S', valid)
+        for wrong in ({'invented': 1}, {'gameplay_type': 'chess'}, {'hour_cycle': 24}, {'hour_cycle': -1}, {'hour_cycle': None}, {'hour_cycle': 4.5}, {'hour_cycle': 'noon'}):
+            with self.assertRaises(Exception, msg=wrong):
+                server_details.set_server_config('S', valid | wrong)
+
+    def test_the_database_refuses_a_wrong_hour_set_by_hand(self):
+        make_server('S')
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Server.objects.filter(pk='S').update(hour_anticheat_checks=24)
+
+
+class AnticheatTestCase(TestCase):
+
+    now = datetime(2026, 7, 10, 2, 30, tzinfo=dt_timezone.utc)  # 4:30 in Paris
+
+    @classmethod
+    def setUpTestData(cls):
+        make_server('S')
+        cls.users = [User.objects.create_user(name, name + '@example.com', 'x') for name in ('alice', 'bob', 'carol')]
+        cls.commandants = {}
+        with server_schema('S'):
+            for user in cls.users:
+                commandant = Commandant.objects.create(user=user, commandant_name=user.username, civilisation_name=user.username, creation_date=timezone.now())
+                cls.commandants[user.username] = commandant.id
+                CommandantAccount.objects.get_or_create(server_id='S', commandant_id=commandant.id, user=user, defaults={'commandant_name': user.username})
+        cycles.create_cycle_entry('S')
+
+    def action(self, user, minutes_ago=60, method='GET', status=200, ip='1.1.1.1', fingerprint='a', path='/colonies/', seconds_ago=0):
+        ActionLog.objects.create(date=self.now - timedelta(minutes=minutes_ago, seconds=seconds_ago), server_id='S', user=user,
+                                 commandant_id=self.commandants[user.username], method=method, path=path, status=status, ip=ip, fingerprint=fingerprint)
+
+    def alert(self, rule):
+        return Alert.objects.filter(server='S', rule=rule)
+
+    def run_rule(self, rule, days=7):
+        rule('S', self.now - timedelta(days=days))
+
+
+class AnticheatJournalTests(AnticheatTestCase):
+
+    def play(self, user):
+        UserExtended.objects.update_or_create(user=user, defaults={'playing_on_server_id': 'S', 'playing_on_commandant': self.commandants[user.username], 'language': 'fr'})
+        self.client.force_login(user)
+
+    def test_an_action_is_logged_without_its_free_texts(self):
+        alice = self.users[0]
+        self.play(alice)
+        self.client.post('/conversations/', {'action': 'new', 'recipient': 'bob', 'subject': 'Secret', 'body': 'Un message prive', 'forum_id': '12'},
+                         HTTP_USER_AGENT='Firefox', REMOTE_ADDR='9.9.9.9')
+        log = ActionLog.objects.get(user=alice, method='POST')
+        self.assertEqual((log.server_id, log.commandant_id, str(log.ip), log.path), ('S', self.commandants['alice'], '9.9.9.9', '/conversations/'))
+        self.assertEqual(log.params, {'action': 'new', 'recipient': '...', 'subject': '...', 'body': '...', 'forum_id': '12'})
+        self.assertEqual(len(log.fingerprint), 16)
+
+    def test_the_api_routes_are_logged_with_their_refusal(self):
+        alice = self.users[0]
+        self.play(alice)
+        response = self.client.post('/api_delete_district/', {'colony_id': '999'})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(ActionLog.objects.get(user=alice, path='/api_delete_district/').status, 400)
+
+    def test_an_admin_controlling_an_account_is_not_logged(self):
+        alice = self.users[0]
+        self.play(alice)
+        request = RequestFactory().get('/colonies/')
+        request.user = alice
+        request.user.is_hijacked = True
+        log_player_action(lambda request: MagicMock(status_code=200))(request)
+        self.assertFalse(ActionLog.objects.exists())
+
+    def test_a_failing_journal_doesnt_lose_the_action(self):
+        self.play(self.users[0])
+        with patch('data.admin.ActionLog.objects.create', side_effect=DatabaseError):
+            self.assertEqual(self.client.get('/colonies/').status_code, 200)
+
+    def test_an_order_on_a_finished_server_raises_an_alert(self):
+        self.play(self.users[0])
+        Server.objects.filter(pk='S').update(status='stop')
+        self.client.post('/api_delete_district/', {'colony_id': '1'})
+        self.client.post('/api_delete_district/', {'colony_id': '1'})
+        alert = self.alert('cheat_log').get()
+        self.assertEqual(alert.nb_seen, 2)
+        self.assertIn('consultation', alert.message)
+
+    def test_asking_for_the_commandant_of_another_raises_an_alert(self):
+        self.play(self.users[0])
+        self.client.get('/commandant_login/', {'server': 'S', 'commandant_id': self.commandants['bob']})
+        self.assertEqual(self.alert('cheat_log').count(), 1)
+        self.client.get('/commandant_login/', {'server': 'Unknown', 'commandant_id': '1'})
+        self.assertEqual(Alert.objects.count(), 1)
+
+    def test_too_many_districts_raises_an_alert(self):
+        with server_schema('S'):
+            colony = Colony.objects.create(name='Home', owner_id=self.commandants['alice'], controller_id=self.commandants['alice'],
+                                           coordinate='100100000005505001', colony_type='start')
+            District.objects.create(colony=colony, district_type='farming', category='farming_district')
+            DistrictType.objects.create(internal_name='farming', data={'internal_name': 'farming', 'category': 'farming_district', 'districts_slots': 0})
+        recalculate_districts_slots('S', colony.id)
+        self.assertEqual(self.alert('cheat_log').get().details['commandant'], self.commandants['alice'])
+
+    def test_the_logins_are_logged(self):
+        cache.clear()
+        throttled_authenticate(RequestFactory().post('/player_login/', {'username': 'alice', 'password': 'wrong'}))
+        throttled_authenticate(RequestFactory().post('/player_login/', {'username': 'alice', 'password': 'x'}))
+        self.assertEqual(list(LoginLog.objects.order_by('date').values_list('username', 'success', 'user')),
+                         [('alice', False, None), ('alice', True, self.users[0].id)])
+
+
+class AnticheatRulesTests(AnticheatTestCase):
+
+    def test_shared_ip_grows_with_the_proofs(self):
+        alice, bob, carol = self.users
+        self.action(alice)
+        self.action(bob, fingerprint='other')
+        self.action(carol, ip='2.2.2.2')
+        self.run_rule(shared_ip)
+        alert = self.alert('shared_ip').get()
+        self.assertEqual((alert.subject, alert.severity), ('alice + bob', 'low'))
+
+        self.action(bob)
+        self.run_rule(shared_ip)
+        alert = self.alert('shared_ip').get()
+        self.assertEqual((alert.severity, alert.nb_seen), ('medium', 2))
+
+        with server_schema('S'):
+            entente = Entente.objects.create(name='E', owner_id=self.commandants['alice'], creation_date=timezone.now())
+            for user in (alice, bob):
+                EntenteMember.objects.create(entente=entente, commandant_id=self.commandants[user.username], status='member', datetime=timezone.now())
+        self.run_rule(shared_ip)
+        self.assertEqual(self.alert('shared_ip').get().severity, 'high')
+
+    def test_shared_ip_also_reads_the_logins(self):
+        alice, bob, carol = self.users
+        self.action(alice)
+        LoginLog.objects.create(date=self.now, user=bob, username='bob', success=True, ip='1.1.1.1', fingerprint='b')
+        LoginLog.objects.create(date=self.now, user=carol, username='carol', success=False, ip='1.1.1.1', fingerprint='b')
+        self.run_rule(shared_ip)
+        self.assertEqual(self.alert('shared_ip').get().subject, 'alice + bob')
+
+    def test_shared_ip_ignores_a_big_network_the_superusers_and_old_actions(self):
+        alice, bob, _carol = self.users
+        self.action(alice, minutes_ago=60 * 24 * 8)
+        self.action(bob, minutes_ago=60 * 24 * 8)
+        with patch('anticheat.rules.MAX_USERS_ON_SHARED_IP', 2):
+            for user in self.users:
+                self.action(user, ip='5.5.5.5')
+            self.run_rule(shared_ip)
+        self.assertFalse(self.alert('shared_ip').exists())
+
+        User.objects.filter(pk=bob.pk).update(is_superuser=True)
+        self.action(alice, ip='6.6.6.6')
+        self.action(bob, ip='6.6.6.6')
+        self.run_rule(shared_ip)
+        self.assertFalse(self.alert('shared_ip').filter(subject__contains='bob').exists())
+
+    def test_a_closed_alert_stays_closed(self):
+        alice, bob, _carol = self.users
+        self.action(alice)
+        self.action(bob)
+        self.run_rule(shared_ip)
+        alert = self.alert('shared_ip').get()
+        set_alert_open(alert.id, False, 'admin')
+        self.run_rule(shared_ip)
+        alert.refresh_from_db()
+        self.assertEqual((alert.is_open, alert.nb_seen, alert.handled_by), (False, 2, 'admin'))
+
+    def test_alternating_accounts(self):
+        alice, bob, carol = self.users
+        for session in range(6):  # self.now is at the start of a bucket of 10 minutes : each of these actions fills one
+            start = session * 120
+            for minutes_ago, user in ((30, alice), (20, alice), (10, bob), (0, bob), (20, carol), (0, carol)):
+                self.action(user, minutes_ago=start + minutes_ago)
+        self.run_rule(alternating_accounts)
+        alert = self.alert('alternating_accounts').get()  # carol plays at the same time as both
+        self.assertEqual((alert.subject, alert.details['handovers']), ('alice + bob', 6))
+
+    def test_regular_actions_are_a_bot_and_a_human_is_not(self):
+        alice, bob, _carol = self.users
+        for i in range(60):
+            self.action(alice, minutes_ago=i * 5)
+            self.action(bob, minutes_ago=i * i % 500, seconds_ago=i)
+        self.run_rule(bots, days=3)
+        self.assertEqual(self.alert('bot_regular').get().subject, 'alice')
+
+    def test_fast_actions(self):
+        for i in range(120):
+            self.action(self.users[0], seconds_ago=i * 0.5)
+        self.run_rule(bots, days=3)
+        self.assertEqual(self.alert('bot_fast').get().subject, 'alice')
+
+    def test_no_sleep(self):
+        alice, bob, _carol = self.users
+        for hour in range(0, 60, 3):
+            self.action(alice, minutes_ago=hour * 60)
+        for hour in list(range(0, 18, 3)) + list(range(30, 60, 3)):
+            self.action(bob, minutes_ago=hour * 60)
+        self.run_rule(bots, days=3)
+        self.assertEqual(self.alert('no_sleep').get().subject, 'alice')
+
+    def test_orders_without_any_page_are_direct_calls(self):
+        alice, bob, _carol = self.users
+        for i in range(25):
+            self.action(alice, minutes_ago=i * 7, method='POST', seconds_ago=i)
+            self.action(bob, minutes_ago=i * 7, method='POST', seconds_ago=i)
+            self.action(bob, minutes_ago=i * 7, seconds_ago=i + 5)
+        self.run_rule(bots, days=3)
+        self.assertEqual(self.alert('blind_posts').get().subject, 'alice')
+
+    def test_a_small_activity_raises_nothing(self):
+        for i in range(5):
+            self.action(self.users[0], minutes_ago=i, method='POST')
+        self.run_rule(bots, days=3)
+        self.assertFalse(Alert.objects.exists())
+
+    def test_refused_actions(self):
+        alice, bob, _carol = self.users
+        for _ in range(20):
+            self.action(alice, status=400, path='/api_delete_district/')
+            self.action(bob, status=200, path='/api_delete_district/')
+        for _ in range(19):
+            self.action(bob, status=403, path='/api_build_district/')
+        self.run_rule(refused_actions, days=1)
+        self.assertEqual(self.alert('refused_actions').get().subject, 'alice : /api_delete_district/')
+
+
+class AnticheatScanTests(AnticheatTestCase):
+
+    def at(self, hour, day=10):
+        # In Paris, UTC+2 in July
+        return datetime(2026, 7, day, hour, 5, tzinfo=dt_timezone(timedelta(hours=2)))
+
+    def test_only_at_the_local_hour_and_once_a_day(self):
+        self.assertEqual(scan_due_servers(self.at(3)), [])
+        self.assertEqual(scan_due_servers(self.at(4)), ['S'])
+        self.assertEqual(scan_due_servers(self.at(4)), [])
+        self.assertEqual(scan_due_servers(self.at(5)), [])
+        self.assertEqual(scan_due_servers(self.at(4, day=11)), ['S'])
+        self.assertEqual(Scan.objects.count(), 2)
+
+    def test_the_hour_changed_by_hand_is_read_at_the_next_run(self):
+        Server.objects.filter(pk='S').update(hour_anticheat_checks=6)
+        self.assertEqual(scan_due_servers(self.at(4)), [])
+        self.assertEqual(scan_due_servers(self.at(6)), ['S'])
+
+    def test_a_later_hour_doesnt_scan_the_same_day_twice(self):
+        self.assertEqual(scan_due_servers(self.at(4)), ['S'])
+        Server.objects.filter(pk='S').update(hour_anticheat_checks=6)
+        self.assertEqual(scan_due_servers(self.at(6)), [])
+        self.assertEqual(scan_due_servers(self.at(6, day=11)), ['S'])
+
+    def test_a_missed_day_leaves_no_hole(self):
+        calls = []
+        with patch('anticheat.rules.RULES', ((lambda server, since: calls.append(since), 1),)):
+            scan_due_servers(self.at(4))
+            scan_due_servers(self.at(4, day=14))
+        self.assertEqual(calls[1], self.at(4))
+
+    def test_the_finished_and_test_servers_are_not_scanned(self):
+        for status in ('stop', 'dead', 'test'):
+            Server.objects.filter(pk='S').update(status=status)
+            self.assertEqual(scan_due_servers(self.at(4)), [])
+
+    def test_a_broken_rule_doesnt_stop_the_others(self):
+        calls = []
+
+        def broken(server, since):
+            raise ValueError('Oops')
+
+        with patch('anticheat.rules.RULES', ((broken, 1), (lambda server, since: calls.append(server), 1))):
+            scan_due_servers(self.at(4))
+        self.assertEqual(calls, ['S'])
+        scan = Scan.objects.get()
+        self.assertIn('Oops', scan.errors)
+        self.assertIsNotNone(scan.finished_at)
+
+    def test_every_rule_runs_on_a_real_journal(self):
+        self.action(self.users[0])
+        self.action(self.users[1])
+        scan_due_servers(self.at(4))
+        self.assertEqual(Scan.objects.get().errors, '')
+        self.assertTrue(self.alert('shared_ip').exists())
+
+    def test_the_journal_is_purged(self):
+        alice = self.users[0]
+        self.action(alice, minutes_ago=60 * 24 * 91)
+        self.action(alice, minutes_ago=60 * 24 * 89)
+        LoginLog.objects.create(date=self.now - timedelta(days=91), username='alice', success=False, fingerprint='a')
+        purge_old_logs(self.now)
+        self.assertEqual(ActionLog.objects.count(), 1)
+        self.assertFalse(LoginLog.objects.exists())
+
+    def test_the_tables_are_in_their_schema(self):
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'TSS_anticheat'")
+            self.assertEqual({row[0] for row in cursor.fetchall()}, {'action_log', 'login_log', 'alert', 'scan'})
+
+    def test_the_command_runs_at_any_hour(self):
+        call_command('scan_cheats', stdout=MagicMock())
+
+
+class AnticheatAdminTests(AnticheatTestCase):
+
+    def test_the_page_is_for_the_superusers(self):
+        self.client.force_login(self.users[0])
+        self.assertEqual(self.client.get('/admin_cheat_alerts/').status_code, 302)
+
+    def test_the_page_tells_a_missing_scan_and_handles_the_alerts(self):
+        self.client.force_login(User.objects.create_user('admin', 'a@example.com', 'x', is_staff=True, is_superuser=True))
+        raise_alert('S', 'shared_ip', 'alice + bob', 'high', '<b>Message</b>')
+
+        response = self.client.get('/admin_cheat_alerts/')
+        self.assertContains(response, '&lt;b&gt;Message&lt;/b&gt;')
+        self.assertContains(response, 'En retard')
+        self.assertContains(response, '4 h (Europe/Paris)')
+
+        alert = Alert.objects.get()
+        self.client.post('/admin_cheat_alerts/', {'alert_id': alert.id, 'action': 'close'})
+        alert.refresh_from_db()
+        self.assertEqual((alert.is_open, alert.handled_by), (False, 'admin'))
+        self.assertContains(self.client.get('/admin_cheat_alerts/'), 'Rouvrir')
+
+        self.client.post('/admin_cheat_alerts/', {'alert_id': alert.id, 'action': 'reopen'})
+        alert.refresh_from_db()
+        self.assertTrue(alert.is_open)
+        self.assertEqual(self.client.post('/admin_cheat_alerts/', {'alert_id': 'invented'}).status_code, 302)
+
+        Scan.objects.create(server_id='S', local_date=timezone.now().date(), started_at=timezone.now())
+        self.assertNotContains(self.client.get('/admin_cheat_alerts/'), 'En retard')

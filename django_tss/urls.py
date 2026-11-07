@@ -124,6 +124,7 @@ urlpatterns = [
     path('admin_player_control/', views_admin.admin_player_control, name='admin_player_control'),
 
     # ADMIN SERVER SPECIFIC INTERFACE
+    path('admin_cheat_alerts/', views_admin.admin_cheat_alerts, name='admin_cheat_alerts'),
     path('admin_servers_states/', views_admin.admin_servers_states, name='admin_servers_states'),
         path('admin_servers_states_edit/', views_admin.admin_servers_states_edit, name='admin_servers_states_edit'),
 

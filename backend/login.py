@@ -5,6 +5,8 @@ from django.contrib.auth import authenticate
 from django.core.cache import cache
 from django.utils.translation import gettext as _
 
+from data.admin import client_ip, log_login
+
 
 LOGIN_BLOCK_SECONDS = 15 * 60
 LOGIN_MAX_FAILURES_PER_ACCOUNT = 5
@@ -12,9 +14,8 @@ LOGIN_MAX_FAILURES_PER_IP = 20
 
 
 def login_failure_counters(request, username):
-    # shortcut: the default cache is per process and REMOTE_ADDR is the proxy behind a reverse proxy,
-    # use a shared cache and the real client IP when deploying that way
-    ip = request.META.get('REMOTE_ADDR', '')
+    # shortcut: the default cache is per process, use a shared cache when deploying on several workers
+    ip = client_ip(request) or ''
     account = hashlib.sha256((ip + username.lower()).encode()).hexdigest()
     return (('login_failures_account_' + account, LOGIN_MAX_FAILURES_PER_ACCOUNT),
             ('login_failures_ip_' + ip, LOGIN_MAX_FAILURES_PER_IP))
@@ -30,6 +31,7 @@ def throttled_authenticate(request):
         return None, _("Trop de tentatives de connexion, veuillez réessayer dans quelques minutes")
 
     user = authenticate(request, username=username, password=request.POST.get('password', ''))
+    log_login(request, username, user)
 
     if user is None:
         for key, _limit in counters:
