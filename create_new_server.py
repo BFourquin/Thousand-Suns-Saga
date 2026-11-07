@@ -35,7 +35,6 @@ server_name = 'Alpha_Boardgame'
 excel_server_params = 'TSS_boardgame.xlsx'
 
 version = 0.1
-gameplay = 'skirmish'  # 'saga' (main game) / 'skirmish' (boardgame)
 
 roleplay = 'HRP'  # 'RP' / 'HRP'
 language = 'international'  # 'fr' / 'en' / 'international'
@@ -69,7 +68,9 @@ if server_details.get_server_details(server_name):
 # SERVER DETAILS
 
 server_details.create_server(server_name, version, status=server_status, admin_only_visibility=admin_only_visibility,
-                             language=language, roleplay=roleplay, gameplay=gameplay, timezone_name=timezone, exclusive=exclusive)
+                             language=language, roleplay=roleplay, timezone_name=timezone, exclusive=exclusive)
+
+server_details.set_server_config(server_name, map_generator.excel_importer(excel_server_params, 'Config')[0])
 
 
 # TECHNOLOGIES

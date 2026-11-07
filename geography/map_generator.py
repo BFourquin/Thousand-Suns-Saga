@@ -6,7 +6,7 @@ from datetime import datetime
 from database.schemas import on_server
 from game.models import Coordinate, Sector, StartingValues, System
 from data import map_generator
-from geography import mg_sectors, solar, planet
+from geography import mg_sectors, solar
 from stats import stats_geography
 from backend.utils import seed_convertor
 
@@ -29,14 +29,14 @@ def excel_importer(excel_map_generator_path, sheet_map_generator_name):
                     break
 
                 # Header
-                if col[0] in ('Map Generator Properties', 'sector_type', 'system_type', 'solar_type'):
+                if col[0] in ('Map Generator Properties', 'General game settings', 'sector_type', 'system_type', 'solar_type'):
                     titles = col
                     continue
 
                 conf = {}
                 for i in range(len(titles)):
 
-                    if titles[i] in (None, '', 'END_OF_FILE', 'Map Generator Properties') or titles[i][0] == '#':
+                    if titles[i] in (None, '', 'END_OF_FILE', 'Map Generator Properties', 'General game settings') or titles[i][0] == '#':
                         continue
 
                     if col[i] == '':

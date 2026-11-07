@@ -3,7 +3,7 @@ from django.db import transaction
 from django.utils import timezone
 from dateutil import tz
 
-from backend.models import CommandantAccount, Server, UserExtended
+from backend.models import SERVER_HOURS, CommandantAccount, Server, UserExtended
 from database.schemas import create_server_schema, drop_server_schema, on_server
 from game.models import Commandant
 
@@ -42,6 +42,24 @@ def create_server(server_name, version, status='test', admin_only_visibility=Tru
                                    timezone=timezone_name)
     create_server_schema(server_name)
     return server
+
+
+def set_server_config(server_name, config):
+    # config : the parameters of the sheet Config of the Excel, see geography.map_generator.excel_importer
+
+    columns = {('gameplay' if param == 'gameplay_type' else param): value for param, value in config.items()}
+
+    # At the creation of the server : better to stop it than to lose a parameter or to run at an hour that doesn't exist
+    unknown = set(columns) - {'gameplay', *SERVER_HOURS}
+    if unknown:
+        raise Exception('Config : no column of backend_server for ' + ', '.join(sorted(unknown)))
+    if columns.get('gameplay') not in ('saga', 'skirmish'):
+        raise Exception('Config : gameplay_type is not valid : ' + str(columns.get('gameplay')))
+    for hour in SERVER_HOURS:
+        if type(columns.get(hour)) is not int or not 0 <= columns[hour] <= 23:
+            raise Exception('Config : ' + hour + ' is not an hour : ' + str(columns.get(hour)))
+
+    Server.objects.filter(pk=server_name).update(**columns)
 
 
 def get_servers_names(open_servers=True, playable_servers=True, test_servers=True, old_servers=True, admin_visibility=False):

@@ -25,6 +25,9 @@ class GameModel(models.Model):
 # The game is over there : see backend.utils.orders_closed
 FINISHED_SERVER_STATUSES = ('stop', 'dead')
 
+# Local hours of the server, from the sheet Config of its Excel
+SERVER_HOURS = ('hour_cycle', 'hour_first_combat_round', 'hour_second_combat_round', 'hour_third_combat_round', 'hour_anticheat_checks')
+
 
 class Server(GameModel):
     server_name = models.CharField(primary_key=True, max_length=59)  # Its schema has 'TSS_' more, and 63 characters at most
@@ -39,6 +42,15 @@ class Server(GameModel):
     roleplay = models.CharField(max_length=10)
     exclusive = models.BooleanField(default=False)  # A serious server, asking a lot of time : a player can only be on one of them
     timezone = models.CharField(max_length=50)
+    hour_cycle = models.PositiveSmallIntegerField(default=22)
+    hour_first_combat_round = models.PositiveSmallIntegerField(default=8)
+    hour_second_combat_round = models.PositiveSmallIntegerField(default=13)
+    hour_third_combat_round = models.PositiveSmallIntegerField(default=20)
+    hour_anticheat_checks = models.PositiveSmallIntegerField(default=4)
+
+    class Meta:
+        # Also for the values changed by hand in the database
+        constraints = [models.CheckConstraint(check=models.Q(**{hour + '__lte': 23}), name=hour + '_is_an_hour') for hour in SERVER_HOURS]
 
     def as_dict(self):
         accounts = list(self.commandant_accounts.values_list('commandant_id', 'status', 'user_id'))
