@@ -1,0 +1,67 @@
+{% load i18n %}
+
+<!-- WHAT A MAP SHOWS AND WHAT IT SEARCHES -->
+<aside class="qmap-panel">
+
+  <h2 class="qmap-section"><i class="fas fa-palette"></i> {% trans "Colorier" %}</h2>
+  <div class="qmap-segmented" role="group" aria-label="{% trans 'Colorier' %}">
+    <button type="button" data-mode="star" aria-pressed="true">{% trans "Étoiles" %}</button>
+    <button type="button" data-mode="empire" aria-pressed="false">{% trans "Empires" %}</button>
+    <button type="button" data-mode="entente" aria-pressed="false">{% trans "Ententes" %}</button>
+  </div>
+  <ul class="qmap-legend" id="qmap-legend"></ul>
+
+  <h2 class="qmap-section"><i class="fas fa-circle-nodes"></i> {% trans "Réseaux de vortex" %}</h2>
+  <ul class="qmap-networks" id="qmap-networks"></ul>
+
+  <h2 class="qmap-section"><i class="fas fa-magnifying-glass"></i> {% trans "Rechercher" %}</h2>
+  <div class="qmap-presets" id="qmap-presets">
+    <button type="button" data-preset="largest"><i class="fas fa-sun"></i> {% trans "Plus grandes étoiles" %}</button>
+    <button type="button" data-preset="colonized"><i class="fas fa-city"></i> {% trans "Colonisés" %}</button>
+    <button type="button" data-preset="habitable"><i class="fas fa-seedling"></i> {% trans "Habitables" %}</button>
+    <button type="button" data-preset="rare"><i class="fas fa-gem"></i> {% trans "Ressources rares" %}</button>
+    <button type="button" data-preset="concentration"><i class="fas fa-mountain"></i> {% trans "Forte concentration" %}</button>
+    <button type="button" data-preset="vortex"><i class="fas fa-circle-nodes"></i> {% trans "Nœuds de vortex" %}</button>
+  </div>
+
+  <label for="qmap-text">{% trans "Nom, code ou civilisation" %}</label>
+  <input id="qmap-text" type="search" class="form-control form-control-sm" autocomplete="off">
+
+  <span class="qmap-label">{% trans "Classe d'étoile, de la plus grande à la plus petite" %}</span>
+  <div class="qmap-chips" id="qmap-stars"></div>
+
+  <label for="qmap-colony">{% trans "Colonies" %}</label>
+  <select id="qmap-colony" class="form-control form-control-sm">
+    <option value="">{% trans "Tous les systèmes" %}</option>
+    <option value="any">{% trans "Colonisés" %}</option>
+    <option value="mine">{% trans "Mes colonies" %}</option>
+    <option value="others">{% trans "Colonies étrangères" %}</option>
+    <option value="free">{% trans "Inoccupés" %}</option>
+  </select>
+
+  <label for="qmap-type">{% trans "Type de système" %}</label>
+  <select id="qmap-type" class="form-control form-control-sm">
+    <option value="">{% trans "Tous les types" %}</option>
+    <option value="__habitable">{% trans "Tous les habitables" %}</option>
+  </select>
+
+  <label for="qmap-resource">{% trans "Ressource" %}</label>
+  <select id="qmap-resource" class="form-control form-control-sm">
+    <option value="">{% trans "Toutes les ressources" %}</option>
+    <option value="__rare">{% trans "N'importe quelle ressource rare" %}</option>
+    <optgroup id="qmap-resources-rare" label="{% trans 'Rares' %}"></optgroup>
+    <optgroup id="qmap-resources-common" label="{% trans 'Communes' %}"></optgroup>
+  </select>
+
+  <div class="qmap-range" id="qmap-range" hidden>
+    <label for="qmap-min">{% trans "Concentration minimale dans le système" %} : <output id="qmap-min-value">0</output></label>
+    <input id="qmap-min" type="range" min="0" max="100" value="0" class="custom-range">
+  </div>
+
+  <label class="qmap-check"><input id="qmap-vortex-only" type="checkbox"> {% trans "Seulement les nœuds de vortex" %}</label>
+
+  <button type="button" class="btn btn-default btn-sm btn-block" id="qmap-reset" hidden><i class="fas fa-eraser"></i> {% trans "Effacer la recherche" %}</button>
+
+  <h2 class="qmap-section"><i class="fas fa-list"></i> <span id="qmap-count" aria-live="polite"></span></h2>
+  <ul class="qmap-results" id="qmap-results"></ul>
+</aside>

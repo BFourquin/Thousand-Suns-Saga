@@ -18,96 +18,16 @@
 
       <div class="qmap" id="qmap">
 
-        <!-- WHAT THE MAP SHOWS AND WHAT IT SEARCHES -->
-        <aside class="qmap-panel">
-
-          <h2 class="qmap-section"><i class="fas fa-palette"></i> {% trans "Colorier" %}</h2>
-          <div class="qmap-segmented" role="group" aria-label="{% trans 'Colorier' %}">
-            <button type="button" data-mode="star" aria-pressed="true">{% trans "Étoiles" %}</button>
-            <button type="button" data-mode="empire" aria-pressed="false">{% trans "Empires" %}</button>
-            <button type="button" data-mode="entente" aria-pressed="false">{% trans "Ententes" %}</button>
-          </div>
-          <ul class="qmap-legend" id="qmap-legend"></ul>
-
-          <h2 class="qmap-section"><i class="fas fa-circle-nodes"></i> {% trans "Réseaux de vortex" %}</h2>
-          <ul class="qmap-networks" id="qmap-networks"></ul>
-
-          <h2 class="qmap-section"><i class="fas fa-magnifying-glass"></i> {% trans "Rechercher" %}</h2>
-          <div class="qmap-presets" id="qmap-presets">
-            <button type="button" data-preset="largest"><i class="fas fa-sun"></i> {% trans "Plus grandes étoiles" %}</button>
-            <button type="button" data-preset="colonized"><i class="fas fa-city"></i> {% trans "Colonisés" %}</button>
-            <button type="button" data-preset="habitable"><i class="fas fa-seedling"></i> {% trans "Habitables" %}</button>
-            <button type="button" data-preset="rare"><i class="fas fa-gem"></i> {% trans "Ressources rares" %}</button>
-            <button type="button" data-preset="concentration"><i class="fas fa-mountain"></i> {% trans "Forte concentration" %}</button>
-            <button type="button" data-preset="vortex"><i class="fas fa-circle-nodes"></i> {% trans "Nœuds de vortex" %}</button>
-          </div>
-
-          <label for="qmap-text">{% trans "Nom, code ou civilisation" %}</label>
-          <input id="qmap-text" type="search" class="form-control form-control-sm" autocomplete="off">
-
-          <span class="qmap-label">{% trans "Classe d'étoile, de la plus grande à la plus petite" %}</span>
-          <div class="qmap-chips" id="qmap-stars"></div>
-
-          <label for="qmap-colony">{% trans "Colonies" %}</label>
-          <select id="qmap-colony" class="form-control form-control-sm">
-            <option value="">{% trans "Tous les systèmes" %}</option>
-            <option value="any">{% trans "Colonisés" %}</option>
-            <option value="mine">{% trans "Mes colonies" %}</option>
-            <option value="others">{% trans "Colonies étrangères" %}</option>
-            <option value="free">{% trans "Inoccupés" %}</option>
-          </select>
-
-          <label for="qmap-type">{% trans "Type de système" %}</label>
-          <select id="qmap-type" class="form-control form-control-sm">
-            <option value="">{% trans "Tous les types" %}</option>
-            <option value="__habitable">{% trans "Tous les habitables" %}</option>
-          </select>
-
-          <label for="qmap-resource">{% trans "Ressource" %}</label>
-          <select id="qmap-resource" class="form-control form-control-sm">
-            <option value="">{% trans "Toutes les ressources" %}</option>
-            <option value="__rare">{% trans "N'importe quelle ressource rare" %}</option>
-            <optgroup id="qmap-resources-rare" label="{% trans 'Rares' %}"></optgroup>
-            <optgroup id="qmap-resources-common" label="{% trans 'Communes' %}"></optgroup>
-          </select>
-
-          <div class="qmap-range" id="qmap-range" hidden>
-            <label for="qmap-min">{% trans "Concentration minimale dans le système" %} : <output id="qmap-min-value">0</output></label>
-            <input id="qmap-min" type="range" min="0" max="100" value="0" class="custom-range">
-          </div>
-
-          <label class="qmap-check"><input id="qmap-vortex-only" type="checkbox"> {% trans "Seulement les nœuds de vortex" %}</label>
-
-          <button type="button" class="btn btn-default btn-sm btn-block" id="qmap-reset" hidden><i class="fas fa-eraser"></i> {% trans "Effacer la recherche" %}</button>
-
-          <h2 class="qmap-section"><i class="fas fa-list"></i> <span id="qmap-count" aria-live="polite"></span></h2>
-          <ul class="qmap-results" id="qmap-results"></ul>
-        </aside>
+        {% include "includes/map_panel.html" %}
 
 
         <!-- THE MAP -->
         <div class="qmap-scene" id="qmap-scene" tabindex="0" role="application" aria-label="{{ quadrant_map.title }}">
           <svg class="qmap-svg" id="qmap-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
 
-          <p class="qmap-hint">{% trans "Glisser pour se déplacer · Molette pour zoomer · Clic pour ouvrir un système" %}</p>
+          <a class="btn btn-sm qmap-up" href="/geography_sector/?sector={{ quadrant_map.id|slice:":10" }}"><i class="fas fa-border-all"></i> {% trans "Carte du secteur" %}</a>
 
-          {% if quadrant_map.neighbours.north %}<a class="qmap-go qmap-go-north" href="/geography_quadrant/?quadrant={{ quadrant_map.neighbours.north }}" title="{% trans 'Quadrant au nord' %}" aria-label="{% trans 'Quadrant au nord' %}"><i class="fas fa-chevron-up"></i></a>{% endif %}
-          {% if quadrant_map.neighbours.south %}<a class="qmap-go qmap-go-south" href="/geography_quadrant/?quadrant={{ quadrant_map.neighbours.south }}" title="{% trans 'Quadrant au sud' %}" aria-label="{% trans 'Quadrant au sud' %}"><i class="fas fa-chevron-down"></i></a>{% endif %}
-          {% if quadrant_map.neighbours.west %}<a class="qmap-go qmap-go-west" href="/geography_quadrant/?quadrant={{ quadrant_map.neighbours.west }}" title="{% trans "Quadrant à l'ouest" %}" aria-label="{% trans "Quadrant à l'ouest" %}"><i class="fas fa-chevron-left"></i></a>{% endif %}
-          {% if quadrant_map.neighbours.east %}<a class="qmap-go qmap-go-east" href="/geography_quadrant/?quadrant={{ quadrant_map.neighbours.east }}" title="{% trans "Quadrant à l'est" %}" aria-label="{% trans "Quadrant à l'est" %}"><i class="fas fa-chevron-right"></i></a>{% endif %}
-
-          <div class="qmap-controls" role="group" aria-label="{% trans 'Contrôles de la vue' %}">
-            <button type="button" class="btn btn-sm" data-action="zoom-in" title="{% trans 'Zoomer' %}" aria-label="{% trans 'Zoomer' %}"><i class="fas fa-plus"></i></button>
-            <button type="button" class="btn btn-sm" data-action="zoom-out" title="{% trans 'Dézoomer' %}" aria-label="{% trans 'Dézoomer' %}"><i class="fas fa-minus"></i></button>
-            <button type="button" class="btn btn-sm" data-action="reset" title="{% trans "Vue d'ensemble" %}" aria-label="{% trans "Vue d'ensemble" %}"><i class="fas fa-expand"></i></button>
-            <button type="button" class="btn btn-sm" data-action="labels" title="{% trans 'Tous les noms' %}" aria-label="{% trans 'Tous les noms' %}" aria-pressed="false"><i class="fas fa-font"></i></button>
-            <button type="button" class="btn btn-sm" data-action="territories" title="{% trans 'Territoires' %}" aria-label="{% trans 'Territoires' %}" aria-pressed="true"><i class="fas fa-draw-polygon"></i></button>
-          </div>
-
-          <div class="qmap-tooltip" id="qmap-tooltip" hidden></div>
-
-          <!-- DATA OF THE SELECTED SYSTEM -->
-          <article class="qmap-detail" id="qmap-detail" aria-live="polite" hidden></article>
+          {% include "includes/map_overlays.html" with neighbours=quadrant_map.neighbours page="/geography_quadrant/" param="quadrant" %}
         </div>
       </div>
 
@@ -115,6 +35,7 @@
   </div>
 
   {{ quadrant_map|json_script:"qmap-data" }}
+  <script src="{% static 'js/map_common.js' %}" defer></script>
   <script src="{% static 'js/quadrant_map.js' %}" defer></script>
 
 </div><!-- ./wrapper -->

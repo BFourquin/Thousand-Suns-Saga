@@ -11,25 +11,13 @@
     var data = JSON.parse(document.getElementById('qmap-data').textContent);
     var L = data.labels;
     var SVG_NS = 'http://www.w3.org/2000/svg';
-    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    // Same palette and same proportions as the orbital view of a system (system_map.css, system_map.js)
-    var STARS = {
-        supergiant: {size: 2.6, color: '#ff5f35'}, giant: {size: 2, color: '#ff8a3c'}, O: {size: 1.55, color: '#8db4ff'},
-        wolf_rayet: {size: 1.45, color: '#6fe3ff'}, B: {size: 1.35, color: '#a9c8ff'}, A: {size: 1.2, color: '#dbe7ff'},
-        F: {size: 1.1, color: '#fff0b8'}, G: {size: 1, color: '#ffc95c'}, K: {size: 0.9, color: '#ffa94d'}, supernova: {size: 1.8, color: '#fffbe0'},
-        nebula: {size: 0.8, color: '#e58cff'}, M: {size: 0.75, color: '#ff7a3d'}, pulsar: {size: 0.6, color: '#7ff5e0'},
-        magnetar: {size: 0.6, color: '#ff6fd8'}, neutron: {size: 0.5, color: '#b8f0ff'}, black_hole: {size: 0.5, color: '#8a6fe8'},
-        white_dwarf: {size: 0.4, color: '#e6f0ff'}
-    };
-    var UNKNOWN_STAR = {size: 0.7, color: '#8896a8'};
-    var LARGEST_STAR_SIZE = 1.45;
-    var NETWORK_COLORS = {alpha: '#4fd8ff', beta: '#ff6fb0', gamma: '#b6ff5c', delta: '#c58bff'};
-    var MINE_COLOR = '#3ddc97', OTHER_COLOR = '#ffb020', NEUTRAL_COLOR = '#5d6a7c';
+    var C = window.TSSMap;
+    var STARS = C.STARS, UNKNOWN_STAR = C.UNKNOWN_STAR, LARGEST_STAR_SIZE = C.LARGEST_STAR_SIZE, NETWORK_COLORS = C.NETWORK_COLORS;
+    var MINE_COLOR = C.MINE_COLOR, OTHER_COLOR = C.OTHER_COLOR, NEUTRAL_COLOR = C.NEUTRAL_COLOR, RESULTS_SHOWN = C.RESULTS_SHOWN;
+    var clamp = C.clamp, normalize = C.normalize, el = C.el, icon = C.icon;
     var TERRITORY_RADIUS = 4.5;  // In light years, as the positions
     var LABELS_BELOW_SPAN = 16;  // Every name is shown when the view is narrower
     var LABELS_MAX_MATCHES = 25;
-    var RESULTS_SHOWN = 100;
 
     var scene = document.getElementById('qmap-scene');
     var svg = document.getElementById('qmap-svg');
@@ -37,8 +25,6 @@
     var detail = document.getElementById('qmap-detail');
 
     function byId(id) { return document.getElementById(id); }
-    function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
-    function normalize(text) { return String(text).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
     function starOf(system) { return STARS[system.star] || UNKNOWN_STAR; }
 
     function svgEl(name, attributes, parent) {
@@ -47,17 +33,6 @@
         if (parent) { parent.appendChild(element); }
         return element;
     }
-
-    // Player names only go through textContent
-    function el(name, className, text, parent) {
-        var element = document.createElement(name);
-        if (className) { element.className = className; }
-        if (text !== undefined && text !== null) { element.textContent = text; }
-        if (parent) { parent.appendChild(element); }
-        return element;
-    }
-
-    function icon(name, parent) { return el('i', 'fas ' + name, null, parent); }
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,15 +44,9 @@
     var resourcesById = {};
     var maxBySource = {};
 
-    data.empires.forEach(function (empire, index) {
-        empiresById[empire.id] = empire;
-        // The golden angle keeps two neighbours of the list far apart on the color wheel
-        empire.color = empire.is_mine ? MINE_COLOR : 'hsl(' + Math.round((30 + index * 137.5) % 360) + ', 85%, 62%)';
-    });
-    data.ententes.forEach(function (entente, index) {
-        ententesById[entente.id] = entente;
-        entente.color = 'hsl(' + Math.round((200 + index * 137.5) % 360) + ', 80%, 64%)';
-    });
+    C.colorGroups(data.empires, data.ententes, MINE_COLOR);
+    data.empires.forEach(function (empire) { empiresById[empire.id] = empire; });
+    data.ententes.forEach(function (entente) { ententesById[entente.id] = entente; });
     data.resources.forEach(function (resource) { resourcesById[resource.id] = resource; });
 
     data.systems.forEach(function (system) {
@@ -133,8 +102,6 @@
     var preset = null;
 
     var worldMinX = data.origin.x, worldMinY = data.origin.y, worldSize = data.size;
-    var view = {cx: worldMinX + worldSize / 2, cy: worldMinY + worldSize / 2, span: worldSize * 1.04};
-    var MIN_SPAN = 3, MAX_SPAN = worldSize * 1.2;
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -217,20 +184,19 @@
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // VIEW : pan and zoom
 
-    var sceneWidth = 1, sceneHeight = 1, tween = null;
-
-    function clampView() {
-        view.span = clamp(view.span, MIN_SPAN, MAX_SPAN);
-        view.cx = clamp(view.cx, worldMinX, worldMinX + worldSize);
-        view.cy = clamp(view.cy, worldMinY, worldMinY + worldSize);
-    }
-
-    function unitsPerPixel() { return view.span / Math.min(sceneWidth, sceneHeight); }
+    var mapView = C.createView({
+        scene: scene, minX: worldMinX, minY: worldMinY, size: worldSize, apply: applyView, dragStart: hideTooltip,
+        click: function (event) {
+            var marker = event.target.closest('.qmap-sys');
+            select(marker ? systemsById[marker.getAttribute('data-id')] : null);
+        },
+        escape: function () { select(null); }
+    });
+    var view = mapView.view;
 
     function applyView() {
-        clampView();
-        var unit = unitsPerPixel();
-        var width = sceneWidth * unit, height = sceneHeight * unit;
+        var unit = mapView.unit();
+        var width = mapView.width() * unit, height = mapView.height() * unit;
         svg.setAttribute('viewBox', (view.cx - width / 2) + ' ' + (view.cy - height / 2) + ' ' + width + ' ' + height);
 
         // The stars grow slower than the map : the markers stay readable and the systems get apart
@@ -253,150 +219,10 @@
         });
     }
 
-    function animateTo(cx, cy, span) {
-        cancelAnimationFrame(tween);
-        if (reducedMotion) {
-            view.cx = cx; view.cy = cy; view.span = span;
-            applyView();
-            return;
-        }
-        var start = {cx: view.cx, cy: view.cy, span: view.span};
-        var startTime = performance.now();
-        (function frame(now) {
-            var t = clamp((now - startTime) / 260, 0, 1);
-            var eased = t * t * (3 - 2 * t);
-            view.cx = start.cx + (cx - start.cx) * eased;
-            view.cy = start.cy + (cy - start.cy) * eased;
-            view.span = start.span * Math.pow(span / start.span, eased);
-            applyView();
-            if (t < 1) { tween = requestAnimationFrame(frame); }
-        })(startTime);
-    }
-
-    function resetView() { animateTo(worldMinX + worldSize / 2, worldMinY + worldSize / 2, worldSize * 1.04); }
-
-    function zoomAt(factor, clientX, clientY) {
-        var rect = svg.getBoundingClientRect();
-        var unit = unitsPerPixel();
-        var worldX = view.cx + (clientX - rect.left - sceneWidth / 2) * unit;
-        var worldY = view.cy + (clientY - rect.top - sceneHeight / 2) * unit;
-        var span = clamp(view.span * factor, MIN_SPAN, MAX_SPAN);
-        var applied = span / view.span;
-        view.cx = worldX + (view.cx - worldX) * applied;
-        view.cy = worldY + (view.cy - worldY) * applied;
-        view.span = span;
-        applyView();
-    }
-
-    function zoomCentered(factor) { animateTo(view.cx, view.cy, clamp(view.span * factor, MIN_SPAN, MAX_SPAN)); }
-
-    function revealSystem(system) {
-        var unit = unitsPerPixel();
-        var dx = Math.abs(system.x - view.cx) / unit, dy = Math.abs(system.y - view.cy) / unit;
-        if (dx > sceneWidth / 2 - 90 || dy > sceneHeight / 2 - 70) { animateTo(system.x, system.y, view.span); }
-    }
-
-    new ResizeObserver(function () {
-        sceneWidth = scene.clientWidth || 1;
-        sceneHeight = scene.clientHeight || 1;
-        applyView();
-    }).observe(scene);
-
-    scene.addEventListener('wheel', function (event) {
-        if (event.target.closest('.qmap-detail')) { return; }
-        event.preventDefault();
-        cancelAnimationFrame(tween);
-        zoomAt(Math.pow(1.0018, event.deltaY), event.clientX, event.clientY);
-    }, {passive: false});
-
-    // One finger or the mouse moves the map, two fingers zoom
-    var pointers = {}, dragged = false, downAt = null, pinchDistance = null;
-
-    function pointersList() { return Object.keys(pointers).map(function (id) { return pointers[id]; }); }
-
-    scene.addEventListener('pointerdown', function (event) {
-        if (event.target.closest('a, button, .qmap-detail')) { return; }
-        pointers[event.pointerId] = {x: event.clientX, y: event.clientY};
-        downAt = {x: event.clientX, y: event.clientY};
-        dragged = false;
-        pinchDistance = null;
-    });
-
-    scene.addEventListener('pointermove', function (event) {
-        var pointer = pointers[event.pointerId];
-        if (!pointer) { return; }
-        var list = pointersList();
-
-        if (list.length === 2) {
-            pointer.x = event.clientX; pointer.y = event.clientY;
-            var distance = Math.hypot(list[0].x - list[1].x, list[0].y - list[1].y);
-            if (pinchDistance) { zoomAt(pinchDistance / distance, (list[0].x + list[1].x) / 2, (list[0].y + list[1].y) / 2); }
-            pinchDistance = distance;
-            dragged = true;
-            return;
-        }
-
-        if (!dragged && Math.hypot(event.clientX - downAt.x, event.clientY - downAt.y) > 4) {
-            dragged = true;
-            cancelAnimationFrame(tween);
-            scene.setPointerCapture(event.pointerId);
-            scene.classList.add('is-dragging');
-            hideTooltip();
-        }
-        if (dragged) {
-            var unit = unitsPerPixel();
-            view.cx -= (event.clientX - pointer.x) * unit;
-            view.cy -= (event.clientY - pointer.y) * unit;
-            applyView();
-        }
-        pointer.x = event.clientX; pointer.y = event.clientY;
-    });
-
-    function pointerEnd(event) {
-        delete pointers[event.pointerId];
-        pinchDistance = null;
-        scene.classList.remove('is-dragging');
-    }
-    scene.addEventListener('pointerup', pointerEnd);
-    scene.addEventListener('pointercancel', pointerEnd);
-
-    scene.addEventListener('click', function (event) {
-        if (dragged) { dragged = false; return; }
-        if (event.target.closest('a, button, .qmap-detail')) { return; }
-        var marker = event.target.closest('.qmap-sys');
-        select(marker ? systemsById[marker.getAttribute('data-id')] : null);
-    });
-
-    scene.addEventListener('dblclick', function (event) {
-        if (event.target.closest('a, button, .qmap-detail')) { return; }
-        cancelAnimationFrame(tween);
-        zoomAt(0.5, event.clientX, event.clientY);
-    });
-
-    scene.addEventListener('keydown', function (event) {
-        if (event.target !== scene) { return; }
-        var move = view.span * 0.12;
-        var actions = {
-            ArrowLeft: function () { animateTo(view.cx - move, view.cy, view.span); },
-            ArrowRight: function () { animateTo(view.cx + move, view.cy, view.span); },
-            ArrowUp: function () { animateTo(view.cx, view.cy - move, view.span); },
-            ArrowDown: function () { animateTo(view.cx, view.cy + move, view.span); },
-            '+': function () { zoomCentered(0.7); },
-            '=': function () { zoomCentered(0.7); },
-            '-': function () { zoomCentered(1.4); },
-            '0': resetView,
-            Escape: function () { select(null); }
-        };
-        if (actions[event.key]) { event.preventDefault(); actions[event.key](); }
-    });
-
     root.querySelector('.qmap-controls').addEventListener('click', function (event) {
         var button = event.target.closest('button');
         if (!button) { return; }
         var action = button.getAttribute('data-action');
-        if (action === 'zoom-in') { zoomCentered(0.65); }
-        if (action === 'zoom-out') { zoomCentered(1.5); }
-        if (action === 'reset') { resetView(); }
         if (action === 'labels') {
             state.allLabels = !state.allLabels;
             button.setAttribute('aria-pressed', state.allLabels);
@@ -782,7 +608,7 @@
     function hideTooltip() { tooltip.hidden = true; }
 
     svg.addEventListener('pointermove', function (event) {
-        if (dragged) { return; }
+        if (mapView.isDragging()) { return; }
         var marker = event.target.closest('.qmap-sys');
         if (!marker) {
             hideTooltip();
@@ -912,7 +738,7 @@
             system.element.classList.add('is-selected');
             // Above its neighbours
             systemsLayer.appendChild(system.element);
-            if (reveal) { revealSystem(system); }
+            if (reveal) { mapView.reveal(system.x, system.y); }
         }
         renderDetail(system);
         applyLabels();
@@ -921,8 +747,6 @@
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    sceneWidth = scene.clientWidth || 1;
-    sceneHeight = scene.clientHeight || 1;
     setMode('star');
     applyNetworks();
 

@@ -38,6 +38,9 @@ urlpatterns = [
     # COMMANDANTS
     path('api_create_commandant/', views_api_commandant.api_create_commandant),
 
+    # GEOGRAPHY
+    path('api_sector_deposits/', views_game.api_sector_deposits),
+
     # BUILDINGS & DISTRICTS
     path('api_start_research/', views_api_research.api_start_research),
     path('api_build_district/', views_api_buildings.api_build_district),
@@ -84,6 +87,7 @@ urlpatterns = [
 
     path('geography_system/', views_game.geography_system, name='geography_system'),
     path('geography_quadrant/', views_game.geography_quadrant, name='geography_quadrant'),
+    path('geography_sector/', views_game.geography_sector, name='geography_sector'),
 
     path('reports/', views_game.reports, name='reports'),
     path('report/', views_game.report, name='report'),

@@ -1,0 +1,21 @@
+{% load i18n %}
+
+<p class="qmap-hint">{% trans "Glisser pour se déplacer · Molette pour zoomer · Clic pour ouvrir un système" %}</p>
+
+{% if neighbours.north %}<a class="qmap-go qmap-go-north" href="{{ page }}?{{ param }}={{ neighbours.north }}" title="{% trans 'Vers le nord' %}" aria-label="{% trans 'Vers le nord' %}"><i class="fas fa-chevron-up"></i></a>{% endif %}
+{% if neighbours.south %}<a class="qmap-go qmap-go-south" href="{{ page }}?{{ param }}={{ neighbours.south }}" title="{% trans 'Vers le sud' %}" aria-label="{% trans 'Vers le sud' %}"><i class="fas fa-chevron-down"></i></a>{% endif %}
+{% if neighbours.west %}<a class="qmap-go qmap-go-west" href="{{ page }}?{{ param }}={{ neighbours.west }}" title="{% trans "Vers l'ouest" %}" aria-label="{% trans "Vers l'ouest" %}"><i class="fas fa-chevron-left"></i></a>{% endif %}
+{% if neighbours.east %}<a class="qmap-go qmap-go-east" href="{{ page }}?{{ param }}={{ neighbours.east }}" title="{% trans "Vers l'est" %}" aria-label="{% trans "Vers l'est" %}"><i class="fas fa-chevron-right"></i></a>{% endif %}
+
+<div class="qmap-controls" role="group" aria-label="{% trans 'Contrôles de la vue' %}">
+  <button type="button" class="btn btn-sm" data-action="zoom-in" title="{% trans 'Zoomer' %}" aria-label="{% trans 'Zoomer' %}"><i class="fas fa-plus"></i></button>
+  <button type="button" class="btn btn-sm" data-action="zoom-out" title="{% trans 'Dézoomer' %}" aria-label="{% trans 'Dézoomer' %}"><i class="fas fa-minus"></i></button>
+  <button type="button" class="btn btn-sm" data-action="reset" title="{% trans "Vue d'ensemble" %}" aria-label="{% trans "Vue d'ensemble" %}"><i class="fas fa-expand"></i></button>
+  <button type="button" class="btn btn-sm" data-action="labels" title="{% trans 'Tous les noms' %}" aria-label="{% trans 'Tous les noms' %}" aria-pressed="false"><i class="fas fa-font"></i></button>
+  <button type="button" class="btn btn-sm" data-action="territories" title="{% trans 'Territoires' %}" aria-label="{% trans 'Territoires' %}" aria-pressed="true"><i class="fas fa-draw-polygon"></i></button>
+</div>
+
+<div class="qmap-tooltip" id="qmap-tooltip" hidden></div>
+
+<!-- DATA OF THE SELECTED SYSTEM -->
+<article class="qmap-detail" id="qmap-detail" aria-live="polite" hidden></article>

@@ -1,4 +1,6 @@
+from django.http import JsonResponse
 from django.template.response import TemplateResponse
+from django.views.decorators.http import require_GET
 from django.shortcuts import redirect, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -8,6 +10,7 @@ from django.utils import timezone
 import data.user
 import data.themes
 from backend.models import to_id
+from backend.api_ui_interactions import api_login_required
 from backend.decorators import add_cycle_info, log_player_action, commandant_required
 from backend.utils import request_params, parameters_presents, get_request_user
 from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator, cycles, quadrants
@@ -353,6 +356,39 @@ def geography_quadrant(request, server, commandant):
 
     return TemplateResponse(request, 'game/geography_quadrant.html',
                             {'server': server, 'quadrant_map': quadrant_map, 'quadrant_not_found': quadrant_not_found})
+
+
+@login_required(login_url='/player_login/')
+@add_cycle_info
+@log_player_action
+@commandant_required
+def geography_sector(request, server, commandant):
+
+    params = request_params(request)
+    language = get_request_user(request)['language']
+
+    # TODO check if commandant has vision on the sector, same as geography_system
+
+    requested = params.get('sector') or params.get('system_id') or ''
+    sector_id = quadrants.sector_id_of(requested.strip())
+    sector_map = quadrants.sector_map(server, sector_id, commandant['id'], language) if sector_id else None
+
+    sector_not_found = bool(requested) and sector_map is None
+    if sector_map is None:
+        sector_map = quadrants.sector_map(server, commandant['native_sector'], commandant['id'], language)
+
+    return TemplateResponse(request, 'game/geography_sector.html',
+                            {'server': server, 'sector_map': sector_map, 'sector_not_found': sector_not_found})
+
+
+@require_GET
+@api_login_required
+@commandant_required
+def api_sector_deposits(request, server, commandant):
+    # Asked by the map of a sector once a search is about this resource
+    sector_id = quadrants.sector_id_of(request.GET.get('sector', '').strip())
+    deposits = quadrants.sector_deposits(server, sector_id, request.GET.get('resource')) if sector_id else {'indexes': [], 'values': []}
+    return JsonResponse(deposits, json_dumps_params={'separators': (',', ':')})
 
 
 ########################################################################################################################

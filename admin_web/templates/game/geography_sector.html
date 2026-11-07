@@ -1,0 +1,41 @@
+
+{% load i18n %}
+{% load static %}
+
+{% include "includes/head.html" with title=sector_map.title page_css="css/quadrant_map.css" %}
+
+{% include "includes/menu_game.html" with page_title=sector_map.title %}  <!-- include body start -->
+
+  <div class="content-wrapper">
+    <section class="content qmap-page">
+
+      {% if sector_not_found %}
+        <div class="alert alert-warning">
+          <i class="icon fas fa-triangle-exclamation"></i>
+          {% trans "Aucun secteur à ces coordonnées. Retour à votre secteur d'origine." %}
+        </div>
+      {% endif %}
+
+      <div class="qmap" id="qmap">
+
+        {% include "includes/map_panel.html" %}
+
+        <!-- THE MAP : a canvas, the only way to stay fluid with tens of thousands of systems. The list of results gives access to them with the keyboard. -->
+        <div class="qmap-scene" id="qmap-scene" tabindex="0" role="application" aria-label="{{ sector_map.title }}">
+          <canvas class="qmap-svg" id="qmap-canvas" aria-hidden="true"></canvas>
+
+          {% include "includes/map_overlays.html" with neighbours=sector_map.neighbours page="/geography_sector/" param="sector" %}
+        </div>
+      </div>
+
+    </section>
+  </div>
+
+  {{ sector_map|json_script:"qmap-data" }}
+  <script src="{% static 'js/map_common.js' %}" defer></script>
+  <script src="{% static 'js/sector_map.js' %}" defer></script>
+
+</div><!-- ./wrapper -->
+
+</body>
+</html>

@@ -9,6 +9,7 @@ are the only functions to replace.
 import random
 import re
 
+from django.core.cache import cache
 from django.utils.translation import gettext as _, gettext_lazy
 
 from data.coordinates import SUBTYPE_NAMES, TYPE_NAMES
@@ -18,7 +19,9 @@ from data.names import localized_name
 from database.schemas import on_server
 from game.models import Colony, Commandant, Coordinate, Resource, Sector, System
 
+SECTOR_SIZE = 100
 QUADRANT_SIZE = 50
+CACHE_SECONDS = 3600  # What only depends on the seeds is heavy to compute on a big sector, and only changes with a new generation
 
 DIRECTIONS = {'north': (-1, 0), 'south': (1, 0), 'west': (0, -1), 'east': (0, 1)}
 QUADRANT_NAMES = {'00': gettext_lazy("Nord-Ouest"), '01': gettext_lazy("Nord-Est"),
@@ -171,9 +174,9 @@ def _bodies_by_system(sector_id, quadrant):
     return bodies
 
 
-def _colonies_by_system(seeds, commandant_id):
+def _colonies_by_system(rows, commandant_id):
     colonies = {}
-    for colony in Colony.objects.filter(coordinate__in=seeds).order_by('id').values('id', 'name', 'owner_id', 'coordinate'):
+    for colony in rows.order_by('id').values('id', 'name', 'owner_id', 'coordinate'):
         is_mine = colony['owner_id'] == commandant_id
         colonies.setdefault(colony['coordinate'][:16], []).append({
             'name': colony['name'], 'owner': colony['owner_id'], 'is_mine': is_mine,
@@ -190,14 +193,23 @@ def _empires(owner_ids, commandant_id, memberships):
                                          .values('id', 'commandant_name', 'civilisation_name')]
 
 
+def _politics(server, colonies, commandant_id):
+    # The empires and the ententes present on a map
+    owner_ids = {colony['owner'] for rows in colonies.values() for colony in rows}
+    memberships = memberships_of_commandants(server, owner_ids)
+    ententes = {entente['id']: entente for rows in memberships.values() for entente in rows}
+    return _empires(owner_ids, commandant_id, memberships), sorted(ententes.values(), key=lambda entente: entente['name'].lower())
+
+
 def _labels():
     return {
         'colonies': _("Colonies"), 'no_colony': _("Aucune colonie"), 'bodies': _("Astres"), 'vortex': _("Vortex"), 'position': _("Position"),
         'open_system': _("Ouvrir le système"), 'open_quadrant': _("Vers le quadrant voisin"), 'rare': _("Rare"),
         'results': _("systèmes correspondent"), 'result': _("système correspond"), 'all_systems': _("systèmes"),
-        'no_result': _("Aucun système ne correspond"), 'no_empire': _("Aucun empire dans ce quadrant"), 'no_entente': _("Aucune entente dans ce quadrant"),
+        'no_result': _("Aucun système ne correspond"), 'no_empire': _("Aucun empire ici"), 'no_entente': _("Aucune entente ici"),
         'network': _("Réseau"), 'alpha': _("Alpha"), 'beta': _("Bêta"), 'gamma': _("Gamma"), 'delta': _("Delta"), 'more': _("autres résultats"),
         'deposits': _("Gisements"), 'no_deposit': _("Aucun gisement"), 'no_vortex': _("Aucun vortex"),
+        'rare_resources': _("Ressources rares"), 'quadrant': _("Quadrant"), 'open_quadrant_map': _("Ouvrir le quadrant"), 'load_error': _("Une erreur est survenue, veuillez réessayer"),
     }
 
 
@@ -214,7 +226,7 @@ def quadrant_map(server, quadrant, commandant_id, language):
 
     bodies = _bodies_by_system(sector_id, quadrant)
     system_types = dict(System.objects.filter(seed__in=bodies).values_list('seed', 'system_type'))
-    colonies = _colonies_by_system([body['seed'] for rows in bodies.values() for body in rows], commandant_id)
+    colonies = _colonies_by_system(Colony.objects.filter(coordinate__in=[body['seed'] for rows in bodies.values() for body in rows]), commandant_id)
 
     systems = []
     for system_id, rows in bodies.items():
@@ -235,10 +247,7 @@ def quadrant_map(server, quadrant, commandant_id, language):
             'bodies': details, 'deposits': totals, 'colonies': colonies.get(system_id, []),
         })
 
-    owner_ids = {colony['owner'] for rows in colonies.values() for colony in rows}
-    memberships = memberships_of_commandants(server, owner_ids)
-    empires = _empires(owner_ids, commandant_id, memberships)
-    ententes = {entente['id']: entente for rows in memberships.values() for entente in rows}
+    empires, ententes = _politics(server, colonies, commandant_id)
 
     # Only the resources the generator knows on this server, its Excel file could have renamed them
     found = {resource for system in systems for resource in system['deposits']}
@@ -253,6 +262,114 @@ def quadrant_map(server, quadrant, commandant_id, language):
             'quadrant': QUADRANT_NAMES[quadrant[11:]], 'sector': f"{sectors[sector_id]['pos_y']}-{sectors[sector_id]['pos_x']}"},
         'origin': {'y': y0, 'x': x0}, 'size': QUADRANT_SIZE,
         'neighbours': {direction: neighbour for direction, neighbour in neighbours.items() if neighbour and neighbour[:10] in sectors},
-        'systems': systems, 'empires': empires, 'ententes': sorted(ententes.values(), key=lambda entente: entente['name'].lower()),
+        'systems': systems, 'empires': empires, 'ententes': ententes,
         'resources': resources, 'vortex': vortex_of_quadrant(quadrant, positions), 'labels': _labels(),
     }
+
+
+########################################################################################################################
+# THE MAP OF A SECTOR : it has to stay light with tens of thousands of systems, so the systems are sent as columns,
+# without their bodies, and the deposits of one resource only when a search asks for them
+
+
+def sector_id_of(text):
+    # The sector designated by its seed, the id of a quadrant or the seed of a system or a coordinate. None if it is neither.
+    return text[:10] if re.fullmatch(r'\d{10}(:\d{2}|\d{6}(\d{2})?)?', text) else None
+
+
+def _neighbour_sectors(sector_id):
+    y, x = int(sector_id[4:7]), int(sector_id[7:10])
+    return {direction: f'{sector_id[:4]}{y + dy:03}{x + dx:03}' for direction, (dy, dx) in DIRECTIONS.items() if y + dy >= 0 and x + dx >= 0}
+
+
+def _stars_of_sector(sector_id):
+    # Their order is the rank of the systems on the map : the vortex and the deposits refer to it
+    return Coordinate.objects.filter(seed__startswith=sector_id, sys_coordinate=0).order_by('seed').values_list('system_id', 'sys_y', 'sys_x', 'subtype', 'name')
+
+
+def _vortex_of_sector(sector_id, neighbours, ranks):
+    positions = {sector.seed: [tuple(position) for position in sector.systems_coordinates]
+                 for sector in Sector.objects.filter(seed__in=[sector_id, *neighbours.values()]).only('seed', 'systems_coordinates')}
+    result = {'nodes': {}, 'links': {}, 'exits': []}
+    crossed = set()
+    per_axis = range(SECTOR_SIZE // QUADRANT_SIZE)
+    for quadrant in (f'{sector_id}:{y}{x}' for y in per_axis for x in per_axis):
+        vortex = vortex_of_quadrant(quadrant, positions)
+        for seed, network in vortex['nodes'].items():
+            result['nodes'].setdefault(network, []).append(ranks[seed])
+        for link in vortex['links']:
+            result['links'].setdefault(link['network'], []).extend((ranks[link['from']], ranks[link['to']]))
+        for exit_ in vortex['exits']:
+            if exit_['to'] not in ranks:
+                result['exits'].append({'network': exit_['network'], 'direction': exit_['direction'], 'from': ranks[exit_['from']]})
+            elif (exit_['to'], exit_['from'], exit_['network']) not in crossed:  # Each side of a border finds the same one
+                crossed.add((exit_['from'], exit_['to'], exit_['network']))
+                result['links'].setdefault(exit_['network'], []).extend((ranks[exit_['from']], ranks[exit_['to']]))
+    return result
+
+
+@on_server
+def sector_map(server, sector_id, commandant_id, language):
+    # All that the page needs, ready for json_script. None if this sector doesn't exist.
+    sector = Sector.objects.filter(seed=sector_id).values('pos_y', 'pos_x').first()
+    if sector is None:
+        return None
+
+    stars = list(_stars_of_sector(sector_id))
+    ranks = {star[0]: rank for rank, star in enumerate(stars)}
+    system_types = dict(System.objects.filter(sector_id=sector_id).values_list('seed', 'system_type'))
+    types = [system_types.get(star[0], 'standard') for star in stars]
+    star_keys = sorted({star[3] for star in stars})
+    type_keys = sorted(set(types))
+    star_ranks = {key: rank for rank, key in enumerate(star_keys)}
+    type_ranks = {key: rank for rank, key in enumerate(type_keys)}
+
+    colonies = _colonies_by_system(Colony.objects.filter(coordinate__startswith=sector_id), commandant_id)
+    empires, ententes = _politics(server, colonies, commandant_id)
+
+    abundance = {}
+    for chances in DEPOSIT_CHANCES.values():
+        for resource, chance in chances.items():
+            abundance[resource] = abundance.get(resource, 0) + chance
+    resources = [{'id': row.internal_name, 'name': localized_name(row.data, language), 'rare': row.internal_name in RARE_RESOURCES}
+                 for row in sorted(Resource.objects.filter(internal_name__in=abundance), key=lambda row: -abundance[row.internal_name])]
+
+    candidates = _neighbour_sectors(sector_id)
+    existing = set(Sector.objects.filter(seed__in=candidates.values()).values_list('seed', flat=True))
+    neighbours = {direction: seed for direction, seed in candidates.items() if seed in existing}
+
+    return {
+        'id': sector_id,
+        'title': _("Secteur %(sector)s") % {'sector': f"{sector['pos_y']}-{sector['pos_x']}"},
+        'size': SECTOR_SIZE, 'quadrant_size': QUADRANT_SIZE, 'neighbours': neighbours,
+        'stars': [{'key': key, 'name': str(SUBTYPE_NAMES.get(key, key))} for key in star_keys],
+        'types': [{'key': key, 'name': str(SYSTEM_TYPE_NAMES.get(key, key))} for key in type_keys],
+        'systems': {'y': [star[1] for star in stars], 'x': [star[2] for star in stars], 'star': [star_ranks[star[3]] for star in stars],
+                    'type': [type_ranks[system_type] for system_type in types], 'name': [star[4] for star in stars]},
+        'colonies': {ranks[system_id]: rows for system_id, rows in colonies.items() if system_id in ranks},
+        'empires': empires, 'ententes': ententes, 'resources': resources, 'labels': _labels(),
+        'vortex': cache.get_or_set(f'sector_vortex:{server}:{sector_id}', lambda: _vortex_of_sector(sector_id, neighbours, ranks), CACHE_SECONDS),
+    }
+
+
+def _deposits_of_sector(sector_id):
+    # {resource: {'indexes': [rank of a system], 'values': [what this system holds]}}, '__rare' for all the rare ones together
+    ranks = {star[0]: rank for rank, star in enumerate(_stars_of_sector(sector_id))}
+    system_types = dict(System.objects.filter(sector_id=sector_id).values_list('seed', 'system_type'))
+    totals = {}
+    bodies = Coordinate.objects.filter(seed__startswith=sector_id).exclude(type='star').values_list('seed', 'system_id', 'type')
+    for seed, system_id, body_type in bodies.iterator():
+        for resource, richness in deposits_of_body(seed, body_type, system_types.get(system_id, 'standard')).items():
+            for key in (resource, '__rare') if resource in RARE_RESOURCES else (resource,):
+                of_key = totals.setdefault(key, {})
+                of_key[ranks[system_id]] = of_key.get(ranks[system_id], 0) + richness
+    return {resource: {'indexes': list(values), 'values': list(values.values())} for resource, values in totals.items()}
+
+
+@on_server
+def sector_deposits(server, sector_id, resource):
+    if not Sector.objects.filter(seed=sector_id).exists():
+        return {'indexes': [], 'values': []}
+    # shortcut: kept in the memory of each process, an hour at most after a new generation. Replace it when the deposits are stored.
+    deposits = cache.get_or_set(f'sector_deposits:{server}:{sector_id}', lambda: _deposits_of_sector(sector_id), CACHE_SECONDS)
+    return deposits.get(resource, {'indexes': [], 'values': []})

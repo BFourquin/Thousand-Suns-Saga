@@ -155,6 +155,9 @@
 
 .qmap-hint { position: absolute; right: 0.6rem; bottom: 0.45rem; margin: 0; color: var(--q-muted); font-size: 0.76rem; pointer-events: none; text-shadow: 0 1px 3px #000; }
 
+.qmap-up { position: absolute; top: 0.6rem; left: 0.6rem; color: var(--q-text) !important; background: var(--q-glass); border: 1px solid var(--q-line); }
+.qmap-up:hover { border-color: var(--q-accent); }
+
 .qmap-go {
     position: absolute;
     display: flex;
@@ -211,6 +214,8 @@
     backdrop-filter: blur(4px);
 }
 .qmap-detail[hidden], .qmap-tooltip[hidden] { display: none; }
+.qmap-detail .btn { margin-bottom: 0.3rem; color: var(--q-text) !important; background: none !important; border-color: var(--q-line) !important; }
+.qmap-detail .btn:hover { border-color: var(--q-accent) !important; }
 .qmap-detail-close { position: absolute; top: 0.4rem; right: 0.4rem; width: 1.6rem; height: 1.6rem; color: var(--q-muted); background: none; border: 0; }
 .qmap-detail-close:hover { color: var(--q-text); }
 .qmap-detail-name { margin: 0 1.5rem 0 0; font-size: 1.1rem; font-weight: 600; }
