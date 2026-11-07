@@ -81,7 +81,7 @@
                           Joueurs
                       </th>
                        <th class="text-center u-width-145px">
-                          Multicompte
+                          Type de serveur
                        </th>
                   </tr>
               </thead>
@@ -152,17 +152,17 @@
                           </small>
                       </td>
 
-                                            <!-- Multicomptes -->
+                                            <!-- Exclusif -->
                       <td>
-                        <form action="/admin_servers_states_edit/" method="POST" id="{{server.server_name}}_allow_multiaccounts">
+                        <form action="/admin_servers_states_edit/" method="POST" id="{{server.server_name}}_exclusive">
                             {% csrf_token %}
                             <input type="hidden" name="server_name" value="{{server.server_name}}">
-                            <input type="hidden" name="type" value="allow_multiaccounts">
+                            <input type="hidden" name="type" value="exclusive">
                             <select class="custom-select u-max-width-100px"
                                     name="value"
-                                    data-autosubmit form="{{server.server_name}}_allow_multiaccounts">
-                              <option {% if server.allow_multiaccounts %} selected="selected" {% endif %} value="true">autorisé</option>
-                              <option {% if not server.allow_multiaccounts %} selected="selected" {% endif %} value="false">interdit</option>
+                                    data-autosubmit form="{{server.server_name}}_exclusive">
+                              <option {% if not server.exclusive %} selected="selected" {% endif %} value="false">libre</option>
+                              <option {% if server.exclusive %} selected="selected" {% endif %} value="true">exclusif</option>
                             </select>
                         </form>
                       </td>

@@ -2167,6 +2167,39 @@ class CreateCommandantTests(TestCase):
             commandant_id = Commandant.objects.get().id
         self.assertEqual(cycles.get_current_cycle('S')['commandants_cycle_playing'], [commandant_id])
 
+    def test_only_one_commandant_per_server(self):
+        create_commandant('S', 'player', 'Paullus', 'Empire')
+        with self.assertRaises(GameError):
+            create_commandant('S', 'player', 'Varro', 'Royaume')
+        self.assertEqual(CommandantAccount.objects.count(), 1)
+
+    def test_a_dead_commandant_leaves_its_place_on_the_server(self):
+        create_commandant('S', 'player', 'Paullus', 'Empire')
+        CommandantAccount.objects.update(status='dead')
+        create_commandant('S', 'player', 'Varro', 'Royaume')
+        self.assertEqual(CommandantAccount.objects.count(), 2)
+
+    def test_only_one_exclusive_server_at_a_time(self):
+        Server.objects.update(exclusive=True)
+        create_commandant('S', 'player', 'Paullus', 'Empire')
+        with self.assertRaises(GameError):
+            create_commandant('Other', 'player', 'Varro', 'Royaume')
+        with server_schema('Other'):
+            self.assertFalse(Commandant.objects.exists())
+
+    def test_a_free_server_comes_on_top_of_an_exclusive_one(self):
+        Server.objects.filter(pk='S').update(exclusive=True)
+        create_commandant('S', 'player', 'Paullus', 'Empire')
+        create_commandant('Other', 'player', 'Varro', 'Royaume')
+        self.assertEqual(CommandantAccount.objects.count(), 2)
+
+    def test_a_finished_exclusive_server_no_longer_counts(self):
+        Server.objects.update(exclusive=True)
+        create_commandant('S', 'player', 'Paullus', 'Empire')
+        Server.objects.filter(pk='S').update(status='stop')
+        create_commandant('Other', 'player', 'Varro', 'Royaume')
+        self.assertEqual(CommandantAccount.objects.count(), 2)
+
     def test_commandants_of_a_sector_share_their_native_entente(self):
         create_commandant('S', 'player', 'Paullus', 'Empire')
         User.objects.create_user('player2', 'p2@example.com', 'x')

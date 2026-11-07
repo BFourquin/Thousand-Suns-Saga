@@ -3045,6 +3045,30 @@ msgstr "Chronicles"
 msgid "Clair, parchemin et encre sépia"
 msgstr "Light, parchment and sepia ink"
 
+msgid "Type de serveur"
+msgstr "Server type"
+
+msgid "Exclusif"
+msgstr "Exclusive"
+
+msgid "Libre"
+msgstr "Free"
+
+msgid "Un seul commandant par serveur."
+msgstr "One commandant per server."
+
+msgid "Exclusif : serveur sérieux qui demande beaucoup de temps, vous ne pouvez jouer que sur un seul serveur exclusif à la fois."
+msgstr "Exclusive: a serious server asking a lot of time, you can only play on one exclusive server at a time."
+
+msgid "Libre : se joue en plus de vos autres serveurs."
+msgstr "Free: played on top of your other servers."
+
+msgid "Vous avez déjà un commandant sur ce serveur"
+msgstr "You already have a commandant on this server"
+
+msgid "Ce serveur est exclusif et vous jouez déjà sur un autre serveur exclusif"
+msgstr "This server is exclusive and you already play on another exclusive server"
+
 #~ msgid "Quadrant au nord"
 #~ msgstr "Quadrant to the north"
 

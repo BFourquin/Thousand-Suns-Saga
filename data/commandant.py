@@ -1,10 +1,11 @@
 from random import randint
 
+from django.contrib.auth.models import User
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from backend.models import CommandantAccount, UserExtended
+from backend.models import CommandantAccount, FINISHED_SERVER_STATUSES, Server, UserExtended
 from game.models import Commandant, Cycle, to_id
 from database.schemas import on_server
 from data.errors import GameError
@@ -14,11 +15,26 @@ from actions import colonize
 from backend import utils
 
 
+def check_account_rules(server, user_id):
+    # One commandant per server, and one exclusive server at a time. Dead commandants and finished servers don't count.
+
+    # Locked until the end of the transaction : two simultaneous creations on two servers can't both pass
+    User.objects.select_for_update().get(id=user_id)
+
+    accounts = CommandantAccount.objects.filter(user_id=user_id, status='active')
+    if accounts.filter(server=server).exists():
+        raise GameError(_("Vous avez déjà un commandant sur ce serveur"))
+    if Server.objects.get(pk=server).exclusive and \
+            accounts.filter(server__exclusive=True).exclude(server__status__in=FINISHED_SERVER_STATUSES).exists():
+        raise GameError(_("Ce serveur est exclusif et vous jouez déjà sur un autre serveur exclusif"))
+
+
 @on_server
 @transaction.atomic
 def create_commandant(server, user, commandant_name, civilisation_name):
 
     user = get_user_by_name(user)
+    check_account_rules(server, user['id'])
 
     # Locked until the end of the transaction : two new players can't take the same planet
     starting_values = sv.get_starting_values(server, lock=True)

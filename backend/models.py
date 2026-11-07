@@ -22,6 +22,10 @@ class GameModel(models.Model):
         return model_to_dict(self)
 
 
+# The game is over there : see backend.utils.orders_closed
+FINISHED_SERVER_STATUSES = ('stop', 'dead')
+
+
 class Server(GameModel):
     server_name = models.CharField(primary_key=True, max_length=59)  # Its schema has 'TSS_' more, and 63 characters at most
     version = models.FloatField()
@@ -33,7 +37,7 @@ class Server(GameModel):
     end_date = models.DateTimeField(null=True, blank=True)
     language = models.CharField(max_length=20)
     roleplay = models.CharField(max_length=10)
-    allow_multiaccounts = models.BooleanField(default=False)
+    exclusive = models.BooleanField(default=False)  # A serious server, asking a lot of time : a player can only be on one of them
     timezone = models.CharField(max_length=50)
 
     def as_dict(self):

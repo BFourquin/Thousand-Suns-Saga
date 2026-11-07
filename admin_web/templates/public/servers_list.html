@@ -51,7 +51,7 @@
                            {% trans "Date d'ouverture"%}
                       </th>
                        <th class="d-none d-md-table-cell">
-                           {% trans "Multicompte"%}
+                           {% trans "Type de serveur"%}
                        </th>
                       <th>
                            {% trans "Inscription"%}
@@ -119,10 +119,9 @@
                           {% if server.open_since_days >= 2 %}{% trans "jours"%}{% endif %} )
                       </td>
 
-                      <!-- Multicomptes -->
+                      <!-- Exclusif -->
                       <td class="d-none d-md-table-cell">
-                          {% if server.allow_multiaccounts %} {% trans "Autorisé"%} {% endif %}
-                          {% if not server.allow_multiaccounts %} {% trans "Interdit"%} {% endif %}
+                          {% if server.exclusive %}{% trans "Exclusif"%}{% else %}{% trans "Libre"%}{% endif %}
                       </td>
 
                       <!-- Rejoindre -->
@@ -141,6 +140,11 @@
                  {% endfor %}
               </tbody>
           </table>
+          <p class="text-muted mt-3 mb-0">
+            {% trans "Un seul commandant par serveur." %}
+            {% trans "Exclusif : serveur sérieux qui demande beaucoup de temps, vous ne pouvez jouer que sur un seul serveur exclusif à la fois." %}
+            {% trans "Libre : se joue en plus de vos autres serveurs." %}
+          </p>
         </div>
         <!-- /.card-body -->
       </div>

@@ -104,7 +104,7 @@ def admin_servers_states(request):
 
 
 BOOLEAN_VALUES = ('true', 'false')
-EDITABLE_SERVER_PARAMS = {'status': server_details.server_status, 'admin_only_visibility': BOOLEAN_VALUES, 'allow_multiaccounts': BOOLEAN_VALUES}
+EDITABLE_SERVER_PARAMS = {'status': server_details.server_status, 'admin_only_visibility': BOOLEAN_VALUES, 'exclusive': BOOLEAN_VALUES}
 
 
 @require_POST

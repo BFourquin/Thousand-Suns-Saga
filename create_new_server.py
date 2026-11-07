@@ -40,6 +40,7 @@ gameplay = 'skirmish'  # 'saga' (main game) / 'skirmish' (boardgame)
 roleplay = 'HRP'  # 'RP' / 'HRP'
 language = 'international'  # 'fr' / 'en' / 'international'
 timezone = 'Europe/Paris'
+exclusive = False  # True for a serious server asking a lot of time : a player can only be on one exclusive server
 
 
 admin_only_visibility = False
@@ -68,7 +69,7 @@ if server_details.get_server_details(server_name):
 # SERVER DETAILS
 
 server_details.create_server(server_name, version, status=server_status, admin_only_visibility=admin_only_visibility,
-                             language=language, roleplay=roleplay, gameplay=gameplay, timezone_name=timezone)
+                             language=language, roleplay=roleplay, gameplay=gameplay, timezone_name=timezone, exclusive=exclusive)
 
 
 # TECHNOLOGIES

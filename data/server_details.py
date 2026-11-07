@@ -22,7 +22,7 @@ server_status = ('open',  # users can create an account and play
 
 @transaction.atomic
 def create_server(server_name, version, status='test', admin_only_visibility=True,
-                  language='fr', roleplay='HRP', gameplay='saga', timezone_name='Europe/Paris'):
+                  language='fr', roleplay='HRP', gameplay='saga', timezone_name='Europe/Paris', exclusive=False):
 
     if Server.objects.filter(pk=server_name).exists():
         raise Exception("'" + server_name + "' already exist.")
@@ -38,6 +38,7 @@ def create_server(server_name, version, status='test', admin_only_visibility=Tru
                                    opening_date=timezone.now(),
                                    language=language,
                                    roleplay=roleplay,
+                                   exclusive=exclusive,
                                    timezone=timezone_name)
     create_server_schema(server_name)
     return server
