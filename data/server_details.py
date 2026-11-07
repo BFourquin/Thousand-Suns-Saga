@@ -50,14 +50,17 @@ def set_server_config(server_name, config):
     columns = {('gameplay' if param == 'gameplay_type' else param): value for param, value in config.items()}
 
     # At the creation of the server : better to stop it than to lose a parameter or to run at an hour that doesn't exist
-    unknown = set(columns) - {'gameplay', *SERVER_HOURS}
+    unknown = set(columns) - {'gameplay', 'delay_first_cycle', *SERVER_HOURS}
     if unknown:
         raise Exception('Config : no column of backend_server for ' + ', '.join(sorted(unknown)))
     if columns.get('gameplay') not in ('saga', 'skirmish'):
         raise Exception('Config : gameplay_type is not valid : ' + str(columns.get('gameplay')))
+    if type(columns.get('delay_first_cycle', False)) is not bool:
+        raise Exception('Config : delay_first_cycle is neither True nor False : ' + str(columns['delay_first_cycle']))
     for hour in SERVER_HOURS:
-        if type(columns.get(hour)) is not int or not 0 <= columns[hour] <= 23:
-            raise Exception('Config : ' + hour + ' is not an hour : ' + str(columns.get(hour)))
+        columns.setdefault(hour, None)  # An empty cell : nothing automatic at that hour
+        if columns[hour] is not None and (type(columns[hour]) is not int or not 0 <= columns[hour] <= 23):
+            raise Exception('Config : ' + hour + ' is not an hour : ' + str(columns[hour]))
 
     Server.objects.filter(pk=server_name).update(**columns)
 
@@ -107,6 +110,9 @@ def get_tz(server_name):
 
 
 def change_server_param(server_name, param, param_value):
+    if param == 'status' and param_value == 'open':
+        # Opened to the players only now : the delay of the first cycle counts from here, not from the tests of the admins
+        Server.objects.filter(pk=server_name, status='test').update(opening_date=timezone.now())
     Server.objects.filter(pk=server_name).update(**{param: param_value})
 
 

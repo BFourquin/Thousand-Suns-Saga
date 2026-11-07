@@ -42,11 +42,13 @@ class Server(GameModel):
     roleplay = models.CharField(max_length=10)
     exclusive = models.BooleanField(default=False)  # A serious server, asking a lot of time : a player can only be on one of them
     timezone = models.CharField(max_length=50)
-    hour_cycle = models.PositiveSmallIntegerField(default=22)
-    hour_first_combat_round = models.PositiveSmallIntegerField(default=8)
-    hour_second_combat_round = models.PositiveSmallIntegerField(default=13)
-    hour_third_combat_round = models.PositiveSmallIntegerField(default=20)
-    hour_anticheat_checks = models.PositiveSmallIntegerField(default=4)
+    # None : nothing automatic at that hour, see data.schedule
+    hour_cycle = models.PositiveSmallIntegerField(default=22, null=True, blank=True)
+    hour_first_combat_round = models.PositiveSmallIntegerField(default=8, null=True, blank=True)
+    hour_second_combat_round = models.PositiveSmallIntegerField(default=13, null=True, blank=True)
+    hour_third_combat_round = models.PositiveSmallIntegerField(default=20, null=True, blank=True)
+    hour_anticheat_checks = models.PositiveSmallIntegerField(default=4, null=True, blank=True)
+    delay_first_cycle = models.BooleanField(default=False)  # No step in the first 24 hours after the opening
 
     class Meta:
         # Also for the values changed by hand in the database
@@ -59,6 +61,24 @@ class Server(GameModel):
             'dead_commandants': [id for id, status, _ in accounts if status != 'active'],
             'active_users': sorted({user_id for _, status, user_id in accounts if status == 'active'}),
         }
+
+
+class ScheduledRun(models.Model):
+    # The steps of the game run at their hour by data.schedule : their history, and the lock against a double run
+    STATUSES = ('running', 'done', 'skipped', 'failed', 'abandoned')
+    BLOCKING_STATUSES = ('running', 'failed')  # Finished or not, nobody knows : nothing else runs on the server until an admin looks
+
+    server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name='+')
+    step = models.CharField(max_length=30)
+    due = models.DateTimeField()
+    started_at = models.DateTimeField()
+    finished_at = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=10)
+    note = models.TextField(blank=True)  # Why it failed or was skipped
+    handled_by = models.CharField(max_length=150, blank=True)  # The admin who unblocked the server
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['server', 'step', 'due'], name='scheduled_run_once')]
 
 
 class CommandantAccount(models.Model):

@@ -18,7 +18,7 @@ from backend.models import to_id
 from backend.utils import request_params
 from database.schemas import server_schema
 from game.models import Coordinate, Sector, System
-from data import admin, server_details, user, technology, sectors, systems, coordinates, map_generator, forums
+from data import admin, schedule, server_details, user, technology, sectors, systems, coordinates, map_generator, forums
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +82,17 @@ def admin_user_details(request):
 
 @superuser_required
 def admin_servers_states(request):
-    return render(request, 'admin/admin_servers_states.html', {'servers_details': server_details.get_all_servers_details()})
+    servers = server_details.get_all_servers_details()
+    for server in servers:
+        server['schedule'] = schedule.schedule_state(server)
+    return render(request, 'admin/admin_servers_states.html', {'servers_details': servers})
+
+
+@require_POST
+@superuser_required
+def admin_unblock_schedule(request):
+    schedule.unblock(request.POST.get('server_name'), request.user.username)
+    return redirect(admin_servers_states)
 
 
 BOOLEAN_VALUES = ('true', 'false')

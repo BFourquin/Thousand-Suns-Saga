@@ -120,16 +120,19 @@ After a change of the models of the app game, apply the migrations to every serv
 
 
 ***
-### ANTICHEAT
+### SCHEDULED STEPS AND ANTICHEAT
+
+The end of the cycles and the anticheat checks run at the local hours of each server : the columns hour_* of
+backend_server, from the sheet Config of the Excel. An empty hour means nothing automatic, and a skirmish server is
+always manual. They need a system scheduler running this command every 5 minutes, whatever the servers :
+
+> */5 * * * * cd /path/to/project && python manage.py run_schedule
+
+Changing an hour in the database is enough, the next run takes it into account. A step that fails blocks its server
+until an admin unblocks it on /admin_servers_states/, and a step missed during a breakdown is skipped, never caught up :
+see data/schedule.py.
 
 The journal of the players and the alerts are in the schema TSS_anticheat, the alerts can be read on /admin_cheat_alerts/.
-
-The checks need a system scheduler running this command every hour, whatever the servers : it finds out itself
-which servers have reached their local hour_anticheat_checks (column of backend_server, from the sheet Config of the Excel).
-Changing that hour in the database is enough, the next run takes it into account.
-
-> 0 * * * * cd /path/to/project && python manage.py scan_cheats
-
 The IP addresses are read from REMOTE_ADDR : behind a reverse proxy, adapt `client_ip` in data/admin.py first,
 or all the players will seem to share one IP.
 

@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone as dt_timezone
 from importlib import import_module
 from unittest.mock import MagicMock, patch
 
+from dateutil import tz
 from django.apps import apps
 from django.contrib.auth.models import AnonymousUser, User
 from django.core.management import call_command
@@ -20,11 +21,11 @@ from anticheat.rules import alternating_accounts, bots, purge_old_logs, refused_
 from backend import views_game
 from backend.decorators import commandant_required, log_player_action
 from backend.login import LOGIN_MAX_FAILURES_PER_ACCOUNT, throttled_authenticate
-from backend.models import SERVER_HOURS, CommandantAccount, Server, UserExtended, to_id
+from backend.models import SERVER_HOURS, CommandantAccount, ScheduledRun, Server, UserExtended, to_id
 from backend.templatetags.tss_dates import rp_date
 from backend.templatetags.tss_text import MAX_DEPTH, bbcode
 from database.schemas import schema_of, server_schema
-from game.models import Building, BuildingType, Colony, Commandant, ConversationMessage, Coordinate, District, DistrictType, Entente, EntenteMember, EntenteRole, Modifier, Post, Report, Resource, Sector, StartingValues, System, Technology
+from game.models import Building, BuildingType, Colony, Commandant, Cycle, ConversationMessage, Coordinate, District, DistrictType, Entente, EntenteMember, EntenteRole, Modifier, Post, Report, Resource, Sector, StartingValues, System, Technology
 from backend.utils import commandant_owns_colony
 from data import conversations, ententes, forums, quadrants
 from data import server_details
@@ -39,6 +40,7 @@ from data.districts import create_district, delete_district
 from data.economy import cycle_balance
 from data.errors import GameError
 from data.modifiers import add_modifier
+from data.schedule import blocking_run, last_due, run_due_steps, unblock
 from data.user import get_user_by_name
 from geography.map_generator import excel_importer
 from data.report import change_report_status, delete_report, get_commandant_reports, get_report, mark_all_reports_as_read, update_nb_unread_reports
@@ -2841,18 +2843,25 @@ class TextFormattingTests(SimpleTestCase):
 class ServerConfigTests(TestCase):
 
     def test_the_sheet_config_of_the_excels_reaches_the_server(self):
-        for excel, gameplay in (('TSS.xlsx', 'saga'), ('TSS_boardgame.xlsx', 'skirmish')):
+        for excel, gameplay, hours in (('TSS.xlsx', 'saga', (22, 8, 4)), ('TSS_boardgame.xlsx', 'skirmish', (22, None, None))):
             make_server(excel)
             server_details.set_server_config(excel, excel_importer(excel, 'Config')[0])
             details = server_details.get_server_details(excel)
-            self.assertEqual(details['gameplay'], gameplay)
-            self.assertEqual((details['hour_cycle'], details['hour_first_combat_round'], details['hour_anticheat_checks']), (22, 8, 4))
+            self.assertEqual((details['gameplay'], details['delay_first_cycle']), (gameplay, True))
+            self.assertEqual((details['hour_cycle'], details['hour_first_combat_round'], details['hour_anticheat_checks']), hours)
+
+    def test_an_hour_left_out_is_no_automatic_step(self):
+        make_server('S')
+        server_details.set_server_config('S', {'gameplay_type': 'saga', 'hour_cycle': 22})
+        details = server_details.get_server_details('S')
+        self.assertEqual((details['hour_cycle'], details['hour_anticheat_checks'], details['delay_first_cycle']), (22, None, False))
 
     def test_a_wrong_config_stops_the_creation(self):
         make_server('S')
-        valid = {'gameplay_type': 'saga', **{hour: 3 for hour in SERVER_HOURS}}
+        valid = {'gameplay_type': 'saga', 'delay_first_cycle': True, **{hour: 3 for hour in SERVER_HOURS}}
         server_details.set_server_config('S', valid)
-        for wrong in ({'invented': 1}, {'gameplay_type': 'chess'}, {'hour_cycle': 24}, {'hour_cycle': -1}, {'hour_cycle': None}, {'hour_cycle': 4.5}, {'hour_cycle': 'noon'}):
+        for wrong in ({'invented': 1}, {'gameplay_type': 'chess'}, {'hour_cycle': 24}, {'hour_cycle': -1}, {'hour_cycle': 4.5}, {'hour_cycle': 'noon'},
+                      {'delay_first_cycle': 'yes'}, {'delay_first_cycle': None}):
             with self.assertRaises(Exception, msg=wrong):
                 server_details.set_server_config('S', valid | wrong)
 
@@ -3148,7 +3157,11 @@ class AnticheatScanTests(AnticheatTestCase):
             self.assertEqual({row[0] for row in cursor.fetchall()}, {'action_log', 'login_log', 'alert', 'scan'})
 
     def test_the_command_runs_at_any_hour(self):
-        call_command('scan_cheats', stdout=MagicMock())
+        call_command('run_schedule', stdout=MagicMock())
+
+    def test_no_anticheat_without_its_hour(self):
+        Server.objects.filter(pk='S').update(hour_anticheat_checks=None)
+        self.assertEqual(scan_due_servers(self.at(4)), [])
 
 
 class AnticheatAdminTests(AnticheatTestCase):
@@ -3179,3 +3192,109 @@ class AnticheatAdminTests(AnticheatTestCase):
 
         Scan.objects.create(server_id='S', local_date=timezone.now().date(), started_at=timezone.now())
         self.assertNotContains(self.client.get('/admin_cheat_alerts/'), 'En retard')
+
+
+class ScheduleTests(TestCase):
+    # Far in the future : the cycles created during the test start at the real now, long before
+
+    paris = tz.gettz('Europe/Paris')
+
+    @classmethod
+    def setUpTestData(cls):
+        make_server('S')
+        Server.objects.filter(pk='S').update(opening_date=datetime(2100, 1, 1, tzinfo=dt_timezone.utc))
+        cycles.create_cycle_entry('S')
+
+    def at(self, hour, minute=5, day=10):
+        return datetime(2100, 7, day, hour, minute, tzinfo=self.paris)
+
+    def cycle_nb(self):
+        return cycles.get_current_cycle('S')['cycle_nb']
+
+    def test_the_cycle_passes_at_its_hour_once(self):
+        self.assertEqual(run_due_steps(self.at(21, 55)), [])
+        self.assertEqual(run_due_steps(self.at(22, 5)), ['S : end_cycle'])
+        self.assertEqual(run_due_steps(self.at(22, 10)), [])
+        self.assertEqual(self.cycle_nb(), 2)
+        self.assertEqual(ScheduledRun.objects.get().status, 'done')
+
+    def test_a_missed_hour_is_never_caught_up(self):
+        self.assertEqual(run_due_steps(self.at(22, 16)), [])
+        self.assertEqual(run_due_steps(self.at(9, day=12)), [])
+        self.assertEqual(self.cycle_nb(), 1)
+        self.assertEqual(run_due_steps(self.at(22, day=12)), ['S : end_cycle'])
+
+    def test_a_failure_blocks_the_server_until_an_admin_unblocks_it(self):
+        with patch('data.schedule.cycles.end_cycle', side_effect=DatabaseError('Disk full')):
+            self.assertEqual(run_due_steps(self.at(22)), [])
+        run = ScheduledRun.objects.get()
+        self.assertEqual((run.status, run.note), ('failed', 'DatabaseError : Disk full'))
+
+        self.assertEqual(run_due_steps(self.at(22, day=11)), [])
+        unblock('S', 'admin')
+        self.assertEqual(run_due_steps(self.at(22, 20, day=11)), [])  # The blocking step isn't played again, nor the missed one
+        self.assertEqual(run_due_steps(self.at(22, day=12)), ['S : end_cycle'])
+        self.assertEqual(self.cycle_nb(), 2)
+        self.assertEqual(ScheduledRun.objects.get(due=self.at(22, 0)).handled_by, 'admin')
+
+    def test_a_step_never_finished_blocks_the_server(self):
+        ScheduledRun.objects.create(server_id='S', step='end_cycle', due=self.at(22, 0, day=9), started_at=self.at(22, 0, day=9), status='running')
+        self.assertEqual(run_due_steps(self.at(22)), [])
+
+    def test_the_first_cycle_can_be_delayed(self):
+        Server.objects.filter(pk='S').update(opening_date=self.at(21, 0), delay_first_cycle=True)
+        self.assertEqual(run_due_steps(self.at(22)), [])
+        self.assertEqual(run_due_steps(self.at(22, day=11)), ['S : end_cycle'])
+
+    def test_no_cycle_before_the_opening(self):
+        Server.objects.filter(pk='S').update(opening_date=self.at(22, 3))
+        self.assertEqual(run_due_steps(self.at(22, 6)), [])
+        Server.objects.filter(pk='S').update(opening_date=self.at(21, 0))
+        self.assertEqual(run_due_steps(self.at(22, 7)), ['S : end_cycle'])
+
+    def test_the_hour_changed_by_hand_is_read_at_the_next_run(self):
+        Server.objects.filter(pk='S').update(hour_cycle=23)
+        self.assertEqual(run_due_steps(self.at(22)), [])
+        self.assertEqual(run_due_steps(self.at(23)), ['S : end_cycle'])
+
+    def test_nothing_automatic_without_hour_on_a_skirmish_or_a_finished_server(self):
+        for change in ({'hour_cycle': None}, {'gameplay': 'skirmish'}, {'status': 'stop'}, {'status': 'dead'}):
+            with transaction.atomic():
+                Server.objects.filter(pk='S').update(**change)
+                self.assertEqual(run_due_steps(self.at(22)), [], change)
+                transaction.set_rollback(True)
+
+    def test_a_cycle_passed_by_hand_just_before_isnt_followed_by_another(self):
+        with server_schema('S'):
+            Cycle.objects.update(datetime_start=self.at(21))
+        self.assertEqual(run_due_steps(self.at(22)), ['S : end_cycle (skipped)'])
+        self.assertEqual(self.cycle_nb(), 1)
+        self.assertIsNone(blocking_run('S'))
+
+    def test_the_summer_time_changes(self):
+        # 2:00 is seen twice on 2026-10-25 and never on 2026-03-29
+        first, second = (datetime(2026, 10, 25, utc_hour, 5, tzinfo=dt_timezone.utc) for utc_hour in (0, 1))
+        self.assertEqual(last_due(2, self.paris, first), last_due(2, self.paris, second))
+        self.assertEqual(last_due(2, self.paris, first).astimezone(dt_timezone.utc).hour, 0)
+        due = last_due(2, self.paris, datetime(2026, 3, 29, 1, 5, tzinfo=dt_timezone.utc))
+        self.assertEqual(due.astimezone(dt_timezone.utc), datetime(2026, 3, 29, 1, 0, tzinfo=dt_timezone.utc))
+
+    def test_the_opening_date_is_the_opening_to_the_players(self):
+        admin = User.objects.create_user('admin', 'a@example.com', 'x', is_staff=True, is_superuser=True)
+        self.client.force_login(admin)
+        for status, opening_changed in (('close', False), ('open', False), ('test', False), ('open', True)):
+            before = Server.objects.get(pk='S').opening_date
+            self.client.post('/admin_servers_states_edit/', {'server_name': 'S', 'type': 'status', 'value': status})
+            self.assertEqual(Server.objects.get(pk='S').opening_date != before, opening_changed, status)
+
+    def test_the_admins_see_and_unblock_a_blocked_server(self):
+        ScheduledRun.objects.create(server_id='S', step='end_cycle', due=self.at(22, 0), started_at=self.at(22, 0), status='failed', note='Disk full')
+        self.client.force_login(User.objects.create_user('staff', 's@example.com', 'x', is_staff=True))
+        self.client.post('/admin_unblock_schedule/', {'server_name': 'S'})
+        self.assertIsNotNone(blocking_run('S'))
+
+        self.client.force_login(User.objects.create_user('admin', 'a@example.com', 'x', is_staff=True, is_superuser=True))
+        self.assertContains(self.client.get('/admin_servers_states/'), 'Serveur bloqué')
+        self.client.post('/admin_unblock_schedule/', {'server_name': 'S'})
+        self.assertIsNone(blocking_run('S'))
+        self.assertContains(self.client.get('/admin_servers_states/'), 'Disk full')

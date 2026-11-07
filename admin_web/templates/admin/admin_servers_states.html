@@ -83,6 +83,9 @@
                        <th class="text-center u-width-145px">
                           Type de serveur
                        </th>
+                       <th>
+                          Étapes automatiques
+                       </th>
                   </tr>
               </thead>
               <tbody>
@@ -165,6 +168,33 @@
                               <option {% if server.exclusive %} selected="selected" {% endif %} value="true">exclusif</option>
                             </select>
                         </form>
+                      </td>
+
+                      <!-- Étapes automatiques -->
+                      <td>
+                        <small>
+                          {% if server.schedule.manual %}
+                            Manuel (skirmish)
+                          {% else %}
+                            Fin de cycle : {% if server.hour_cycle is None %}manuelle{% else %}{{ server.hour_cycle }} h ({{ server.timezone }}){% endif %}
+                            {% if server.delay_first_cycle %}<br/>Premier cycle retardé de 24 h{% endif %}
+                            {% with blocking=server.schedule.blocking last=server.schedule.last %}
+                              {% if blocking %}
+                                <br/><span class="badge badge-danger">Serveur bloqué</span>
+                                {{ blocking.step }} du {{ blocking.due|date:'d/m/Y H:i' }} :
+                                {% if blocking.status == 'running' %}en cours ou interrompue depuis le {{ blocking.started_at|date:'d/m/Y H:i' }}{% else %}{{ blocking.note }}{% endif %}
+                                <form action="/admin_unblock_schedule/" method="POST" class="mt-1">
+                                  {% csrf_token %}
+                                  <input type="hidden" name="server_name" value="{{ server.server_name }}">
+                                  <button type="submit" class="btn btn-danger btn-xs"
+                                          data-confirm="Débloquer sans rejouer l'étape ? Passez le cycle à la main si besoin.">Débloquer</button>
+                                </form>
+                              {% elif last %}
+                                <br/>Dernière : {{ last.step }} du {{ last.due|date:'d/m/Y H:i' }}, {{ last.status }}{% if last.note %} ({{ last.note }}){% endif %}
+                              {% endif %}
+                            {% endwith %}
+                          {% endif %}
+                        </small>
                       </td>
 
                   </tr>

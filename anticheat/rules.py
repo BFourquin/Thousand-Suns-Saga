@@ -193,12 +193,12 @@ def local_time(server, now):
 
 
 def scannable_servers():
-    # Nothing to find on the servers of the admins or when the game is over
-    return Server.objects.exclude(status__in=(*FINISHED_SERVER_STATUSES, 'test'))
+    # Nothing to find on the servers of the admins or when the game is over. No hour : no anticheat, as on a skirmish server.
+    return Server.objects.exclude(status__in=(*FINISHED_SERVER_STATUSES, 'test')).exclude(hour_anticheat_checks=None)
 
 
 def scan_due_servers(now=None):
-    # Run every hour, to find out here if each server is due. Its hour is read at each run and not given to the system
+    # Run every 5 minutes by the command run_schedule, to find out here if each server is due. Its hour is read at each run and not given to the system
     # scheduler : an hour changed by hand in the database applies from the next run, without anything else to change.
     now = now or timezone.now()
     scanned = []
