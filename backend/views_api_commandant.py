@@ -8,16 +8,6 @@ from data import server_details, commandant
 from data.errors import GameError
 
 
-def api_can_join_server(request):
-
-    params = request_params(request)
-
-    # Check server exist
-    if not 'server_name' in params \
-       or not any(s['server_name'] == params['server_name'] for s in server_details.get_all_servers_details()):
-            #return pop_up({"title": _("Aucun mot de passe spécifié"), "level": "danger"}, status=400)
-            return api_pop_up_and_redirect({"title": _("Ce serveur n'existe pas"), "level": "success"}, status=400, redirect='/servers_list/')
-
     # Check multiaccount
     #TODO
 

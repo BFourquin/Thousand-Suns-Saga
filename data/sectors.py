@@ -10,11 +10,6 @@ def get_sector(server, y, x):
 
 
 @on_server
-def get_all_sectors(server):
-    return [sector.as_dict() for sector in Sector.objects.all().order_by('seed')]
-
-
-@on_server
 def get_sector_by_seed(server, seed):
     sector = Sector.objects.filter(seed=str(seed)).first()
     return sector.as_dict() if sector else None

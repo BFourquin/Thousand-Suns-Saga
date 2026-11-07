@@ -5,14 +5,9 @@ from django.contrib.auth.decorators import login_required
 
 from backend.decorators import add_cycle_info, log_player_action, commandant_required
 from backend.utils import request_params, get_language, commandant_owns_colony
-from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator
-from data.user import get_user_by_name, update_user
-from data.report import get_commandant_reports, get_report, delete_report, change_report_status, \
-    mark_all_reports_as_read, update_nb_unread_reports
 from data.colonies import get_colonies_controlled_by_commandant, get_colony
 from data.districts import get_district
-from data.districts_types import get_district_type, get_all_districts_types, get_all_buildable_districts_types
-from data.resources import get_all_resources_parameters, get_resources_categories, get_resources_subcategories
+from data.districts_types import get_district_type, get_all_buildable_districts_types
 from data.buildings import get_district_buildings
 from data.buildings_types import get_all_buildable_buildings_types, is_buildable
 from data.names import localized_name

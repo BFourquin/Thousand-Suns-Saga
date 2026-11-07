@@ -2,7 +2,6 @@ argh==0.26.2
 asgiref==3.4.1
 atomicwrites==1.4.0
 attrs==21.2.0
-bokeh==2.4.1
 click==8.0.3
 colorama==0.4.4
 Django==3.2.9

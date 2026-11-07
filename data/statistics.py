@@ -28,26 +28,9 @@ def get_statistics_category(server, stats_category):
 
 
 @on_server
-def get_statistic(server, stats_category, stat_name):
-    """Get a single stat in a stats_category"""
-
-    stats = get_statistics_category(server, stats_category)
-    if stat_name in stats:
-        return stats[stat_name]
-    
-
-@on_server
 def set_statistics_category(server, stats_category, stats):
     Statistic.objects.update_or_create(stats_category=stats_category, defaults={'stats': stats})
 
-
-@on_server
-def set_statistic(server, stats_category, stat_name, stat_value):
-
-    stats = get_statistics_category(server, stats_category)
-    stats[stat_name] = stat_value
-
-    set_statistics_category(server, stats_category, stats)
 
 """
 @on_server

@@ -86,11 +86,6 @@ def get_coordinate(server, seed):
 
 
 @on_server
-def get_all_coordinates(server):
-    return [coordinate.as_dict() for coordinate in Coordinate.objects.all().order_by('seed')]
-
-
-@on_server
 def set_coordinate(server, coordinate):
     # Will replace previous entry if one exist
     Coordinate.objects.update_or_create(seed=coordinate['seed'],

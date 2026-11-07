@@ -118,12 +118,6 @@ def get_commandants(server, ids):
 
 
 @on_server
-def get_commandant_by_name(server, name):
-    commandant = Commandant.objects.filter(commandant_name=name).first()
-    return commandant.as_dict() if commandant else None
-
-
-@on_server
 def get_commandant_names(server):
     return list(Commandant.objects.order_by('commandant_name').values_list('commandant_name', flat=True))
 

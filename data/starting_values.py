@@ -28,11 +28,6 @@ def get_starting_values(server, start_type='default_land_colony', lock=False):
 
 
 @on_server
-def get_available_native_planets(server):
-    return StartingValues.objects.all().first().available_native_planets
-
-
-@on_server
 @transaction.atomic
 def add_available_native_planets(server, planet_seed):
     starting_values = StartingValues.objects.select_for_update().all().first()

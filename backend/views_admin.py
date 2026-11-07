@@ -2,18 +2,14 @@ import logging
 
 from django.dispatch import receiver
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import user_passes_test
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_POST
 from django.contrib.auth import login
-from django.core.validators import validate_email
 from django.core.paginator import Paginator
 from hijack.signals import hijack_started, hijack_ended
-from bokeh.plotting import figure
-from bokeh.embed import components
 
 
 from backend.login import throttled_authenticate
@@ -39,22 +35,6 @@ def admin_login(request):
             return redirect('admin_main_dashboard')
 
     return render(request, 'admin/admin_login.html', {'login_error': login_error})
-
-
-@superuser_required
-def bokeh_exemple(request):
-
-    if not request.user.is_superuser:
-        return render(request, 'admin/admin_login.html')
-
-    # create a plot
-    plot = figure(plot_width=400, plot_height=400)
-
-    # add a circle renderer with a size, color, and alpha
-    plot.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], size=20, color="navy", alpha=0.5)
-    bokeh_script, bokeh_div = components(plot)
-
-    return render(request, 'admin/bokeh_exemple.html', {'bokeh_script': bokeh_script, 'bokeh_div': bokeh_div})
 
 
 @superuser_required

@@ -56,15 +56,6 @@ def get_resources_subcategories(server_name):
 
 
 @on_server
-def check_enough_resource(server, commandant_id, resource, quantity):
-    commandant = get_commandant(server, commandant_id)
-
-    if resource not in commandant['resources']:
-        return False
-    return commandant['resources'][resource] >= quantity
-
-
-@on_server
 def check_enough_resources_dict(server, commandant_id, resources_dict, return_missing_details=False):
     commandant = get_commandant(server, commandant_id)
 
@@ -112,8 +103,3 @@ def add_resources(server, commandant_id, gains):
 
 ########################################################################################################################
 
-
-@on_server
-def give_starting_resources(server_name, commandant_id):
-
-    ...  # TODO

@@ -3,7 +3,6 @@ from django.utils import timezone
 
 from game.models import Commandant, Cycle, to_id
 from database.schemas import on_server
-from data.server_details import get_tz
 from data.commandant import update_commandant
 from data.economy import apply_cycle_economy
 from data.modifiers import tick_modifiers
@@ -39,11 +38,6 @@ def current_cycle_row(server_name):
 def get_current_cycle(server_name):
     cycle = current_cycle_row(server_name)
     return cycle.as_dict() if cycle else None
-
-
-@on_server
-def update_cycle(server, param, value):
-    Cycle.objects.filter(id=current_cycle_row(server).id).update(**{param: value})
 
 
 @on_server

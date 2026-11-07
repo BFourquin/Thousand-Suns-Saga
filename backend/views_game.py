@@ -12,15 +12,16 @@ from backend.models import FINISHED_SERVER_STATUSES, Server, to_id
 from backend.api_ui_interactions import api_login_required
 from backend.decorators import add_cycle_info, log_player_action, commandant_required
 from backend.utils import request_params, parameters_presents, get_request_user
-from data import server_details, user, commandant, systems, technology, sectors, systems, coordinates, map_generator, cycles, quadrants
+import data.commandant
+from data import server_details, systems, coordinates, cycles, quadrants
 from data.report import get_commandant_reports, get_report, delete_report, change_report_status, \
     mark_all_reports_as_read, update_nb_unread_reports
-from data.colonies import get_colonies_controlled_by_commandant, get_colonies_at_coordinates
+from data.colonies import get_colonies_at_coordinates
 from data.commandant import get_commandants
 from data.economy import cycle_balance
 from data.modifiers import CATEGORIES, SCOPES, modifiers_of_commandant
 from data.research import research_tree
-from data.resources import get_all_resources_parameters, get_resources_categories, get_resources_subcategories
+from data.resources import get_all_resources_parameters, get_resources_categories
 from data.names import localized_name
 
 
@@ -222,29 +223,6 @@ def reports(request, server, commandant):
     reports, nb_unread_reports = get_commandant_reports(server, commandant['id'], page_number,
                                                         filter_status=filter_status, filter_category=filter_category,
                                                         search_text=search_text)
-
-    # TODO remove graphic test reports <--
-    """report =   {'id': '66f5689febe0ed0d929f3ca1',
-                'status': 'unread',
-                'owner': None,
-                'category': 'other',
-                'category_icon': 'fa-file-alt',
-
-                'datetime': '14/06/2412 11h35',
-
-                'illustration': 'images/report/command_center.png',
-
-                'title': 'Colonisation réussie',
-                'message': "La mission de colonisation de ce monde est un succès, mais votre mission ne fait que commencer."
-                           "Un peuple tout entier attend vos ordres pour faire prospérer cette modeste colonie en une véritable civilisation à part entère !",
-
-                'sender': 'Aurelia de Siravedra',
-                'sender_image': 'images/Aurelia.png',
-               }
-    reports.append(report.copy());reports.append(report.copy())
-    report['status'] = 'read';reports.append(report.copy());reports.append(report.copy())
-    report['status'] = 'archived';reports.append(report.copy());reports.append(report.copy())"""
-    # TODO remove graphic test reports -->
 
     return TemplateResponse(request, 'game/reports.html',
                             {'server': server, 'reports': reports,

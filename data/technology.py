@@ -14,22 +14,6 @@ def within_tech_level(type_data):
     return (type_data.get('tech_available') or 0) <= CIVILISATION_TECH_LEVEL < (type_data.get('tech_hidden') or float('inf'))
 
 
-def tech(internal_name, name, tech_type, description, tech_level, modifiers, price, difficulty):
-    return {'internal_name': None,
-            'name': None,
-            'tech_type': None,
-            'description': None,
-            'tech_level': None,
-            'difficulty': None,
-            'modifiers': None,
-            'prices': None,
-            'running_event': None,
-            'running_event_probability': None,
-            'end_event': None,
-            'end_event_probability': None,
-            }
-
-
 @on_server
 def get_all_technologies(server_name):
     return [technology.as_dict() for technology in Technology.objects.all().order_by('id')]
