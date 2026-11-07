@@ -3,7 +3,6 @@ from django.template.response import TemplateResponse
 from django.views.decorators.http import require_GET
 from django.shortcuts import redirect, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.utils import timezone
 
 
@@ -141,7 +140,8 @@ def cycle_monitoring(request, server, commandant):
         display_admin_and_gm_info = True
     if display_admin_and_gm_info and request.method == 'POST':
         if 'admin_action' in params and params['admin_action'] == 'end_cycle':
-            cycles.end_cycle(server)
+            if to_id(params.get('cycle_nb')) is not None:  # Without it, nothing tells a double click from a real order
+                cycles.end_cycle(server, to_id(params['cycle_nb']))
             return HttpResponseRedirect(request.path_info)
         if 'admin_mark_as_absent' in params:
             cycles.mark_commandant_cycle_absent(server, params['admin_mark_as_absent'])
@@ -220,7 +220,8 @@ def reports(request, server, commandant):
     filter_status = params['status'] if 'status' in params else 'not_archived'
     search_text = params['search_text'] if 'search_text' in params else None
 
-    reports, nb_unread_reports = get_commandant_reports(server, commandant['id'],
+    page_number = params['page'] if 'page' in params else 1
+    reports, nb_unread_reports = get_commandant_reports(server, commandant['id'], page_number,
                                                         filter_status=filter_status, filter_category=filter_category,
                                                         search_text=search_text)
 
@@ -247,11 +248,6 @@ def reports(request, server, commandant):
     report['status'] = 'archived';reports.append(report.copy());reports.append(report.copy())"""
     # TODO remove graphic test reports -->
 
-    # Pagination
-    paginator = Paginator(reports, 5)  # TODO report per page in user settings
-    page_number = params['page'] if 'page' in params else 1
-    reports = paginator.get_page(page_number)
-
     return TemplateResponse(request, 'game/reports.html',
                             {'server': server, 'reports': reports,
                              'nb_unread_reports': nb_unread_reports,
@@ -276,7 +272,10 @@ def report(request, server, commandant):
     if not report:
         return redirect('/reports/')
 
-    change_report_status(server, params['report_id'], commandant['id'], 'read')
+    if report['status'] == 'unread':  # An archived report stays in the archives
+        change_report_status(server, params['report_id'], commandant['id'], 'read')
+        update_nb_unread_reports(server, commandant['id'])
+        commandant['nb_unread_reports'] -= 1  # Loaded before this view for the menu of this page
 
     return TemplateResponse(request, 'game/report.html', {'server': server, 'report': report})
 

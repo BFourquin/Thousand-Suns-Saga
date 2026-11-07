@@ -1,10 +1,14 @@
 
+from django.core.paginator import Paginator
 from django.db import transaction
+from django.db.models import Count, Q
 
 from game.models import Report, to_id
 from database.schemas import on_server
 from data.report_generator import generate_report
 from data.commandant import update_commandant
+
+REPORTS_PER_PAGE = 5
 
 
 
@@ -26,38 +30,25 @@ def get_report(server, id, owner_id):
 
 
 @on_server
-def get_commandant_reports(server, commandant_id, filter_status=None, filter_category=None, search_text=None):
+def get_commandant_reports(server, commandant_id, page=1, filter_status=None, filter_category=None, search_text=None):
+    # The asked page of the reports, the most recent first, and the unread ones by category
 
-    reports_list = [report.as_dict() for report in Report.objects.filter(owner=commandant_id).order_by('id')]
-    unread_reports_count = unread_reports_counting(server, commandant_id, reports_list)
-
-    # Filters and search
+    reports = Report.objects.filter(owner=commandant_id)
 
     if filter_category and filter_category != 'all':
-        reports_list_unsorted, reports_list = reports_list, []
+        reports = reports.filter(category=filter_category)
 
-        for report in reports_list_unsorted:
-            if report['category'] == filter_category:
-                reports_list.append(report)
-
-    if filter_status and filter_status != 'all':
-        reports_list_unsorted, reports_list = reports_list, []
-
-        for report in reports_list_unsorted:
-            if filter_status == 'not_archived' and report['status'] != 'archived':
-                reports_list.append(report)
-            elif report['status'] == filter_status:
-                reports_list.append(report)
+    if filter_status == 'not_archived':
+        reports = reports.exclude(status='archived')
+    elif filter_status and filter_status != 'all':
+        reports = reports.filter(status=filter_status)
 
     if search_text:
-        reports_list_unsorted, reports_list = reports_list, []
-        for report in reports_list_unsorted:
-            for val in report.values():
-                if isinstance(val, str) and search_text in val:
-                    reports_list.append(report)
-                    break
+        reports = reports.filter(Q(title__icontains=search_text) | Q(message__icontains=search_text) | Q(sender__icontains=search_text))
 
-    return reports_list, unread_reports_count
+    page = Paginator(reports.order_by('-id'), REPORTS_PER_PAGE).get_page(page)  # TODO report per page in user settings
+    page.object_list = [report.as_dict() for report in page.object_list]
+    return page, unread_reports_counting(server, commandant_id)
 
 
 
@@ -76,36 +67,18 @@ def delete_report(server, report_id, owner_id):
 
 @on_server
 def mark_all_reports_as_read(server, commandant_id, category=None):
-
-    reports = get_commandant_reports(server, commandant_id, filter_status='unread', filter_category=category)[0]
-    for report in reports:
-        change_report_status(server, report['id'], commandant_id, 'read')
+    reports = Report.objects.filter(owner=commandant_id, status='unread')
+    if category and category != 'all':
+        reports = reports.filter(category=category)
+    reports.update(status='read')
 
 
 @on_server
-def unread_reports_counting(server, commandant_id, reports_list=None):
-    # Return a dict of the number of unread reports by category
-    # nb_unread_reports = {'all': 5, 'space_combat: 2, ...}
-
-    # Get reports_list from parameter if possible, preventing duplicate big db query
-    if reports_list is None:
-        reports_list = get_commandant_reports(server, commandant_id)
-
-    nb_unread_reports = {'all': 0}
-    for report in reports_list:
-        if report['status'] == 'unread':
-
-            # All categories
-            nb_unread_reports['all'] += 1
-
-            # Specific category
-            category = report['category']
-            if category in nb_unread_reports:
-                nb_unread_reports[category] += 1
-            else:
-                nb_unread_reports[category] = 1
-
-    return nb_unread_reports
+def unread_reports_counting(server, commandant_id):
+    # nb_unread_reports = {'all': 5, 'space_combat': 2, ...}
+    unread = Report.objects.filter(owner=commandant_id, status='unread').order_by()
+    by_category = dict(unread.values_list('category').annotate(Count('id')))
+    return by_category | {'all': sum(by_category.values())}
 
 
 @on_server

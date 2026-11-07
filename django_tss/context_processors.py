@@ -43,4 +43,4 @@ def commandant_and_server(request):
             'forum_badges': forum_badges,
             'nb_communication': nb_unread_conversations + sum(forum_badges.values()),
             'nb_entente_answers': count_pending_answers(server, commandant['id']) if commandant else 0,
-            'nb_open_flags': count_all_open_flags() if request.user.is_staff else 0}
+            'nb_open_flags': count_all_open_flags() if request.user.is_superuser else 0}

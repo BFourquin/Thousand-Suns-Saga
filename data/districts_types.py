@@ -2,6 +2,12 @@
 from data.names import localized_name
 from game.models import DistrictType
 from database.schemas import on_server
+from data.technology import within_tech_level
+
+
+def is_buildable_district(district_type):
+    # A central district only comes with its colony : it takes no slot and gives some
+    return district_type['category'] != 'central_district' and within_tech_level(district_type)
 
 
 @on_server
@@ -30,13 +36,7 @@ def get_all_districts_types(server, language=None):
 @on_server
 def get_all_buildable_districts_types(server, commandant, language=None):
 
-    districts = get_all_districts_types(server)
-
-    # Remove unconstructibles districts
-    for district in districts[:]:  # Duplicate districts list to iterate correctly while removing entries
-        if district['category'] == 'central_district':  # Central district are not buildable, only upgradable
-            # TODO remove unbuildable districts limited by tech too
-            districts.remove(district)
+    districts = [district for district in get_all_districts_types(server) if is_buildable_district(district)]
 
     # More info on resources cost and maintenance
     from data.resources import add_infos_to_resources_dict

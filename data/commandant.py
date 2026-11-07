@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from backend.models import CommandantAccount, UserExtended
-from game.models import Commandant, to_id
+from game.models import Commandant, Cycle, to_id
 from database.schemas import on_server
 from data.errors import GameError
 from data import ententes, starting_values as sv
@@ -59,6 +59,11 @@ def create_commandant(server, user, commandant_name, civilisation_name):
         raise GameError(_("Ce nom de commandant est déjà pris"))
 
     ententes.join_native_entente(server, commandant)
+
+    # The lists of a cycle are only filled when it starts, and the first one starts before any player
+    current_cycle = Cycle.objects.order_by('-cycle_nb').first()
+    if current_cycle:
+        current_cycle.commandants_cycle_playing.add(commandant)
 
     # Starting colony
     colonize.colonize(server, commandant.id,

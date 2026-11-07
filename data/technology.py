@@ -9,6 +9,11 @@ from database.schemas import on_server
 CIVILISATION_TECH_LEVEL = 9
 
 
+def within_tech_level(type_data):
+    # For a row of the Excel with the columns tech_available and tech_hidden
+    return (type_data.get('tech_available') or 0) <= CIVILISATION_TECH_LEVEL < (type_data.get('tech_hidden') or float('inf'))
+
+
 def tech(internal_name, name, tech_type, description, tech_level, modifiers, price, difficulty):
     return {'internal_name': None,
             'name': None,

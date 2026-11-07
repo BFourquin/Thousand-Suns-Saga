@@ -2,7 +2,7 @@
 from data.names import localized_name
 from game.models import BuildingType
 from database.schemas import on_server
-from data.technology import CIVILISATION_TECH_LEVEL
+from data.technology import within_tech_level
 
 
 # shortcut: the column production_quantity of the Excel is still empty, each building gives this until it is filled
@@ -17,8 +17,7 @@ def production_of(building_type):
 
 def is_buildable(building_type, district_category):
     # The Excel has one column of booleans per category of district
-    return bool(building_type.get(district_category)) \
-        and (building_type.get('tech_available') or 0) <= CIVILISATION_TECH_LEVEL < (building_type.get('tech_hidden') or float('inf'))
+    return bool(building_type.get(district_category)) and within_tech_level(building_type)
 
 
 @on_server

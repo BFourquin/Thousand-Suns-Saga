@@ -2,7 +2,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 
-from backend.utils import request_params
+from backend.utils import clean_name, request_params
 from backend.api_ui_interactions import api_pop_up, api_pop_up_and_redirect, api_login_required
 from data import server_details, commandant
 from data.errors import GameError
@@ -41,31 +41,31 @@ def api_create_commandant(request):
 
 
     # ##### USERNAME ######
-    if not 'commandant_name' in params:
+    commandant_name = clean_name(params, 'commandant_name')
+    if not commandant_name:
         return api_pop_up({"title": _("Aucun nom de commandant spécifié"), "level": "danger"}, status=400)
 
-    if commandant.commandant_name_taken(params['commandant_name']):
+    if commandant.commandant_name_taken(commandant_name):
         return api_pop_up({"title": _("Ce nom de commandant est déjà pris"), "level": "danger"}, status=400)
 
-    if not 5 <= len(params['commandant_name']) <= 25:
+    if not 5 <= len(commandant_name) <= 25:
         return api_pop_up({"title": _("Votre nom de commandant doit faire entre 5 et 25 caractères"), "level": "danger"}, status=400)
 
 
     # ##### CIVILISATION ######
-    if not 'civilisation_name' in params:
+    civilisation_name = clean_name(params, 'civilisation_name')
+    if not civilisation_name:
         return api_pop_up({"title": _("Aucun nom de civilisation spécifié"), "level": "danger"}, status=400)
 
-    if commandant.civilisation_name_taken(server['server_name'], params['civilisation_name']):
+    if commandant.civilisation_name_taken(server['server_name'], civilisation_name):
         return api_pop_up({"title": _("Ce nom de civilisation est déjà pris"), "level": "danger"}, status=400)
 
-    if not 5 <= len(params['civilisation_name']) <= 40:
+    if not 5 <= len(civilisation_name) <= 40:
         return api_pop_up({"title": _("Votre nom de civilisation doit faire entre 5 et 40 caractères"), "level": "danger"}, status=400)
 
 
     try:
-        commandant.create_commandant(server['server_name'], request.user.username,
-                                     params['commandant_name'],
-                                     params['civilisation_name'])
+        commandant.create_commandant(server['server_name'], request.user.username, commandant_name, civilisation_name)
     except GameError as e:
         return api_pop_up({"title": str(e), "level": "danger"}, status=400)
 

@@ -45,6 +45,12 @@ def parameters_presents(params, request_params):
     return True
 
 
+def clean_name(params, key):
+    # Spaces around a name would make it impossible to find, and PostgreSQL refuses the null character. A repeated parameter is a list.
+    name = params.get(key, '')
+    return name.replace('\x00', '').strip() if isinstance(name, str) else ''
+
+
 def get_request_user(request):
     # Loaded once per request : views, decorators and context processors all need it
 

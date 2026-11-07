@@ -42,11 +42,11 @@ def get_user_by_name(name):
 
 
 def user_name_exist(name):
-    return User.objects.filter(username=name).exists()
+    return User.objects.filter(username__iexact=name).exists()
 
 
 def user_mail_already_used(mail):
-    return User.objects.filter(email=mail).exists()
+    return User.objects.filter(email__iexact=mail).exists()
 
 
 def get_all_users(strify=False):

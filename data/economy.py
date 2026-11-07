@@ -27,11 +27,11 @@ def _pay(stock, needs, consumed, missing):
     return covered
 
 
-def _feed_population(stock, population, consumed, missing):
+def _feed_population(stock, population, resources, consumed, missing):
     level_column = f'pop_consumption_{CIVILISATION_TECH_LEVEL}'
     foods = []
 
-    for resource in Resource.objects.order_by('id'):
+    for resource in resources:
         rate = resource.data.get(level_column) or 0
         if not rate or resource.data.get('category') in NOT_A_NEED_CATEGORIES:
             continue
@@ -53,8 +53,15 @@ def _feed_population(stock, population, consumed, missing):
             missing[foods[0][0]] += hunger
 
 
+def economy_tables():
+    # What all the commandants share : read once at the end of a cycle, not once per commandant
+    return {'resources': list(Resource.objects.order_by('id')),
+            'district_types': {row.internal_name: row.data for row in DistrictType.objects.all()},
+            'building_types': {row.internal_name: row.data for row in BuildingType.objects.all()}}
+
+
 @on_server
-def cycle_balance(server, commandant_id, resources):
+def cycle_balance(server, commandant_id, resources, tables=None):
     # What a passing of cycle does to these resources. Reads only : it also gives the forecast of the resources page.
     #
     # All the maintenances come first, the oldest districts being served first when the stock runs out. Then all the
@@ -65,9 +72,9 @@ def cycle_balance(server, commandant_id, resources):
     buildings = []
 
     districts = District.objects.filter(colony__controller=commandant_id).order_by('id').select_related('colony').prefetch_related('buildings')
-    known_resources = set(Resource.objects.values_list('internal_name', flat=True))
-    district_types = {row.internal_name: row.data for row in DistrictType.objects.all()}
-    building_types = {row.internal_name: row.data for row in BuildingType.objects.all()}
+    tables = tables or economy_tables()
+    known_resources = {resource.internal_name for resource in tables['resources']}
+    district_types, building_types = tables['district_types'], tables['building_types']
     targets_of_districts = {district.id: commandant_target(commandant_id) | district_targets(district) for district in districts}
     modifiers = active_modifiers(server, {target for targets in targets_of_districts.values() for target in targets})
 
@@ -101,7 +108,7 @@ def cycle_balance(server, commandant_id, resources):
                 stock[resource] = stock.get(resource, 0) + production
 
     population = sum(district.population or 0 for district in districts) / POPULATION_UNIT
-    _feed_population(stock, population, consumed, missing)
+    _feed_population(stock, population, tables['resources'], consumed, missing)
 
     return {'stock': stock, 'produced': produced, 'consumed': consumed, 'missing': missing, 'buildings': buildings}
 
@@ -110,8 +117,10 @@ def cycle_balance(server, commandant_id, resources):
 def apply_cycle_economy(server):
     # Inside the transaction of the end of the cycle : a failure on one commandant cancels it for everyone
 
+    tables = economy_tables()
+
     for commandant in Commandant.objects.select_for_update().filter(status='active').order_by('id'):
-        balance = cycle_balance(server, commandant.id, commandant.resources)
+        balance = cycle_balance(server, commandant.id, commandant.resources, tables)
 
         commandant.resources = {resource: round(quantity, 6) for resource, quantity in balance['stock'].items()}
         commandant.save(update_fields=['resources'])

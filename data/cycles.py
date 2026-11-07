@@ -103,9 +103,16 @@ def mark_commandant_cycle_present(server, commandant_id):
 
 @on_server
 @transaction.atomic
-def end_cycle(server_name):
+def end_cycle(server_name, cycle_nb=None):
+    # cycle_nb : the cycle this order is about. Sent twice, it finds that cycle already closed and changes nothing :
+    # closing it is atomic, a simultaneous order waits for the end of this transaction and then updates no row.
 
-    Cycle.objects.filter(datetime_end=None).update(datetime_end=timezone.now())
+    open_cycles = Cycle.objects.filter(datetime_end=None)
+    if cycle_nb is not None:
+        open_cycles = open_cycles.filter(cycle_nb=cycle_nb)
+    if not open_cycles.update(datetime_end=timezone.now()):
+        return
+
     create_cycle_entry(server_name, last_cycle=get_current_cycle(server_name))
 
     # Reset commandants' cycle status

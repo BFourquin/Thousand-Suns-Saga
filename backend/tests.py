@@ -35,7 +35,7 @@ from data.economy import cycle_balance
 from data.errors import GameError
 from data.modifiers import add_modifier
 from data.user import get_user_by_name
-from data.report import change_report_status, delete_report, get_report
+from data.report import change_report_status, delete_report, get_commandant_reports, get_report, mark_all_reports_as_read, update_nb_unread_reports
 from data.resources import add_resources, pay_resources
 
 API_LOGGED_URLS = ['/api_create_commandant/', '/api_build_district/', '/api_build_building/', '/api_delete_district/',
@@ -298,7 +298,7 @@ class ForumsTests(TestCase):
     def setUpTestData(cls):
         cls.user = User.objects.create_user('player', 'p@example.com', 'x')
         cls.other_user = User.objects.create_user('other_player', 'o@example.com', 'x')
-        cls.staff = User.objects.create_user('staff', 's@example.com', 'x', is_staff=True)
+        cls.staff = User.objects.create_user('staff', 's@example.com', 'x', is_staff=True, is_superuser=True)
         make_server('S')
         make_server('Other')
         with server_schema('S'):
@@ -1815,6 +1815,153 @@ class EconomyPagesTests(EconomyTestCase):
         self.assertContains(response, '200 %')
 
 
+class AuditFixesTests(EconomyTestCase):
+
+    def setUp(self):
+        self.client.force_login(self.user)
+        CommandantAccount.objects.create(server_id='S', commandant_id=self.commandant.id, user=self.user, commandant_name='Paullus')
+        UserExtended.objects.update_or_create(user=self.user, defaults={'playing_on_server_id': 'S', 'playing_on_commandant': self.commandant.id})
+
+    def post_district(self, district_type):
+        return self.client.post('/api_build_district/', {'colony_id': self.colony.id, 'district_type': district_type})
+
+    def nb_districts(self):
+        with server_schema('S'):
+            return District.objects.count()
+
+    def test_api_refuses_a_central_district(self):
+        before = self.nb_districts()
+        self.assertEqual(self.post_district('central').status_code, 400)
+        self.assertEqual(self.nb_districts(), before)
+
+    def test_api_refuses_a_district_beyond_the_tech_level(self):
+        with server_schema('S'):
+            DistrictType.objects.create(internal_name='future', data={'internal_name': 'future', 'name_fr': 'future', 'category': 'farming_district',
+                                                                      'districts_slots': 0, 'build_cost': {}, 'maintenance': {}, 'tech_available': 10})
+        before = self.nb_districts()
+        self.assertEqual(self.post_district('future').status_code, 400)
+        self.assertEqual(self.nb_districts(), before)
+
+    def make_report(self, status='unread', title='Report'):
+        with server_schema('S'):
+            return Report.objects.create(owner=self.commandant, status=status, category='other', category_icon='x', title=title, message='m',
+                                         datetime=timezone.now(), tss_calendar=timezone.now())
+
+    def test_opening_an_archived_report_keeps_it_in_the_archives(self):
+        report = self.make_report('archived')
+        self.client.get('/report/', {'report_id': report.id})
+        self.assertEqual(get_report('S', report.id, self.commandant.id)['status'], 'archived')
+
+    def test_opening_a_report_updates_the_badge(self):
+        report = self.make_report()
+        update_nb_unread_reports('S', self.commandant.id)
+        self.assertEqual(get_commandant('S', self.commandant.id)['nb_unread_reports'], 1)
+        self.client.get('/report/', {'report_id': report.id})
+        self.assertEqual(get_commandant('S', self.commandant.id)['nb_unread_reports'], 0)
+
+    def test_reports_start_with_the_most_recent_and_filter_in_the_database(self):
+        ids = [self.make_report(title=f'Title {i}').id for i in range(7)]
+        self.make_report('archived', 'Hidden')
+        page, unread = get_commandant_reports('S', self.commandant.id, 1, filter_status='not_archived')
+        self.assertEqual([report['id'] for report in page], ids[:-6:-1])
+        self.assertEqual(page.paginator.count, 7)
+        self.assertEqual(unread, {'other': 7, 'all': 7})
+        found = get_commandant_reports('S', self.commandant.id, 1, search_text='title 3')[0]
+        self.assertEqual([report['id'] for report in found], [ids[3]])
+
+    def test_mark_all_as_read_only_touches_the_category(self):
+        self.make_report()
+        mark_all_reports_as_read('S', self.commandant.id, 'combat')
+        self.assertEqual(get_commandant_reports('S', self.commandant.id)[1]['all'], 1)
+        mark_all_reports_as_read('S', self.commandant.id, 'all')
+        self.assertEqual(get_commandant_reports('S', self.commandant.id)[1], {'all': 0})
+
+    def end_cycle_order(self, **data):
+        User.objects.filter(id=self.user.id).update(is_staff=True)
+        return self.client.post('/cycle_monitoring/', {'admin_action': 'end_cycle'} | data)
+
+    def test_double_click_on_the_end_of_the_cycle_passes_one_cycle(self):
+        number = cycles.get_current_cycle('S')['cycle_nb']
+        self.end_cycle_order(cycle_nb=number)
+        self.end_cycle_order(cycle_nb=number)
+        self.assertEqual(cycles.get_current_cycle('S')['cycle_nb'], number + 1)
+
+    def test_end_of_the_cycle_needs_its_number(self):
+        number = cycles.get_current_cycle('S')['cycle_nb']
+        self.end_cycle_order()
+        self.assertEqual(cycles.get_current_cycle('S')['cycle_nb'], number)
+
+    def test_end_of_the_cycle_reads_the_shared_tables_once(self):
+        with server_schema('S'):
+            Commandant.objects.create(user=self.user, commandant_name='Other', civilisation_name='Other', creation_date=timezone.now())
+        with CaptureQueriesContext(connection) as queries:
+            cycles.end_cycle('S')
+        self.assertEqual(sum('"game_buildingtype"' in query['sql'] for query in queries), 1)
+        self.assertEqual(sum('"game_districttype"' in query['sql'] for query in queries), 1)
+
+
+class AccountNamesTests(TestCase):
+
+    def create_user(self, username, email):
+        return self.client.post('/create_user/', {'username': username, 'email': email, 'password': 'Xq7!vLp2mZ'})
+
+    def test_username_length_matches_the_message(self):
+        self.assertEqual(self.create_user('a' * 4, 'a@example.com').status_code, 400)
+        self.assertEqual(self.create_user('b' * 5, 'b@example.com').status_code, 200)
+        self.assertEqual(self.create_user('c' * 25, 'c@example.com').status_code, 200)
+        self.assertEqual(self.create_user('d' * 26, 'd@example.com').status_code, 400)
+
+    def test_case_does_not_make_another_account(self):
+        self.assertEqual(self.create_user('Alice1', 'alice@example.com').status_code, 200)
+        self.assertEqual(self.create_user('alice1', 'other@example.com').status_code, 400)
+        self.assertEqual(self.create_user('Bob_the_first', 'ALICE@example.com').status_code, 400)
+
+    def test_spaces_and_null_characters_are_removed(self):
+        self.assertEqual(self.create_user('       ', 'e@example.com').status_code, 400)
+        self.assertEqual(self.create_user('  Carol1 ', 'f@example.com').status_code, 200)
+        self.assertTrue(User.objects.filter(username='Carol1').exists())
+
+    def test_commandant_names_are_cleaned(self):
+        user = User.objects.create_user('player', 'p@example.com', 'x')
+        make_server('S')
+        self.client.force_login(user)
+        for commandant_name, civilisation_name in (('      ', 'Empire'), ('Paullus', '      '), ('ab\x00c', 'Empire')):
+            response = self.client.post('/api_create_commandant/', {'server': 'S', 'commandant_name': commandant_name, 'civilisation_name': civilisation_name})
+            self.assertEqual(response.status_code, 400, commandant_name)
+
+
+class AdministrationRightsTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.staff = User.objects.create_user('staff', 's@example.com', 'x', is_staff=True)
+        cls.admin = User.objects.create_user('admin', 'a@example.com', 'x', is_staff=True, is_superuser=True)
+        make_server('S')
+
+    def edit(self, param, value):
+        return self.client.post('/admin_servers_states_edit/', {'server_name': 'S', 'type': param, 'value': value})
+
+    def test_the_administration_refuses_the_staff(self):
+        self.client.force_login(self.staff)
+        for url in ('/admin_main_dashboard/', '/admin_user_accounts/', '/admin_servers_states/', '/admin_message_flags/'):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 302, url)
+            self.assertTrue(response['Location'].startswith('/admin_login/'), url)
+        self.edit('status', 'stop')
+        self.assertEqual(server_details.get_server_details('S')['status'], 'open')
+
+    def test_superuser_edits_only_the_allowed_values(self):
+        self.client.force_login(self.admin)
+        self.edit('status', 'stop')
+        self.edit('admin_only_visibility', 'true')
+        details = server_details.get_server_details('S')
+        self.assertEqual((details['status'], details['admin_only_visibility']), ('stop', True))
+        for param, value in (('server_name', 'Renamed'), ('status', 'invented'), ('admin_only_visibility', 'maybe'), ('version', '9')):
+            self.edit(param, value)
+        details = server_details.get_server_details('S')
+        self.assertEqual((details['server_name'], details['status'], details['admin_only_visibility'], details['version']), ('S', 'stop', True, 1))
+
+
 class ResearchTests(EconomyTestCase):
 
     TECHS = (
@@ -2013,9 +2160,17 @@ class CreateCommandantTests(TestCase):
             self.assertFalse(Colony.objects.exists())
         self.assertEqual(len(self.planets_left()), 2)
 
+    def test_a_new_player_joins_the_current_cycle(self):
+        cycles.create_cycle_entry('S')
+        create_commandant('S', 'player', 'Paullus', 'Empire')
+        with server_schema('S'):
+            commandant_id = Commandant.objects.get().id
+        self.assertEqual(cycles.get_current_cycle('S')['commandants_cycle_playing'], [commandant_id])
+
     def test_commandants_of_a_sector_share_their_native_entente(self):
         create_commandant('S', 'player', 'Paullus', 'Empire')
-        create_commandant('S', 'player', 'Varro', 'Royaume')
+        User.objects.create_user('player2', 'p2@example.com', 'x')
+        create_commandant('S', 'player2', 'Varro', 'Royaume')
         with server_schema('S'):
             entente = Entente.objects.get()
             self.assertEqual(entente.native_sector, '1001000000')

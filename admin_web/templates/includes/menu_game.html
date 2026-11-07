@@ -28,7 +28,7 @@
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
 
-      {% if user.is_staff %}
+      {% if user.is_superuser %}
       <li class="nav-item">
         <a href="/admin_main_dashboard/" class="nav-link">{% trans "Admin" %}</a>
       </li>

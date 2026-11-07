@@ -7,7 +7,7 @@ from backend.utils import request_params, get_active_server_and_commandant_from_
 from backend.api_ui_interactions import api_pop_up, api_pop_up_and_redirect, api_login_required
 from data.resources import check_enough_resources_dict, pay_resources
 from data.districts import create_district, delete_district, get_district
-from data.districts_types import get_district_type
+from data.districts_types import get_district_type, is_buildable_district
 from data.buildings import construct_building, get_district_buildings, set_activation_percent_building
 from data.buildings_types import get_building_type, is_buildable
 from game.models import to_id
@@ -42,7 +42,7 @@ def api_build_district(request):
 
     district_type = get_district_type(server, params['district_type'])
 
-    if not district_type:
+    if not district_type or not is_buildable_district(district_type):
         return api_pop_up({"title": _("Construction spécifiée incorrecte"), "level": "danger"}, status=400)
 
 

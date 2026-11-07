@@ -4,8 +4,7 @@ from django.dispatch import receiver
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import user_passes_test
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_POST
@@ -25,6 +24,9 @@ from data import server_details, user, technology, sectors, systems, coordinates
 
 logger = logging.getLogger(__name__)
 
+# The same rule as admin_login : the staff moderates the game, the administration is for the superusers
+superuser_required = user_passes_test(lambda user: user.is_active and user.is_superuser, login_url='/admin_login/')
+
 
 def admin_login(request):
 
@@ -39,7 +41,7 @@ def admin_login(request):
     return render(request, 'admin/admin_login.html', {'login_error': login_error})
 
 
-@staff_member_required(login_url='/admin_login/')
+@superuser_required
 def bokeh_exemple(request):
 
     if not request.user.is_superuser:
@@ -55,10 +57,8 @@ def bokeh_exemple(request):
     return render(request, 'admin/bokeh_exemple.html', {'bokeh_script': bokeh_script, 'bokeh_div': bokeh_div})
 
 
-@staff_member_required(login_url='/admin_login/')
+@superuser_required
 def admin_main_dashboard(request):
-    if not request.user.is_superuser:
-        return render(request, 'admin/admin_login.html')
     return render(request, 'admin/admin_main_dashboard.html')
 
 
@@ -68,12 +68,12 @@ def admin_main_dashboard(request):
 ########################################################################################################################
 
 # ACCOUNTS
-@staff_member_required(login_url='/admin_login/')
+@superuser_required
 def admin_user_accounts(request):
     return render(request, 'admin/admin_user_accounts.html', {'user_accounts': user.get_all_users(strify=True)})
 
 
-@staff_member_required(login_url='/admin_login/')
+@superuser_required
 def admin_player_control(request):
     return render(request, 'admin/admin_player_control.html', {'players': User.objects.order_by('username')})
 
@@ -88,7 +88,7 @@ def log_hijack_ended(sender, hijacker, hijacked, **kwargs):
     logger.warning('Hijack : %s gives back the account of %s', hijacker.username, hijacked.username)
 
 
-@staff_member_required(login_url='/admin_login/')
+@superuser_required
 def admin_user_details(request):
     id = request_params(request)['id']
     user_account = user.get_user_by_id(id)
@@ -98,21 +98,23 @@ def admin_user_details(request):
 # ######################################################################################################################
 # SERVERS STATES
 
-@staff_member_required(login_url='/admin_login/')
+@superuser_required
 def admin_servers_states(request):
     return render(request, 'admin/admin_servers_states.html', {'servers_details': server_details.get_all_servers_details()})
 
 
+BOOLEAN_VALUES = ('true', 'false')
+EDITABLE_SERVER_PARAMS = {'status': server_details.server_status, 'admin_only_visibility': BOOLEAN_VALUES, 'allow_multiaccounts': BOOLEAN_VALUES}
+
+
 @require_POST
-@staff_member_required(login_url='/admin_login/')
+@superuser_required
 def admin_servers_states_edit(request):
-    params = request_params(request)
-    if params['value'] == 'true':
-        params['value'] = True
-    if params['value'] == 'false':
-        params['value'] = False
-    server_details.change_server_param(params['server_name'], params['type'], params['value'])
-    server_details.refresh_servers_menu()
+    param, value = request.POST.get('type'), request.POST.get('value')
+    if value in EDITABLE_SERVER_PARAMS.get(param, ()):
+        value = value == 'true' if value in BOOLEAN_VALUES else value
+        server_details.change_server_param(request.POST.get('server_name'), param, value)
+        server_details.refresh_servers_menu()
     return redirect(admin_servers_states)
 
 
@@ -124,7 +126,7 @@ GEOGRAPHY_PAGE_SIZE = 100
 GEOGRAPHY_TABLES = {'sectors': Sector, 'systems': System, 'coordinates': Coordinate}
 
 
-@staff_member_required(login_url='/admin_login/')
+@superuser_required
 def admin_technology(request):
     params = request_params(request)
     if not 'server_name_selected' in params:
@@ -137,7 +139,7 @@ def admin_technology(request):
 # ######################################################################################################################
 # MESSAGES REPORTED BY THE PLAYERS
 
-@staff_member_required(login_url='/admin_login/')
+@superuser_required
 def admin_message_flags(request):
     # All the servers, or the one chosen in its own menu
     selected_server = request.GET.get('server_name_selected')
@@ -163,7 +165,7 @@ def admin_message_flags(request):
 # ######################################################################################################################
 # GEOGRAPHY
 
-@staff_member_required(login_url='/admin_login/')
+@superuser_required
 def admin_geography(request):
     params = request_params(request)
     if not 'server_name_selected' in params or not 'target' in params:

@@ -47,7 +47,7 @@
           </div>
           <div class="col-lg-6">
 
-            <form id="cycle_action_form" method="POST" action="/cycle_monitoring/">{% csrf_token %}</form>
+            <form id="cycle_action_form" method="POST" action="/cycle_monitoring/">{% csrf_token %}<input type="hidden" name="cycle_nb" value="{{cycle_info.cycle_nb}}"></form>
 
             {% if not current_commandant_finished %}
               <button type="submit" form="cycle_action_form" name="commandant_cycle_status" value="commandant_cycle_finished"
