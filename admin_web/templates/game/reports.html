@@ -17,6 +17,11 @@
       <!--------------------------------------------------------------------------------------------------------->
       <!-- Corps central -->
 
+      <form id="report-search" method="GET" action="/reports/">
+        <input type="hidden" name="category" value="{{category}}">
+        <input type="hidden" name="status" value="{{status}}">
+      </form>
+
       <form id="report-form" method="POST" action="/reports/?category={{category}}&status={{status}}">
         {% csrf_token %}
 
@@ -212,11 +217,11 @@
 
                 <div class="card-tools">
                   <div class="input-group input-group-sm">
-                    <input type="text" class="form-control" name="search_text" aria-label="{% trans "Recherche"%}"
+                    <input type="text" form="report-search" class="form-control" name="search_text" aria-label="{% trans "Recherche"%}"
                            placeholder="{% trans "Recherche"%}"
                            {% if search_text %} value="{{search_text}}" {% endif %}>
                     <div class="input-group-append">
-                      <button type="submit" name="search" value="search" class="btn btn-primary" aria-label="{% trans "Recherche"%}">
+                      <button type="submit" form="report-search" class="btn btn-primary" aria-label="{% trans "Recherche"%}">
                         <i class="fas fa-search"></i>
                       </button>
                     </div>

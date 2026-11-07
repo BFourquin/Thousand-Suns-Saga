@@ -16,8 +16,7 @@
       <!--------------------------------------------------------------------------------------------------------->
       <!-- Corps central -->
 
-      <form id="report-form" method="POST" action="/colonies/?category={{category}}&marker={{marker}}">
-        {% csrf_token %}
+      <form id="report-form" method="GET" action="/colonies/">
 
         <input type="hidden" id="category" name="category" value="{{category}}">
         <input type="hidden" id="marker" name="marker" value="{{marker}}">

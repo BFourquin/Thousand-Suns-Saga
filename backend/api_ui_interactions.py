@@ -4,6 +4,8 @@ from functools import wraps
 from django.utils.translation import gettext as _
 from django.http import JsonResponse
 
+from backend.utils import orders_closed
+
 
 
 ########################################################################################################################
@@ -44,5 +46,16 @@ def api_login_required(view_func):
         if not request.user.is_authenticated:
             return api_pop_up_and_redirect({"title": _("Session expirée, veuillez vous reconnecter"), "level": "warning"},
                                            status=401, redirect='/player_login/')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+
+def api_orders_open(view_func):
+    # For every API giving an order to the active commandant
+
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if orders_closed(request):
+            return api_pop_up({"title": _("Mode consultation : plus aucun ordre n'est accepté"), "level": "warning"}, status=403)
         return view_func(request, *args, **kwargs)
     return wrapper

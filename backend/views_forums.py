@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from backend.decorators import add_cycle_info, commandant_required, log_player_action
+from backend.utils import orders_closed
 from data import conversations, forums
 from data.commandant import get_commandant_names
 from data.errors import GameError
@@ -133,7 +134,7 @@ def topic(request, server, commandant):
         'forum': forum, 'thread_title': topic['title'], 'back_url': forum_url, 'back_label': forum['name'],
         'topic_id': topic['id'], 'posts': posts, 'can_post': forum['can_post'], 'can_vote': forum['membership'] != 'banned',
         'can_moderate': forums.can_moderate(forum, request.user.is_staff),
-        'view_delay': None if already_viewed else forums.VIEW_DELAY_SECONDS, 'error': error})
+        'view_delay': None if already_viewed or orders_closed(request) else forums.VIEW_DELAY_SECONDS, 'error': error})
 
 
 @login_required(login_url='/player_login/')

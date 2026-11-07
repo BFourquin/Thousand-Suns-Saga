@@ -9,6 +9,12 @@
 
 {% include "includes/hijack_banner.html" %}
 
+{% if read_only %}
+<div class="alert alert-info mb-0 text-center" data-read-only>
+  <i class="fas fa-eye"></i> {% trans "Mode consultation : cette partie est terminée pour ce commandant. Vous pouvez tout regarder, mais plus aucun ordre n'est accepté." %}
+</div>
+{% endif %}
+
 <div class="wrapper">
   <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-dark">

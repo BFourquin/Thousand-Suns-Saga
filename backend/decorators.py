@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from data.cycles import get_current_cycle
 from data.commandant import get_commandants, update_commandant
-from backend.utils import get_active_server_and_commandant_from_request, get_request_user
+from backend.utils import get_active_server_and_commandant_from_request, get_request_user, orders_closed
 from database.schemas import server_schema
 
 
@@ -24,7 +24,7 @@ def log_player_action(view_func):
         if user and user.is_authenticated:
             server, commandant = get_active_server_and_commandant_from_request(request)
 
-            if server and commandant:
+            if server and commandant and not orders_closed(request):  # Looking at an old game is no activity in it
                 update_commandant(server, commandant['id'], "time_last_activity", now)
 
         # --- TODO ---
@@ -102,6 +102,8 @@ def commandant_required(view_func):
         server, commandant = get_active_server_and_commandant_from_request(request)
         if not server or not commandant:
             return redirect('/user_account/')
+        if request.method == 'POST' and orders_closed(request):  # Back to the page, which explains why
+            return redirect(request.get_full_path())
         with server_schema(server):  # Once for the whole view instead of at each call to the data layer
             return view_func(request, server, commandant, *args, **kwargs)
     return wrapper

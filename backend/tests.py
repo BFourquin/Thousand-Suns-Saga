@@ -115,6 +115,11 @@ class ApiDistrictsTests(SimpleTestCase):
     colony_id = 11
     commandant_id = 22
 
+    def setUp(self):
+        patcher = patch('backend.api_ui_interactions.orders_closed', return_value=False)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def active(self):
         return patch('backend.views_api_buildings.get_active_server_and_commandant_from_request',
                      return_value=('S', {'id': self.commandant_id, 'colonies': [self.colony_id]}))
@@ -1960,6 +1965,82 @@ class AdministrationRightsTests(TestCase):
             self.edit(param, value)
         details = server_details.get_server_details('S')
         self.assertEqual((details['server_name'], details['status'], details['admin_only_visibility'], details['version']), ('S', 'stop', True, 1))
+
+
+class ReadOnlyTests(EconomyTestCase):
+    # A finished server or a dead commandant : everything can be looked at, nothing can be done
+
+    def setUp(self):
+        self.client.force_login(self.user)
+        CommandantAccount.objects.create(server_id='S', commandant_id=self.commandant.id, user=self.user, commandant_name='Paullus')
+        UserExtended.objects.update_or_create(user=self.user, defaults={'playing_on_server_id': 'S', 'playing_on_commandant': self.commandant.id})
+
+    def stop_server(self):
+        Server.objects.filter(pk='S').update(status='stop')
+
+    def kill_commandant(self):
+        server_details.set_dead_commandant('S', self.commandant.id)
+
+    def test_every_order_api_is_refused(self):
+        self.stop_server()
+        steel = self.resources()['steel']
+        for url in [url for url in API_LOGGED_URLS if url != '/api_create_commandant/']:
+            response = self.client.post(url, {'colony_id': self.colony.id, 'district_type': 'farming', 'district_id': self.farming.id,
+                                              'building_type': 'farm', 'activation_percent': 50, 'technology': 'x'})
+            self.assertEqual(response.status_code, 403, url)
+        self.assertEqual(self.resources()['steel'], steel)
+
+    def test_a_dead_commandant_gives_no_order(self):
+        self.kill_commandant()
+        self.assertEqual(self.client.post('/api_build_building/', {}).status_code, 403)
+        self.client.post('/cycle_monitoring/', {'commandant_cycle_status': 'commandant_cycle_finished'})
+        self.assertEqual(cycles.get_current_cycle('S')['commandants_cycle_finished'], [])
+
+    def test_an_open_server_still_takes_orders(self):
+        self.assertEqual(self.client.post('/api_build_building/', {'colony_id': 'x'}).status_code, 400)
+
+    def test_forms_of_the_pages_change_nothing(self):
+        forum_id = forums.get_forum_id('S', 'assembly')
+        self.stop_server()
+        response = self.client.post(f'/forum/?forum_id={forum_id}', {'action': 'new_topic', 'title': 'Title', 'body': 'Body'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], f'/forum/?forum_id={forum_id}')
+        with server_schema('S'):
+            self.assertFalse(Post.objects.exists())
+
+    def test_the_end_of_the_cycle_is_refused_even_to_the_staff(self):
+        User.objects.filter(id=self.user.id).update(is_staff=True)
+        number = cycles.get_current_cycle('S')['cycle_nb']
+        self.stop_server()
+        self.client.post('/cycle_monitoring/', {'admin_action': 'end_cycle', 'cycle_nb': number})
+        self.assertEqual(cycles.get_current_cycle('S')['cycle_nb'], number)
+
+    def test_pages_stay_readable_with_the_banner(self):
+        self.stop_server()
+        forum_id = forums.get_forum_id('S', 'assembly')
+        for url in ('/resources/', '/colonies/', '/reports/', '/cycle_monitoring/', '/technologies/', '/diplomacy/', f'/forum/?forum_id={forum_id}'):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200, url)
+            self.assertContains(response, 'data-read-only')
+
+    def test_no_banner_on_an_open_server(self):
+        self.assertNotContains(self.client.get('/resources/'), 'data-read-only')
+
+    def test_looking_is_no_activity(self):
+        self.stop_server()
+        self.client.get('/resources/')
+        self.assertIsNone(get_commandant('S', self.commandant.id)['time_last_activity'])
+        Server.objects.filter(pk='S').update(status='open')
+        self.client.get('/resources/')
+        self.assertIsNotNone(get_commandant('S', self.commandant.id)['time_last_activity'])
+
+    def test_a_dead_account_can_be_reopened_from_the_account_page(self):
+        self.kill_commandant()
+        UserExtended.objects.filter(user=self.user).update(playing_on_server=None, playing_on_commandant=None)
+        response = self.client.get('/user_account/')
+        self.assertEqual([account['read_only'] for account in response.context['accounts']], [True])
+        self.client.get('/commandant_login/', {'server': 'S', 'commandant_id': self.commandant.id})
+        self.assertContains(self.client.get('/resources/'), 'data-read-only')
 
 
 class ResearchTests(EconomyTestCase):

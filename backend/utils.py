@@ -1,7 +1,7 @@
 
 import random
 
-from backend.models import to_id
+from backend.models import FINISHED_SERVER_STATUSES, Server, to_id
 from data.user import get_user_by_name
 
 
@@ -70,6 +70,16 @@ def get_active_server_and_commandant_from_request(request):
         request.tss_active_commandant = (server, commandant)
 
     return request.tss_active_commandant
+
+
+def orders_closed(request):
+    # A finished server or a dead commandant : the player can still look at what was, but no order is accepted anymore
+
+    if not hasattr(request, 'tss_orders_closed'):
+        server, commandant = get_active_server_and_commandant_from_request(request)
+        request.tss_orders_closed = bool(commandant) and (
+            commandant['status'] != 'active' or Server.objects.filter(pk=server, status__in=FINISHED_SERVER_STATUSES).exists())
+    return request.tss_orders_closed
 
 
 def get_language(request):

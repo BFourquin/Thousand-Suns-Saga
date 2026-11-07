@@ -23,7 +23,7 @@ open : users can create an account and play
 close : users can play but not create new accounts
 test : only superuser can create an account
 stop : the server is fixed in time at the end of the game, no new account or any order
-dead : everything shut down
+dead : everything shut down, its players can still look at what was
 """
 
 """ ADMIN ONLY VISIBILITY

@@ -3069,6 +3069,15 @@ msgstr "You already have a commandant on this server"
 msgid "Ce serveur est exclusif et vous jouez déjà sur un autre serveur exclusif"
 msgstr "This server is exclusive and you already play on another exclusive server"
 
+msgid "Consultation"
+msgstr "Read only"
+
+msgid "Mode consultation : plus aucun ordre n'est accepté"
+msgstr "Read-only mode: no order is accepted anymore"
+
+msgid "Mode consultation : cette partie est terminée pour ce commandant. Vous pouvez tout regarder, mais plus aucun ordre n'est accepté."
+msgstr "Read-only mode: this game is over for this commandant. You can look at everything, but no order is accepted anymore."
+
 #~ msgid "Quadrant au nord"
 #~ msgstr "Quadrant to the north"
 

@@ -27,6 +27,16 @@ $(function () {
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // READ ONLY : the banner of includes/menu_game.html. The server refuses the orders anyway, this shows it before the click.
+
+    if ($('[data-read-only]').length) {
+        $('form').filter(function () {
+            return (this.method === 'post' || this.dataset.apiUrl) && !this.hasAttribute('data-always-open');
+        }).each(function () { $(this.elements).prop('disabled', true); });
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // VIEW COUNTER : <form data-view-after="seconds" action="url"> sent once the page stayed that long with its tab active
 
     $('form[data-view-after]').each(function () {

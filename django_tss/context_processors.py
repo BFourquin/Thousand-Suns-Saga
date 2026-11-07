@@ -4,7 +4,7 @@ from data.conversations import count_unread_conversations
 from data.ententes import count_pending_answers
 from data.forums import count_all_open_flags, get_forum_badges
 from data.themes import get_theme_or_default, LIGHT_THEMES
-from backend.utils import get_active_server_and_commandant_from_request, get_request_user
+from backend.utils import get_active_server_and_commandant_from_request, get_request_user, orders_closed
 
 
 def servers_details(request):
@@ -38,6 +38,7 @@ def commandant_and_server(request):
 
     return {'server': server,
             'commandant': commandant,
+            'read_only': orders_closed(request),
             'server_details': details,
             'nb_unread_conversations': nb_unread_conversations,
             'forum_badges': forum_badges,

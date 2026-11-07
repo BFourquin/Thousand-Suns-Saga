@@ -8,7 +8,7 @@ from django.utils import timezone
 
 import data.user
 import data.themes
-from backend.models import to_id
+from backend.models import FINISHED_SERVER_STATUSES, Server, to_id
 from backend.api_ui_interactions import api_login_required
 from backend.decorators import add_cycle_info, log_player_action, commandant_required
 from backend.utils import request_params, parameters_presents, get_request_user
@@ -43,20 +43,17 @@ def user_account(request):
 
         return redirect('/user_account/')
 
+    finished_servers = set(Server.objects.filter(status__in=FINISHED_SERVER_STATUSES).values_list('pk', flat=True))
+
     accounts = []
-    for account_server, account_id in user['accounts']:
+    for account_server, account_id in user['accounts'] + user['dead_accounts']:
         account = data.commandant.get_commandant(account_server, account_id)
         if account:
+            account['read_only'] = account['status'] != 'active' or account_server in finished_servers
             accounts.append(account)
 
-    dead_accounts = []
-    for account_server, account_id in user['dead_accounts']:
-        dead_account = data.commandant.get_commandant(account_server, account_id)
-        if dead_account:
-            dead_accounts.append(dead_account)
-
     return TemplateResponse(request, 'game/user_account.html',
-                            {'current_user': dict(user), 'accounts': accounts, 'dead_accounts': dead_accounts,
+                            {'current_user': dict(user), 'accounts': accounts,
                              'theme_name': data.themes.THEMES[data.themes.get_theme_or_default(user.get('theme'))][0]})
 
 
@@ -105,7 +102,8 @@ def commandant_login(request):
     commandant_id = params['commandant_id']
     server_name = params['server']
 
-    if (server_name, to_id(commandant_id)) not in user['accounts']:
+    # Also a dead one : its player can still look at what it was
+    if (server_name, to_id(commandant_id)) not in user['accounts'] + user['dead_accounts']:
         ... # TODO log suspicious use to another player's commandant
         return redirect('/user_account/')
 

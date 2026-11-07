@@ -16,8 +16,8 @@ SERVERS_MENU_CACHE_SECONDS = 5 * 60
 server_status = ('open',  # users can create an account and play
                  'close',  # users can play but not create new accounts
                  'test',  # only superuser can create an account
-                 'stop',  # the server is fixed in time at the end of the game, no new account or any order,
-                 'dead')  # everything shut down
+                 'stop',  # the server is fixed in time at the end of the game, no new account or any order
+                 'dead')  # everything shut down : as 'stop', its players can still look at what was
 
 
 @transaction.atomic
