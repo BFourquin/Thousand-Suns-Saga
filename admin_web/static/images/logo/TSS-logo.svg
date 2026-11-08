@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-378 -10 756 650" fill="currentColor">
+  <title>Thousand Suns Saga</title>
+  <!-- Every slanted edge is at 60° (dx = dy / √3). Centred on x = 0, the right S is the mirror of the left one. -->
+  <polygon points="-269.49,0 269.49,0 333,110 55,110 55,630 -55,630 -55,110 -333,110"/>
+  <g id="tss-s">
+    <!-- The inner edge of the top piece and the outer edge of the bottom piece lie on the same line, through (-229, 390). -->
+    <polygon points="-212.44,150 -90.44,150 -229,390 -351,390"/>
+    <polygon points="-229,390 -107,390 -245.56,630 -367.56,630"/>
+  </g>
+  <use xlink:href="#tss-s" href="#tss-s" transform="scale(-1,1)"/>
+</svg>
