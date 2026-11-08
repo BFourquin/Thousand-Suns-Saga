@@ -1,0 +1,61 @@
+Génération « 20j-08 » : 20 joueurs, toile de 855 × 695 unités, galaxie de 0.30 million d'unités² (agrandie de 48% pour loger les berceaux)
+Durées : génération 17.8 s, contrôles 0.7 s
+
+Systèmes : 11919 (densité moyenne dans la galaxie 0.040 / u²)
+
+Zones :
+  Berceau                    2 zone(s)    2078 systèmes   15.0% de la galaxie
+  Marche                     4 zone(s)    3949 systèmes   42.0% de la galaxie
+  Plaine stellaire           3 zone(s)    1809 systèmes   20.3% de la galaxie
+  Faille                     1 zone(s)       8 systèmes    5.2% de la galaxie
+  Tête de pont               4 zone(s)      42 systèmes    0.5% de la galaxie
+  Carrefour                  1 zone(s)     224 systèmes    1.9% de la galaxie
+  Nébuleuse sombre           1 zone(s)     512 systèmes    3.5% de la galaxie
+  Champ de débris            1 zone(s)     213 systèmes    2.0% de la galaxie
+  Pouponnière stellaire      1 zone(s)     326 systèmes    2.2% de la galaxie
+  Veine                      1 zone(s)     196 systèmes    1.7% de la galaxie
+  Amas dense                 1 zone(s)    2250 systèmes    4.6% de la galaxie
+  Halo                       1 zone(s)     254 systèmes  
+  Vestiges                   1 zone(s)      58 systèmes    0.9% de la galaxie
+
+Étoiles : 8.4% de grandes étoiles (A 2.45%, B 1.58%, Géante 2.48%, O 0.67%, Wolf-Rayet 0.23%, Supergéante 1.02%)
+
+Équité, autour de chacun des 20 mondes natals (2 berceaux) :
+  systèmes à 25 u                min 77 / médiane 89 / max 102
+  grandes étoiles de 0 à 16 u    min 2 / médiane 2 / max 2
+  habitable_medium de 3 à 12 u   min 1 / médiane 1 / max 1
+  habitable_poor de 3 à 12 u     min 2 / médiane 2 / max 2
+  habitable_good de 3 à 12 u     min 1 / médiane 1 / max 1
+  monde natal le plus proche     min 23 / médiane 28.5 / max 31
+  angle libre (°)                min 181 / médiane 217 / max 270
+  score                          min 12.6 / médiane 13 / max 13.4
+  écart du score : le meilleur a 1.06 fois le score du plus faible
+  distance des berceaux au halo : 45 u au plus près
+  zones précieuses : 5 au cœur ou partagées entre deux berceaux, 0 rendues ordinaires car plus près d'un seul 
+    Amas dense (cœur)      trajet depuis le berceau le plus proche    57 u, depuis le deuxième   120 u
+    Pouponnière stellaire (cœur) trajet depuis le berceau le plus proche   129 u, depuis le deuxième   141 u
+    Veine (cœur)           trajet depuis le berceau le plus proche   148 u, depuis le deuxième   213 u
+    Oasis                  trajet depuis le berceau le plus proche    70 u, depuis le deuxième    73 u
+    Carrefour              trajet depuis le berceau le plus proche   208 u, depuis le deuxième   257 u
+
+Expansion : valeur des systèmes plus proches (en trajet) de chaque monde natal que des autres, entière jusqu'à 60 u, nulle au-delà de 160 u
+  par monde natal : min 30 / médiane 34 / max 76, le plus riche a 2.54 fois le plus pauvre (dernier décile / premier : 1.54)
+  par berceau : min 330 / médiane 402 / max 402, écart 1.22
+  équilibrage des zones : écart estimé 2.75 → 2.67, 2 échange(s), 3 déclassement(s)
+  puis retouche des systèmes ordinaires : écart 4.06 → 2.54, 75 systèmes changés en monde habitable ou l'inverse
+  cœur de la galaxie : 4% de sa surface
+
+Connectivité (lien vortex si la distance ≤ portée de la plus grande des deux étoiles) :
+  liens : 163914 ; réseau principal : 98.9% des systèmes
+  mondes natals dans le réseau principal : 20 / 20
+  systèmes isolés, inaccessibles : 134 en 94 îlots, dont 37 dans la galaxie (les autres dans le halo)
+  têtes de pont : 4 placées, 0 abandonnées faute de deux vraies régions à relier
+  réparations : 0 
+  couloirs indépendants (carrés de 20 u) ouest↔est : 7, nord↔sud : 17
+  mode chasse au trésor, du bord ouest aux vestiges : 7 couloirs
+  détour entre berceaux (chemin par vortex / ligne droite) : min 1.08 / médiane 1.08 / max 1.08
+
+Identifiants lisibles (y.x-orbite) comparés aux identifiants actuels :
+  0225.0589-3   au lieu de   100000200502508903
+  0217.0627-3   au lieu de   100000200601702703
+  0229.0653-3   au lieu de   100000200602905303

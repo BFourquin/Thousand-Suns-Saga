@@ -1,0 +1,61 @@
+Génération « 20j-06 » : 20 joueurs, toile de 695 × 730 unités, galaxie de 0.26 million d'unités² (agrandie de 28% pour loger les berceaux)
+Durées : génération 22.5 s, contrôles 0.7 s
+
+Systèmes : 10285 (densité moyenne dans la galaxie 0.040 / u²)
+
+Zones :
+  Berceau                    2 zone(s)    1785 systèmes   17.4% de la galaxie
+  Marche                     5 zone(s)    4361 systèmes   50.2% de la galaxie
+  Plaine stellaire           7 zone(s)     812 systèmes   10.7% de la galaxie
+  Oasis                      1 zone(s)     212 systèmes    2.5% de la galaxie
+  Faille                     1 zone(s)       6 systèmes    4.9% de la galaxie
+  Tête de pont               3 zone(s)      33 systèmes    0.5% de la galaxie
+  Carrefour                  1 zone(s)     169 systèmes    1.8% de la galaxie
+  Pouponnière stellaire      1 zone(s)     504 systèmes    4.0% de la galaxie
+  Champ gazier               1 zone(s)      77 systèmes    1.2% de la galaxie
+  Zone d'anomalies           1 zone(s)     170 systèmes    2.0% de la galaxie
+  Amas dense                 1 zone(s)    1913 systèmes    4.0% de la galaxie
+  Halo                       1 zone(s)     193 systèmes  
+  Vestiges                   1 zone(s)      50 systèmes    1.0% de la galaxie
+
+Étoiles : 8.7% de grandes étoiles (A 2.54%, B 1.56%, Géante 2.45%, O 0.94%, Wolf-Rayet 0.19%, Supergéante 0.97%)
+
+Équité, autour de chacun des 20 mondes natals (2 berceaux) :
+  systèmes à 25 u                min 74 / médiane 79 / max 100
+  grandes étoiles de 0 à 16 u    min 2 / médiane 2 / max 2
+  habitable_medium de 3 à 12 u   min 1 / médiane 1 / max 1
+  habitable_poor de 3 à 12 u     min 2 / médiane 2 / max 2
+  habitable_good de 3 à 12 u     min 1 / médiane 1 / max 1
+  monde natal le plus proche     min 18.4 / médiane 29.2 / max 34.2
+  angle libre (°)                min 189 / médiane 213 / max 270
+  score                          min 12.5 / médiane 12.6 / max 13.3
+  écart du score : le meilleur a 1.06 fois le score du plus faible
+  distance des berceaux au halo : 45 u au plus près
+  zones précieuses : 5 au cœur ou partagées entre deux berceaux, 0 rendues ordinaires car plus près d'un seul 
+    Amas dense (cœur)      trajet depuis le berceau le plus proche    64 u, depuis le deuxième    81 u
+    Pouponnière stellaire (cœur) trajet depuis le berceau le plus proche    75 u, depuis le deuxième   173 u
+    Carrefour (cœur)       trajet depuis le berceau le plus proche    19 u, depuis le deuxième    67 u
+    Oasis                  trajet depuis le berceau le plus proche   156 u, depuis le deuxième   224 u
+    Zone d'anomalies       trajet depuis le berceau le plus proche   224 u, depuis le deuxième   240 u
+
+Expansion : valeur des systèmes plus proches (en trajet) de chaque monde natal que des autres, entière jusqu'à 60 u, nulle au-delà de 160 u
+  par monde natal : min 34 / médiane 38 / max 55, le plus riche a 1.61 fois le plus pauvre (dernier décile / premier : 1.35)
+  par berceau : min 375 / médiane 405 / max 405, écart 1.08
+  équilibrage des zones : écart estimé 3.58 → 3.58, 3 échange(s)
+  puis retouche des systèmes ordinaires : écart 3.19 → 1.61, 77 systèmes changés en monde habitable ou l'inverse
+  cœur de la galaxie : 4% de sa surface
+
+Connectivité (lien vortex si la distance ≤ portée de la plus grande des deux étoiles) :
+  liens : 147850 ; réseau principal : 99.3% des systèmes
+  mondes natals dans le réseau principal : 20 / 20
+  systèmes isolés, inaccessibles : 76 en 56 îlots, dont 25 dans la galaxie (les autres dans le halo)
+  têtes de pont : 3 placées, 0 abandonnées faute de deux vraies régions à relier
+  réparations : 0 
+  couloirs indépendants (carrés de 20 u) ouest↔est : 13, nord↔sud : 9
+  mode chasse au trésor, du bord ouest aux vestiges : 18 couloirs
+  détour entre berceaux (chemin par vortex / ligne droite) : min 1.09 / médiane 1.09 / max 1.09
+
+Identifiants lisibles (y.x-orbite) comparés aux identifiants actuels :
+  0532.0309-3   au lieu de   100000500303200903
+  0545.0280-3   au lieu de   100000500204508003
+  0552.0250-3   au lieu de   100000500205205003
