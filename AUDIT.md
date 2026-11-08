@@ -31,7 +31,7 @@ Ce document remplace l'audit du 2026-11-05, qui décrivait encore le code MongoD
 | 15 | Code mort | Trié : bokeh et le code remplacé sont retirés, le reste attend une décision |
 | 16 | Dépendances anciennes et non épinglées | **À faire** |
 | 17 | La fin de cycle relit les tables pour chaque joueur | Corrigé |
-| 18 | Fichier Excel temporaire non ignoré | **À faire** |
+| 18 | Fichier Excel temporaire non ignoré | Corrigé |
 
 ## Ce qui reste à faire
 
@@ -89,13 +89,6 @@ Deux templates ne sont utilisés nulle part : `admin/admin_raw_json.html` et `te
 - **Correction :** passer à Django 5.2 LTS, garder un seul fichier épinglé et supprimer `requirements_OLD.txt` et `requirements_versionning.txt`.
 - **Sinon :** l'environnement n'est pas reproductible et les failles de Django ne seront plus corrigées.
 
-### 18. Un fichier Excel temporaire n'est pas ignoré
-
-`.gitignore`.
-
-- **Problème :** `~$TSS_v2.xlsx` apparaît dans `git status`.
-- **Correction :** remplacer les lignes concernées par `~$*.xlsx`.
-
 ## Ce qui a été corrigé
 
 - **1.** L'API refuse les districts centraux et ceux au-dessus du niveau technologique. Le menu de construction suit la même règle (`is_buildable_district`).
@@ -123,6 +116,7 @@ Deux templates ne sont utilisés nulle part : `admin/admin_raw_json.html` et `te
   - `tech`, remplacée par les colonnes Excel ;
   - `actions/building.py` et `geography/planet.py`.
 - **17.** Les tables communes sont lues une seule fois par fin de cycle.
+- **18.** `.gitignore` ignore tous les fichiers temporaires d'Excel avec `~$*.xlsx`.
 
 ## Limites de cet audit
 

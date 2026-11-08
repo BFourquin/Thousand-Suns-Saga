@@ -6,8 +6,7 @@ secrets/
 .claude/excel_export/
 
 # Excel cache files
-~$TSS.xlsx
-~$TSS_boardgame.xlsx
+~$*.xlsx
 
 # ######################################################################################################################
 # DEFAULT PYTHON PROJECT GITIGNORE
