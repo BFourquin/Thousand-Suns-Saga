@@ -2,11 +2,12 @@
 Prototype : a sector without tiles nor quadrants, cut into natural zones.
 
 Standalone experiment, numpy + Pillow only (no Django, no database) :
-    python geography/experiments/zone_map_prototype.py                several generations
-    python geography/experiments/zone_map_prototype.py key 1000 1000  one generation
-    python geography/experiments/zone_map_prototype.py --check        determinism self-check
-For each generation, geography/experiments/output/ receives <key>_vierge.png (the systems only), <key>_zones.png
-(zones, stars, homes, bottlenecks) and <key>_rapport.txt (equity, connectivity, timings).
+    python geography/experiments/zone_map_prototype.py             every batch : 10 maps for 20, 50 and 100 players, 5 for 200
+    python geography/experiments/zone_map_prototype.py 50          one batch : the maps for 50 players
+    python geography/experiments/zone_map_prototype.py key 50      one map
+    python geography/experiments/zone_map_prototype.py --check     determinism self-check
+Each map writes into geography/experiments/output/<players>_joueurs/ : <key>_vierge.png (the systems only),
+<key>_zones.png (zones, stars, homes, bottlenecks) and <key>_rapport.txt. Each batch writes its resume.txt.
 
 All the randomness comes from rng() / nprng() : the same secret gives the same map, and nothing shown to the players lets
 anyone recompute it. Vortex rule assumed : two systems are linked when their distance is at most the range of the bigger star.
@@ -26,12 +27,19 @@ from PIL import Image, ImageDraw, ImageFont
 
 SECRET = os.environ.get('TSS_MAP_SECRET', 'secret-de-dev')  # In the game : the Excel seed and a salt from secrets/
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'output')
+BATCHES = ((20, 10), (50, 10), (100, 10), (200, 5))  # (players, maps)
 
 CELL = 5                # Size of a zone cell, in units
-DENSITY = 0.04          # Systems per unit², as today : 40 591 systems on 1000 x 1000
+DENSITY = 0.04          # Systems per unit² of galaxy, as today : 40 591 systems on 1000 x 1000
+AREA_PER_PLAYER = 10_000  # Units² of galaxy per player, as today : about 100 players on 1000 x 1000
+SQUIRCLE = 3.5333       # Area of |y/a|³ + |x/b|³ <= 1, divided by a.b : the rounded square the galaxy is drawn from
 HOMES_PER_CRADLE = 10
-CRADLE_RADIUS = 100
-HOME_SPACING = 24
+CRADLE_RADIUS = 85      # A cradle has the area of a disc of this radius, whatever its shape
+HOME_RING = 0.55        # The homes stand on a ring at this share of the cradle : nobody in the centre, nobody surrounded
+HALO_GAP = 60           # Least distance between a cradle and the halo
+CRADLE_GAP = 60         # Least distance between two cradles
+FAR = 110               # A precious zone is at least this far (by travel) from every cradle...
+SHARED = 35             # ...or its second cradle is at most this much (+ 25 %) farther than its first
 WARP = 6                # The borders of the zones wave by this many units : no staircase of cells
 BANK = 15               # No random big star this close to a rift : only the planned bridgeheads cross it
 INF = 10 ** 9
@@ -110,11 +118,14 @@ ZONES = {
 STAMPED = {'halo', 'berceau', 'faille', 'tete_de_pont', 'abime', 'route'}  # Drawn with their shape, the others grow
 FREE_ZONES = {'plaine': 22, 'sauvage': 10, 'debris': 8, 'gazier': 8, 'nebuleuse_sombre': 8, 'amas_globulaire': 8,
               'pouponniere': 6, 'anomalies': 5, 'supernova': 4}
+PLAIN_ZONES = ('plaine', 'sauvage', 'debris', 'gazier')
 DANGEROUS = {'supernova', 'anomalies', 'nebuleuse_sombre'}  # Never next to a cradle
 WEB = {'plaine', 'marche', 'sauvage', 'gazier', 'debris', 'nebuleuse_sombre', 'pouponniere', 'anomalies', 'supernova'}  # Filaments and voids
+# The zones worth a fight : never at the door of a single cradle
+PRECIOUS = {'oasis', 'veine', 'carrefour', 'amas_dense', 'amas_globulaire', 'pouponniere', 'anomalies', 'supernova', 'coeur_noir', 'vestiges'}
 
-# What every home finds around it : (system type or 'big' for a big star, from, to (units), at least, at most)
-# The habitable worlds of the kit stay within half the spacing of the homes : nobody shares them, the floors and ceilings never fight.
+# What every home finds around it : (system type or 'big' for a big star, from, to (units), at least, at most).
+# The habitable worlds stay within half the spacing of the homes : nobody shares them, the floors and ceilings never fight.
 KIT = (('big', 0, 16, 2, 2),
        ('habitable_medium', 3, 12, 1, 1),
        ('habitable_poor', 3, 12, 2, 2),
@@ -213,25 +224,45 @@ def stats(values):
     return f'min {values[0]:g} / médiane {values[len(values) // 2]:g} / max {values[-1]:g}'
 
 
+class Crowded(Exception):
+    # The cradles don't fit : the galaxy is drawn again, a bit larger
+    pass
+
+
 ########################################################################################################################
 # THE SECTOR
 
 
 class Sector:
 
-    def __init__(self, key, width, height):
-        self.key, self.W, self.H = key, width, height
-        self.gh, self.gw = height // CELL, width // CELL
+    def __init__(self, key, players, grow=1.0):
+        self.key, self.players = key, players
+        r = rng(key, 'shape')
+        self.n_cradles = max(1, round(players / HOMES_PER_CRADLE))
+        self.homes_per = [players // self.n_cradles + (k < players % self.n_cradles) for k in range(self.n_cradles)]
+        stretch = r.uniform(0.8, 1.25)
+        product = players * AREA_PER_PLAYER * grow / SQUIRCLE
+        self.ay, self.ax = math.sqrt(product * stretch), math.sqrt(product / stretch)
+        self.W = self.H = math.ceil((2.6 * max(self.ay, self.ax) + 160) / 50) * 50  # Room for the halo and the void around
+        self.gh, self.gw = self.H // CELL, self.W // CELL
         self.cy = (np.arange(self.gh) + 0.5) * CELL
         self.cx = (np.arange(self.gw) + 0.5) * CELL
         self.owner = np.full((self.gh, self.gw), -1, np.int32)
         self.zones = []
         self.forced = []  # (y, x, star class, role) : the stars placed on purpose
         self.bridges = []  # ((y, x), (y, x)) : the vortex planned across a rift or an abyss
+        self.home_cradle = []  # The cradle of each home, in the order of their stars in self.forced
         self.timings = {}
 
     def dist(self, y, x):
         return np.hypot(self.cy[:, None] - y, self.cx[None, :] - x)
+
+    def disc(self, y, x, radius):
+        # The cells of a disc, in a window of the grid
+        i0, i1 = max(int((y - radius) // CELL), 0), max(min(int((y + radius) // CELL) + 1, self.gh), 0)
+        j0, j1 = max(int((x - radius) // CELL), 0), max(min(int((x + radius) // CELL) + 1, self.gw), 0)
+        window = (slice(i0, i1), slice(j0, j1))
+        return window, (self.cy[i0:i1, None] - y) ** 2 + (self.cx[None, j0:j1] - x) ** 2 <= radius ** 2
 
     def cell(self, y, x):
         return min(max(int(y // CELL), 0), self.gh - 1), min(max(int(x // CELL), 0), self.gw - 1)
@@ -243,72 +274,152 @@ class Sector:
     def zone_kinds(self):
         return np.array([zone['kind'] for zone in self.zones])
 
+    def kind_of_cells(self):
+        return np.where(self.owner >= 0, self.zone_kinds()[np.maximum(self.owner, 0)], '')
+
     ####################################################################################################################
     # ZONES
 
     def layout(self):
         g = nprng(self.key, 'layout')
-        self.edge = np.minimum(np.minimum(self.cy[:, None], self.H - self.cy[:, None]),
-                               np.minimum(self.cx[None, :], self.W - self.cx[None, :]))
-        self.halo_width = 20 + 25 * value_noise(g, (self.gh, self.gw), [(12, 1.0)])
-        self.owner[self.edge < self.halo_width] = self.add_zone('halo', 0, 0)
+        # The galaxy : a rounded square whose border waves widely, the halo around it, then the void
+        waves = value_noise(g, (self.gh, self.gw), [(max(6, self.gh // 6), 1.0), (max(3, self.gh // 16), 0.35)])
+        dy = np.abs(self.cy[:, None] - self.H / 2) / self.ay
+        dx = np.abs(self.cx[None, :] - self.W / 2) / self.ax
+        self.rho = (dy ** 3 + dx ** 3) ** (1 / 3) / (1 + 0.22 * (2 * waves - 1))
+        self.core = self.rho < 1
+        self.core_area = float(self.core.sum()) * CELL * CELL
+        rows, cols = np.nonzero(self.core)
+        self.box = (rows.min() * CELL, (rows.max() + 1) * CELL, cols.min() * CELL, (cols.max() + 1) * CELL)
+        self.depth = distance_from(~self.core, int(max(self.ay, self.ax) / CELL) + 2) * CELL
+        self.owner[~self.core] = self.add_zone('halo', 0, 0)
         self.place_cradles(g)
         self.place_rifts()
         self.place_abysses()
+        self.travel()
         self.place_seeds()
         self.grow()
+        self.keep_precious_fair()
+
+    def cradle_shape(self, y, x, stretch, angle, bend, noise):
+        # An ellipse of the area of a disc of CRADLE_RADIUS, stretched, turned, bent like a bean, with a waving border
+        a, b = CRADLE_RADIUS * math.sqrt(stretch), CRADLE_RADIUS / math.sqrt(stretch)
+        window, _ = self.disc(y, x, 1.3 * a)
+        py, px = self.cy[window[0], None] - y, self.cx[None, window[1]] - x
+        u = px * math.cos(angle) + py * math.sin(angle)
+        v = -px * math.sin(angle) + py * math.cos(angle) + bend * u ** 2 / a
+        return window, (u / a) ** 2 + (v / b) ** 2 <= (0.9 + 0.2 * noise[window]) ** 2
+
+    def place_cradle_cells(self, window, inside, k):
+        # Marked -2 - k until the zones of the cradles are created in their order
+        self.owner[window][inside] = -2 - k
+        return self.owner == -2 - k
+
+    def ring_of_homes(self, y, x, stretch, angle, bend, count, r):
+        # The homes, spread evenly on a ring inside the cradle : each one has the centre on one side, the outside on the other
+        a, b = CRADLE_RADIUS * math.sqrt(stretch), CRADLE_RADIUS / math.sqrt(stretch)
+        ring = []
+        for s in range(720):
+            t = s * 2 * math.pi / 720
+            u, v = HOME_RING * a * math.cos(t), HOME_RING * b * math.sin(t)
+            v -= bend * u ** 2 / a
+            ring.append((y + u * math.sin(angle) + v * math.cos(angle), x + u * math.cos(angle) - v * math.sin(angle)))
+        lengths = np.cumsum([0] + [math.dist(p, q) for p, q in zip(ring, ring[1:] + ring[:1])])
+        phase = r.random()
+        return [ring[min(int(np.searchsorted(lengths, (k + phase) / count * lengths[-1])), 719)] for k in range(count)]
 
     def place_cradles(self, g):
         r = rng(self.key, 'cradles')
-        n = max(1, round(self.W * self.H / 110_000))
-        margin = min(150, self.H / 4, self.W / 4)
-        spacing = math.sqrt(self.W * self.H / n)
-        while True:
-            centres = []
-            for _ in range(5000):
-                p = (r.uniform(margin, self.H - margin), r.uniform(margin, self.W - margin))
-                if all(math.dist(p, c) >= spacing for c in centres):
-                    centres.append(p)
-                    if len(centres) == n:
-                        break
-            if len(centres) == n:
-                break
-            spacing *= 0.95
-        # Stamped as noisy discs of the same size : every cradle gets the same room
-        shape = value_noise(g, (self.gh, self.gw), [(6, 1.0)])
+        noise = value_noise(g, (self.gh, self.gw), [(6, 1.0)])
+        n = self.n_cradles
+        usable = np.flatnonzero(self.depth >= HALO_GAP + 0.4 * CRADLE_RADIUS)
+        if len(usable) < 50 * n:
+            raise Crowded
+        ys, xs = self.cy[usable // self.gw], self.cx[usable % self.gw]
+        # Centres spread evenly over the room the halo leaves : Lloyd's relaxation, from seeds drawn far from each other
+        centres = [(ys[k], xs[k]) for k in [r.randrange(len(usable))]]
+        while len(centres) < n:
+            d2 = np.min([(ys - y) ** 2 + (xs - x) ** 2 for y, x in centres], axis=0)
+            k = int(np.searchsorted(np.cumsum(d2), r.random() * d2.sum()))
+            centres.append((ys[min(k, len(ys) - 1)], xs[min(k, len(xs) - 1)]))
+        centres = np.array(centres)
+        for _ in range(20):
+            nearest = np.argmin((ys[:, None] - centres[None, :, 0]) ** 2 + (xs[:, None] - centres[None, :, 1]) ** 2, axis=1)
+            for k in range(n):
+                if (nearest == k).any():
+                    centres[k] = ys[nearest == k].mean(), xs[nearest == k].mean()
+        near = np.zeros((self.gh, self.gw), bool)  # Too close to a cradle already placed
         self.cradles = []
-        for y, x in centres:
+        order = sorted(range(n), key=lambda k: -self.depth[self.cell(*centres[k])])  # The inner ones first
+        placed = {}
+        for k in order:
+            y, x = centres[k]
+            # The cradle lies along its share of the room, as stretched as it, then less if it doesn't fit.
+            # Too near the halo or another cradle, it slides towards the centre of the galaxy.
+            sel = nearest == k
+            cov = np.cov(np.stack([xs[sel], ys[sel]])) if sel.sum() > 2 else np.eye(2)
+            values, vectors = np.linalg.eigh(cov)
+            angle = math.atan2(vectors[1, 1], vectors[0, 1])
+            elongation = math.sqrt(max(values[1], 1e-9) / max(values[0], 1e-9))
+            bend = r.uniform(-0.35, 0.35)
+            inward = math.atan2(self.H / 2 - y, self.W / 2 - x)
+            found = None
+            for slide in range(0, 80, 10):
+                cy, cx = y + slide * math.sin(inward), x + slide * math.cos(inward)
+                for stretch in (min(1.8, max(1.0, elongation * r.uniform(0.9, 1.3))), 1.4, 1.0):
+                    for turn in (0, 0.1, -0.1, 0.25, -0.25, 0.5):
+                        window, inside = self.cradle_shape(cy, cx, stretch, angle + turn * math.pi, bend, noise)
+                        if inside.any() and self.depth[window][inside].min() >= HALO_GAP and not near[window][inside].any():
+                            found = (cy, cx, stretch, angle + turn * math.pi, window, inside)
+                            break
+                    if found:
+                        break
+                if found:
+                    break
+            if not found:
+                raise Crowded
+            y, x, stretch, angle, window, inside = found
+            centres[k] = (y, x)
+            near |= distance_from(self.place_cradle_cells(window, inside, k), CRADLE_GAP // CELL) <= CRADLE_GAP // CELL
+            placed[k] = (y, x, stretch, angle, bend)
+        # The zones and the homes in the order of the cradles, whatever the order they were placed in
+        for k in range(n):
+            y, x, stretch, angle, bend = placed[k]
             zid = self.add_zone('berceau', y, x)
-            self.owner[self.dist(y, x) <= CRADLE_RADIUS * (0.85 + 0.3 * shape)] = zid
+            self.owner[self.owner == -2 - k] = zid
             self.cradles.append(zid)
-        self.cradle_spacing = spacing
-        d = np.sort(np.stack([self.dist(y, x) for y, x in centres]), axis=0)
-        never = np.full((self.gh, self.gw), np.inf)
-        self.d1, self.d2, self.d3 = d[0], d[1] if n > 1 else never, d[2] if n > 2 else never
+            for hy, hx in self.ring_of_homes(y, x, stretch, angle, bend, self.homes_per[k], r):
+                self.forced.append((hy, hx, r.choice(('F', 'G', 'K')), 'monde_natal'))
+                self.home_cradle.append(k)
+        self.cradle_centres = [tuple(c) for c in centres.tolist()]
+        self.cradle_mask = np.isin(self.owner, self.cradles)
+        self.cradle_dist = distance_from(self.cradle_mask, 40) * CELL
 
     def place_rifts(self):
         r = rng(self.key, 'rifts')
-        centres = [(self.zones[i]['y'], self.zones[i]['x']) for i in self.cradles]
-        avoid = CRADLE_RADIUS + 40
+        self.rifts, self.rift = [], np.zeros((self.gh, self.gw), bool)
+        far = np.full((self.gh, self.gw), 999)
 
         def blocked(p):
-            return not (20 < p[0] < self.H - 20 and 20 < p[1] < self.W - 20) or any(math.dist(p, c) < avoid for c in centres)
+            i, j = int(p[0] // CELL), int(p[1] // CELL)
+            return not (0 <= i < self.gh and 0 <= j < self.gw) or self.depth[i, j] < 30 or self.cradle_dist[i, j] < 20 or far[i, j] < 70
 
-        self.rifts = []
-        for _ in range(round(self.W * self.H / 200_000)):
-            for _ in range(100):
-                start = (r.uniform(0.15, 0.85) * self.H, r.uniform(0.15, 0.85) * self.W)
-                if min(math.dist(start, c) for c in centres) > avoid + 30:
-                    break
-            else:
-                continue
+        wanted, tries = round(self.core_area / 200_000), 0
+        while len(self.rifts) < wanted and tries < 4 * wanted:
+            tries += 1
+            # Away from the halo, the cradles and the other rifts : two rifts side by side would only make a useless strip
+            pool = np.flatnonzero((self.depth >= 80) & (self.cradle_dist >= 40) & (far >= 120))
+            if not len(pool):
+                break
+            i, j = divmod(int(pool[r.randrange(len(pool))]), self.gw)
+            start = (self.cy[i], self.cx[j])
             heading, half = r.uniform(0, 2 * math.pi), r.uniform(200, 450)
             sides = []
             for turn in (0, math.pi):
                 p, h, side = start, heading + turn, []
                 while len(side) * 8 < half:
                     h += r.gauss(0, 0.12)
-                    # A rift bends around the cradles : it becomes a natural border between them
+                    # A rift bends around what it must avoid : it becomes a natural border between the cradles
                     for bend in (0, 0.3, -0.3, 0.6, -0.6, 0.9, -0.9, 1.2, -1.2):
                         q = (p[0] + 8 * math.sin(h + bend), p[1] + 8 * math.cos(h + bend))
                         if not blocked(q):
@@ -320,29 +431,54 @@ class Sector:
                     p = q
                 sides.append(side)
             points = sides[1][::-1] + [start] + sides[0]
-            if len(points) < 15:
+            if len(points) < 25:  # Too short to be worth a detour : a few bridgeheads need room
                 continue
             phase = r.uniform(0, 6.3)
             widths = [12 + 8 * (0.5 + 0.5 * math.sin(phase + k * 0.09)) for k in range(len(points))]
             zid = self.add_zone('faille', *points[len(points) // 2])
             for (y, x), w in zip(points, widths):
-                self.owner[self.dist(y, x) <= w / 2 + 3] = zid  # + 3 : no system closer than w across the rift
+                window, inside = self.disc(y, x, w / 2 + 3)  # + 3 : no system closer than w across the rift
+                self.owner[window][inside] = zid
+                self.rift[window] |= inside
             self.rifts.append((zid, points, widths))
-        self.rift = np.isin(self.owner, [i for i, zone in enumerate(self.zones) if zone['kind'] == 'faille'])
-        self.rift_dist = distance_from(self.rift, 12) * CELL
+            far = distance_from(self.rift, 30) * CELL
+        self.rift_dist = distance_from(self.rift, 30) * CELL
+        self.bridge_points, self.skipped_bridgeheads = [], 0
         for _, points, widths in self.rifts:
             self.place_bridgeheads(r, points, widths)
 
+    @staticmethod
+    def normal(points, i):
+        ty, tx = points[i + 1][0] - points[i - 1][0], points[i + 1][1] - points[i - 1][1]
+        norm = math.hypot(ty, tx) or 1
+        return tx / norm, -ty / norm
+
+    def joins_regions(self, points, widths, i):
+        # A bridgehead is only worth it between two real regions : not towards the halo nor a strip along another rift
+        (y, x), w = points[i], widths[i]
+        ny, nx = self.normal(points, i)
+        for side in (1, -1):
+            for d in (w / 2 + 12, w / 2 + 30, w / 2 + 50):
+                ci, cj = int((y + side * ny * d) // CELL), int((x + side * nx * d) // CELL)
+                if not (0 <= ci < self.gh and 0 <= cj < self.gw) or self.depth[ci, cj] < 20 or self.rift[ci, cj]:
+                    return False
+        return True
+
     def place_bridgeheads(self, r, points, widths):
-        # A pair of big stars face each other across the rift : the only way to cross it
-        n = max(2, round(len(points) * 8 / 170))
+        # A pair of big stars face each other across the rift : the only way to cross it. Not at its ends : one walks around them.
+        ends = 8
+        n = max(1, round(len(points) * 8 / 170))
         for k in range(n):
-            i = int((k + 0.5) / n * (len(points) - 1) + r.uniform(-0.2, 0.2) * len(points) / n)
-            i = min(max(i, 1), len(points) - 2)
+            target = ends + (k + 0.5) / n * (len(points) - 2 * ends)
+            for offset in sorted(range(-12, 13), key=abs):
+                i = int(target) + offset
+                if ends <= i < len(points) - ends and self.joins_regions(points, widths, i):
+                    break
+            else:
+                self.skipped_bridgeheads += 1
+                continue
             (y, x), w = points[i], widths[i]
-            ty, tx = points[i + 1][0] - points[i - 1][0], points[i + 1][1] - points[i - 1][1]
-            norm = math.hypot(ty, tx)
-            ny, nx = tx / norm, -ty / norm
+            ny, nx = self.normal(points, i)
             half = w / 2 + 2
             far = r.choice([c for c in ('giant', 'O', 'wolf_rayet', 'supergiant') if STARS[c][1] >= 2 * half + 1])
             sides = [(y + ny * half, x + nx * half), (y - ny * half, x - nx * half)]
@@ -350,39 +486,103 @@ class Sector:
             self.forced.append((*sides[0], far, 'tete_de_pont'))
             self.forced.append((*sides[1], r.choice(('A', 'B', 'giant', 'O')), 'tete_de_pont'))
             self.bridges.append((sides[0], sides[1]))
+            self.bridge_points.append((y, x, w))
             zid = self.add_zone('tete_de_pont', y, x)
-            self.owner[(self.dist(y, x) <= 20) & ~self.rift & ~np.isin(self.owner, self.cradles)] = zid
+            window, inside = self.disc(y, x, 20)
+            self.owner[window][inside & ~self.rift[window] & ~self.cradle_mask[window]] = zid
 
     def place_abysses(self):
         r = rng(self.key, 'abysses')
         shape = value_noise(nprng(self.key, 'abysses'), (self.gh, self.gw), [(10, 1.0)])
-        for _ in range(round(self.W * self.H / 450_000)):
+        for _ in range(round(self.core_area / 450_000)):
+            pool = np.flatnonzero(self.core & (self.owner == -1))
+            if not len(pool):
+                break
             for _ in range(300):
                 radius = r.uniform(55, 90)
-                y, x = r.uniform(radius + 60, self.H - radius - 60), r.uniform(radius + 60, self.W - radius - 60)
-                if self.d1[self.cell(y, x)] > CRADLE_RADIUS + radius * 1.25 + 30 and self.owner[self.cell(y, x)] == -1:
+                margin = radius * 1.25
+                i, j = divmod(int(pool[r.randrange(len(pool))]), self.gw)
+                if self.depth[i, j] >= margin + 30 and self.cradle_dist[i, j] >= margin + 40 and self.rift_dist[i, j] >= margin + 10:
                     break
             else:
                 continue
+            y, x = self.cy[i], self.cx[j]
             zid = self.add_zone('abime', y, x)
-            self.owner[(self.dist(y, x) <= radius * (0.75 + 0.5 * shape)) & (self.owner == -1)] = zid
-            if r.random() < 0.6:  # A road of giants crosses it
-                angle = r.uniform(0, math.pi)
-                dy, dx = math.sin(angle), math.cos(angle)
-                reach = radius * 1.25 + 8
-                steps = int(2 * reach / 13) + 1
-                relays = [(y + (-reach + s * 2 * reach / steps) * dy, x + (-reach + s * 2 * reach / steps) * dx) for s in range(steps + 1)]
-                for relay in relays:
-                    self.forced.append((*relay, r.choice(('giant', 'O', 'supergiant', 'wolf_rayet')), 'route'))
-                self.bridges += list(zip(relays, relays[1:]))
-                band = np.abs((self.cy[:, None] - y) * dx - (self.cx[None, :] - x) * dy) <= 9
-                self.owner[band & (self.owner == zid)] = self.add_zone('route', y, x)
+            window, inside = self.disc(y, x, margin)
+            d = np.hypot(self.cy[window[0], None] - y, self.cx[None, window[1]] - x)
+            self.owner[window][inside & (d <= radius * (0.75 + 0.5 * shape[window])) & (self.owner[window] == -1)] = zid
+            if r.random() < 0.6:
+                self.place_road(r, y, x, margin + 8, zid)
+
+    def place_road(self, r, y, x, reach, abyss):
+        # A road of giants crosses the abyss : a bow and a few waves, a relay every 12 units at most along it
+        angle = r.uniform(0, math.pi)
+        dy, dx = math.sin(angle), math.cos(angle)
+        bow, wave, phase = r.uniform(-0.5, 0.5) * reach, r.uniform(3, 8), r.uniform(0, 2 * math.pi)
+        curve = []
+        for s in range(201):
+            t = s / 200
+            side = bow * 4 * t * (1 - t) + wave * math.sin(phase + 3 * math.pi * t)
+            along = -reach + 2 * reach * t
+            curve.append((y + along * dy - side * dx, x + along * dx + side * dy))
+        relays, travelled = [curve[0]], 0.0
+        for p, q in zip(curve, curve[1:]):
+            travelled += math.dist(p, q)
+            if travelled >= 12:
+                relays.append(q)
+                travelled = 0.0
+        if math.dist(relays[-1], curve[-1]) > 3:
+            relays.append(curve[-1])
+        for relay in relays:
+            self.forced.append((*relay, r.choice(('giant', 'O', 'supergiant', 'wolf_rayet')), 'route'))
+        self.bridges += list(zip(relays, relays[1:]))
+        road = self.add_zone('route', y, x)
+        for p in curve[::4]:
+            window, inside = self.disc(*p, 9)
+            self.owner[window][inside & (self.owner[window] == abyss)] = road
+
+    def travel(self):
+        # Travel distance from the cradles, cell by cell, the rifts crossed only at the bridgeheads :
+        # t1 to the nearest cradle, t2 to the second one
+        kinds = self.kind_of_cells()
+        cost = np.ones((self.gh, self.gw))
+        cost[~self.core] = 3
+        cost[kinds == 'abime'] = 6
+        cost[self.rho >= 1.3] = np.inf
+        cost[self.rift] = np.inf
+        for y, x, w in self.bridge_points:
+            window, inside = self.disc(y, x, w / 2 + 6)
+            cost[window][inside] = 1
+        cost = cost.tolist()
+        best = [[] for _ in range(self.gh * self.gw)]
+        heap = [(0.0, k, int(i), int(j)) for k, zid in enumerate(self.cradles) for i, j in zip(*np.nonzero(self.owner == zid))]
+        heapq.heapify(heap)
+        while heap:
+            d, src, i, j = heapq.heappop(heap)
+            settled = best[i * self.gw + j]
+            if len(settled) == 2 or (settled and settled[0][1] == src):
+                continue
+            settled.append((d, src))
+            for di, dj, step in NEIGHBOURS:
+                ni, nj = i + di, j + dj
+                if 0 <= ni < self.gh and 0 <= nj < self.gw and cost[ni][nj] != math.inf:
+                    other = best[ni * self.gw + nj]
+                    if len(other) < 2 and not (other and other[0][1] == src):
+                        heapq.heappush(heap, (d + step * CELL * cost[ni][nj], src, ni, nj))
+        self.t1 = np.array([s[0][0] if s else np.inf for s in best]).reshape(self.gh, self.gw)
+        self.t2 = np.array([s[1][0] if len(s) > 1 else np.inf for s in best]).reshape(self.gh, self.gw)
+        self.s1 = np.array([s[0][1] if s else -1 for s in best]).reshape(self.gh, self.gw)
+        self.s2 = np.array([s[1][1] if len(s) > 1 else -1 for s in best]).reshape(self.gh, self.gw)
+        # Precious content : far from every cradle, or about as near to two of them
+        with np.errstate(invalid='ignore'):
+            self.shared = np.where(np.isfinite(self.t2), self.t2 - self.t1, np.inf)
+        self.fair = np.isfinite(self.t1) & ((self.t1 >= FAR) | (self.shared <= SHARED + 0.25 * self.t1))
 
     def place_seeds(self):
         g, r = nprng(self.key, 'seeds'), rng(self.key, 'seeds')
         jitter = value_noise(g, (self.gh, self.gw), [(6, 1.0)])
         free = self.owner == -1
-        nearest = np.min([self.dist(self.zones[i]['y'], self.zones[i]['x']) for i in self.cradles], axis=0)
+        nearest = self.cradle_dist + 60.0  # Distance to the nearest seed : the cradles count as seeds
 
         def seed(kind_name, y, x):
             nonlocal nearest
@@ -398,35 +598,39 @@ class Sector:
                     seed(kind_name, self.cy[i], self.cx[j])
                     chosen += 1
 
-        far = self.d1 > CRADLE_RADIUS + 50
-        inner = self.edge > 120
-        n = len(self.cradles)
-        # The prizes are where several cradles are at the same distance : nobody is favoured
-        pick('amas_dense', max(1, round(self.W * self.H / 800_000)), -self.d1 - 60 * jitter, self.edge > 200, 150)
-        pick('oasis', round(0.6 * n), (self.d3 - self.d1) + 40 * jitter, far & inner, 120)
-        pick('carrefour', round(0.4 * n), (self.d2 - self.d1) + 60 * jitter, far & inner, 110)
-        pick('veine', round(0.4 * n), (self.d2 - self.d1) + 80 * jitter - 40 * (self.rift_dist < 60), far & inner, 110)
+        inner = self.depth >= 60
+        shared = self.shared
+        far = np.isfinite(self.t1) & (self.t1 >= FAR)
+        n = self.n_cradles
+        # The prizes stand where two or three cradles are at the same distance : nobody gets them at their door
+        pick('amas_dense', max(1, round(self.core_area / 800_000)), shared + 40 * jitter, self.fair & (self.t1 >= 120) & (self.depth >= 150), 150)
+        pick('oasis', round(0.6 * n), shared + 40 * jitter, self.fair & (self.t1 >= 50) & inner, 120)
+        pick('carrefour', round(0.4 * n), shared + 60 * jitter, self.fair & (self.t1 >= 60) & inner, 110)
+        pick('veine', round(0.4 * n), shared + 80 * jitter - 40 * (self.rift_dist < 60), self.fair & (self.t1 >= 60) & inner, 110)
         if r.random() < 0.7:
-            pick('coeur_noir', 1, -self.d1 + 100 * jitter, (self.d1 > 160) & inner, 150)
+            pick('coeur_noir', 1, -np.minimum(self.t1, 400) + 100 * jitter, far & (self.t1 >= FAR + 40) & inner, 150)
 
         # The vestiges of the hunting mode : on the east side, behind a rift if possible, from a start on the west side
-        candidates = np.flatnonzero(free & (self.cx[None, :] > 0.75 * self.W) & (self.edge > 60) & (nearest >= 100))
+        y0, y1, x0, x1 = self.box
+        east = self.cx[None, :] > x0 + 0.7 * (x1 - x0)
+        candidates = np.flatnonzero(free & east & (self.depth >= 40) & (nearest >= 100) & self.fair)
         best = None
         for flat in g.choice(candidates, size=min(200, len(candidates)), replace=False) if len(candidates) else ():
             i, j = divmod(int(flat), self.gw)
             line = np.linspace(0, 1, 300)
-            ys, xs = self.H / 2 + line * (self.cy[i] - self.H / 2), line * self.cx[j]
-            crossed = bool(self.rift[np.minimum(ys // CELL, self.gh - 1).astype(int), np.minimum(xs // CELL, self.gw - 1).astype(int)].any())
+            ys, xs = (y0 + y1) / 2 + line * (self.cy[i] - (y0 + y1) / 2), x0 + line * (self.cx[j] - x0)
+            crossed = bool(self.rift[np.clip(ys // CELL, 0, self.gh - 1).astype(int), np.clip(xs // CELL, 0, self.gw - 1).astype(int)].any())
             if best is None or (crossed, self.cx[j]) > best[0]:
                 best = ((crossed, self.cx[j]), i, j)
         if best:
             seed('vestiges', self.cy[best[1]], self.cx[best[2]])
 
+        # Marches between neighbouring cradles
         for a in range(n):
             for b in range(a + 1, n):
-                (ya, xa), (yb, xb) = [(self.zones[self.cradles[k]]['y'], self.zones[self.cradles[k]]['x']) for k in (a, b)]
+                (ya, xa), (yb, xb) = self.cradle_centres[a], self.cradle_centres[b]
                 i, j = self.cell((ya + yb) / 2, (xa + xb) / 2)
-                if math.dist((ya, xa), (yb, xb)) < 1.25 * self.cradle_spacing and free[i, j] and nearest[i, j] >= 70:
+                if math.dist((ya, xa), (yb, xb)) < 1.4 * math.sqrt(self.core_area / n) and free[i, j] and nearest[i, j] >= 70:
                     seed('marche', self.cy[i], self.cx[j])
 
         names, weights = list(FREE_ZONES), list(FREE_ZONES.values())
@@ -434,9 +638,11 @@ class Sector:
             i, j = divmod(int(flat), self.gw)
             if nearest[i, j] >= 100:
                 kind_name = r.choices(names, weights)[0]
-                if kind_name in DANGEROUS and self.d1[i, j] < 170:
+                if kind_name in PRECIOUS and not self.fair[i, j]:
+                    kind_name = r.choice(PLAIN_ZONES)
+                if kind_name in DANGEROUS and self.t1[i, j] < 70:
                     kind_name = 'plaine'
-                if kind_name == 'plaine' and self.d1[i, j] < CRADLE_RADIUS + 40:
+                if kind_name == 'plaine' and self.t1[i, j] < 40:
                     kind_name = 'marche'
                 seed(kind_name, self.cy[i], self.cx[j])
 
@@ -451,7 +657,7 @@ class Sector:
             for flat in g.permutation(np.flatnonzero(self.owner == -1)):
                 i, j = divmod(int(flat), self.gw)
                 if nearest[i, j] >= 100:
-                    new.append(self.add_zone('marche' if self.d1[i, j] < CRADLE_RADIUS + 120 else 'plaine', self.cy[i], self.cx[j]))
+                    new.append(self.add_zone('marche' if self.t1[i, j] < 40 else 'plaine', self.cy[i], self.cx[j]))
                     nearest = np.minimum(nearest, self.dist(self.cy[i], self.cx[j]))
             self.expand(new, cost, cap_noise)
         self.merge_small_zones()
@@ -484,10 +690,32 @@ class Sector:
             if self.zones[zid]['kind'] in STAMPED:
                 continue
             mask = self.owner == zid
-            around = self.owner[dilate(mask) & ~mask]
-            around = [z for z in around.tolist() if self.zones[z]['kind'] not in STAMPED]
+            around = [z for z in self.owner[dilate(mask) & ~mask].tolist() if self.zones[z]['kind'] not in STAMPED]
             if around:
                 self.owner[mask] = Counter(around).most_common(1)[0][0]
+
+    def keep_precious_fair(self):
+        # A precious zone grown too near a single cradle becomes ordinary. Its distance to a cradle : from its nearest cell.
+        self.downgraded, self.precious = [], []
+        for zid, zone in enumerate(self.zones):
+            if zone['kind'] not in PRECIOUS:
+                continue
+            cells = self.owner == zid
+            if not cells.any():
+                continue
+            to_cradle = {}
+            for t, s in ((self.t1[cells], self.s1[cells]), (self.t2[cells], self.s2[cells])):
+                for c in np.unique(s[s >= 0]).tolist():
+                    to_cradle[c] = min(to_cradle.get(c, math.inf), float(t[s == c].min()))
+            d1, d2 = (sorted(to_cradle.values()) + [math.inf, math.inf])[:2]
+            label = ZONES[zone['kind']]['label']
+            if d1 >= FAR:
+                self.precious.append((label, 'loin', d1, d2))
+            elif d2 - d1 <= SHARED + 0.25 * d1:
+                self.precious.append((label, 'partagée', d1, d2))
+            else:
+                self.downgraded.append(label)
+                zone['kind'] = 'marche' if d1 < 40 else 'plaine'
 
     ####################################################################################################################
     # SYSTEMS
@@ -499,6 +727,8 @@ class Sector:
         amplitude = np.array([ZONES[k]['noise'] for k in kinds])[self.owner]
         r = rng(self.key, 'centres')
         for zid, zone in enumerate(self.zones):
+            if zone['kind'] not in ('amas_dense', 'amas_globulaire', 'coeur_noir', 'carrefour'):
+                continue
             inside = self.owner == zid
             d = self.dist(zone['y'], zone['x'])[inside]
             if zone['kind'] in ('amas_dense', 'amas_globulaire'):
@@ -507,15 +737,15 @@ class Sector:
             elif zone['kind'] == 'coeur_noir':
                 density[inside] *= np.where(d < 15, 0.05, 0.3 + 2.0 * np.exp(-(d - 32) ** 2 / (2 * 9 ** 2)))
                 self.forced.append((zone['y'], zone['x'], 'black_hole', 'coeur_noir'))
-            elif zone['kind'] == 'carrefour':
+            else:
                 for star in ('supergiant', 'O', 'B'):
                     self.forced.append((zone['y'] + r.uniform(-12, 12), zone['x'] + r.uniform(-12, 12), star, 'carrefour'))
-        halo = kinds[self.owner] == 'halo'
-        density[halo] *= np.clip(self.edge[halo] / self.halo_width[halo], 0.1, 1) ** 1.5
+        halo = ~self.core
+        density[halo] *= np.clip((1.3 - self.rho[halo]) / 0.3, 0, 1) ** 2
         # Filaments and voids in the open zones, as the cosmic web : ridges of a smooth noise
         ridges = 1 - np.abs(2 * value_noise(g, (self.gh, self.gw), [(10, 0.6), (28, 1.0)]) - 1)
         web = np.isin(kinds[self.owner], list(WEB))
-        density[web] *= 0.15 + 2.0 * ridges[web] ** 3
+        density[web] *= 0.3 + 1.4 * ridges[web] ** 2
         density = box_blur(density)  # Soft borders between zones
 
         # Zones at the scale of the unit, through a smooth warp : their borders wave instead of following the cells.
@@ -523,25 +753,28 @@ class Sector:
         rows, cols = np.arange(self.H)[:, None], np.arange(self.W)[None, :]
         wy = (2 * value_noise(g, (self.H, self.W), [(12, 1.0)]) - 1) * WARP
         wx = (2 * value_noise(g, (self.H, self.W), [(12, 1.0)]) - 1) * WARP
-        iy = np.clip(((rows + wy) // CELL).astype(int), 0, self.gh - 1)
-        ix = np.clip(((cols + wx) // CELL).astype(int), 0, self.gw - 1)
+        iy = np.clip(((rows + wy) // CELL).astype(np.int32), 0, self.gh - 1)
+        ix = np.clip(((cols + wx) // CELL).astype(np.int32), 0, self.gw - 1)
+        del wy, wx
         self.owner_u = self.owner[iy, ix]
         exact = np.zeros((self.H, self.W), bool)
-        for zid, points, widths in self.rifts:  # Drawn again at the scale of the unit : a smooth band
+        for zid, points, widths in self.rifts:
             for (y, x), w in zip(points, widths):
-                r = w / 2 + 3
-                y0, y1, x0, x1 = max(int(y - r), 0), min(int(y + r) + 2, self.H), max(int(x - r), 0), min(int(x + r) + 2, self.W)
-                disc = (rows[y0:y1] - y) ** 2 + (cols[:, x0:x1] - x) ** 2 <= r * r
+                radius = w / 2 + 3
+                y0, y1 = max(int(y - radius), 0), min(int(y + radius) + 2, self.H)
+                x0, x1 = max(int(x - radius), 0), min(int(x + radius) + 2, self.W)
+                disc = (rows[y0:y1] - y) ** 2 + (cols[:, x0:x1] - x) ** 2 <= radius * radius
                 exact[y0:y1, x0:x1] |= disc
                 self.owner_u[y0:y1, x0:x1][disc] = zid
         units = density[iy, ix] * (1 + amplitude[iy, ix] * 0.6 * (2 * value_noise(g, (self.H, self.W), [(6, 0.6), (25, 1.0)]) - 1))
+        del iy, ix
         units[np.isin(kinds[self.owner_u], ('faille', 'route')) | exact] = 0
-        chance = np.minimum(units * DENSITY * self.W * self.H / units.sum(), 0.6)
-        ys, xs = np.nonzero(g.random((self.H, self.W)) < chance)
+        chance = np.minimum(units * (DENSITY * self.core_area / units.sum()), 0.6)
+        del units
+        ys, xs = np.nonzero(g.random((self.H, self.W), dtype=np.float32) < chance)
 
         # Star class and system type, depending on the zone
-        zone_of = self.owner_u[ys, xs]
-        system_kinds = kinds[zone_of]
+        system_kinds = kinds[self.owner_u[ys, xs]]
         base = np.array([STARS[c][0] for c in CLASSES])
         type_base = np.array(list(SYSTEM_TYPES.values()) + [0, 0])
         cls, stype = np.zeros(len(ys), np.int64), np.zeros(len(ys), np.int64)
@@ -558,12 +791,14 @@ class Sector:
         self.ys, self.xs, self.cls, self.stype = ys.astype(np.int64), xs.astype(np.int64), cls, stype
         self.role = np.array([''] * len(ys), dtype=object)
         at = {(y, x): i for i, (y, x) in enumerate(zip(ys.tolist(), xs.tolist()))}
+        self.forced_index = []
         for y, x, star, why in self.forced:
             y, x = min(max(int(round(y)), 0), self.H - 1), min(max(int(round(x)), 0), self.W - 1)
             i = at.get((y, x))
             if i is None:
                 i = at[(y, x)] = self.add_system(y, x, star, why)
             self.cls[i], self.role[i] = CLASSES.index(star), why
+            self.forced_index.append(i)
 
     def add_system(self, y, x, star, why):
         self.ys, self.xs = np.append(self.ys, int(y)), np.append(self.xs, int(x))
@@ -578,32 +813,18 @@ class Sector:
     def system_zones(self):
         return self.owner_u[self.ys, self.xs]
 
+    def around(self, h, radius):
+        # The systems within radius of system h, and their distances
+        near = np.flatnonzero((np.abs(self.ys - self.ys[h]) <= radius) & (np.abs(self.xs - self.xs[h]) <= radius))
+        d = np.hypot(self.ys[near] - self.ys[h], self.xs[near] - self.xs[h])
+        return near[d <= radius], d[d <= radius]
+
     def place_homes(self):
         r = rng(self.key, 'homes')
-        zone_of = self.system_zones()
-        homes = []
-        for zid in self.cradles:
-            zone = self.zones[zid]
-            candidates = [i for i in np.flatnonzero(zone_of == zid).tolist() if not self.role[i]
-                          and math.hypot(self.ys[i] - zone['y'], self.xs[i] - zone['x']) <= 0.5 * CRADLE_RADIUS]
-            r.shuffle(candidates)
-            spacing = HOME_SPACING
-            while True:
-                chosen = []
-                for i in candidates:
-                    if all(math.hypot(self.ys[i] - self.ys[h], self.xs[i] - self.xs[h]) >= spacing for h in chosen):
-                        chosen.append(i)
-                        if len(chosen) == HOMES_PER_CRADLE:
-                            break
-                if len(chosen) == HOMES_PER_CRADLE or spacing < 8:
-                    break
-                spacing *= 0.9
-            homes += chosen
-        self.homes = np.array(homes, np.int64)
+        self.homes = np.array([i for i, (_, _, _, why) in zip(self.forced_index, self.forced) if why == 'monde_natal'], np.int64)
         self.stype[self.homes] = T['native']
-        self.cls[self.homes] = [CLASSES.index(r.choice(('F', 'G', 'K'))) for _ in homes]
-        self.role[self.homes] = 'monde_natal'
 
+        zone_of = self.system_zones()
         vestiges = [i for i, zone in enumerate(self.zones) if zone['kind'] == 'vestiges']
         if vestiges:
             zone = self.zones[vestiges[0]]
@@ -611,30 +832,27 @@ class Sector:
             if len(inside):
                 i = inside[np.argmin(np.hypot(self.ys[inside] - zone['y'], self.xs[inside] - zone['x']))]
                 self.stype[i], self.role[i] = T['vestige'], 'vestige'
-        self.apply_kit(r)
 
-    def apply_kit(self, r):
-        # A floor and a ceiling around each home : the same start for everyone, whatever the luck of the draw
+        # The kit : a floor and a ceiling around each home, the same start for everyone whatever the luck of the draw
         big_choices = [CLASSES.index(c) for c in ('A', 'B', 'giant', 'O')]
-        for _ in range(6):  # The rings of neighbouring homes overlap : a few passes settle them
+        local = {h: self.around(h, 30) for h in self.homes.tolist()}
+        for _ in range(4):
             for h in r.sample(self.homes.tolist(), len(self.homes)):
-                d = np.hypot(self.ys - self.ys[h], self.xs - self.xs[h])
-                movable = self.role == ''
-                for what, near, far, least, most in KIT:
-                    ring = (d >= near) & (d <= far)
-                    has = ring & (BIG_IDX[self.cls] if what == 'big' else self.stype == T[what])
-                    count = int(has.sum())
-                    if count < least:
-                        pool = ring & movable & (self.stype == T['standard'])
-                        pool &= ~BIG_IDX[self.cls] if what == 'big' else np.ones_like(pool)
-                        for i in r.sample(np.flatnonzero(pool).tolist(), min(least - count, int(pool.sum()))):
+                near, d = local[h]
+                for what, inner, outer, least, most in KIT:
+                    ring = near[(d >= inner) & (d <= outer)]
+                    has = ring[BIG_IDX[self.cls[ring]] if what == 'big' else self.stype[ring] == T[what]]
+                    movable = ring[(self.role[ring] == '') & (self.stype[ring] == T['standard'])]
+                    if len(has) < least:
+                        pool = movable[~BIG_IDX[self.cls[movable]]] if what == 'big' else movable
+                        for i in r.sample(pool.tolist(), min(least - len(has), len(pool))):
                             if what == 'big':
                                 self.cls[i] = r.choice(big_choices)
                             else:
                                 self.stype[i] = T[what]
-                    elif count > most:
-                        extra = np.flatnonzero(has & movable).tolist()
-                        for i in r.sample(extra, min(count - most, len(extra))):
+                    elif len(has) > most:
+                        extra = has[self.role[has] == ''].tolist()
+                        for i in r.sample(extra, min(len(has) - most, len(extra))):
                             if what == 'big':
                                 self.cls[i] = CLASSES.index(r.choice(('K', 'M')))
                             else:
@@ -721,19 +939,19 @@ class Sector:
         nodes = {c: v for v, c in enumerate(np.unique(cells[main]).tolist())}
         a, b = self.edges[:, 0], self.edges[:, 1]
         keep = main[a] & (cells[a] != cells[b])
-        pairs = np.unique(np.sort(np.stack([cells[a][keep], cells[b][keep]], 1), axis=1), axis=0) if keep.any() else []
+        pairs = np.unique(np.sort(np.stack([cells[a][keep], cells[b][keep]], 1), axis=1), axis=0).tolist() if keep.any() else []
         n = len(nodes)
         s, t = 2 * n, 2 * n + 1
         arcs = []
         for c, v in nodes.items():
             y, x = (c // width + 0.5) * size, (c % width + 0.5) * size
-            source, sink = is_source(y, x, c), is_sink(y, x, c)
+            source, sink = is_source(y, x), is_sink(y, x)
             arcs.append((2 * v, 2 * v + 1, INF if source or sink else 1))
             if source:
                 arcs.append((s, 2 * v, INF))
             if sink:
                 arcs.append((2 * v + 1, t, INF))
-        for c1, c2 in (pairs.tolist() if len(pairs) else []):
+        for c1, c2 in pairs:
             u, v = nodes[c1], nodes[c2]
             arcs += [(2 * u + 1, 2 * v, INF), (2 * v + 1, 2 * u, INF)]
         flow, reached = max_flow(2 * n + 2, arcs, s, t)
@@ -741,11 +959,12 @@ class Sector:
         return flow, cut, size
 
     def path_lengths(self, source):
-        both = np.concatenate([self.edges, self.edges[:, ::-1]])
-        both = both[np.argsort(both[:, 0], kind='stable')]
-        starts = np.searchsorted(both[:, 0], np.arange(self.n + 1)).tolist()
-        neighbours = both[:, 1].tolist()
-        weights = np.hypot(self.ys[both[:, 0]] - self.ys[both[:, 1]], self.xs[both[:, 0]] - self.xs[both[:, 1]]).tolist()
+        if not hasattr(self, 'adjacency'):
+            both = np.concatenate([self.edges, self.edges[:, ::-1]])
+            both = both[np.argsort(both[:, 0], kind='stable')]
+            weights = np.hypot(self.ys[both[:, 0]] - self.ys[both[:, 1]], self.xs[both[:, 0]] - self.xs[both[:, 1]])
+            self.adjacency = (np.searchsorted(both[:, 0], np.arange(self.n + 1)).tolist(), both[:, 1].tolist(), weights.tolist())
+        starts, neighbours, weights = self.adjacency
         dist = [math.inf] * self.n
         dist[source] = 0.0
         heap = [(0.0, source)]
@@ -762,40 +981,44 @@ class Sector:
 
     def measure(self):
         m = self.measures = {}
-        zone_of = self.system_zones()
-        kinds = self.zone_kinds()
-        west, east = 0.12 * self.W, 0.88 * self.W
-        m['ouest_est'] = self.corridors(lambda y, x, c: x < west, lambda y, x, c: x > east)
-        m['nord_sud'] = self.corridors(lambda y, x, c: y < 0.12 * self.H, lambda y, x, c: y > 0.88 * self.H)
-        treasure = [i for i in np.flatnonzero(self.role == 'vestige').tolist()]
+        y0, y1, x0, x1 = self.box
+        west, east = x0 + 0.12 * (x1 - x0), x1 - 0.12 * (x1 - x0)
+        north, south = y0 + 0.12 * (y1 - y0), y1 - 0.12 * (y1 - y0)
+        m['ouest_est'] = self.corridors(lambda y, x: x < west, lambda y, x: x > east)
+        m['nord_sud'] = self.corridors(lambda y, x: y < north, lambda y, x: y > south)
+        treasure = np.flatnonzero(self.role == 'vestige').tolist()
         m['vestiges'] = None
         if treasure:  # Every route that reaches the surroundings of the vestiges
             ty, tx = self.ys[treasure[0]], self.xs[treasure[0]]
-            m['vestiges'] = self.corridors(lambda y, x, c: x < west, lambda y, x, c: math.hypot(y - ty, x - tx) <= 80)
+            m['vestiges'] = self.corridors(lambda y, x: x < west, lambda y, x: math.hypot(y - ty, x - tx) <= 80)
 
         # Equity around each home
         rows = []
         for h in self.homes.tolist():
-            d = np.hypot(self.ys - self.ys[h], self.xs - self.xs[h])
-            others = d[self.homes]
+            near, d = self.around(h, 30)
             row = {'systèmes à 25 u': int((d <= 25).sum()) - 1}
-            for what, near, far, least, most in KIT[:4]:  # The same rings as the kit
-                has = BIG_IDX[self.cls] if what == 'big' else self.stype == T[what]
-                row[f'{"grandes étoiles" if what == "big" else what} de {near} à {far} u'] = int(((d >= near) & (d <= far) & has).sum())
+            for what, inner, outer, least, most in KIT[:4]:  # The same rings as the kit
+                has = BIG_IDX[self.cls[near]] if what == 'big' else self.stype[near] == T[what]
+                row[f'{"grandes étoiles" if what == "big" else what} de {inner} à {outer} u'] = int(((d >= inner) & (d <= outer) & has).sum())
+            others = np.hypot(self.ys[self.homes] - self.ys[h], self.xs[self.homes] - self.xs[h])
             row['monde natal le plus proche'] = round(float(np.min(others[others > 0])), 1) if len(self.homes) > 1 else 0
+            # The widest free angle around the home, among the other homes within 60 u : no home is surrounded
+            close = (others > 0) & (others <= 60)
+            angles = sorted(np.degrees(np.arctan2(self.ys[self.homes][close] - self.ys[h], self.xs[self.homes][close] - self.xs[h])).tolist())
+            gaps = [b - a for a, b in zip(angles, angles[1:] + [angles[0] + 360])] if angles else [360]
+            row['angle libre (°)'] = round(max(gaps))
             counts = list(row.values())
             row['score'] = round(1.5 * counts[1] + 2 * counts[2] + counts[3] + 3 * counts[4] + counts[0] / 30, 1)
             rows.append(row)
         m['equity'] = rows
 
         # Detour between cradles : length of the vortex path / straight line
-        firsts = [h for h in self.homes.tolist()][::HOMES_PER_CRADLE]
+        firsts = [h for k, h in enumerate(self.homes.tolist()) if k == 0 or self.home_cradle[k] != self.home_cradle[k - 1]]
         ratios = []
         for k, source in enumerate(firsts[:6]):
             dist = self.path_lengths(source)
             for target in firsts[k + 1:]:
-                straight = math.hypot(self.ys[source] - self.ys[target], self.xs[source] - self.xs[target])
-                ratios.append(round(dist[target] / straight, 2))
+                ratios.append(round(dist[target] / math.hypot(self.ys[source] - self.ys[target], self.xs[source] - self.xs[target]), 2))
         m['detours'] = ratios
 
 
@@ -811,7 +1034,8 @@ def font(size, bold=False):
 
 
 def render(sector, folder):
-    scale = 2.0 if max(sector.W, sector.H) <= 1200 else 2400 / max(sector.W, sector.H)
+    scale = min(2.0, 2400 / max(sector.W, sector.H))
+    ui = 1.0  # Size of the texts and markers : the same on every map, still readable on the large ones
     width, height = round(sector.W * scale), round(sector.H * scale)
     dot = max(1, round(scale))
     px = np.minimum((sector.xs * scale).astype(int), width - dot)
@@ -842,7 +1066,7 @@ def render(sector, folder):
     small = ~BIG_IDX[sector.cls]
     dots(img, small, rgb[small])
 
-    panel = round(480 * scale / 2)
+    panel = round(480 * ui)
     canvas = Image.new('RGB', (width + panel, height), (0, 0, 0))
     canvas.paste(Image.fromarray(img), (0, 0))
     draw = ImageDraw.Draw(canvas)
@@ -859,14 +1083,14 @@ def render(sector, folder):
             draw.ellipse([x - r, y - r, x + r, y + r], fill=STARS[star][2])
     for i in np.flatnonzero(sector.role == 'reparation').tolist():
         x, y = sector.xs[i] * scale, sector.ys[i] * scale
-        draw.ellipse([x - 9, y - 9, x + 9, y + 9], outline=(255, 0, 255), width=2)
+        draw.ellipse([x - 9 * ui, y - 9 * ui, x + 9 * ui, y + 9 * ui], outline=(255, 0, 255), width=2)
     for h in sector.homes.tolist():
         x, y = sector.xs[h] * scale + dot / 2, sector.ys[h] * scale + dot / 2
-        draw.ellipse([x - 7, y - 7, x + 7, y + 7], outline=(90, 255, 150), width=2)
+        draw.ellipse([x - 7 * ui, y - 7 * ui, x + 7 * ui, y + 7 * ui], outline=(90, 255, 150), width=2)
         draw.ellipse([x - 2, y - 2, x + 2, y + 2], fill=(255, 255, 255))
     for i in np.flatnonzero(sector.role == 'vestige').tolist():
         x, y = sector.xs[i] * scale, sector.ys[i] * scale
-        draw.polygon([(x, y - 12), (x + 9, y), (x, y + 12), (x - 9, y)], fill=(255, 215, 0), outline=(0, 0, 0))
+        draw.polygon([(x, y - 12 * ui), (x + 9 * ui, y), (x, y + 12 * ui), (x - 9 * ui, y)], fill=(255, 215, 0), outline=(0, 0, 0))
 
     # The bottlenecks : the squares of the minimum cut, when it is narrow
     for name, colour_cut in (('vestiges', (255, 215, 0)), ('ouest_est', (255, 60, 60)), ('nord_sud', (255, 60, 60))):
@@ -896,17 +1120,17 @@ def render(sector, folder):
             continue
         i, j = divmod(int(np.argmax(np.where(sector.owner == zid, inner, -1))), sector.gw)
         spec = ZONES[zone['kind']]
-        size = int(np.clip(11 + math.sqrt(sizes[zid]) * CELL / 16, 13, 30) * scale / 2)
+        size = int(np.clip(11 + math.sqrt(sizes[zid]) * CELL / 16, 13, 30) * ui)
         light = tuple(int(c * 0.55 + 255 * 0.45) for c in spec['colour'])
         draw.text((sector.cx[j] * scale, sector.cy[i] * scale), spec['label'], fill=light, font=font(size, True),
                   anchor='mm', stroke_width=3, stroke_fill=(0, 0, 0))
 
     # Legend
-    x0, y = width + 24 * scale / 2, 24 * scale / 2
-    big_font, text_font, line = font(int(24 * scale / 2), True), font(int(15 * scale / 2)), 21 * scale / 2
+    x0, y = width + 24 * ui, 24 * ui
+    big_font, text_font, line = font(int(24 * ui), True), font(int(15 * ui)), 21 * ui
     m = sector.measures
-    draw.text((x0, y), f'Essai « {sector.key} »', fill=(255, 255, 255), font=big_font)
-    y += 40 * scale / 2
+    draw.text((x0, y), f'{sector.key} · {sector.players} joueurs', fill=(255, 255, 255), font=big_font)
+    y += 40 * ui
     for text in (f'{sector.W} × {sector.H} unités · {sector.n:,} systèmes'.replace(',', ' '),
                  f'{len(sector.homes)} mondes natals · {int((sizes > 0).sum())} zones',
                  f'Couloirs ouest↔est : {m["ouest_est"][0]} · nord↔sud : {m["nord_sud"][0]}',
@@ -917,21 +1141,20 @@ def render(sector, folder):
     present = {zone['kind'] for zid, zone in enumerate(sector.zones) if sizes[zid]}
     for kind_name, spec in ZONES.items():
         if kind_name in present:
-            draw.rectangle([x0, y + 3, x0 + 26 * scale / 2, y + 17 * scale / 2], fill=tuple(int(c * 0.6) for c in spec['colour']),
-                           outline=spec['colour'])
-            draw.text((x0 + 36 * scale / 2, y), spec['label'], fill=(220, 220, 220), font=text_font)
+            draw.rectangle([x0, y + 3, x0 + 26 * ui, y + 17 * ui], fill=tuple(int(c * 0.6) for c in spec['colour']), outline=spec['colour'])
+            draw.text((x0 + 36 * ui, y), spec['label'], fill=(220, 220, 220), font=text_font)
             y += line
     y += line / 2
     draw.text((x0, y), 'Grandes étoiles (portée des vortex)', fill=(255, 255, 255), font=text_font)
     y += line
     for star in ('A', 'B', 'giant', 'O', 'wolf_rayet', 'supergiant', 'black_hole'):
-        r = (0.8 + 0.8 * STARS[star][3]) * scale * 0.75
-        cx, cy = x0 + 13 * scale / 2, y + 9 * scale / 2
+        r = (0.8 + 0.8 * STARS[star][3]) * max(scale, 1.4) * 0.75
+        cx, cy = x0 + 13 * ui, y + 9 * ui
         if star == 'black_hole':
             draw.ellipse([cx - r - 2, cy - r - 2, cx + r + 2, cy + r + 2], fill=(0, 0, 0), outline=(255, 255, 255), width=2)
         else:
             draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=STARS[star][2])
-        draw.text((x0 + 36 * scale / 2, y), f'{STAR_NAMES[star]} : {STARS[star][1]} u', fill=(220, 220, 220), font=text_font)
+        draw.text((x0 + 36 * ui, y), f'{STAR_NAMES[star]} : {STARS[star][1]} u', fill=(220, 220, 220), font=text_font)
         y += line
     draw.text((x0, y), 'Petites étoiles : 5 à 9 u', fill=(220, 220, 220), font=text_font)
     y += line * 1.5
@@ -939,7 +1162,7 @@ def render(sector, folder):
                          ('repair', 'Étoile ajoutée ou agrandie (réparation)'),
                          ('vestige', 'Vestiges (mode chasse au trésor)'), ('cut', 'Goulot (6 couloirs ou moins)'),
                          ('island', 'Système isolé, inaccessible')):
-        cx, cy = x0 + 13 * scale / 2, y + 9 * scale / 2
+        cx, cy = x0 + 13 * ui, y + 9 * ui
         if marker == 'home':
             draw.ellipse([cx - 7, cy - 7, cx + 7, cy + 7], outline=(90, 255, 150), width=2)
         elif marker == 'bridge':
@@ -952,23 +1175,24 @@ def render(sector, folder):
             draw.rectangle([cx - 8, cy - 8, cx + 8, cy + 8], outline=(255, 60, 60), width=2)
         else:
             draw.rectangle([cx - 2, cy - 2, cx + 2, cy + 2], fill=(150, 45, 45))
-        draw.text((x0 + 36 * scale / 2, y), text, fill=(220, 220, 220), font=text_font)
+        draw.text((x0 + 36 * ui, y), text, fill=(220, 220, 220), font=text_font)
         y += line
     canvas.save(os.path.join(folder, f'{sector.key}_zones.png'))
 
 
 def report(sector, folder):
     m, zone_of = sector.measures, sector.system_zones()
-    kinds = sector.zone_kinds()
     sizes = np.bincount(sector.owner_u.ravel(), minlength=len(sector.zones))
-    lines = [f'Génération « {sector.key} » : secteur de {sector.W} × {sector.H} unités ({sector.W // 100} × {sector.H // 100} cases actuelles)',
+    lines = [f'Génération « {sector.key} » : {sector.players} joueurs, toile de {sector.W} × {sector.H} unités, '
+             f'galaxie de {sector.core_area / 1e6:.2f} million d\'unités² (agrandie de {sector.grown - 1:.0%} pour loger les berceaux)',
              'Durées : ' + ', '.join(f'{name} {seconds:.1f} s' for name, seconds in sector.timings.items()), '',
-             f'Systèmes : {sector.n} (densité moyenne {sector.n / sector.W / sector.H:.3f} / u²)', '', 'Zones :']
+             f'Systèmes : {sector.n} (densité moyenne dans la galaxie {sector.n / sector.core_area:.3f} / u²)', '', 'Zones :']
     for kind_name, spec in ZONES.items():
         ids = [zid for zid, zone in enumerate(sector.zones) if zone['kind'] == kind_name and sizes[zid]]
         if ids:
             count = int(np.isin(zone_of, ids).sum())
-            lines.append(f'  {spec["label"]:<24} {len(ids):>3} zone(s)  {count:>6} systèmes  {sizes[ids].sum() / sector.W / sector.H:6.1%} de la surface')
+            share = '' if kind_name == 'halo' else f'{sizes[ids].sum() / sector.core_area:6.1%} de la galaxie'
+            lines.append(f'  {spec["label"]:<24} {len(ids):>3} zone(s)  {count:>6} systèmes  {share}')
     shares = Counter(CLASSES[c] for c in sector.cls.tolist())
     big = sum(v for c, v in shares.items() if c in BIG)
     lines += ['', f'Étoiles : {big / sector.n:.1%} de grandes étoiles (' +
@@ -976,18 +1200,25 @@ def report(sector, folder):
 
     rows = m['equity']
     scores = [row['score'] for row in rows]
-    lines += ['', f'Équité, autour de chacun des {len(rows)} mondes natals ({len(sector.cradles)} berceaux × {HOMES_PER_CRADLE}) :']
+    lines += ['', f'Équité, autour de chacun des {len(rows)} mondes natals ({sector.n_cradles} berceaux) :']
     for name in rows[0] if rows else ():
         lines.append(f'  {name:<30} {stats([row[name] for row in rows])}')
     if scores:
         lines.append(f'  écart du score : le meilleur a {max(scores) / min(scores):.2f} fois le score du plus faible')
+    lines.append(f'  distance des berceaux au halo : {float(sector.depth[sector.cradle_mask].min()):g} u au plus près')
+    lines.append(f'  zones précieuses : {sum(1 for p in sector.precious if p[1] == "loin")} loin de tout berceau, '
+                 f'{sum(1 for p in sector.precious if p[1] == "partagée")} partagées entre deux berceaux, '
+                 f'{len(sector.downgraded)} rendues ordinaires car trop près d\'un seul ' + ' '.join(f'({label})' for label in sector.downgraded))
+    for label, why, d1, d2 in sector.precious:
+        lines.append(f'    {label:<22} {why:<9} trajet depuis le berceau le plus proche {d1:5.0f} u, depuis le deuxième {d2:5.0f} u')
 
     sizes_comp = np.bincount(sector.comp)
-    islands = int((sector.comp != sector.main).sum())
     lines += ['', 'Connectivité (lien vortex si la distance ≤ portée de la plus grande des deux étoiles) :',
               f'  liens : {len(sector.edges)} ; réseau principal : {sizes_comp[sector.main] / sector.n:.1%} des systèmes',
               f'  mondes natals dans le réseau principal : {int((sector.comp[sector.homes] == sector.main).sum())} / {len(sector.homes)}',
-              f'  systèmes isolés, inaccessibles : {islands} en {len(set(sector.comp.tolist())) - 1} îlots',
+              f'  systèmes isolés, inaccessibles : {int((sector.comp != sector.main).sum())} en {len(set(sector.comp.tolist())) - 1} îlots, '
+              f'dont {int(((sector.comp != sector.main) & sector.core[sector.ys // CELL, sector.xs // CELL]).sum())} dans la galaxie (les autres dans le halo)',
+              f'  têtes de pont : {len(sector.bridge_points)} placées, {sector.skipped_bridgeheads} abandonnées faute de deux vraies régions à relier',
               f'  réparations : {len(sector.repairs)} ' + ' '.join(f'(îlot de {s} systèmes à {g} u)' for s, g in sector.repairs),
               f'  couloirs indépendants (carrés de 20 u) ouest↔est : {m["ouest_est"][0]}, nord↔sud : {m["nord_sud"][0]}',
               f'  mode chasse au trésor, du bord ouest aux vestiges : {m["vestiges"][0] if m["vestiges"] else "pas de vestiges"} couloirs',
@@ -996,17 +1227,22 @@ def report(sector, folder):
     lines += ['', 'Identifiants lisibles (y.x-orbite) comparés aux identifiants actuels :']
     for h in sector.homes[:3].tolist():
         y, x = int(sector.ys[h]), int(sector.xs[h])
-        lines.append(f'  {y:03}.{x:03}-3   au lieu de   1000{y // 100:03}{x // 100:03}{y % 100:03}{x % 100:03}03')
-    text = '\n'.join(lines) + '\n'
+        lines.append(f'  {y:04}.{x:04}-3   au lieu de   1000{y // 100:03}{x // 100:03}{y % 100:03}{x % 100:03}03')
     with open(os.path.join(folder, f'{sector.key}_rapport.txt'), 'w', encoding='utf-8') as f:
-        f.write(text)
-    return text
+        f.write('\n'.join(lines) + '\n')
 
 
-def generate(key, width, height):
-    sector = Sector(key, width, height)
+def generate(key, players):
     start = time.perf_counter()
-    sector.layout()
+    grow = 1.0
+    while True:
+        sector = Sector(key, players, grow)
+        try:
+            sector.layout()
+            break
+        except Crowded:
+            grow *= 1.05
+    sector.grown = grow
     sector.place_systems()
     sector.place_homes()
     sector.timings['génération'] = time.perf_counter() - start
@@ -1017,41 +1253,57 @@ def generate(key, width, height):
     return sector
 
 
+def summary_line(sector):
+    m, rows = sector.measures, sector.measures['equity']
+    scores, detours = [row['score'] for row in rows], sorted(m['detours'])
+    return (f'{sector.key:<10} {sector.W:>5}  {sector.n:>7}  {int((np.bincount(sector.owner_u.ravel()) > 0).sum()):>5}'
+            f'  {max(scores) / min(scores):>6.2f}  {min(row["angle libre (°)"] for row in rows):>6}'
+            f'  {float(sector.depth[sector.cradle_mask].min()):>5g}  {np.mean(sector.comp == sector.main):>6.1%}'
+            f'  {len(sector.bridge_points):>3}/{sector.skipped_bridgeheads:<2}  {len(sector.downgraded):>5}  {len(sector.repairs):>5}'
+            f'  {m["ouest_est"][0]:>3}  {m["nord_sud"][0]:>3}  {m["vestiges"][0] if m["vestiges"] else "-":>6}'
+            f'  {detours[len(detours) // 2] if detours else "-":>6}  {sum(sector.timings.values()):>5.1f} s')
+
+
+SUMMARY_TITLE = ('carte      toile  systèm.  zones  équité  angle  halo  réseau  ponts/ab.  préc.  répar.  O↔E  N↔S  trésor  détour  durée\n'
+                 '                                   (max/min)  libre  (u)          placées/  dégr.\n'
+                 '                                                                    abandon.')
+
+
 def check():
     global SECRET
-    a, b = generate('controle', 400, 400), generate('controle', 400, 400)
+    a, b = generate('controle', 20), generate('controle', 20)
     assert np.array_equal(a.owner, b.owner) and np.array_equal(a.ys, b.ys) and np.array_equal(a.cls, b.cls), 'Not deterministic'
     SECRET += '-autre'
-    c = generate('controle', 400, 400)
+    c = generate('controle', 20)
     assert not (np.array_equal(a.ys, c.ys) if len(a.ys) == len(c.ys) else False), 'Another secret must give another map'
     assert (a.comp[a.homes] == a.main).all(), 'A home is out of the main network'
-    print('OK : same secret, same map ; another secret, another map ; every home is reachable')
+    assert min(row['angle libre (°)'] for row in a.measures['equity']) >= 180, 'A home is surrounded by the others'
+    print('OK : same secret, same map ; another secret, another map ; every home is reachable and none is surrounded')
 
 
 def main():
     sys.stdout.reconfigure(encoding='utf-8')  # The Windows console would choke on the accents
     if '--check' in sys.argv:
         return check()
-    runs = [(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]))] if len(sys.argv) == 4 else \
-        [(f'essai-{i}', 1000, 1000) for i in range(1, 6)] + [('grand-1', 1600, 1600)]
-    os.makedirs(OUT, exist_ok=True)
-    summary = ['essai        taille      systèmes  zones  natals  écart équité  réseau  îlots  répar.  O↔E  N↔S  trésor  détour méd.  durée']
-    for key, width, height in runs:
-        sector = generate(key, width, height)
-        start = time.perf_counter()
-        render(sector, OUT)
-        sector.timings['images'] = time.perf_counter() - start
-        print(report(sector, OUT))
-        m, scores = sector.measures, [row['score'] for row in sector.measures['equity']]
-        detours = sorted(m['detours'])
-        summary.append(f'{key:<12} {width}×{height:<6} {sector.n:>8}  {int((np.bincount(sector.owner_u.ravel()) > 0).sum()):>5}  {len(sector.homes):>6}'
-                       f'  {max(scores) / min(scores):>12.2f}  {np.mean(sector.comp == sector.main):>6.1%}  {int((sector.comp != sector.main).sum()):>5}'
-                       f'  {len(sector.repairs):>6}  {m["ouest_est"][0]:>3}  {m["nord_sud"][0]:>3}  {m["vestiges"][0] if m["vestiges"] else "-":>6}'
-                       f'  {detours[len(detours) // 2] if detours else "-":>11}  {sum(sector.timings.values()):>4.1f} s')
-    if len(runs) > 1:
-        with open(os.path.join(OUT, 'resume.txt'), 'w', encoding='utf-8') as f:
-            f.write('\n'.join(summary) + '\n')
-        print('\n'.join(summary))
+    if len(sys.argv) == 3:
+        batches, single = [(int(sys.argv[2]), 1)], sys.argv[1]
+    else:
+        batches, single = [b for b in BATCHES if len(sys.argv) == 1 or b[0] == int(sys.argv[1])], None
+    for players, count in batches:
+        folder = os.path.join(OUT, f'{players}_joueurs')
+        os.makedirs(folder, exist_ok=True)
+        lines = [SUMMARY_TITLE]
+        for k in range(1, count + 1):
+            sector = generate(single or f'{players}j-{k:02}', players)
+            start = time.perf_counter()
+            render(sector, folder)
+            report(sector, folder)
+            sector.timings['images'] = time.perf_counter() - start
+            lines.append(summary_line(sector))
+            print(lines[-1], flush=True)
+        if not single:
+            with open(os.path.join(folder, 'resume.txt'), 'w', encoding='utf-8') as f:
+                f.write(f'{count} cartes pour {players} joueurs\n\n' + '\n'.join(lines) + '\n')
 
 
 if __name__ == '__main__':
