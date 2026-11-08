@@ -6,7 +6,6 @@ The game keeps its seeds of 18 digits : server (4), sector Y and X (3 + 3), syst
 A sector of the tables is a square of SECTOR_SIZE units of the galaxy ; the natural zone of each system is on System.zone.
 """
 
-import random
 from collections import Counter, defaultdict
 
 from database.schemas import on_server
@@ -135,9 +134,10 @@ def bodies_of(r, star, system_type, composition):
 @on_server
 def save_galaxy(server, drawn, server_seed, composition, batch=5000):
     # Every system in its sector of SECTOR_SIZE units, and every body of every system. The homes are the native planets.
-    r = galaxy.rng(drawn.key, 'bodies')
-    random.seed(r.random())  # The names of name_generator, the same on the same map
-    zone_of = drawn.zone_kinds()[drawn.system_zones()]
+    # Each system has its own name, and its bodies its name and their orbit.
+    r, names = galaxy.rng(drawn.key, 'bodies'), set()
+    region_of = drawn.system_zones()
+    zone_of = drawn.zone_kinds()[region_of]
     sectors, natives, systems, bodies, seen = defaultdict(list), [], [], [], set()
     for i in range(drawn.n):
         y, x = int(drawn.ys[i]), int(drawn.xs[i])
@@ -147,17 +147,17 @@ def save_galaxy(server, drawn, server_seed, composition, batch=5000):
         if system_seed in seen:  # A relay of the repair put on a system already there
             continue
         seen.add(system_seed)
-        system_type = galaxy.TYPES[drawn.stype[i]]
+        system_type, name = galaxy.TYPES[drawn.stype[i]], name_generator.system_name(r, names)
         system_bodies = {}
         for orbit, (body_type, subtype) in enumerate(bodies_of(r, galaxy.CLASSES[drawn.cls[i]], system_type, composition)):
             seed = f'{system_seed}{orbit:02}'
             bodies.append(Coordinate(seed=seed, type=body_type, subtype=subtype, sector_id=sector_seed, system_id=system_seed,
-                                     sys_y=sy, sys_x=sx, sys_coordinate=orbit, name=name_generator.random_combination()))
+                                     sys_y=sy, sys_x=sx, sys_coordinate=orbit, name=name_generator.body_name(name, orbit)))
             system_bodies[seed] = subtype if body_type == 'star' else f'{body_type} {subtype}'
             if subtype == 'native':
                 natives.append(int(seed))
         systems.append(System(seed=system_seed, system_type=system_type, system_coordinates=system_bodies, sector_id=sector_seed,
-                              pos_y=f'{sy:03}', pos_x=f'{sx:03}', zone=zone_of[i]))
+                              pos_y=f'{sy:03}', pos_x=f'{sx:03}', zone=zone_of[i], region=int(region_of[i])))
         sectors[sector_seed].append((sy, sx, system_type, zone_of[i]))
 
     Sector.objects.bulk_create([

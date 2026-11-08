@@ -14,6 +14,7 @@ from backend.decorators import add_cycle_info, log_player_action, commandant_req
 from backend.utils import request_params, parameters_presents, get_request_user
 import data.commandant
 from data import server_details, systems, coordinates, cycles, quadrants
+from data.locations import seed_of
 from data.report import get_commandant_reports, get_report, delete_report, change_report_status, \
     mark_all_reports_as_read, update_nb_unread_reports
 from data.admin import cheat_log
@@ -273,13 +274,15 @@ def geography_system(request, server, commandant):
 
     system = None
     system_searched = False
+    # A seed or a readable place (data.locations), whose 4 digits of the server come from the home of the commandant
     if params.get('system_id'):
         system_searched = True
-        system = systems.get_system_by_seed(server, params['system_id'].strip())
+        seed = seed_of(params['system_id'], commandant['native_system']) or params['system_id'].strip()
+        system = systems.get_system_by_seed(server, seed[:16])  # A body : its system
     elif params.get('sector_id') and params.get('pos_y') and params.get('pos_x'):
         system_searched = True
-        system = systems.get_system_by_position(server, params['sector_id'].strip(),
-                                                params['pos_y'].strip().zfill(3), params['pos_x'].strip().zfill(3))
+        sector = seed_of(params['sector_id'], commandant['native_system']) or params['sector_id'].strip()
+        system = systems.get_system_by_position(server, sector[:10], params['pos_y'].strip().zfill(3), params['pos_x'].strip().zfill(3))
 
     system_not_found = system_searched and system is None
     if system is None:
@@ -324,7 +327,7 @@ def geography_quadrant(request, server, commandant):
     # TODO check if commandant has vision on the quadrant, same as geography_system
 
     requested = params.get('quadrant') or params.get('system_id') or ''
-    quadrant = quadrants.quadrant_id(requested.strip())
+    quadrant = quadrants.quadrant_id(seed_of(requested, commandant['native_system']) or requested.strip())
     quadrant_map = quadrants.quadrant_map(server, quadrant, commandant['id'], language) if quadrant else None
 
     quadrant_not_found = bool(requested) and quadrant_map is None
@@ -347,7 +350,7 @@ def geography_sector(request, server, commandant):
     # TODO check if commandant has vision on the sector, same as geography_system
 
     requested = params.get('sector') or params.get('system_id') or ''
-    sector_id = quadrants.sector_id_of(requested.strip())
+    sector_id = quadrants.sector_id_of(seed_of(requested, commandant['native_system']) or requested.strip())
     sector_map = quadrants.sector_map(server, sector_id, commandant['id'], language) if sector_id else None
 
     sector_not_found = bool(requested) and sector_map is None

@@ -1,3 +1,5 @@
+import math
+from collections import defaultdict
 from random import randint
 
 from django.contrib.auth.models import User
@@ -6,7 +8,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from backend.models import CommandantAccount, FINISHED_SERVER_STATUSES, Server, UserExtended
-from game.models import Commandant, Cycle, to_id
+from game.models import Commandant, Cycle, System, to_id
 from database.schemas import on_server
 from data.errors import GameError
 from data import ententes, starting_values as sv
@@ -29,6 +31,26 @@ def check_account_rules(server, user_id):
         raise GameError(_("Ce serveur est exclusif et vous jouez déjà sur un autre serveur exclusif"))
 
 
+def pick_home(available):
+    # The cradle the most settled first, and in it the free home the farthest from the players already there : nobody alone
+    # in an empty cradle, nobody at the door of another. A map without zones (the old generator) : at random.
+    free = {str(seed)[:16]: seed for seed in available}
+    taken, free_in = defaultdict(list), defaultdict(list)
+    for seed, region in System.objects.filter(system_type='native').values_list('seed', 'region'):
+        if region is not None:
+            (free_in if seed in free else taken)[region].append(seed)
+    if not free_in:
+        return available[randint(0, len(available) - 1)]
+    region = max(free_in, key=lambda r: (len(taken[r]), -r))
+
+    def place(seed):
+        return int(seed[4:7]) * 100 + int(seed[10:13]), int(seed[7:10]) * 100 + int(seed[13:16])
+
+    if not taken[region]:
+        return free[free_in[region][randint(0, len(free_in[region]) - 1)]]
+    return free[max(free_in[region], key=lambda seed: min(math.dist(place(seed), place(other)) for other in taken[region]))]
+
+
 @on_server
 @transaction.atomic
 def create_commandant(server, user, commandant_name, civilisation_name):
@@ -42,7 +64,7 @@ def create_commandant(server, user, commandant_name, civilisation_name):
     if not starting_values['available_native_planets']:
         raise GameError(_("Ce serveur ne possède plus de places disponibles"))
 
-    starting_planet_id = starting_values['available_native_planets'][randint(0, len(starting_values['available_native_planets'])-1)]
+    starting_planet_id = pick_home(starting_values['available_native_planets'])
 
     try:
         commandant = Commandant.objects.create(

@@ -1,6 +1,7 @@
 
 {% load static %}
 {% load i18n %}
+{% load tss_places %}
 
 {% include "includes/head.html" with title="Compte TSS" %}
 
@@ -45,7 +46,7 @@
                           </div>
                           <div class="text-muted">{% trans "Statut:"%} {{account.status}}</div>
                           <div class="text-muted">{% trans "Date de création:"%} {{account.creation_date}}</div>
-                          <div class="text-muted">{% trans "Planète capitale:"%} {{account.native_planet}}</div>
+                          <div class="text-muted">{% trans "Planète capitale:"%} {{account.native_planet|place}}</div>
                         </div>
                       </div>
                     {% empty %}

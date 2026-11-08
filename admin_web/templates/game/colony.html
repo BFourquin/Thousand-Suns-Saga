@@ -1,5 +1,6 @@
 
 {% load i18n %}
+{% load tss_places %}
 {% load static %}
 
 
@@ -41,8 +42,8 @@
                   </td>
 
                   <td class="align-bottom">
-                    <span>{% trans "Secteur :" %} {{colony.geographic_location.sector_id}}</span><br>
-                    <span>{% trans "Système :" %} <a href="/geography_system/?system_id={{colony.geographic_location.system_id}}#orbit-{{colony.geographic_location.pos_orbital|add:0}}" title="{% trans 'Voir sur la carte' %}">X {{colony.geographic_location.pos_x}} | Y {{colony.geographic_location.pos_y}} <i class="fas fa-sun"></i></a></span><br>
+                    <span>{% trans "Secteur :" %} {{colony.geographic_location.sector_id|place}}</span><br>
+                    <span>{% trans "Système :" %} <a href="/geography_system/?system_id={{colony.geographic_location.system_id}}#orbit-{{colony.geographic_location.pos_orbital|add:0}}" title="{% trans 'Voir sur la carte' %}">{{colony.geographic_location.system_id|place}} <i class="fas fa-sun"></i></a></span><br>
                     <span>{% trans "Orbite :" %} {{colony.geographic_location.pos_orbital}}</span><br>
                   </td>
 

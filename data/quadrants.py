@@ -14,6 +14,7 @@ from django.utils.translation import gettext as _, gettext_lazy
 
 from data.coordinates import SUBTYPE_NAMES, TYPE_NAMES
 from data.ententes import memberships_of_commandants
+from data.locations import readable
 from data.modifiers import quadrant_of
 from data.names import localized_name
 from database.schemas import on_server
@@ -259,7 +260,7 @@ def quadrant_map(server, quadrant, commandant_id, language):
     return {
         'id': quadrant,
         'title': _("Quadrant %(quadrant)s du secteur %(sector)s") % {
-            'quadrant': QUADRANT_NAMES[quadrant[11:]], 'sector': f"{sectors[sector_id]['pos_y']}-{sectors[sector_id]['pos_x']}"},
+            'quadrant': QUADRANT_NAMES[quadrant[11:]], 'sector': readable(sector_id)},
         'origin': {'y': y0, 'x': x0}, 'size': QUADRANT_SIZE,
         'neighbours': {direction: neighbour for direction, neighbour in neighbours.items() if neighbour and neighbour[:10] in sectors},
         'systems': systems, 'empires': empires, 'ententes': ententes,
@@ -340,7 +341,7 @@ def sector_map(server, sector_id, commandant_id, language):
 
     return {
         'id': sector_id,
-        'title': _("Secteur %(sector)s") % {'sector': f"{sector['pos_y']}-{sector['pos_x']}"},
+        'title': _("Secteur %(sector)s") % {'sector': readable(sector_id)},
         'size': SECTOR_SIZE, 'quadrant_size': QUADRANT_SIZE, 'neighbours': neighbours,
         'stars': [{'key': key, 'name': str(SUBTYPE_NAMES.get(key, key))} for key in star_keys],
         'types': [{'key': key, 'name': str(SYSTEM_TYPE_NAMES.get(key, key))} for key in type_keys],

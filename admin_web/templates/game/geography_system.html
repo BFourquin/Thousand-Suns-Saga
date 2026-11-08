@@ -1,5 +1,6 @@
 
 {% load i18n %}
+{% load tss_places %}
 {% load static %}
 
 {% blocktrans with name=star.name asvar system_title %}Système {{ name }}{% endblocktrans %}
@@ -23,14 +24,14 @@
         <form method="get" action="/geography_system/" class="sysmap-nav-group">
           <span class="sysmap-field sysmap-field-grow">
             <label for="sysmap-code">{% trans "Code cartographique" %}</label>
-            <input id="sysmap-code" type="text" name="system_id" inputmode="numeric" class="form-control form-control-sm sysmap-input-code" value="{{ system.id }}">
+            <input id="sysmap-code" type="text" name="system_id" class="form-control form-control-sm sysmap-input-code" value="{{ system.id|place }}">
           </span>
           <button type="submit" class="btn btn-default btn-sm" title="{% trans 'Rechercher' %}" aria-label="{% trans 'Rechercher' %}"><i class="fas fa-magnifying-glass"></i></button>
         </form>
         <form method="get" action="/geography_system/" class="sysmap-nav-group">
           <span class="sysmap-field sysmap-field-grow">
             <label for="sysmap-sector">{% trans "Secteur" %}</label>
-            <input id="sysmap-sector" type="text" name="sector_id" inputmode="numeric" class="form-control form-control-sm sysmap-input-sector" value="{{ system.sector_id }}">
+            <input id="sysmap-sector" type="text" name="sector_id" class="form-control form-control-sm sysmap-input-sector" value="{{ system.sector_id|place }}">
           </span>
           <span class="sysmap-field">
             <label for="sysmap-y">{% trans "Latitude" %}</label>

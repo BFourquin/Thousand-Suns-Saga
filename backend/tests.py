@@ -28,14 +28,14 @@ from backend.templatetags.tss_text import MAX_DEPTH, bbcode
 from database.schemas import schema_of, server_schema
 from game.models import Building, BuildingType, Colony, Commandant, Cycle, ConversationMessage, Coordinate, District, DistrictType, Entente, EntenteMember, EntenteRole, Modifier, Post, Report, Resource, Sector, StartingValues, System, Technology
 from backend.utils import commandant_owns_colony
-from data import conversations, ententes, forums, quadrants
+from data import conversations, ententes, forums, locations, quadrants
 from data import server_details
 from data import cycles
 from data.admin import raise_alert, set_alert_open
 from data.buildings import construct_building
 from data.buildings_types import is_buildable
 from data.colonies import recalculate_districts_slots
-from data.commandant import civilisation_name_taken, commandant_name_taken, create_commandant, delete_commandant, get_commandant
+from data.commandant import civilisation_name_taken, commandant_name_taken, create_commandant, delete_commandant, get_commandant, pick_home
 from data.coordinates import get_coordinate_image
 from data.districts import create_district, delete_district
 from data.economy import cycle_balance
@@ -44,6 +44,7 @@ from data.modifiers import add_modifier
 from data.schedule import blocking_run, last_due, run_due_steps, unblock
 from data.user import get_user_by_name
 from geography import map_generator as geography_map
+from geography.name_generator import ROMAN
 from geography.map_generator import excel_importer
 from data.report import change_report_status, delete_report, get_commandant_reports, get_report, mark_all_reports_as_read, update_nb_unread_reports
 from data.resources import add_resources, pay_resources
@@ -269,6 +270,14 @@ class SystemMapTests(SimpleTestCase):
         get_coordinates.return_value = [dict(self.star)]
         self.view('/geography_system/?sector_id=1001&pos_y=65&pos_x=047')
         systems.get_system_by_position.assert_called_once_with('S', '1001', '065', '047')
+
+    def test_a_system_is_found_by_its_readable_place(self, systems, get_coordinates, _colonies, _owners):
+        get_coordinates.return_value = [dict(self.star)]
+        self.commandant_home = '1001000000050050'
+        request = RequestFactory().get('/geography_system/?system_id=f4-55.12-3')  # A body : its system
+        request.user = player()
+        inspect.unwrap(views_game.geography_system)(request, 'S', {'id': 1, 'colonies': [], 'native_system': self.commandant_home})
+        systems.get_system_by_seed.assert_called_once_with('S', '1001003005012055')
 
     def test_colonies_land_on_their_coordinate(self, systems, get_coordinates, colonies, owners):
         get_coordinates.return_value = [dict(self.star), dict(self.planet)]
@@ -3345,6 +3354,15 @@ class MapGenerationTests(TestCase):
             self.assertFalse(System.objects.exclude(seed__regex=r'^1001\d{12}$').exists())  # The seed 1001 of the Excel
             self.assertFalse(Coordinate.objects.exclude(seed__regex=r'^1001\d{14}$').exists())
             self.assertFalse(System.objects.filter(zone=None).exists())
+            self.assertFalse(System.objects.filter(region=None).exists())
+
+    def test_every_system_has_its_own_name_and_its_bodies_its_name_and_orbit(self):
+        with server_schema('S'):
+            stars = Coordinate.objects.filter(type='star')
+            self.assertEqual(stars.values('name').distinct().count(), stars.count())
+            star = stars.first()
+            for body in Coordinate.objects.filter(system_id=star.system_id).exclude(type='star'):
+                self.assertEqual(body.name, f'{star.name} {ROMAN[body.sys_coordinate]}')
 
     def test_every_home_is_a_free_native_planet_around_a_star_of_the_excel(self):
         with server_schema('S'):
@@ -3365,3 +3383,41 @@ class MapGenerationTests(TestCase):
                 self.assertIn(f'telluric {system.system_type}', system.system_coordinates.values())
                 self.assertIn(Coordinate.objects.get(seed=system.seed + '00').subtype,
                               list(type_stars[system.system_type]) + ['G'])  # G : the only star allowed on the bank of a rift
+
+
+class LocationsTests(SimpleTestCase):
+
+    def test_a_seed_and_its_readable_place_convert_both_ways(self):
+        for seed, place in (('1001003005', 'F4'), ('1001003005012055', 'F4-55.12'), ('100100300501205503', 'F4-55.12-3'),
+                            ('1001000026000000', 'AA1-00.00'), ('1001041701099000', 'ZZ42-00.99')):
+            self.assertEqual(locations.readable(seed), place)
+            self.assertEqual(locations.seed_of(place, '1001999999'), seed)
+            self.assertEqual(locations.seed_of(place.lower(), '1001'), seed)
+        self.assertEqual(locations.seed_of(' 100100300501205503 ', '1002'), '100100300501205503')  # A seed stays itself
+
+    def test_anything_else_is_not_a_place(self):
+        for text in ('', 'F0', 'F4-123.5', 'F4-5.5-100', '12345', '1001:01', 'ABCD4'):
+            self.assertIsNone(locations.seed_of(text, '1001'), text)
+        self.assertEqual(locations.readable('1001003005:01'), '1001003005:01')
+
+
+class HomeAllocationTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        make_server('S')
+        with server_schema('S'):
+            # Region 1 : homes at X 0, 10 and 30 of the sector 1001000000, the one at 0 taken ; region 2 : two free homes
+            for x, region in ((0, 1), (10, 1), (30, 1), (60, 2), (80, 2)):
+                System.objects.create(seed=f'1001000000050{x:03}', system_type='native', region=region, sector_id='1001000000',
+                                      pos_y='050', pos_x=f'{x:03}')
+        cls.free = [int(f'1001000000050{x:03}01') for x in (10, 30, 60, 80)]
+
+    def test_the_most_settled_cradle_first_and_the_farthest_home_in_it(self):
+        with server_schema('S'):
+            self.assertEqual(pick_home(self.free), int('100100000005003001'))
+
+    def test_an_empty_cradle_opens_when_the_others_are_full(self):
+        with server_schema('S'):
+            self.assertIn(pick_home(self.free[2:]), self.free[2:])
+            self.assertIn(pick_home([123]), [123])  # A planet the map doesn't know : as before, at random

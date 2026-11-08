@@ -336,12 +336,13 @@ class System(GeographyModel):
     pos_y = models.CharField(max_length=3)
     pos_x = models.CharField(max_length=3)
     zone = models.CharField(max_length=30, null=True, blank=True)  # The natural zone of the map generator : geography.galaxy.ZONES
+    region = models.IntegerField(null=True, blank=True, db_index=True)  # Which zone : the same number for the systems of one zone
 
 
 class Coordinate(GeographyModel):
     type = models.CharField(max_length=50)
     subtype = models.CharField(max_length=50, null=True, blank=True)
-    sector_id = models.CharField(max_length=10)
+    sector_id = models.CharField(max_length=10, db_index=True)  # The map of a quadrant reads its bodies by sector
     system_id = models.CharField(max_length=16)
     sys_y = models.IntegerField()
     sys_x = models.IntegerField()

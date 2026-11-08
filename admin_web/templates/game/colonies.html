@@ -1,5 +1,6 @@
 
 {% load i18n %}
+{% load tss_places %}
 {% load static %}
 
 
@@ -276,7 +277,7 @@
                         <td>
                           <a href="/geography_system/?system_id={{colony.geographic_location.system_id}}#orbit-{{colony.geographic_location.pos_orbital|add:0}}" title="{% trans 'Voir sur la carte' %}">
                             <i class="fas fa-sun"></i>
-                            {{colony.geographic_location.pos_y}} / {{colony.geographic_location.pos_x}} / {{colony.geographic_location.pos_orbital}}
+                            {{colony.coordinate|place}}
                           </a>
                         </td>
 

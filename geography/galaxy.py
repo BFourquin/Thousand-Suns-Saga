@@ -28,7 +28,11 @@ from configparser import ConfigParser
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ROOT not in sys.path:  # Run alone : python geography/galaxy.py
+    sys.path.insert(0, ROOT)
+from data.locations import readable  # noqa: E402 : pure Python, no Django
 DEV_SECRET = 'secret-de-dev'
 
 
@@ -71,6 +75,7 @@ REACH = (60, 160)       # The expansion of a home : what it reaches within REACH
 BALANCE = 1.25          # The zones are moved until the richest home has at most this many times the expansion of the poorest
 WARP = 6                # The borders of the zones wave by this many units : no staircase of cells
 BANK = 15               # No random big star this close to a rift : only the planned bridgeheads cross it
+MIN_CORRIDORS = 3       # Fewer independent corridors across the map or to the vestiges : the map is drawn again
 INF = 10 ** 9
 
 # class : (share in an ordinary zone, vortex range in units, colour, size drawn).
@@ -1608,7 +1613,8 @@ def report(sector):
     sizes = np.bincount(sector.owner_u.ravel(), minlength=len(sector.zones))
     lines = [f'Génération « {sector.key} » : {sector.players} joueurs, toile de {sector.W} × {sector.H} unités, '
              f'galaxie de {sector.core_area / 1e6:.2f} million d\'unités² (agrandie de {sector.grown - 1:.0%} pour loger les berceaux)',
-             'Durées : ' + ', '.join(f'{name} {seconds:.1f} s' for name, seconds in sector.timings.items()), '',
+             'Durées : ' + ', '.join(f'{name} {seconds:.1f} s' for name, seconds in sector.timings.items()) +
+             (f' ; tirage n°{sector.tries}, les précédents gardaient un goulot' if getattr(sector, 'tries', 1) > 1 else ''), '',
              f'Systèmes : {sector.n} (densité moyenne dans la galaxie {sector.n / sector.core_area:.3f} / u²)', '', 'Zones :']
     for kind_name, spec in ZONES.items():
         ids = [zid for zid, zone in enumerate(sector.zones) if zone['kind'] == kind_name and sizes[zid]]
@@ -1659,15 +1665,35 @@ def report(sector):
               f'  mode chasse au trésor, du bord ouest aux vestiges : {m["vestiges"][0] if m["vestiges"] else "pas de vestiges"} couloirs',
               f'  détour entre berceaux (chemin par vortex / ligne droite) : {stats(m["detours"])}']
 
-    lines += ['', 'Identifiants lisibles (y.x-orbite) comparés aux identifiants actuels :']
+    lines += ['', 'Mondes natals, place lisible (secteur-X.Y-orbite, data.locations) et graine :']
     for h in sector.homes[:3].tolist():
         y, x = int(sector.ys[h]), int(sector.xs[h])
-        lines.append(f'  {y:04}.{x:04}-3   au lieu de   1000{y // 100:03}{x // 100:03}{y % 100:03}{x % 100:03}03')
+        seed = f'1000{y // 100:03}{x // 100:03}{y % 100:03}{x % 100:03}01'
+        lines.append(f'  {readable(seed):<14} {seed}')
     return '\n'.join(lines) + '\n'
 
 
+def narrowest(sector):
+    # The fewest independent corridors : west to east, north to south, and towards the vestiges when there are some
+    m = sector.measures
+    return min([m['ouest_est'][0], m['nord_sud'][0]] + ([m['vestiges'][0]] if m['vestiges'] else []))
+
+
 def generate(key, players, **options):
-    # options : area_per_player, homes_per_cradle, vestiges (see Sector), by default those of a saga
+    # options : area_per_player, homes_per_cradle, vestiges, type_stars (see Sector), by default those of a saga.
+    # A map with a bottleneck is drawn again, from keys derived from its seed : the same seed still gives the same map.
+    best = None
+    for attempt in range(3):
+        sector = draw(key if attempt == 0 else f'{key}/{attempt}', players, **options)
+        sector.tries = attempt + 1
+        if best is None or narrowest(sector) > narrowest(best):
+            best = sector
+        if narrowest(best) >= MIN_CORRIDORS:
+            break
+    return best
+
+
+def draw(key, players, **options):
     start = time.perf_counter()
     grow, share = 1.0, CENTRE_SHARE
     while True:
