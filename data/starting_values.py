@@ -29,14 +29,6 @@ def get_starting_values(server, start_type='default_land_colony', lock=False):
 
 @on_server
 @transaction.atomic
-def add_available_native_planets(server, planet_seed):
-    starting_values = StartingValues.objects.select_for_update().all().first()
-    starting_values.available_native_planets.append(planet_seed)
-    starting_values.save(update_fields=['available_native_planets'])
-
-
-@on_server
-@transaction.atomic
 def remove_available_native_planets(server, planet_seed):
     starting_values = StartingValues.objects.select_for_update().all().first()
     starting_values.available_native_planets = [seed for seed in starting_values.available_native_planets if seed != planet_seed]

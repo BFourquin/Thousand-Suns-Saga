@@ -71,6 +71,13 @@ site_url = http://127.0.0.1
 ```
 > python -c "from django.core.management.utils import get_random_secret_key as k; print(k())"
 
+secrets/map.ini, optional on a test server : the salt of every map, so that nobody draws a map again from the seed of its Excel
+```ini
+[map]
+secret = any_long_random_text
+```
+Changing it changes every map generated afterwards : keep it with the backups of the database.
+
 
 **PostgreSQL**
 

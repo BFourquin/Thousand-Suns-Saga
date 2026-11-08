@@ -1,16 +1,18 @@
 """
-Prototype : a sector without tiles nor quadrants, cut into natural zones.
+The map generator : the sector (the whole map of a server) without tiles nor quadrants, cut into natural zones.
+geography.map_generator writes it into the tables of the game, the page admin_map_trial shows one.
 
-Standalone experiment, numpy + Pillow only (no Django, no database) :
-    python geography/experiments/zone_map_prototype.py             every batch : 10 maps for 20, 50 and 100 players, 5 for 200
-    python geography/experiments/zone_map_prototype.py 50          one batch : the maps for 50 players
-    python geography/experiments/zone_map_prototype.py key 50      one map
-    python geography/experiments/zone_map_prototype.py --check     determinism self-check
+numpy + Pillow only (no Django, no database), so it also runs alone to compare many maps :
+    python geography/galaxy.py             every batch : 10 maps for 20, 50 and 100 players, 5 for 200
+    python geography/galaxy.py 50          one batch : the maps for 50 players
+    python geography/galaxy.py key 50      one map
+    python geography/galaxy.py --check     determinism self-check
 Each run writes into a new folder geography/experiments/output/gen N/, for each map : <key>_vierge.png (the systems only),
 <key>_zones.png (zones, stars, homes, bottlenecks), <key>_liens.png (every vortex link) and <key>_rapport.txt, then resume.txt.
 
-All the randomness comes from rng() / nprng() : the same secret gives the same map, and nothing shown to the players lets
-anyone recompute it. Vortex rule assumed : two systems are linked when their distance is at most the range of the bigger star.
+All the randomness comes from rng() / nprng(), salted by SECRET : the same seed and secret give the same map, and nothing
+shown to the players lets anyone recompute it. Vortex rule : two systems are linked when their distance is at most the range
+of the bigger star.
 """
 
 import hashlib
@@ -21,12 +23,30 @@ import random
 import sys
 import time
 from collections import Counter, deque
+from configparser import ConfigParser
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-SECRET = os.environ.get('TSS_MAP_SECRET', 'secret-de-dev')  # In the game : the Excel seed and a salt from secrets/
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'output')
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEV_SECRET = 'secret-de-dev'
+
+
+def read_secret():
+    # The salt of every map : secrets/map.ini, not versioned (see the README), or the variable TSS_MAP_SECRET
+    path = os.path.join(ROOT, 'secrets', 'map.ini')
+    if os.environ.get('TSS_MAP_SECRET'):
+        return os.environ['TSS_MAP_SECRET']
+    if os.path.exists(path):
+        config = ConfigParser(interpolation=None)
+        with open(path, encoding='utf-8-sig') as f:
+            config.read_file(f)
+        return config['map']['secret']
+    return DEV_SECRET
+
+
+SECRET = read_secret()
+OUT = os.path.join(ROOT, 'geography', 'experiments', 'output')
 BATCHES = ((20, 10), (50, 10), (100, 10), (200, 5))  # (players, maps)
 
 CELL = 5                # Size of a zone cell, in units
@@ -282,8 +302,11 @@ class Crowded(Exception):
 class Sector:
 
     def __init__(self, key, players, grow=1.0, centre_share=CENTRE_SHARE, area_per_player=AREA_PER_PLAYER,
-                 homes_per_cradle=HOMES_PER_CRADLE, vestiges=True):
+                 homes_per_cradle=HOMES_PER_CRADLE, vestiges=True, type_stars=None):
+        # type_stars : {system type : {star class : weight}}, the star of the special types (sheet MG_systems_types).
+        # Without it, every system has the star of its zone.
         self.key, self.players, self.centre_share, self.vestiges = key, players, centre_share, vestiges
+        self.type_stars = {T[name]: weights for name, weights in (type_stars or {}).items() if name in T and weights}
         self.n_cradles = max(1, round(players / homes_per_cradle))
         self.homes_per = [players // self.n_cradles + (k < players % self.n_cradles) for k in range(self.n_cradles)]
         self.core = self.draw_galaxy(players * area_per_player * grow)
@@ -1070,6 +1093,18 @@ class Sector:
                 i = at[(y, x)] = self.add_system(y, x, star, why)
             self.cls[i], self.role[i] = CLASSES.index(star), why
             self.forced_index.append(i)
+        self.star_rng = rng(self.key, 'type stars')
+        for i in np.flatnonzero(self.role == '').tolist():
+            self.star_of_type(i)
+
+    def star_of_type(self, i):
+        # A system of a special type takes the star of its type, never a big one on the bank of a rift : it would cross it
+        weights = self.type_stars.get(int(self.stype[i]))
+        if not weights:
+            return
+        if self.rift_dist[self.ys[i] // CELL, self.xs[i] // CELL] <= BANK:
+            weights = {c: w for c, w in weights.items() if c not in BIG} or {'G': 1}
+        self.cls[i] = CLASSES.index(self.star_rng.choices(list(weights), list(weights.values()))[0])
 
     def add_system(self, y, x, star, why):
         self.ys, self.xs = np.append(self.ys, int(y)), np.append(self.xs, int(x))
@@ -1121,6 +1156,7 @@ class Sector:
                                 self.cls[i] = r.choice(big_choices)
                             else:
                                 self.stype[i] = T[what]
+                                self.star_of_type(i)
                     elif len(has) > most:
                         extra = has[self.role[has] == ''].tolist()
                         for i in r.sample(extra, min(len(has) - most, len(extra))):
@@ -1168,6 +1204,7 @@ class Sector:
                     if missing <= 0:
                         break
                     self.stype[i] = medium if missing > 2 * w1[i] else poor
+                    self.star_of_type(i)
                     missing -= VALUE_OF_TYPE[self.stype[i]] * w1[i]
                     self.levelled += 1
             elif expansion[h] > high * target:

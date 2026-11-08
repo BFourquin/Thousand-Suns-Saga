@@ -22,7 +22,7 @@ Ce document remplace l'audit du 2026-11-05, qui décrivait encore le code MongoD
 | 6 | Configuration non prête pour un site public | **À faire** |
 | 7 | Rapport archivé désarchivé à l'ouverture, badge faux | Corrigé |
 | 8 | Rapports à l'envers et chargés en entier | Corrigé |
-| 9 | Bugs du générateur de carte, sans test | **À faire** |
+| 9 | Bugs du générateur de carte, sans test | Corrigé, le générateur est remplacé et testé |
 | 10 | Noms mal nettoyés | Corrigé |
 | 11 | Droits du staff dans l'administration | Corrigé |
 | 12 | Erreurs 500 sur des requêtes mal formées | **À faire** |
@@ -43,19 +43,6 @@ Ce document remplace l'audit du 2026-11-05, qui décrivait encore le code MongoD
 - **Problème :** `DEBUG = True`, `ALLOWED_HOSTS = ['*']`, CORS ouvert à tous, et un serveur statique ouvert sur toutes les interfaces. En mode debug, une erreur affiche la configuration et les variables locales.
 - **Correction :** lire `debug` et `allowed_hosts` dans `secrets/django.ini`, limiter CORS au serveur statique et écouter sur `127.0.0.1`.
 - **Sinon :** dès que le site est exposé, une simple erreur 500 révèle des informations internes.
-
-### 9. Le générateur de carte garde plusieurs bugs, sans aucun test
-
-`geography/mg_systems_placement.py:24`, `:34`, `:85`, `geography/mg_system_composition.py:173`, `stats/stats_geography.py:14`.
-
-- **Problème :**
-  - `randint(0, len(...))` peut dépasser la liste, et comme la graine est fixe, le même secteur plante à chaque essai.
-  - `== 'border' or 'corner'` est toujours vrai.
-  - La ligne 34 compare X à la taille en Y.
-  - Le nuage d'Oort reprend la probabilité et le tirage de la ceinture d'astéroïdes, donc les deux vont toujours ensemble.
-  - Les statistiques regroupent par `[:12]` alors qu'un secteur fait 10 caractères.
-- **Correction :** corriger ces cinq lignes et ajouter un test qui génère un petit secteur avec une graine fixe.
-- **Sinon :** certaines graines ne produisent jamais de carte, et les autres donnent des cartes et des statistiques fausses.
 
 ### 12. Des requêtes mal formées donnent une erreur 500
 
@@ -92,10 +79,10 @@ Deux templates ne sont utilisés nulle part : `admin/admin_raw_json.html` et `te
 
 ### 19. Les images des essais de carte sont versionnées
 
-`geography/experiments/output/` : environ 200 Mo d'images au 2026-11-08, dans les dossiers `gen 1` à `gen 4`.
+`geography/experiments/output/` : environ 200 Mo d'images au 2026-11-08, dans les dossiers `gen 1` à `gen 5`.
 
-- **Pourquoi :** elles sont ajoutées à git pour garder une trace des essais du nouveau générateur de carte (`geography/experiments/zone_map_prototype.py`). Le script les recrée avec la même graine.
-- **À faire, à terme :** quand le générateur sera intégré au jeu, retirer le dossier de git et remettre `geography/experiments/output/` dans `.gitignore`. Elles restent dans l'historique : seul un nettoyage de l'historique (`git filter-repo`) réduirait la taille du dépôt.
+- **Pourquoi :** elles sont ajoutées à git pour garder une trace des essais du nouveau générateur de carte (`geography/galaxy.py`). Le script les recrée avec la même graine.
+- **À faire, à terme :** quand les essais de carte seront finis, retirer le dossier de git et remettre `geography/experiments/output/` dans `.gitignore`. Elles restent dans l'historique : seul un nettoyage de l'historique (`git filter-repo`) réduirait la taille du dépôt.
 - **Sinon :** chaque nouvelle série d'essais alourdit le dépôt de 30 à 130 Mo, pour tous les clones.
 
 ## Ce qui a été corrigé
@@ -107,6 +94,7 @@ Deux templates ne sont utilisés nulle part : `admin/admin_raw_json.html` et `te
 - **5.** Un nouveau commandant rejoint les listes du cycle en cours.
 - **7.** Ouvrir un rapport ne touche que les non lus, et le badge du menu se met à jour.
 - **8.** Les rapports sont filtrés et paginés dans la base, les plus récents d'abord. La recherche ignore la casse et passe en GET.
+- **9.** L'ancien générateur est remplacé par `geography/galaxy.py`, écrit en base par `geography/map_generator.py` : ses bugs disparaissent avec lui. Le nuage d'Oort a son propre tirage, les statistiques regroupent par les 10 caractères d'un secteur, et un test génère une petite carte avec une graine fixe.
 - **10.** Les espaces et le caractère nul sont retirés des noms, les comptes et e-mails sont uniques sans tenir compte de la casse, et la longueur du pseudo suit le message (5 à 25).
 - **11.** Toute l'administration, signalements compris, est réservée aux superusers, et seuls `status`, `admin_only_visibility` et `exclusive` sont modifiables avec des valeurs fixes. Le staff garde la modération des forums et le passage de cycle.
 - **13.** Les ressources sont lues une seule fois par menu (`get_resources_by_name`) au lieu d'une fois par ligne, ce qui profite aussi à la page Technologies. Les compteurs du menu et les infos de cycle partagent chacun un seul changement de schéma. Mesures avec les vraies données Excel : `/colony/` passe de 167 à 43 requêtes et `/technologies/` de 42 à 33. Les pages simples perdent 6 requêtes et font 33 à 39 requêtes.

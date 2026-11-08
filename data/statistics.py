@@ -2,8 +2,6 @@
 from game.models import Statistic
 from database.schemas import on_server
 
-mg_stats_buffer = {}  # Used as alternative to write many thousand times updates in the DB
-
 """
 Statistics have one entry for each stats_category :
 
@@ -31,13 +29,3 @@ def get_statistics_category(server, stats_category):
 def set_statistics_category(server, stats_category, stats):
     Statistic.objects.update_or_create(stats_category=stats_category, defaults={'stats': stats})
 
-
-"""
-@on_server
-def insert_statistics_buffer_into_db(server, stats_category):
-
-    print("MG BUFFER >")
-    print(mg_stats_buffer)
-    for stat_name, stat_value in mg_stats_buffer.items():
-        set_statistics(server, stat_name, stat_value)
-"""

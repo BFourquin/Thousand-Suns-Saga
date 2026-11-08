@@ -14,7 +14,7 @@ from database.load_technologies import load_technologies
 from database.load_resources import load_resources
 from database.load_buildings import load_buildings
 from data import server_details, statistics, starting_values, cycles
-from geography import map_generator, mg_sectors
+from geography import galaxy, map_generator
 from stats import stats_geography
 
 
@@ -45,7 +45,6 @@ exclusive = False  # True for a serious server asking a lot of time : a player c
 admin_only_visibility = False
 server_status = 'open'
 
-hide_visualisation = True  # Map visualization at the end of the generation
 
 
 
@@ -101,7 +100,8 @@ map_generator.remove_past_generation(server_name)
 map_generator.load_map_generator_parameters(server_name, excel_server_params)
 
 with transaction.atomic(), server_schema(server_name):  # A single commit instead of one per row : much faster, and no half generated map
-    mg_sectors.generate_sectors(server_name, hide_visualisation)
+    drawn = map_generator.generate_map(server_name, excel_server_params)
+print(galaxy.report(drawn))  # The pictures of a map : the page admin_map_trial, with the same seed
 
 # STATISTICS
 

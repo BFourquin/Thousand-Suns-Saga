@@ -335,6 +335,7 @@ class System(GeographyModel):
     sector_id = models.CharField(max_length=10, db_index=True)
     pos_y = models.CharField(max_length=3)
     pos_x = models.CharField(max_length=3)
+    zone = models.CharField(max_length=30, null=True, blank=True)  # The natural zone of the map generator : geography.galaxy.ZONES
 
 
 class Coordinate(GeographyModel):

@@ -33,17 +33,3 @@ def get_map_generator_parameters(server, mg_type=None):
         return MapGeneratorParameter.objects.filter(mg_type='global').first().as_dict()
     return [param.as_dict() for param in MapGeneratorParameter.objects.filter(mg_type=mg_type).order_by('id')]
 
-
-@on_server
-def get_mg_params_sector_type(server, sector_type):
-    return MapGeneratorParameter.objects.filter(mg_type='sectors', data__sector_type=sector_type).first().as_dict()
-
-
-@on_server
-def get_mg_system_type(server, system_type):
-    return MapGeneratorParameter.objects.filter(mg_type='systems_types', data__system_type=system_type).first().as_dict()
-
-
-@on_server
-def get_mg_system_composition(server, solar_type):
-    return MapGeneratorParameter.objects.filter(mg_type='systems_compositions', data__solar_type=solar_type).first().as_dict()

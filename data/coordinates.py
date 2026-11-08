@@ -83,10 +83,3 @@ def get_coordinates_of_system(server, system):
 def get_coordinate(server, seed):
     coordinate = Coordinate.objects.filter(seed=str(seed)).first()
     return coordinate.as_dict() if coordinate else None
-
-
-@on_server
-def set_coordinate(server, coordinate):
-    # Will replace previous entry if one exist
-    Coordinate.objects.update_or_create(seed=coordinate['seed'],
-                                        defaults={k: v for k, v in coordinate.items() if k not in ('id', 'seed')})

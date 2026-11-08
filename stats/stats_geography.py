@@ -11,7 +11,7 @@ def statistics_systems_types_per_sector(server):
     for system in systems_list:
 
         system_type = system['system_type']
-        sector_id = system['id'][:12]
+        sector_id = system['id'][:10]
 
         if system_type not in system_types_stats:
             system_types_stats[system_type] = {}

@@ -11,6 +11,7 @@ from django.contrib.auth.models import AnonymousUser, User
 from django.core.management import call_command
 from django.core.cache import cache
 from django.db import DatabaseError, IntegrityError, connection, transaction
+from django.db.models import Sum
 from django.test import Client, RequestFactory, SimpleTestCase, TestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import Resolver404, resolve
@@ -42,6 +43,7 @@ from data.errors import GameError
 from data.modifiers import add_modifier
 from data.schedule import blocking_run, last_due, run_due_steps, unblock
 from data.user import get_user_by_name
+from geography import map_generator as geography_map
 from geography.map_generator import excel_importer
 from data.report import change_report_status, delete_report, get_commandant_reports, get_report, mark_all_reports_as_read, update_nb_unread_reports
 from data.resources import add_resources, pay_resources
@@ -3310,7 +3312,7 @@ class MapTrialTests(TestCase):
         self.assertRedirects(self.client.get('/admin_map_trial/'), '/admin_login/?next=/admin_map_trial/', fetch_redirect_response=False)
 
     def test_a_wrong_number_is_refused_without_generating(self):
-        with patch('geography.experiments.zone_map_prototype.generate') as generate:
+        with patch('geography.galaxy.generate') as generate:
             response = self.client.post('/admin_map_trial/', {'players': '1', 'gameplay': 'saga', 'area_per_player': 'beaucoup'})
         self.assertContains(response, 'Joueurs max : un nombre entier de 2 à 300')
         self.assertContains(response, 'Surface par joueur : un nombre entier')
@@ -3323,3 +3325,43 @@ class MapTrialTests(TestCase):
         self.assertContains(response, 'Graine essai')
         self.assertContains(response, 'data:image/png;base64,', count=6)  # Three pictures, each shown and downloadable
         self.assertFalse([q['sql'] for q in queries.captured_queries if q['sql'].lstrip().upper().startswith(('INSERT', 'UPDATE', 'DELETE'))])
+
+
+class MapGenerationTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        make_server('S')
+        with server_schema('S'):
+            StartingValues.objects.create(start_type='default_land_colony')
+        cls.drawn = geography_map.generate_map('S', 'TSS_boardgame.xlsx')
+
+    def test_the_map_is_written_in_the_tables_of_the_game(self):
+        with server_schema('S'):
+            systems, bodies = System.objects.count(), Coordinate.objects.count()
+            self.assertEqual(systems, len(set(map(tuple, zip(self.drawn.ys.tolist(), self.drawn.xs.tolist())))))
+            self.assertEqual(Sector.objects.aggregate(total=Sum('nb_systems'))['total'], systems)
+            self.assertGreater(bodies, systems)  # A star and its planets
+            self.assertFalse(System.objects.exclude(seed__regex=r'^1001\d{12}$').exists())  # The seed 1001 of the Excel
+            self.assertFalse(Coordinate.objects.exclude(seed__regex=r'^1001\d{14}$').exists())
+            self.assertFalse(System.objects.filter(zone=None).exists())
+
+    def test_every_home_is_a_free_native_planet_around_a_star_of_the_excel(self):
+        with server_schema('S'):
+            natives = StartingValues.objects.get().available_native_planets
+            self.assertEqual(len(natives), 10)  # No row max_players in TSS_boardgame.xlsx : the 10 players of a skirmish
+            planets = Coordinate.objects.filter(seed__in=[str(seed) for seed in natives])
+            self.assertEqual(set(planets.values_list('subtype', flat=True)), {'native'})
+            for planet in planets:
+                star = Coordinate.objects.get(seed=planet.system_id + '00')
+                self.assertEqual(star.type, 'star')
+                self.assertIn(star.subtype, ('F', 'G', 'K'))
+                self.assertEqual(System.objects.get(seed=planet.system_id).zone, 'berceau')
+
+    def test_a_habitable_world_has_its_planet_and_a_star_of_its_type(self):
+        type_stars = geography_map.type_stars('TSS_boardgame.xlsx')
+        with server_schema('S'):
+            for system in System.objects.filter(system_type__startswith='habitable'):
+                self.assertIn(f'telluric {system.system_type}', system.system_coordinates.values())
+                self.assertIn(Coordinate.objects.get(seed=system.seed + '00').subtype,
+                              list(type_stars[system.system_type]) + ['G'])  # G : the only star allowed on the bank of a rift

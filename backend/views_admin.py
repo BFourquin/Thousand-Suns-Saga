@@ -3,6 +3,7 @@ import io
 import logging
 import secrets
 
+from django.conf import settings
 from django.dispatch import receiver
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
@@ -119,6 +120,7 @@ def admin_servers_states_edit(request):
 # (label, least, most) of the numbers asked ; the empty ones take the value of the type of game
 MAP_TRIAL_NUMBERS = {'players': ('Joueurs max', 2, 300), 'area_per_player': ('Surface par joueur', 2_000, 50_000),
                      'homes_per_cradle': ('Mondes natals par berceau', 2, 20)}
+MAP_TRIAL_EXCELS = {'saga': 'TSS.xlsx', 'skirmish': 'TSS_boardgame.xlsx'}  # The Excel of each type of game
 
 
 def png_data_url(picture):
@@ -154,7 +156,7 @@ def map_trial_stats(sector):
 
 @superuser_required
 def admin_map_trial(request):
-    from geography.experiments import zone_map_prototype as maps  # numpy and Pillow : only loaded by this page
+    from geography import galaxy as maps, map_generator as excel_maps  # numpy and Pillow : only loaded by this page
 
     post = request.POST
     form = {'gameplay': post.get('gameplay', 'saga'), 'seed': post.get('seed', '').strip()[:40],
@@ -174,7 +176,9 @@ def admin_map_trial(request):
         context['errors'] = errors
         if not errors:
             seed = form['seed'] or str(secrets.randbelow(900_000) + 100_000)
-            sector = maps.generate(seed, values.pop('players'), vestiges=form['vestiges'], **values)
+            # The stars of the special systems from the Excel of the type of game, as create_new_server.py does
+            stars = excel_maps.type_stars(settings.BASE_DIR / MAP_TRIAL_EXCELS.get(form['gameplay'], 'TSS.xlsx'))
+            sector = maps.generate(seed, values.pop('players'), vestiges=form['vestiges'], type_stars=stars, **values)
             blank, zones = maps.render(sector)
             context['result'] = {
                 'seed': seed, 'stats': map_trial_stats(sector), 'report': maps.report(sector),
