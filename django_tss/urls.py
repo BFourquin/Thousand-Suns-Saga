@@ -59,6 +59,7 @@ urlpatterns = [
 
     path('', views_public.public_homepage, name='public_homepage'),
     path('public_homepage/', views_public.public_homepage, name='public_homepage'),
+    path('discover_tss/', views_public.discover_tss, name='discover_tss'),
 
     path('player_login/', views_public.player_login, name='player_login'),
     path('player_register/', views_public.player_register, name='player_register'),

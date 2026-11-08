@@ -15,6 +15,11 @@ def public_homepage(request):
     return render(request, 'public/public_homepage.html')
 
 
+@require_safe
+def discover_tss(request):
+    return render(request, 'public/discover_tss.html')
+
+
 
 def servers_list(request):
 

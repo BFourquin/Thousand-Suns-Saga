@@ -1,0 +1,453 @@
+{% load static %}
+{% load i18n %}
+
+{% trans "Découvrir TSS" as page_title_text %}
+{% include "includes/head.html" with title=page_title_text %}
+
+{% include "includes/menu_public.html" with page_title=page_title_text %}  <!-- include body start -->
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Main content -->
+    <section class="content">
+
+      <!-- PRESENTATION -->
+
+      <div class="card card-primary card-outline">
+        <div class="card-body">
+          <img src="{% static "images/public/main_presentation.png" %}" class="img-fluid d-block mx-auto mb-3" style="max-width: 640px; width: 100%;"
+               alt="Thousand Suns Saga. Grand Strategy, Space 4X, Long-term Multiplayer, Diplomacy &amp; Roleplay">
+
+          <p class="lead">
+            {% blocktrans trimmed %}
+              <strong>Thousand Suns Saga</strong> est un jeu de grande stratégie spatiale multijoueur, au tour par tour,
+              qui se joue directement dans le navigateur.
+            {% endblocktrans %}
+          </p>
+          <p>
+            {% blocktrans trimmed %}
+              Vous incarnez le commandant d'une jeune civilisation, sur sa planète natale, au cœur d'un secteur de la
+              galaxie partagé avec des dizaines d'autres joueurs. À vous de développer vos colonies, de faire tourner
+              une économie exigeante, d'explorer les systèmes voisins, de faire progresser la science de votre peuple
+              et de trouver votre place parmi les autres civilisations : par le commerce, par la diplomatie, par la
+              parole… ou par la force.
+            {% endblocktrans %}
+          </p>
+          <p class="mb-0">
+            {% blocktrans trimmed %}
+              Une partie est une saga : elle se vit sur la durée, quelques minutes par jour, et c'est son histoire,
+              écrite par les joueurs eux-mêmes, qui en fait tout le sel.
+            {% endblocktrans %}
+          </p>
+        </div>
+      </div>
+
+      <!-- STRENGTHS -->
+
+      <div class="row">
+
+        <div class="col-md-6 col-xl-4">
+          <div class="info-box">
+            <span class="info-box-icon bg-primary"><i class="fas fa-hourglass-half"></i></span>
+            <div class="info-box-content">
+              <span class="info-box-text text-wrap"><strong>{% trans "Un tour par jour" %}</strong></span>
+              <span class="text-wrap">{% trans "Vous donnez vos ordres quand vous voulez, le cycle se termine chaque soir. Un jeu au long cours, compatible avec une vie bien remplie." %}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-xl-4">
+          <div class="info-box">
+            <span class="info-box-icon bg-primary"><i class="fas fa-industry"></i></span>
+            <div class="info-box-content">
+              <span class="info-box-text text-wrap"><strong>{% trans "Une économie profonde" %}</strong></span>
+              <span class="text-wrap">{% trans "Des dizaines de ressources, des chaînes de production, une population aux besoins bien réels : chaque colonie est un casse-tête industriel." %}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-xl-4">
+          <div class="info-box">
+            <span class="info-box-icon bg-primary"><i class="fas fa-flask"></i></span>
+            <div class="info-box-content">
+              <span class="info-box-text text-wrap"><strong>{% trans "Une science qui surprend" %}</strong></span>
+              <span class="text-wrap">{% trans "Un vaste arbre technologique, de l'ère low-tech à la singularité, légèrement aléatoire : la meilleure stratégie change d'une partie à l'autre." %}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-xl-4">
+          <div class="info-box">
+            <span class="info-box-icon bg-primary"><i class="fas fa-meteor"></i></span>
+            <div class="info-box-content">
+              <span class="info-box-text text-wrap"><strong>{% trans "Une galaxie unique" %}</strong></span>
+              <span class="text-wrap">{% trans "Chaque serveur génère sa propre carte : des milliers de systèmes, rares planètes accueillantes et trésors à découvrir." %}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-xl-4">
+          <div class="info-box">
+            <span class="info-box-icon bg-primary"><i class="fas fa-handshake"></i></span>
+            <div class="info-box-content">
+              <span class="info-box-text text-wrap"><strong>{% trans "Une diplomatie entre joueurs" %}</strong></span>
+              <span class="text-wrap">{% trans "Pas d'adversaires programmés pour faire de la figuration : vos alliés, vos rivaux et vos partenaires commerciaux sont d'autres joueurs." %}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-xl-4">
+          <div class="info-box">
+            <span class="info-box-icon bg-primary"><i class="fas fa-masks-theater"></i></span>
+            <div class="info-box-content">
+              <span class="info-box-text text-wrap"><strong>{% trans "Le roleplay au cœur du jeu" %}</strong></span>
+              <span class="text-wrap">{% trans "Forums en jeu, assemblées, tavernes : vous parlez au nom de votre civilisation, et vos plus beaux discours font votre réputation." %}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TABLE OF CONTENTS -->
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{% trans "Les grandes mécaniques" %}</h3>
+        </div>
+        <div class="card-body">
+          <ol class="mb-0">
+            <li><a href="#servers">{% trans "Serveurs et commandants" %}</a></li>
+            <li><a href="#cycles">{% trans "Les cycles" %}</a></li>
+            <li><a href="#galaxy">{% trans "La galaxie" %}</a></li>
+            <li><a href="#colonies">{% trans "Les colonies" %}</a></li>
+            <li><a href="#economy">{% trans "L'économie" %}</a></li>
+            <li><a href="#technologies">{% trans "Les technologies" %}</a></li>
+            <li><a href="#diplomacy">{% trans "La diplomatie" %}</a></li>
+            <li><a href="#communication">{% trans "Communication et roleplay" %}</a></li>
+            <li><a href="#coming">{% trans "En préparation" %}</a></li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- 1. SERVERS -->
+
+      <div class="card card-primary card-outline" id="servers">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-server mr-2"></i>{% trans "1. Serveurs et commandants" %}</h3>
+        </div>
+        <div class="card-body">
+          <p>
+            {% blocktrans trimmed %}
+              Chaque partie se déroule sur un serveur, avec sa propre galaxie et ses propres joueurs. Sur chacun, vous
+              créez un commandant : son nom, son portrait, le nom et le drapeau de sa civilisation. Un seul commandant
+              par serveur, mais rien ne vous empêche de jouer sur plusieurs serveurs à la fois.
+            {% endblocktrans %}
+          </p>
+          <p>{% trans "Deux formats de partie existent :" %}</p>
+          <ul>
+            <li>
+              {% blocktrans trimmed %}
+                <strong>Saga</strong> : le format principal. La partie dure des mois, à raison d'un cycle par jour, qui
+                se termine à heure fixe.
+              {% endblocktrans %}
+            </li>
+            <li>
+              {% blocktrans trimmed %}
+                <strong>Escarmouche</strong> : une partie courte, à la manière d'un jeu de plateau. Le cycle se termine
+                dès que tous les joueurs se sont déclarés prêts.
+              {% endblocktrans %}
+            </li>
+          </ul>
+          <p>
+            {% blocktrans trimmed %}
+              Certains serveurs sont <strong>exclusifs</strong> : des parties sérieuses qui demandent beaucoup
+              d'implication, et sur lesquelles vous ne pouvez avoir qu'un seul commandant à la fois. Les autres sont
+              <strong>libres</strong> et se jouent en plus de vos autres parties. Selon le serveur, le roleplay est
+              obligatoire ou simplement encouragé.
+            {% endblocktrans %}
+          </p>
+          <p class="mb-0">
+            {% blocktrans trimmed %}
+              Quand une partie se termine, ou que votre civilisation disparaît, vous gardez l'accès à votre commandant
+              en consultation, et l'Assemblée Sectorielle de chaque serveur reste lisible par tous dans les
+              <a href="/archives/">Archives</a>.
+            {% endblocktrans %}
+          </p>
+        </div>
+      </div>
+
+      <!-- 2. CYCLES -->
+
+      <div class="card card-primary card-outline" id="cycles">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-hourglass-half mr-2"></i>{% trans "2. Les cycles" %}</h3>
+        </div>
+        <div class="card-body">
+          <p>
+            {% blocktrans trimmed %}
+              Le temps de TSS avance par cycles. Pendant un cycle, vous donnez vos ordres à votre rythme : lancer une
+              recherche, construire un district, ajuster la production d'un bâtiment, négocier avec vos voisins… À la
+              fin du cycle, le serveur résout tout en même temps : vos usines produisent, votre population consomme,
+              vos chantiers et vos recherches avancent.
+            {% endblocktrans %}
+          </p>
+          <p>
+            {% blocktrans trimmed %}
+              Chaque fin de cycle vous apporte ses <strong>rapports</strong> : ce qui a été produit, ce qui a manqué,
+              ce qui a été découvert, et les événements qui ont touché votre civilisation.
+            {% endblocktrans %}
+          </p>
+          <p class="mb-0">
+            {% blocktrans trimmed %}
+              Vous vous absentez quelques jours ? Passez en <strong>mode absent</strong> : les cycles ne vous
+              attendront pas, et votre empire continue de tourner sans vous.
+            {% endblocktrans %}
+          </p>
+        </div>
+      </div>
+
+      <!-- 3. GALAXY -->
+
+      <div class="card card-primary card-outline" id="galaxy">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-meteor mr-2"></i>{% trans "3. La galaxie" %}</h3>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-7">
+              <p>
+                {% blocktrans trimmed %}
+                  La carte d'un serveur est générée à sa création : une grille de secteurs, chacun découpé en quadrants
+                  et peuplé de centaines de systèmes stellaires, avec leurs étoiles, leurs planètes, leurs lunes et
+                  leurs ceintures d'astéroïdes.
+                {% endblocktrans %}
+              </p>
+              <p>
+                {% blocktrans trimmed %}
+                  Les secteurs n'ont pas tous le même visage. Les civilisations naissent dans des secteurs natifs,
+                  entourées de leurs premiers voisins. Plus loin, on trouve des secteurs sauvages riches mais
+                  dangereux, des amas denses, des régions presque vides…
+                {% endblocktrans %}
+              </p>
+              <p>
+                {% blocktrans trimmed %}
+                  Les planètes accueillantes sont rares, et les mondes de type Gaïa le sont encore plus. D'autres
+                  systèmes valent le détour pour leurs gisements de minerais, leurs géantes gazeuses ou leurs
+                  curiosités scientifiques. Certains, enfin, sont à éviter.
+                {% endblocktrans %}
+              </p>
+              <p class="mb-0">
+                {% blocktrans trimmed %}
+                  Explorer, c'est choisir où s'étendre, et donc qui l'on aura pour voisin.
+                {% endblocktrans %}
+              </p>
+            </div>
+            <div class="col-lg-5">
+              <img src="{% static "images/public/pre_alpha/map_with_sectors.png" %}" class="img-fluid rounded"
+                   alt="{% trans "Carte d'une galaxie de TSS découpée en secteurs" %}">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. COLONIES -->
+
+      <div class="card card-primary card-outline" id="colonies">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-city mr-2"></i>{% trans "4. Les colonies" %}</h3>
+        </div>
+        <div class="card-body">
+          <p>
+            {% blocktrans trimmed %}
+              Votre civilisation commence avec une seule colonie, sa capitale. D'autres viendront : du simple
+              avant-poste à la mégalopole, en passant par la cité, le territoire et la métropole. Plus une colonie
+              grandit, plus elle peut accueillir de districts.
+            {% endblocktrans %}
+          </p>
+          <p>
+            {% blocktrans trimmed %}
+              Les <strong>districts</strong> sont les quartiers de vos colonies : habitations, agriculture, industrie,
+              extraction, science, armée… Chacun offre des emplacements pour des <strong>bâtiments</strong> : fermes,
+              centrales, mines, usines, laboratoires. Vous pouvez régler l'activité de chaque bâtiment, pour économiser
+              une ressource qui se fait rare ou relancer une production en retard.
+            {% endblocktrans %}
+          </p>
+          <p class="mb-0">
+            {% blocktrans trimmed %}
+              Et derrière tout cela, il y a une population : des habitants à loger, à nourrir, à soigner, à
+              transporter et à alimenter en énergie, des travailleurs pour vos bâtiments, et un bonheur qui ne se
+              décrète pas.
+            {% endblocktrans %}
+          </p>
+        </div>
+      </div>
+
+      <!-- 5. ECONOMY -->
+
+      <div class="card card-primary card-outline" id="economy">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-industry mr-2"></i>{% trans "5. L'économie" %}</h3>
+        </div>
+        <div class="card-body">
+          <p>
+            {% blocktrans trimmed %}
+              L'économie est le cœur de TSS. Les ressources se répartissent en grandes familles :
+            {% endblocktrans %}
+          </p>
+          <ul>
+            <li>{% trans "Population : nourriture, eau, oxygène, biens de consommation, vêtements, médecine" %}</li>
+            <li>{% trans "Infrastructure : construction, transports, outils" %}</li>
+            <li>{% trans "Énergie" %}</li>
+            <li>{% trans "Matières premières : minerais, alliages, produits intermédiaires" %}</li>
+            <li>{% trans "Industrie et électronique : composants, ordinateurs" %}</li>
+            <li>{% trans "Illicites : drogues, organes de contrebande, IA illégales…" %}</li>
+          </ul>
+          <p>
+            {% blocktrans trimmed %}
+              Rien ne se produit à partir de rien : une usine consomme des matières premières et de l'énergie, et
+              demande des travailleurs. Une économie qui tourne, ce sont des chaînes de production bien équilibrées,
+              de la mine jusqu'au produit fini.
+            {% endblocktrans %}
+          </p>
+          <p class="mb-0">
+            {% blocktrans trimmed %}
+              Les besoins de votre population évoluent avec votre civilisation : un peuple qui découvre la haute
+              technologie n'attend plus les mêmes biens qu'une colonie de pionniers. Satisfaire ces besoins rend vos
+              habitants heureux. Les négliger a des conséquences.
+            {% endblocktrans %}
+          </p>
+        </div>
+      </div>
+
+      <!-- 6. TECHNOLOGIES -->
+
+      <div class="card card-primary card-outline" id="technologies">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-flask mr-2"></i>{% trans "6. Les technologies" %}</h3>
+        </div>
+        <div class="card-body">
+          <p>
+            {% blocktrans trimmed %}
+              La recherche débloque de nouveaux bâtiments, de nouvelles ressources et des bonus pour votre
+              civilisation. L'arbre technologique couvre tous les domaines : urbanisme, agriculture, énergie, biologie,
+              cybernétique, industrie, armement… Chaque technologie a ses prérequis, parfois dans un tout autre domaine.
+            {% endblocktrans %}
+          </p>
+          <p>{% trans "Les technologies sont regroupées en grandes époques, chacune avec ses propres défis :" %}</p>
+          <ul>
+            <li>{% trans "Low-tech : développer sa colonie, commencer à explorer son secteur, établir ses premières colonies." %}</li>
+            <li>{% trans "Middle-tech : tout explorer, coloniser massivement, créer des routes spatiales." %}</li>
+            <li>{% trans "High-tech : satisfaire tous les besoins de sa population, envoyer des colonisateurs au loin." %}</li>
+            <li>{% trans "Ultra-tech : faire face à de nouvelles menaces." %}</li>
+            <li>{% trans "Singularité : la fin du jeu." %}</li>
+          </ul>
+          <p class="mb-0">
+            {% blocktrans trimmed %}
+              Les technologies sont légèrement aléatoires : leurs effets varient d'une partie à l'autre. Les meilleurs
+              choix d'une saga ne seront pas forcément ceux de la suivante, et il faudra parfois s'adapter en cours de
+              route.
+            {% endblocktrans %}
+          </p>
+        </div>
+      </div>
+
+      <!-- 7. DIPLOMACY -->
+
+      <div class="card card-primary card-outline" id="diplomacy">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-handshake mr-2"></i>{% trans "7. La diplomatie" %}</h3>
+        </div>
+        <div class="card-body">
+          <p>
+            {% blocktrans trimmed %}
+              Les joueurs se regroupent en <strong>ententes</strong>. Chaque civilisation fait d'abord partie de
+              l'entente native de son secteur, aux côtés de ses voisins de naissance. Libre à elle, ensuite, de
+              fonder ou de rejoindre d'autres ententes : économiques, militaires, politiques, scientifiques,
+              religieuses… jusqu'à cinq à la fois.
+            {% endblocktrans %}
+          </p>
+          <p>
+            {% blocktrans trimmed %}
+              Le fondateur d'une entente en définit les rôles et ce que chacun peut y faire : inviter ou exclure des
+              membres, modérer l'assemblée, gérer les finances, partager la vision radar ou le contrôle des flottes.
+              On y entre sur invitation ou par candidature.
+            {% endblocktrans %}
+          </p>
+          <p class="mb-0">
+            {% blocktrans trimmed %}
+              Les ententes sont publiques, et chacun peut voir qui s'est allié à qui. Pour les projets qui doivent
+              rester discrets, il y a les <strong>coalitions</strong>, avec leur assemblée privée.
+            {% endblocktrans %}
+          </p>
+        </div>
+      </div>
+
+      <!-- 8. COMMUNICATION -->
+
+      <div class="card card-primary card-outline" id="communication">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-masks-theater mr-2"></i>{% trans "8. Communication et roleplay" %}</h3>
+        </div>
+        <div class="card-body">
+          <p>
+            {% blocktrans trimmed %}
+              Dans TSS, on parle beaucoup, et on parle en jeu, au nom de sa civilisation :
+            {% endblocktrans %}
+          </p>
+          <ul>
+            <li>{% trans "L'Assemblée Sectorielle, ouverte à tous les commandants du serveur, où se jouent les grands débats." %}</li>
+            <li>{% trans "Les tavernes, des forums créés et animés par les joueurs eux-mêmes." %}</li>
+            <li>{% trans "Les assemblées de coalition, réservées à leurs membres." %}</li>
+            <li>{% trans "Les messages privés, pour les négociations en tête à tête." %}</li>
+            <li>{% trans "Le forum HRP, pour parler hors du jeu, sur les serveurs où le roleplay n'est pas obligatoire." %}</li>
+          </ul>
+          <p class="mb-0">
+            {% blocktrans trimmed %}
+              Les commandants peuvent saluer les messages des autres : adapté, remarquable, drôle, ou d'un roleplay
+              intéressant. Ces votes forgent le <strong>respect diplomatique</strong> de chacun, affiché à côté de son
+              nom : une réputation qui se gagne par la qualité de ses interventions.
+            {% endblocktrans %}
+          </p>
+        </div>
+      </div>
+
+      <!-- 9. COMING -->
+
+      <div class="card card-secondary card-outline" id="coming">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-screwdriver-wrench mr-2"></i>{% trans "9. En préparation" %}</h3>
+        </div>
+        <div class="card-body">
+          <p>
+            {% blocktrans trimmed %}
+              TSS est en cours de développement. Plusieurs grandes mécaniques sont encore en préparation :
+            {% endblocktrans %}
+          </p>
+          <ul>
+            <li>{% trans "La conception de vaisseaux et d'armements, pièce par pièce." %}</li>
+            <li>{% trans "Les flottes et les armées, pour explorer, protéger et conquérir." %}</li>
+            <li>{% trans "Les combats spatiaux et terrestres, résolus en plusieurs rounds au fil de la journée." %}</li>
+            <li>{% trans "Les marchés, pour échanger ressources, vaisseaux et armes." %}</li>
+            <li>{% trans "Le gouvernement de votre civilisation et ses grandes orientations." %}</li>
+          </ul>
+          <p class="mb-0">{% trans "Elles arriveront au fil des versions : de quoi donner à chaque nouvelle saga une saveur différente." %}</p>
+        </div>
+        <div class="card-footer text-center">
+          {% if user.is_authenticated %}
+            <a href="/servers_list/" class="btn btn-primary m-1">{% trans "Rejoindre un serveur" %}</a>
+          {% else %}
+            <a href="/player_register/" class="btn btn-primary m-1">{% trans "Créer un compte" %}</a>
+          {% endif %}
+          <a href="/archives/" class="btn btn-default m-1">{% trans "Lire les archives" %}</a>
+        </div>
+      </div>
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+</div><!-- ./wrapper -->
+
+</body>
+</html>
