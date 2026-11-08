@@ -6,8 +6,8 @@ Standalone experiment, numpy + Pillow only (no Django, no database) :
     python geography/experiments/zone_map_prototype.py 50          one batch : the maps for 50 players
     python geography/experiments/zone_map_prototype.py key 50      one map
     python geography/experiments/zone_map_prototype.py --check     determinism self-check
-Each map writes into geography/experiments/output/<players>_joueurs/ : <key>_vierge.png (the systems only),
-<key>_zones.png (zones, stars, homes, bottlenecks) and <key>_rapport.txt. Each batch writes its resume.txt.
+Each run writes into a new folder geography/experiments/output/gen N/, for each map : <key>_vierge.png (the systems only),
+<key>_zones.png (zones, stars, homes, bottlenecks) and <key>_rapport.txt, then resume.txt for the whole run.
 
 All the randomness comes from rng() / nprng() : the same secret gives the same map, and nothing shown to the players lets
 anyone recompute it. Vortex rule assumed : two systems are linked when their distance is at most the range of the bigger star.
@@ -32,7 +32,7 @@ BATCHES = ((20, 10), (50, 10), (100, 10), (200, 5))  # (players, maps)
 CELL = 5                # Size of a zone cell, in units
 DENSITY = 0.04          # Systems per unit² of galaxy, as today : 40 591 systems on 1000 x 1000
 AREA_PER_PLAYER = 10_000  # Units² of galaxy per player, as today : about 100 players on 1000 x 1000
-SQUIRCLE = 3.5333       # Area of |y/a|³ + |x/b|³ <= 1, divided by a.b : the rounded square the galaxy is drawn from
+HALO_WIDTH = 40         # The thin and sparse halo around the galaxy, then the void
 HOMES_PER_CRADLE = 10
 CRADLE_RADIUS = 85      # A cradle has the area of a disc of this radius, whatever its shape
 HOME_RING = 0.55        # The homes stand on a ring at this share of the cradle : nobody in the centre, nobody surrounded
@@ -112,7 +112,7 @@ ZONES = {
     'sauvage': kind('Terres sauvages', (50, 155, 60), 0.8, 1.0, types={'wilderness': 12}),
     'amas_dense': kind('Amas dense', (255, 240, 160), 3.0, 1.2, 95, stars={'giant': 3, 'supergiant': 3, 'O': 3, 'B': 2.5, 'A': 1.5},
                        types={'resources_rich': 3, 'scientific': 3, 'habitable_good': 1.5, 'habitable_medium': 1.5}),
-    'halo': kind('Halo', (75, 75, 95), 0.35),
+    'halo': kind('Halo', (75, 75, 95), 0.12),
     'vestiges': kind('Vestiges', (255, 215, 0), 0.6, 0.6, 30, types={'scientific': 5}),
 }
 STAMPED = {'halo', 'berceau', 'faille', 'tete_de_pont', 'abime', 'route'}  # Drawn with their shape, the others grow
@@ -237,14 +237,11 @@ class Sector:
 
     def __init__(self, key, players, grow=1.0):
         self.key, self.players = key, players
-        r = rng(key, 'shape')
         self.n_cradles = max(1, round(players / HOMES_PER_CRADLE))
         self.homes_per = [players // self.n_cradles + (k < players % self.n_cradles) for k in range(self.n_cradles)]
-        stretch = r.uniform(0.8, 1.25)
-        product = players * AREA_PER_PLAYER * grow / SQUIRCLE
-        self.ay, self.ax = math.sqrt(product * stretch), math.sqrt(product / stretch)
-        self.W = self.H = math.ceil((2.6 * max(self.ay, self.ax) + 160) / 50) * 50  # Room for the halo and the void around
-        self.gh, self.gw = self.H // CELL, self.W // CELL
+        self.core = self.draw_galaxy(players * AREA_PER_PLAYER * grow)
+        self.gh, self.gw = self.core.shape
+        self.H, self.W = self.gh * CELL, self.gw * CELL
         self.cy = (np.arange(self.gh) + 0.5) * CELL
         self.cx = (np.arange(self.gw) + 0.5) * CELL
         self.owner = np.full((self.gh, self.gw), -1, np.int32)
@@ -253,6 +250,68 @@ class Sector:
         self.bridges = []  # ((y, x), (y, x)) : the vortex planned across a rift or an abyss
         self.home_cradle = []  # The cradle of each home, in the order of their stars in self.forced
         self.timings = {}
+
+    def draw_galaxy(self, area):
+        # A few blobs, chained or gathered, sometimes with a bay cut into one : the sector has its own shape on each map.
+        # The threshold of their sum gives exactly the area wanted, then only the main piece is kept, a halo strip around.
+        r, g = rng(self.key, 'shape'), nprng(self.key, 'shape')
+        base = math.sqrt(area / math.pi)
+        chained = r.random() < 0.5
+        blobs = [(0.0, 0.0, base * r.uniform(0.55, 0.85), r.uniform(1.0, 2.0), r.uniform(0, math.pi), 1.0)]
+        heading = r.uniform(0, 2 * math.pi)
+        for _ in range(r.randint(1, 5)):
+            parent = blobs[-1] if chained else r.choice(blobs)
+            heading = heading + r.uniform(-0.7, 0.7) if chained else r.uniform(0, 2 * math.pi)
+            radius = base * r.uniform(0.4, 0.75)
+            reach = 0.75 * (parent[2] + radius) * r.uniform(0.8, 1.1)
+            blobs.append((parent[0] + reach * math.sin(heading), parent[1] + reach * math.cos(heading), radius,
+                          r.uniform(1.0, 2.0), r.uniform(0, math.pi), 1.0))
+        if r.random() < 0.4:  # A bay : a void that bites into one of the blobs
+            y, x, radius = r.choice(blobs)[:3]
+            side = r.uniform(0, 2 * math.pi)
+            blobs.append((y + 0.9 * radius * math.sin(side), x + 0.9 * radius * math.cos(side), radius * r.uniform(0.35, 0.6), 1.0, 0.0, -1.2))
+        y0 = min(b[0] - 2 * b[2] for b in blobs) - base
+        x0 = min(b[1] - 2 * b[2] for b in blobs) - base
+        gh = int((max(b[0] + 2 * b[2] for b in blobs) + base - y0) // CELL) + 1
+        gw = int((max(b[1] + 2 * b[2] for b in blobs) + base - x0) // CELL) + 1
+        cy, cx = (np.arange(gh) + 0.5) * CELL + y0, (np.arange(gw) + 0.5) * CELL + x0
+        field = np.zeros((gh, gw))
+        for y, x, radius, stretch, angle, weight in blobs:
+            u = (cx[None, :] - x) * math.cos(angle) + (cy[:, None] - y) * math.sin(angle)
+            v = -(cx[None, :] - x) * math.sin(angle) + (cy[:, None] - y) * math.cos(angle)
+            field += weight * np.exp(-(u / (radius * math.sqrt(stretch))) ** 2 - (v / (radius / math.sqrt(stretch))) ** 2)
+        field *= 1 + 0.3 * (2 * value_noise(g, (gh, gw), [(max(4, int(base / CELL / 3)), 1.0), (max(2, int(base / CELL / 10)), 0.3)]) - 1)
+
+        def main_piece(threshold):
+            # The piece of the galaxy around its strongest point
+            inside = field >= threshold
+            seen = np.zeros_like(inside)
+            start = np.unravel_index(int(np.argmax(field)), field.shape)
+            seen[start] = True
+            queue = deque([start])
+            while queue:
+                i, j = queue.popleft()
+                for ni, nj in ((i - 1, j), (i + 1, j), (i, j - 1), (i, j + 1)):
+                    if 0 <= ni < gh and 0 <= nj < gw and inside[ni, nj] and not seen[ni, nj]:
+                        seen[ni, nj] = True
+                        queue.append((ni, nj))
+            return seen
+
+        wanted = area / CELL / CELL
+        low, high = float(field.min()), float(np.sort(field, axis=None)[-int(wanted)])
+        core = main_piece(high)
+        for _ in range(12):  # A lower threshold until the main piece alone has the area wanted
+            if core.sum() >= 0.98 * wanted:
+                break
+            middle = (low + high) / 2
+            piece = main_piece(middle)
+            if piece.sum() > 1.05 * wanted:
+                low = middle
+            else:
+                high, core = middle, piece
+        rows, cols = np.nonzero(core)
+        margin = (HALO_WIDTH + 30) // CELL
+        return core[max(rows.min() - margin, 0):rows.max() + margin + 1, max(cols.min() - margin, 0):cols.max() + margin + 1]
 
     def dist(self, y, x):
         return np.hypot(self.cy[:, None] - y, self.cx[None, :] - x)
@@ -282,16 +341,11 @@ class Sector:
 
     def layout(self):
         g = nprng(self.key, 'layout')
-        # The galaxy : a rounded square whose border waves widely, the halo around it, then the void
-        waves = value_noise(g, (self.gh, self.gw), [(max(6, self.gh // 6), 1.0), (max(3, self.gh // 16), 0.35)])
-        dy = np.abs(self.cy[:, None] - self.H / 2) / self.ay
-        dx = np.abs(self.cx[None, :] - self.W / 2) / self.ax
-        self.rho = (dy ** 3 + dx ** 3) ** (1 / 3) / (1 + 0.22 * (2 * waves - 1))
-        self.core = self.rho < 1
         self.core_area = float(self.core.sum()) * CELL * CELL
         rows, cols = np.nonzero(self.core)
         self.box = (rows.min() * CELL, (rows.max() + 1) * CELL, cols.min() * CELL, (cols.max() + 1) * CELL)
-        self.depth = distance_from(~self.core, int(max(self.ay, self.ax) / CELL) + 2) * CELL
+        self.depth = distance_from(~self.core, max(self.gh, self.gw) // 2 + 2) * CELL  # Distance to the halo, inside
+        self.halo_dist = distance_from(self.core, HALO_WIDTH // CELL + 1) * CELL  # Distance to the galaxy, outside
         self.owner[~self.core] = self.add_zone('halo', 0, 0)
         self.place_cradles(g)
         self.place_rifts()
@@ -548,7 +602,7 @@ class Sector:
         cost = np.ones((self.gh, self.gw))
         cost[~self.core] = 3
         cost[kinds == 'abime'] = 6
-        cost[self.rho >= 1.3] = np.inf
+        cost[self.halo_dist > HALO_WIDTH] = np.inf
         cost[self.rift] = np.inf
         for y, x, w in self.bridge_points:
             window, inside = self.disc(y, x, w / 2 + 6)
@@ -741,7 +795,7 @@ class Sector:
                 for star in ('supergiant', 'O', 'B'):
                     self.forced.append((zone['y'] + r.uniform(-12, 12), zone['x'] + r.uniform(-12, 12), star, 'carrefour'))
         halo = ~self.core
-        density[halo] *= np.clip((1.3 - self.rho[halo]) / 0.3, 0, 1) ** 2
+        density[halo] *= np.clip(1 - self.halo_dist[halo] / HALO_WIDTH, 0, 1) ** 2
         # Filaments and voids in the open zones, as the cosmic web : ridges of a smooth noise
         ridges = 1 - np.abs(2 * value_noise(g, (self.gh, self.gw), [(10, 0.6), (28, 1.0)]) - 1)
         web = np.isin(kinds[self.owner], list(WEB))
@@ -1289,10 +1343,15 @@ def main():
         batches, single = [(int(sys.argv[2]), 1)], sys.argv[1]
     else:
         batches, single = [b for b in BATCHES if len(sys.argv) == 1 or b[0] == int(sys.argv[1])], None
+    # Every run in a new folder "gen N", after the ones already there
+    os.makedirs(OUT, exist_ok=True)
+    done = [int(name[4:]) for name in os.listdir(OUT) if name.startswith('gen ') and name[4:].isdigit()]
+    folder = os.path.join(OUT, f'gen {max(done, default=0) + 1}')
+    os.makedirs(folder)
+    print(folder, flush=True)
+    summary = []
     for players, count in batches:
-        folder = os.path.join(OUT, f'{players}_joueurs')
-        os.makedirs(folder, exist_ok=True)
-        lines = [SUMMARY_TITLE]
+        lines = [f'{count} carte(s) pour {players} joueurs', SUMMARY_TITLE]
         for k in range(1, count + 1):
             sector = generate(single or f'{players}j-{k:02}', players)
             start = time.perf_counter()
@@ -1301,9 +1360,9 @@ def main():
             sector.timings['images'] = time.perf_counter() - start
             lines.append(summary_line(sector))
             print(lines[-1], flush=True)
-        if not single:
-            with open(os.path.join(folder, 'resume.txt'), 'w', encoding='utf-8') as f:
-                f.write(f'{count} cartes pour {players} joueurs\n\n' + '\n'.join(lines) + '\n')
+        summary.append('\n'.join(lines))
+    with open(os.path.join(folder, 'resume.txt'), 'w', encoding='utf-8') as f:
+        f.write('\n\n'.join(summary) + '\n')
 
 
 if __name__ == '__main__':
