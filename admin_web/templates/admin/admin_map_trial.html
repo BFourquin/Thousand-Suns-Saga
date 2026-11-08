@@ -1,0 +1,119 @@
+
+{% load static %}
+
+{% include "includes/head.html" with title="TSS Admin : Essai de carte" %}
+
+{% include "includes/menu_admin.html" %}  <!-- include body start -->
+
+  <div class="content-wrapper">
+    <section class="content-header">
+      <div class="container-fluid">
+        <h1>Essai de carte</h1>
+      </div>
+    </section>
+
+    <section class="content">
+
+      <div class="card">
+        <div class="card-body">
+          <form method="POST" action="/admin_map_trial/">
+            {% csrf_token %}
+            <div class="form-row">
+              <div class="form-group col-sm-3">
+                <label for="players">Joueurs max</label>
+                <input type="number" id="players" name="players" value="{{ form.players }}" min="{{ numbers.players.1 }}" max="{{ numbers.players.2 }}" required class="form-control">
+              </div>
+              <div class="form-group col-sm-3">
+                <label for="gameplay">Type de partie</label>
+                <select id="gameplay" name="gameplay" class="form-control">
+                  {% for name in game_types %}<option value="{{ name }}" {% if name == form.gameplay %}selected{% endif %}>{{ name }}</option>{% endfor %}
+                </select>
+              </div>
+              <div class="form-group col-sm-3">
+                <label for="seed">Graine</label>
+                <input type="text" id="seed" name="seed" value="{{ form.seed }}" maxlength="40" placeholder="Aléatoire si vide" class="form-control">
+              </div>
+            </div>
+
+            <details {% if form.area_per_player or form.homes_per_cradle or form.vestiges %}open{% endif %} class="mb-3">
+              <summary>Réglages facultatifs</summary>
+              <div class="form-row mt-2">
+                <div class="form-group col-sm-3">
+                  <label for="area_per_player">Surface par joueur (u²)</label>
+                  <input type="number" id="area_per_player" name="area_per_player" value="{{ form.area_per_player }}" min="{{ numbers.area_per_player.1 }}" max="{{ numbers.area_per_player.2 }}" placeholder="Celle du type" class="form-control">
+                </div>
+                <div class="form-group col-sm-3">
+                  <label for="homes_per_cradle">Mondes natals par berceau</label>
+                  <input type="number" id="homes_per_cradle" name="homes_per_cradle" value="{{ form.homes_per_cradle }}" min="{{ numbers.homes_per_cradle.1 }}" max="{{ numbers.homes_per_cradle.2 }}" placeholder="Celui du type" class="form-control">
+                </div>
+                <div class="form-group col-sm-3 d-flex align-items-end">
+                  <div class="form-check">
+                    <input type="checkbox" id="vestiges" name="vestiges" {% if form.vestiges %}checked{% endif %} class="form-check-input">
+                    <label for="vestiges" class="form-check-label">Vestiges (chasse au trésor)</label>
+                  </div>
+                </div>
+              </div>
+              <small class="text-muted">
+                Valeurs des types :
+                {% for name, values in game_types.items %}{{ name }} {{ values.area_per_player }} u² par joueur et {{ values.homes_per_cradle }} mondes natals par berceau{% if not forloop.last %} ; {% endif %}{% endfor %}.
+                Un berceau a toujours la même taille : moins de mondes natals par berceau les espace davantage.
+              </small>
+            </details>
+
+            <button type="submit" class="btn btn-primary">Générer</button>
+            <small class="text-muted ml-2">Quelques secondes pour 20 joueurs, près d'une minute pour 200. Rien n'est enregistré.</small>
+          </form>
+
+          {% for error in errors %}<div class="alert alert-danger mt-3 mb-0">{{ error }}</div>{% endfor %}
+        </div>
+      </div>
+
+      {% if result %}
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Graine {{ result.seed }}</h3>
+          </div>
+          <div class="card-body p-0">
+            <table class="table table-sm mb-0">
+              <tbody>
+                {% for label, value, good, meaning in result.stats %}
+                  <tr>
+                    <th class="text-nowrap">{{ label }}</th>
+                    <td class="text-nowrap">
+                      {% if good is None %}{{ value }}{% else %}<span class="badge {% if good %}badge-success{% else %}badge-warning{% endif %}">{{ value }}</span>{% endif %}
+                    </td>
+                    <td class="text-muted">{{ meaning }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {% for title, url, filename in result.pictures %}
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">{{ title }}</h3>
+              <small class="text-muted ml-2">Cliquer sur l'image pour la télécharger en taille réelle</small>
+            </div>
+            <div class="card-body p-0">
+              <a href="{{ url }}" download="{{ filename }}"><img src="{{ url }}" alt="{{ title }}" class="img-fluid d-block"></a>
+            </div>
+          </div>
+        {% endfor %}
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Rapport complet</h3>
+          </div>
+          <div class="card-body">
+            <pre class="mb-0 small">{{ result.report }}</pre>
+          </div>
+        </div>
+      {% endif %}
+
+    </section>
+  </div>
+
+</body>
+</html>

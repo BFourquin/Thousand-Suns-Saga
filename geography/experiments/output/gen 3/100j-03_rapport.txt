@@ -1,0 +1,78 @@
+Génération « 100j-03 » : 100 joueurs, toile de 1640 × 1425 unités, galaxie de 1.22 million d'unités² (agrandie de 22% pour loger les berceaux)
+Durées : génération 2.9 s, contrôles 2.0 s
+
+Systèmes : 48808 (densité moyenne dans la galaxie 0.040 / u²)
+
+Zones :
+  Berceau                   10 zone(s)   11301 systèmes   18.7% de la galaxie
+  Marche                    11 zone(s)    7058 systèmes   15.1% de la galaxie
+  Plaine stellaire          23 zone(s)    9973 systèmes   23.1% de la galaxie
+  Oasis                      6 zone(s)    1486 systèmes    2.6% de la galaxie
+  Faille                     6 zone(s)      48 systèmes    8.1% de la galaxie
+  Tête de pont              24 zone(s)     251 systèmes    0.7% de la galaxie
+  Carrefour                  3 zone(s)     700 systèmes    1.2% de la galaxie
+  Nébuleuse sombre           4 zone(s)    2643 systèmes    3.8% de la galaxie
+  Champ de débris            8 zone(s)    3263 systèmes    6.3% de la galaxie
+  Amas globulaire            1 zone(s)     840 systèmes    0.5% de la galaxie
+  Pouponnière stellaire      1 zone(s)     350 systèmes    0.4% de la galaxie
+  Champ gazier               5 zone(s)    2448 systèmes    5.1% de la galaxie
+  Veine                      4 zone(s)     469 systèmes    0.9% de la galaxie
+  Zone d'anomalies           2 zone(s)     261 systèmes    0.8% de la galaxie
+  Cœur noir                  1 zone(s)     452 systèmes    1.0% de la galaxie
+  Reste de supernova         2 zone(s)     385 systèmes    1.2% de la galaxie
+  Terres sauvages            8 zone(s)    3492 systèmes    9.1% de la galaxie
+  Amas dense                 1 zone(s)    2717 systèmes    1.0% de la galaxie
+  Halo                       1 zone(s)     603 systèmes  
+  Vestiges                   1 zone(s)      68 systèmes    0.3% de la galaxie
+
+Étoiles : 6.8% de grandes étoiles (A 2.10%, B 1.30%, Géante 1.96%, O 0.51%, Wolf-Rayet 0.16%, Supergéante 0.75%, Trou noir 0.00%)
+
+Équité, autour de chacun des 100 mondes natals (10 berceaux) :
+  systèmes à 25 u                min 75 / médiane 96 / max 118
+  grandes étoiles de 0 à 16 u    min 2 / médiane 2 / max 2
+  habitable_medium de 3 à 12 u   min 1 / médiane 1 / max 1
+  habitable_poor de 3 à 12 u     min 2 / médiane 2 / max 2
+  habitable_good de 3 à 12 u     min 1 / médiane 1 / max 1
+  monde natal le plus proche     min 28 / médiane 29.1 / max 30.3
+  angle libre (°)                min 189 / médiane 213 / max 248
+  score                          min 12.5 / médiane 13.2 / max 13.9
+  écart du score : le meilleur a 1.11 fois le score du plus faible
+  distance des berceaux au halo : 110 u au plus près
+  zones précieuses : 8 loin de tout berceau, 14 partagées entre deux berceaux, 2 rendues ordinaires car trop près d'un seul (Carrefour) (Zone d'anomalies)
+    Amas dense             partagée  trajet depuis le berceau le plus proche    45 u, depuis le deuxième    69 u
+    Oasis                  partagée  trajet depuis le berceau le plus proche    86 u, depuis le deuxième   124 u
+    Oasis                  partagée  trajet depuis le berceau le plus proche    42 u, depuis le deuxième    66 u
+    Oasis                  partagée  trajet depuis le berceau le plus proche    30 u, depuis le deuxième    30 u
+    Oasis                  partagée  trajet depuis le berceau le plus proche    35 u, depuis le deuxième    47 u
+    Oasis                  partagée  trajet depuis le berceau le plus proche   107 u, depuis le deuxième   111 u
+    Oasis                  partagée  trajet depuis le berceau le plus proche    54 u, depuis le deuxième    54 u
+    Carrefour              partagée  trajet depuis le berceau le plus proche    25 u, depuis le deuxième    26 u
+    Carrefour              partagée  trajet depuis le berceau le plus proche    40 u, depuis le deuxième    58 u
+    Carrefour              partagée  trajet depuis le berceau le plus proche    21 u, depuis le deuxième    28 u
+    Veine                  partagée  trajet depuis le berceau le plus proche    74 u, depuis le deuxième    75 u
+    Veine                  loin      trajet depuis le berceau le plus proche   114 u, depuis le deuxième   141 u
+    Veine                  partagée  trajet depuis le berceau le plus proche    64 u, depuis le deuxième    77 u
+    Veine                  partagée  trajet depuis le berceau le plus proche    35 u, depuis le deuxième    74 u
+    Cœur noir              loin      trajet depuis le berceau le plus proche   141 u, depuis le deuxième   439 u
+    Vestiges               loin      trajet depuis le berceau le plus proche   135 u, depuis le deuxième   401 u
+    Amas globulaire        loin      trajet depuis le berceau le plus proche   132 u, depuis le deuxième   421 u
+    Reste de supernova     partagée  trajet depuis le berceau le plus proche    70 u, depuis le deuxième   109 u
+    Zone d'anomalies       loin      trajet depuis le berceau le plus proche   175 u, depuis le deuxième   188 u
+    Reste de supernova     loin      trajet depuis le berceau le plus proche   140 u, depuis le deuxième   383 u
+    Pouponnière stellaire  loin      trajet depuis le berceau le plus proche   126 u, depuis le deuxième   175 u
+    Zone d'anomalies       loin      trajet depuis le berceau le plus proche   147 u, depuis le deuxième   378 u
+
+Connectivité (lien vortex si la distance ≤ portée de la plus grande des deux étoiles) :
+  liens : 344687 ; réseau principal : 98.3% des systèmes
+  mondes natals dans le réseau principal : 100 / 100
+  systèmes isolés, inaccessibles : 842 en 441 îlots, dont 615 dans la galaxie (les autres dans le halo)
+  têtes de pont : 24 placées, 0 abandonnées faute de deux vraies régions à relier
+  réparations : 5 (îlot de 39 systèmes à 7.1 u) (îlot de 25 systèmes à 35.8 u) (îlot de 27 systèmes à 14.0 u) (îlot de 26 systèmes à 7.2 u) (îlot de 39 systèmes à 9.2 u)
+  couloirs indépendants (carrés de 20 u) ouest↔est : 12, nord↔sud : 5
+  mode chasse au trésor, du bord ouest aux vestiges : 12 couloirs
+  détour entre berceaux (chemin par vortex / ligne droite) : min 1.03 / médiane 1.07 / max 1.26
+
+Identifiants lisibles (y.x-orbite) comparés aux identifiants actuels :
+  0545.0486-3   au lieu de   100000500404508603
+  0525.0508-3   au lieu de   100000500502500803
+  0519.0536-3   au lieu de   100000500501903603

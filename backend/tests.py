@@ -3298,3 +3298,28 @@ class ScheduleTests(TestCase):
         self.client.post('/admin_unblock_schedule/', {'server_name': 'S'})
         self.assertIsNone(blocking_run('S'))
         self.assertContains(self.client.get('/admin_servers_states/'), 'Disk full')
+
+
+class MapTrialTests(TestCase):
+
+    def setUp(self):
+        self.client.force_login(User.objects.create_user('admin', 'a@example.com', 'x', is_staff=True, is_superuser=True))
+
+    def test_only_a_superuser_tries_maps(self):
+        self.client.logout()
+        self.assertRedirects(self.client.get('/admin_map_trial/'), '/admin_login/?next=/admin_map_trial/', fetch_redirect_response=False)
+
+    def test_a_wrong_number_is_refused_without_generating(self):
+        with patch('geography.experiments.zone_map_prototype.generate') as generate:
+            response = self.client.post('/admin_map_trial/', {'players': '1', 'gameplay': 'saga', 'area_per_player': 'beaucoup'})
+        self.assertContains(response, 'Joueurs max : un nombre entier de 2 à 300')
+        self.assertContains(response, 'Surface par joueur : un nombre entier')
+        generate.assert_not_called()
+
+    def test_a_map_is_made_from_its_seed_and_nothing_is_saved(self):
+        self.assertContains(self.client.get('/admin_map_trial/'), 'Générer')  # The first request creates the profile of the admin
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.post('/admin_map_trial/', {'players': '6', 'gameplay': 'skirmish', 'seed': 'essai'})
+        self.assertContains(response, 'Graine essai')
+        self.assertContains(response, 'data:image/png;base64,', count=6)  # Three pictures, each shown and downloadable
+        self.assertFalse([q['sql'] for q in queries.captured_queries if q['sql'].lstrip().upper().startswith(('INSERT', 'UPDATE', 'DELETE'))])

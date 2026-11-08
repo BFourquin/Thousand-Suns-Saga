@@ -123,6 +123,7 @@ urlpatterns = [
     path('admin_user_accounts/', views_admin.admin_user_accounts, name='admin_user_accounts'),
     path('admin_user_details/', views_admin.admin_user_details, name='admin_user_details'),
     path('admin_player_control/', views_admin.admin_player_control, name='admin_player_control'),
+    path('admin_map_trial/', views_admin.admin_map_trial, name='admin_map_trial'),
 
     # ADMIN SERVER SPECIFIC INTERFACE
     path('admin_cheat_alerts/', views_admin.admin_cheat_alerts, name='admin_cheat_alerts'),

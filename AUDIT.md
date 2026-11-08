@@ -32,6 +32,7 @@ Ce document remplace l'audit du 2026-11-05, qui décrivait encore le code MongoD
 | 16 | Dépendances anciennes et non épinglées | **À faire** |
 | 17 | La fin de cycle relit les tables pour chaque joueur | Corrigé |
 | 18 | Fichier Excel temporaire non ignoré | Corrigé |
+| 19 | Images des essais de carte versionnées | **À retirer à terme** |
 
 ## Ce qui reste à faire
 
@@ -88,6 +89,14 @@ Deux templates ne sont utilisés nulle part : `admin/admin_raw_json.html` et `te
 - **Problème :** aucune version n'est fixée, et Django 5.0.6 installé sur la machine de dev n'a plus de correctifs de sécurité. Flask, Flask-Cors, DRF, django-filter, PyYAML, Markdown, watchdog, argh et pathtools ne sont importés nulle part, et `pytest` n'est pas utilisé. Tornado et d'autres paquets listés ne servaient qu'à bokeh, maintenant retiré.
 - **Correction :** passer à Django 5.2 LTS, garder un seul fichier épinglé et supprimer `requirements_OLD.txt` et `requirements_versionning.txt`.
 - **Sinon :** l'environnement n'est pas reproductible et les failles de Django ne seront plus corrigées.
+
+### 19. Les images des essais de carte sont versionnées
+
+`geography/experiments/output/` : environ 200 Mo d'images au 2026-11-08, dans les dossiers `gen 1` à `gen 4`.
+
+- **Pourquoi :** elles sont ajoutées à git pour garder une trace des essais du nouveau générateur de carte (`geography/experiments/zone_map_prototype.py`). Le script les recrée avec la même graine.
+- **À faire, à terme :** quand le générateur sera intégré au jeu, retirer le dossier de git et remettre `geography/experiments/output/` dans `.gitignore`. Elles restent dans l'historique : seul un nettoyage de l'historique (`git filter-repo`) réduirait la taille du dépôt.
+- **Sinon :** chaque nouvelle série d'essais alourdit le dépôt de 30 à 130 Mo, pour tous les clones.
 
 ## Ce qui a été corrigé
 

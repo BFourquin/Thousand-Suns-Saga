@@ -1,0 +1,64 @@
+Génération « 50j-09 » : 50 joueurs, toile de 845 × 1080 unités, galaxie de 0.50 million d'unités² (agrandie de 0% pour loger les berceaux)
+Durées : génération 1.4 s, contrôles 0.7 s
+
+Systèmes : 20010 (densité moyenne dans la galaxie 0.040 / u²)
+
+Zones :
+  Berceau                    5 zone(s)    5235 systèmes   22.2% de la galaxie
+  Marche                    47 zone(s)    9892 systèmes   56.1% de la galaxie
+  Plaine stellaire          13 zone(s)    1421 systèmes    9.0% de la galaxie
+  Oasis                      1 zone(s)     282 systèmes    1.2% de la galaxie
+  Faille                     2 zone(s)      14 systèmes    5.7% de la galaxie
+  Tête de pont               7 zone(s)      66 systèmes    0.5% de la galaxie
+  Carrefour                  1 zone(s)     194 systèmes    0.9% de la galaxie
+  Champ de débris            1 zone(s)     319 systèmes    1.1% de la galaxie
+  Veine                      1 zone(s)      99 systèmes    0.6% de la galaxie
+  Amas dense                 1 zone(s)    2131 systèmes    2.3% de la galaxie
+  Halo                       1 zone(s)     303 systèmes  
+  Vestiges                   1 zone(s)      54 systèmes    0.5% de la galaxie
+
+Étoiles : 7.2% de grandes étoiles (A 2.19%, B 1.24%, Géante 2.15%, O 0.59%, Wolf-Rayet 0.17%, Supergéante 0.81%)
+
+Équité, autour de chacun des 50 mondes natals (5 berceaux) :
+  systèmes à 25 u                min 62 / médiane 91 / max 126
+  grandes étoiles de 0 à 16 u    min 2 / médiane 2 / max 2
+  habitable_medium de 3 à 12 u   min 1 / médiane 1 / max 1
+  habitable_poor de 3 à 12 u     min 2 / médiane 2 / max 2
+  habitable_good de 3 à 12 u     min 1 / médiane 1 / max 1
+  monde natal le plus proche     min 22.6 / médiane 27 / max 28.2
+  angle libre (°)                min 181 / médiane 186 / max 360
+  score                          min 12.1 / médiane 13 / max 14.2
+  écart du score : le meilleur a 1.17 fois le score du plus faible
+  distance des berceaux au halo : 45 u au plus près
+  zones précieuses : 9 partagées entre deux berceaux, 1 rendues ordinaires car plus près d'un seul (Pouponnière stellaire)
+    Amas dense             trajet depuis le berceau le plus proche    65 u, depuis le deuxième    72 u
+    Carrefour              trajet depuis le berceau le plus proche    91 u, depuis le deuxième   109 u
+    Oasis                  trajet depuis le berceau le plus proche    30 u, depuis le deuxième    40 u
+    Oasis                  trajet depuis le berceau le plus proche    39 u, depuis le deuxième    69 u
+    Oasis                  trajet depuis le berceau le plus proche    21 u, depuis le deuxième    59 u
+    Carrefour              trajet depuis le berceau le plus proche    26 u, depuis le deuxième    47 u
+    Carrefour              trajet depuis le berceau le plus proche    24 u, depuis le deuxième    52 u
+    Veine                  trajet depuis le berceau le plus proche    30 u, depuis le deuxième    62 u
+    Veine                  trajet depuis le berceau le plus proche    54 u, depuis le deuxième    79 u
+
+Expansion : valeur des systèmes plus proches (en trajet) de chaque monde natal que des autres, entière jusqu'à 60 u, nulle au-delà de 160 u
+  par monde natal : min 29 / médiane 32 / max 77, le plus riche a 2.68 fois le plus pauvre (dernier décile / premier : 1.69)
+  par berceau : min 335 / médiane 352 / max 401, écart 1.20
+  équilibrage des zones : écart estimé 5.11 → 4.55, 1 échange(s), 5 déclassement(s)
+  puis retouche des systèmes ordinaires : écart 6.66 → 2.68, 335 systèmes changés en monde habitable ou l'inverse
+  cœur de la galaxie : 7% de sa surface
+
+Connectivité (lien vortex si la distance ≤ portée de la plus grande des deux étoiles) :
+  liens : 155579 ; réseau principal : 97.8% des systèmes
+  mondes natals dans le réseau principal : 50 / 50
+  systèmes isolés, inaccessibles : 441 en 269 îlots, dont 294 dans la galaxie (les autres dans le halo)
+  têtes de pont : 7 placées, 0 abandonnées faute de deux vraies régions à relier
+  réparations : 0 
+  couloirs indépendants (carrés de 20 u) ouest↔est : 16, nord↔sud : 10
+  mode chasse au trésor, du bord ouest aux vestiges : 13 couloirs
+  détour entre berceaux (chemin par vortex / ligne droite) : min 1.03 / médiane 1.17 / max 1.26
+
+Identifiants lisibles (y.x-orbite) comparés aux identifiants actuels :
+  0503.0256-3   au lieu de   100000500200305603
+  0529.0249-3   au lieu de   100000500202904903
+  0556.0243-3   au lieu de   100000500205604303

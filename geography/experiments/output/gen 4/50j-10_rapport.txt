@@ -1,0 +1,61 @@
+Génération « 50j-10 » : 50 joueurs, toile de 1715 × 840 unités, galaxie de 0.67 million d'unités² (agrandie de 34% pour loger les berceaux)
+Durées : génération 6.0 s, contrôles 0.9 s
+
+Systèmes : 26680 (densité moyenne dans la galaxie 0.040 / u²)
+
+Zones :
+  Berceau                    5 zone(s)    5745 systèmes   17.3% de la galaxie
+  Marche                    48 zone(s)   11829 systèmes   42.7% de la galaxie
+  Plaine stellaire          23 zone(s)    5327 systèmes   20.8% de la galaxie
+  Oasis                      3 zone(s)     631 systèmes    2.1% de la galaxie
+  Faille                     3 zone(s)      22 systèmes    6.7% de la galaxie
+  Tête de pont              11 zone(s)     132 systèmes    0.6% de la galaxie
+  Carrefour                  2 zone(s)     292 systèmes    1.1% de la galaxie
+  Champ gazier               3 zone(s)    1325 systèmes    4.6% de la galaxie
+  Terres sauvages            3 zone(s)     847 systèmes    3.6% de la galaxie
+  Halo                       1 zone(s)     454 systèmes  
+  Vestiges                   1 zone(s)      76 systèmes    0.5% de la galaxie
+
+Étoiles : 6.5% de grandes étoiles (A 2.25%, B 1.20%, Géante 1.76%, O 0.46%, Wolf-Rayet 0.18%, Supergéante 0.64%)
+
+Équité, autour de chacun des 50 mondes natals (5 berceaux) :
+  systèmes à 25 u                min 73 / médiane 95 / max 118
+  grandes étoiles de 0 à 16 u    min 2 / médiane 2 / max 2
+  habitable_medium de 3 à 12 u   min 1 / médiane 1 / max 1
+  habitable_poor de 3 à 12 u     min 2 / médiane 2 / max 2
+  habitable_good de 3 à 12 u     min 1 / médiane 1 / max 1
+  monde natal le plus proche     min 23.5 / médiane 27 / max 29
+  angle libre (°)                min 178 / médiane 186 / max 359
+  score                          min 12.4 / médiane 13.2 / max 13.9
+  écart du score : le meilleur a 1.12 fois le score du plus faible
+  distance des berceaux au halo : 45 u au plus près
+  zones précieuses : 7 partagées entre deux berceaux, 2 rendues ordinaires car plus près d'un seul (Amas dense) (Veine)
+    Amas globulaire        trajet depuis le berceau le plus proche    52 u, depuis le deuxième    85 u
+    Carrefour              trajet depuis le berceau le plus proche    81 u, depuis le deuxième   134 u
+    Oasis                  trajet depuis le berceau le plus proche   153 u, depuis le deuxième   172 u
+    Oasis                  trajet depuis le berceau le plus proche    85 u, depuis le deuxième    85 u
+    Oasis                  trajet depuis le berceau le plus proche    97 u, depuis le deuxième   114 u
+    Carrefour              trajet depuis le berceau le plus proche    33 u, depuis le deuxième    35 u
+    Carrefour              trajet depuis le berceau le plus proche   104 u, depuis le deuxième   110 u
+
+Expansion : valeur des systèmes plus proches (en trajet) de chaque monde natal que des autres, entière jusqu'à 60 u, nulle au-delà de 160 u
+  par monde natal : min 36 / médiane 41 / max 88, le plus riche a 2.42 fois le plus pauvre (dernier décile / premier : 1.66)
+  par berceau : min 421 / médiane 435 / max 474, écart 1.13
+  équilibrage des zones : écart estimé 5.25 → 4.76, 9 échange(s), 3 déclassement(s)
+  puis retouche des systèmes ordinaires : écart 6.44 → 2.42, 411 systèmes changés en monde habitable ou l'inverse
+  cœur de la galaxie : 4% de sa surface
+
+Connectivité (lien vortex si la distance ≤ portée de la plus grande des deux étoiles) :
+  liens : 138703 ; réseau principal : 97.6% des systèmes
+  mondes natals dans le réseau principal : 50 / 50
+  systèmes isolés, inaccessibles : 643 en 351 îlots, dont 424 dans la galaxie (les autres dans le halo)
+  têtes de pont : 11 placées, 0 abandonnées faute de deux vraies régions à relier
+  réparations : 2 (îlot de 41 systèmes à 7.1 u) (îlot de 38 systèmes à 6.4 u)
+  couloirs indépendants (carrés de 20 u) ouest↔est : 4, nord↔sud : 13
+  mode chasse au trésor, du bord ouest aux vestiges : 4 couloirs
+  détour entre berceaux (chemin par vortex / ligne droite) : min 1.06 / médiane 1.11 / max 1.12
+
+Identifiants lisibles (y.x-orbite) comparés aux identifiants actuels :
+  0437.0861-3   au lieu de   100000400803706103
+  0456.0879-3   au lieu de   100000400805607903
+  0474.0899-3   au lieu de   100000400807409903

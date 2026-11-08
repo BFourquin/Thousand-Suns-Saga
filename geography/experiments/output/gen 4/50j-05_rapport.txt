@@ -1,0 +1,62 @@
+Génération « 50j-05 » : 50 joueurs, toile de 1165 × 870 unités, galaxie de 0.50 million d'unités² (agrandie de 0% pour loger les berceaux)
+Durées : génération 1.1 s, contrôles 1.0 s
+
+Systèmes : 20297 (densité moyenne dans la galaxie 0.041 / u²)
+
+Zones :
+  Berceau                    5 zone(s)    5441 systèmes   22.8% de la galaxie
+  Marche                    52 zone(s)   10998 systèmes   61.0% de la galaxie
+  Plaine stellaire          13 zone(s)     871 systèmes    6.0% de la galaxie
+  Oasis                      1 zone(s)     106 systèmes    0.6% de la galaxie
+  Faille                     2 zone(s)      14 systèmes    5.8% de la galaxie
+  Tête de pont               6 zone(s)      62 systèmes    0.4% de la galaxie
+  Carrefour                  1 zone(s)      76 systèmes    0.4% de la galaxie
+  Amas dense                 1 zone(s)    2302 systèmes    2.4% de la galaxie
+  Halo                       1 zone(s)     356 systèmes  
+  Vestiges                   1 zone(s)      71 systèmes    0.6% de la galaxie
+
+Étoiles : 7.6% de grandes étoiles (A 2.43%, B 1.36%, Géante 2.26%, O 0.53%, Wolf-Rayet 0.19%, Supergéante 0.87%)
+
+Équité, autour de chacun des 50 mondes natals (5 berceaux) :
+  systèmes à 25 u                min 67 / médiane 94 / max 117
+  grandes étoiles de 0 à 16 u    min 2 / médiane 2 / max 2
+  habitable_medium de 3 à 12 u   min 1 / médiane 1 / max 1
+  habitable_poor de 3 à 12 u     min 2 / médiane 2 / max 2
+  habitable_good de 3 à 12 u     min 1 / médiane 1 / max 1
+  monde natal le plus proche     min 23.1 / médiane 27.2 / max 28.6
+  angle libre (°)                min 180 / médiane 186 / max 360
+  score                          min 12.2 / médiane 13.1 / max 13.9
+  écart du score : le meilleur a 1.14 fois le score du plus faible
+  distance des berceaux au halo : 45 u au plus près
+  zones précieuses : 9 partagées entre deux berceaux, 0 rendues ordinaires car plus près d'un seul 
+    Amas dense             trajet depuis le berceau le plus proche    69 u, depuis le deuxième    69 u
+    Carrefour              trajet depuis le berceau le plus proche    95 u, depuis le deuxième   106 u
+    Oasis                  trajet depuis le berceau le plus proche    30 u, depuis le deuxième    64 u
+    Oasis                  trajet depuis le berceau le plus proche    52 u, depuis le deuxième    64 u
+    Oasis                  trajet depuis le berceau le plus proche    65 u, depuis le deuxième    82 u
+    Oasis                  trajet depuis le berceau le plus proche    42 u, depuis le deuxième    48 u
+    Carrefour              trajet depuis le berceau le plus proche    19 u, depuis le deuxième    27 u
+    Carrefour              trajet depuis le berceau le plus proche    75 u, depuis le deuxième   106 u
+    Veine                  trajet depuis le berceau le plus proche    63 u, depuis le deuxième    85 u
+
+Expansion : valeur des systèmes plus proches (en trajet) de chaque monde natal que des autres, entière jusqu'à 60 u, nulle au-delà de 160 u
+  par monde natal : min 29 / médiane 33 / max 61, le plus riche a 2.07 fois le plus pauvre (dernier décile / premier : 1.55)
+  par berceau : min 333 / médiane 353 / max 368, écart 1.10
+  équilibrage des zones : écart estimé 4.59 → 3.86, 6 déclassement(s)
+  puis retouche des systèmes ordinaires : écart 3.81 → 2.07, 232 systèmes changés en monde habitable ou l'inverse
+  cœur de la galaxie : 10% de sa surface
+
+Connectivité (lien vortex si la distance ≤ portée de la plus grande des deux étoiles) :
+  liens : 176864 ; réseau principal : 97.5% des systèmes
+  mondes natals dans le réseau principal : 50 / 50
+  systèmes isolés, inaccessibles : 513 en 286 îlots, dont 348 dans la galaxie (les autres dans le halo)
+  têtes de pont : 6 placées, 1 abandonnées faute de deux vraies régions à relier
+  réparations : 2 (îlot de 34 systèmes à 11.7 u) (îlot de 89 systèmes à 9.1 u)
+  couloirs indépendants (carrés de 20 u) ouest↔est : 5, nord↔sud : 14
+  mode chasse au trésor, du bord ouest aux vestiges : 4 couloirs
+  détour entre berceaux (chemin par vortex / ligne droite) : min 1.04 / médiane 1.08 / max 1.16
+
+Identifiants lisibles (y.x-orbite) comparés aux identifiants actuels :
+  0208.0423-3   au lieu de   100000200400802303
+  0211.0396-3   au lieu de   100000200301109603
+  0215.0368-3   au lieu de   100000200301506803

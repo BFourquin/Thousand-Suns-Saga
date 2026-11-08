@@ -1,4 +1,7 @@
+import base64
+import io
 import logging
+import secrets
 
 from django.dispatch import receiver
 from django.shortcuts import render, redirect
@@ -108,6 +111,76 @@ def admin_servers_states_edit(request):
         server_details.change_server_param(request.POST.get('server_name'), param, value)
         server_details.refresh_servers_menu()
     return redirect(admin_servers_states)
+
+
+# ######################################################################################################################
+# MAP TRIALS : a map of the new generator, made in memory to find a good seed before creating a server. Nothing is saved.
+
+# (label, least, most) of the numbers asked ; the empty ones take the value of the type of game
+MAP_TRIAL_NUMBERS = {'players': ('Joueurs max', 2, 300), 'area_per_player': ('Surface par joueur', 2_000, 50_000),
+                     'homes_per_cradle': ('Mondes natals par berceau', 2, 20)}
+
+
+def png_data_url(picture):
+    buffer = io.BytesIO()
+    picture.save(buffer, 'PNG')
+    return 'data:image/png;base64,' + base64.b64encode(buffer.getvalue()).decode()
+
+
+def map_trial_stats(sector):
+    # (label, value, None or whether it looks good, what it means)
+    from numpy import percentile
+    m, expansion, cradles = sector.measures, sector.measures['expansion'], sector.measures['expansion_berceaux']
+    spread = float(expansion.max() / expansion.min())
+    deciles = float(percentile(expansion, 90) / percentile(expansion, 10))
+    network = float((sector.comp == sector.main).mean())
+    corridors = min(m['ouest_est'][0], m['nord_sud'][0])
+    rows = [('Toile', f'{sector.W} × {sector.H} u', None, f'{sector.n} systèmes, {sector.n_cradles} berceau(x), {len(sector.homes)} mondes natals'),
+            ('Galaxie agrandie', f'+{sector.grown - 1:.0%}', sector.grown <= 1.5, 'Pour loger les berceaux : une forme trop étroite fait grossir la carte'),
+            ('Expansion, dernier / premier décile', f'{deciles:.2f}', deciles <= 1.7,
+             'Valeur des systèmes plus proches de chaque monde natal que des autres : 1 serait parfait'),
+            ('Expansion, plus riche / plus pauvre', f'{spread:.2f}', spread <= 2.5, 'Les extrêmes, souvent près des zones précieuses'),
+            ('Écart entre berceaux', f'{cradles.max() / cradles.min():.2f}', cradles.max() / cradles.min() <= 1.3, 'Somme des mondes natals de chaque berceau'),
+            ('Réseau principal', f'{network:.1%}', network >= 0.96, 'Part des systèmes joignables par vortex ; le reste est surtout dans le halo'),
+            ('Couloirs ouest↔est / nord↔sud', f'{m["ouest_est"][0]} / {m["nord_sud"][0]}', corridors >= 3,
+             'Chemins indépendants d\'un bord à l\'autre : 1 ou 2, c\'est un goulot'),
+            ('Détour médian entre berceaux', f'{sorted(m["detours"])[len(m["detours"]) // 2]:.2f}' if m['detours'] else '-', None,
+             'Chemin par vortex / ligne droite')]
+    if m['vestiges']:
+        rows.append(('Couloirs vers les vestiges', str(m['vestiges'][0]), m['vestiges'][0] >= 3, 'Mode chasse au trésor, depuis le bord ouest'))
+    rows.append(('Durée', f'{sum(sector.timings.values()):.1f} s', None, ''))
+    return rows
+
+
+@superuser_required
+def admin_map_trial(request):
+    from geography.experiments import zone_map_prototype as maps  # numpy and Pillow : only loaded by this page
+
+    post = request.POST
+    form = {'gameplay': post.get('gameplay', 'saga'), 'seed': post.get('seed', '').strip()[:40],
+            'vestiges': 'vestiges' in post, **{name: post.get(name, '').strip() for name in MAP_TRIAL_NUMBERS}}
+    context = {'form': form, 'game_types': maps.GAME_TYPES, 'numbers': MAP_TRIAL_NUMBERS}
+    if request.method == 'POST':
+        errors, values = [], {}
+        if form['gameplay'] not in maps.GAME_TYPES:
+            errors.append('Type de partie inconnu')
+        for name, (label, least, most) in MAP_TRIAL_NUMBERS.items():
+            if not form[name] and name != 'players':
+                values[name] = maps.GAME_TYPES.get(form['gameplay'], maps.GAME_TYPES['saga'])[name]
+            elif form[name].isdecimal() and least <= int(form[name]) <= most:
+                values[name] = int(form[name])
+            else:
+                errors.append(f'{label} : un nombre entier de {least} à {most}')
+        context['errors'] = errors
+        if not errors:
+            seed = form['seed'] or str(secrets.randbelow(900_000) + 100_000)
+            sector = maps.generate(seed, values.pop('players'), vestiges=form['vestiges'], **values)
+            blank, zones = maps.render(sector)
+            context['result'] = {
+                'seed': seed, 'stats': map_trial_stats(sector), 'report': maps.report(sector),
+                'pictures': [(title, png_data_url(picture), f'carte_{seed}_{name}.png') for title, name, picture in (
+                    ('Zones', 'zones', zones), ('Liens vortex', 'liens', maps.render_links(sector)), ('Vierge', 'vierge', blank))]}
+    return render(request, 'admin/admin_map_trial.html', context)
 
 
 ########################################################################################################################

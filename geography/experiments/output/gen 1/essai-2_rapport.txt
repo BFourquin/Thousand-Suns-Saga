@@ -1,0 +1,51 @@
+Génération « essai-2 » : secteur de 1000 × 1000 unités (10 × 10 cases actuelles)
+Durées : génération 1.2 s, contrôles 2.9 s, images 0.9 s
+
+Systèmes : 39932 (densité moyenne 0.040 / u²)
+
+Zones :
+  Berceau                    9 zone(s)   14451 systèmes   28.2% de la surface
+  Marche                    19 zone(s)    6414 systèmes   17.7% de la surface
+  Plaine stellaire           5 zone(s)    1946 systèmes    5.1% de la surface
+  Oasis                      5 zone(s)     696 systèmes    1.5% de la surface
+  Faille                     5 zone(s)      41 systèmes    6.3% de la surface
+  Abîme                      1 zone(s)      38 systèmes    0.8% de la surface
+  Tête de pont              18 zone(s)     168 systèmes    0.5% de la surface
+  Carrefour                  4 zone(s)     454 systèmes    1.0% de la surface
+  Nébuleuse sombre           2 zone(s)     187 systèmes    1.2% de la surface
+  Champ de débris            6 zone(s)    2184 systèmes    5.5% de la surface
+  Amas globulaire            3 zone(s)    2691 systèmes    1.7% de la surface
+  Pouponnière stellaire      6 zone(s)    3383 systèmes    5.4% de la surface
+  Champ gazier               4 zone(s)    1952 systèmes    4.3% de la surface
+  Veine                      4 zone(s)     931 systèmes    2.1% de la surface
+  Cœur noir                  1 zone(s)     403 systèmes    0.9% de la surface
+  Terres sauvages            4 zone(s)    1814 systèmes    4.4% de la surface
+  Amas dense                 1 zone(s)    1137 systèmes    0.5% de la surface
+  Halo                       1 zone(s)     972 systèmes   12.7% de la surface
+  Vestiges                   1 zone(s)      70 systèmes    0.3% de la surface
+
+Étoiles : 7.5% de grandes étoiles (A 2.53%, B 1.46%, Géante 1.89%, O 0.68%, Wolf-Rayet 0.18%, Supergéante 0.76%, Trou noir 0.00%)
+
+Équité, autour de chacun des 90 mondes natals (9 berceaux × 10) :
+  systèmes à 25 u                min 79 / médiane 100 / max 133
+  grandes étoiles de 0 à 16 u    min 2 / médiane 2 / max 2
+  habitable_medium de 3 à 12 u   min 1 / médiane 1 / max 1
+  habitable_poor de 3 à 12 u     min 2 / médiane 2 / max 2
+  habitable_good de 3 à 12 u     min 1 / médiane 1 / max 1
+  monde natal le plus proche     min 24 / médiane 26.2 / max 36
+  score                          min 12.6 / médiane 13.3 / max 14.4
+  écart du score : le meilleur a 1.14 fois le score du plus faible
+
+Connectivité (lien vortex si la distance ≤ portée de la plus grande des deux étoiles) :
+  liens : 307540 ; réseau principal : 98.3% des systèmes
+  mondes natals dans le réseau principal : 90 / 90
+  systèmes isolés, inaccessibles : 672 en 370 îlots
+  réparations : 4 (îlot de 70 systèmes à 6.1 u) (îlot de 198 systèmes à 13.0 u) (îlot de 25 systèmes à 7.1 u) (îlot de 25 systèmes à 30.4 u)
+  couloirs indépendants (carrés de 20 u) ouest↔est : 13, nord↔sud : 14
+  mode chasse au trésor, du bord ouest aux vestiges : 12 couloirs
+  détour entre berceaux (chemin par vortex / ligne droite) : min 1.03 / médiane 1.08 / max 1.63
+
+Identifiants lisibles (y.x-orbite) comparés aux identifiants actuels :
+  329.772-3   au lieu de   100000300702907203
+  309.724-3   au lieu de   100000300700902403
+  375.726-3   au lieu de   100000300707502603

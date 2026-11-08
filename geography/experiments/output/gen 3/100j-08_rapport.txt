@@ -1,0 +1,75 @@
+Génération « 100j-08 » : 100 joueurs, toile de 2300 × 1275 unités, galaxie de 1.28 million d'unités² (agrandie de 28% pour loger les berceaux)
+Durées : génération 3.4 s, contrôles 1.9 s
+
+Systèmes : 51295 (densité moyenne dans la galaxie 0.040 / u²)
+
+Zones :
+  Berceau                   10 zone(s)   11095 systèmes   17.8% de la galaxie
+  Marche                     9 zone(s)    6234 systèmes   13.3% de la galaxie
+  Plaine stellaire          22 zone(s)    7376 systèmes   16.5% de la galaxie
+  Oasis                      6 zone(s)    1635 systèmes    2.8% de la galaxie
+  Faille                     6 zone(s)      38 systèmes    6.2% de la galaxie
+  Tête de pont              19 zone(s)     215 systèmes    0.6% de la galaxie
+  Carrefour                  4 zone(s)    1038 systèmes    1.8% de la galaxie
+  Nébuleuse sombre           4 zone(s)    1983 systèmes    3.5% de la galaxie
+  Champ de débris            9 zone(s)    5178 systèmes    9.3% de la galaxie
+  Amas globulaire            4 zone(s)    3045 systèmes    1.6% de la galaxie
+  Pouponnière stellaire      1 zone(s)     853 systèmes    1.1% de la galaxie
+  Champ gazier              14 zone(s)    6521 systèmes   12.6% de la galaxie
+  Veine                      4 zone(s)     873 systèmes    1.7% de la galaxie
+  Zone d'anomalies           1 zone(s)     239 systèmes    0.5% de la galaxie
+  Reste de supernova         2 zone(s)     624 systèmes    1.5% de la galaxie
+  Terres sauvages            9 zone(s)    3466 systèmes    9.4% de la galaxie
+  Halo                       1 zone(s)     882 systèmes  
+
+Étoiles : 6.5% de grandes étoiles (A 2.18%, B 1.09%, Géante 1.85%, O 0.49%, Wolf-Rayet 0.17%, Supergéante 0.67%)
+
+Équité, autour de chacun des 100 mondes natals (10 berceaux) :
+  systèmes à 25 u                min 74 / médiane 96 / max 118
+  grandes étoiles de 0 à 16 u    min 2 / médiane 2 / max 2
+  habitable_medium de 3 à 12 u   min 1 / médiane 1 / max 1
+  habitable_poor de 3 à 12 u     min 2 / médiane 2 / max 2
+  habitable_good de 3 à 12 u     min 1 / médiane 1 / max 1
+  monde natal le plus proche     min 27.8 / médiane 29.2 / max 31.3
+  angle libre (°)                min 191 / médiane 214 / max 252
+  score                          min 12.5 / médiane 13.2 / max 13.9
+  écart du score : le meilleur a 1.11 fois le score du plus faible
+  distance des berceaux au halo : 90 u au plus près
+  zones précieuses : 4 loin de tout berceau, 18 partagées entre deux berceaux, 8 rendues ordinaires car trop près d'un seul (Vestiges) (Amas globulaire) (Reste de supernova) (Amas globulaire) (Zone d'anomalies) (Amas globulaire) (Amas globulaire) (Reste de supernova)
+    Oasis                  partagée  trajet depuis le berceau le plus proche    76 u, depuis le deuxième    83 u
+    Oasis                  partagée  trajet depuis le berceau le plus proche    29 u, depuis le deuxième    38 u
+    Oasis                  partagée  trajet depuis le berceau le plus proche    40 u, depuis le deuxième    44 u
+    Oasis                  partagée  trajet depuis le berceau le plus proche    45 u, depuis le deuxième    52 u
+    Oasis                  partagée  trajet depuis le berceau le plus proche    99 u, depuis le deuxième   102 u
+    Oasis                  partagée  trajet depuis le berceau le plus proche    57 u, depuis le deuxième    59 u
+    Carrefour              partagée  trajet depuis le berceau le plus proche    54 u, depuis le deuxième    55 u
+    Carrefour              partagée  trajet depuis le berceau le plus proche    17 u, depuis le deuxième    25 u
+    Carrefour              partagée  trajet depuis le berceau le plus proche    67 u, depuis le deuxième    85 u
+    Carrefour              partagée  trajet depuis le berceau le plus proche    28 u, depuis le deuxième    28 u
+    Veine                  partagée  trajet depuis le berceau le plus proche    54 u, depuis le deuxième    62 u
+    Veine                  partagée  trajet depuis le berceau le plus proche    37 u, depuis le deuxième    38 u
+    Veine                  partagée  trajet depuis le berceau le plus proche    15 u, depuis le deuxième    35 u
+    Veine                  partagée  trajet depuis le berceau le plus proche    87 u, depuis le deuxième    95 u
+    Zone d'anomalies       partagée  trajet depuis le berceau le plus proche    92 u, depuis le deuxième   127 u
+    Reste de supernova     partagée  trajet depuis le berceau le plus proche    99 u, depuis le deuxième   144 u
+    Amas globulaire        loin      trajet depuis le berceau le plus proche   125 u, depuis le deuxième   132 u
+    Reste de supernova     partagée  trajet depuis le berceau le plus proche    90 u, depuis le deuxième    98 u
+    Pouponnière stellaire  partagée  trajet depuis le berceau le plus proche     5 u, depuis le deuxième     5 u
+    Amas globulaire        loin      trajet depuis le berceau le plus proche   123 u, depuis le deuxième   238 u
+    Amas globulaire        loin      trajet depuis le berceau le plus proche   131 u, depuis le deuxième   396 u
+    Amas globulaire        loin      trajet depuis le berceau le plus proche   136 u, depuis le deuxième   177 u
+
+Connectivité (lien vortex si la distance ≤ portée de la plus grande des deux étoiles) :
+  liens : 294733 ; réseau principal : 98.3% des systèmes
+  mondes natals dans le réseau principal : 100 / 100
+  systèmes isolés, inaccessibles : 877 en 486 îlots, dont 625 dans la galaxie (les autres dans le halo)
+  têtes de pont : 19 placées, 1 abandonnées faute de deux vraies régions à relier
+  réparations : 5 (îlot de 198 systèmes à 7.1 u) (îlot de 146 systèmes à 6.1 u) (îlot de 91 systèmes à 28.1 u) (îlot de 31 systèmes à 8.1 u) (îlot de 77 systèmes à 7.1 u)
+  couloirs indépendants (carrés de 20 u) ouest↔est : 8, nord↔sud : 6
+  mode chasse au trésor, du bord ouest aux vestiges : pas de vestiges couloirs
+  détour entre berceaux (chemin par vortex / ligne droite) : min 1.03 / médiane 1.06 / max 1.2
+
+Identifiants lisibles (y.x-orbite) comparés aux identifiants actuels :
+  0694.1433-3   au lieu de   100000601409403303
+  0672.1453-3   au lieu de   100000601407205303
+  0664.1481-3   au lieu de   100000601406408103

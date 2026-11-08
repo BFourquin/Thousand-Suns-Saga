@@ -1,0 +1,64 @@
+Génération « 50j-10 » : 50 joueurs, toile de 1715 × 840 unités, galaxie de 0.67 million d'unités² (agrandie de 34% pour loger les berceaux)
+Durées : génération 1.5 s, contrôles 0.8 s
+
+Systèmes : 26577 (densité moyenne dans la galaxie 0.040 / u²)
+
+Zones :
+  Berceau                    5 zone(s)    5319 systèmes   17.0% de la galaxie
+  Marche                     4 zone(s)    3708 systèmes   15.4% de la galaxie
+  Plaine stellaire          14 zone(s)    7064 systèmes   27.7% de la galaxie
+  Oasis                      3 zone(s)     749 systèmes    2.6% de la galaxie
+  Faille                     3 zone(s)      16 systèmes    5.4% de la galaxie
+  Tête de pont               8 zone(s)      60 systèmes    0.4% de la galaxie
+  Carrefour                  2 zone(s)     530 systèmes    1.8% de la galaxie
+  Nébuleuse sombre           4 zone(s)    2739 systèmes    9.2% de la galaxie
+  Champ de débris            2 zone(s)     923 systèmes    4.0% de la galaxie
+  Amas globulaire            1 zone(s)     679 systèmes    0.8% de la galaxie
+  Pouponnière stellaire      1 zone(s)     898 systèmes    2.3% de la galaxie
+  Champ gazier               7 zone(s)    2651 systèmes   10.0% de la galaxie
+  Veine                      2 zone(s)     297 systèmes    1.2% de la galaxie
+  Reste de supernova         1 zone(s)     132 systèmes    0.8% de la galaxie
+  Terres sauvages            1 zone(s)     265 systèmes    1.2% de la galaxie
+  Halo                       1 zone(s)     482 systèmes  
+  Vestiges                   1 zone(s)      65 systèmes    0.4% de la galaxie
+
+Étoiles : 6.9% de grandes étoiles (A 2.45%, B 1.27%, Géante 1.80%, O 0.52%, Wolf-Rayet 0.16%, Supergéante 0.68%)
+
+Équité, autour de chacun des 50 mondes natals (5 berceaux) :
+  systèmes à 25 u                min 78 / médiane 91 / max 112
+  grandes étoiles de 0 à 16 u    min 2 / médiane 2 / max 2
+  habitable_medium de 3 à 12 u   min 1 / médiane 1 / max 1
+  habitable_poor de 3 à 12 u     min 2 / médiane 2 / max 2
+  habitable_good de 3 à 12 u     min 1 / médiane 1 / max 1
+  monde natal le plus proche     min 27.8 / médiane 29.2 / max 31.1
+  angle libre (°)                min 194 / médiane 212 / max 248
+  score                          min 12.6 / médiane 13 / max 13.7
+  écart du score : le meilleur a 1.09 fois le score du plus faible
+  distance des berceaux au halo : 70 u au plus près
+  zones précieuses : 4 loin de tout berceau, 7 partagées entre deux berceaux, 3 rendues ordinaires car trop près d'un seul (Pouponnière stellaire) (Zone d'anomalies) (Pouponnière stellaire)
+    Oasis                  partagée  trajet depuis le berceau le plus proche    62 u, depuis le deuxième    67 u
+    Oasis                  partagée  trajet depuis le berceau le plus proche    33 u, depuis le deuxième    40 u
+    Oasis                  partagée  trajet depuis le berceau le plus proche    49 u, depuis le deuxième    54 u
+    Carrefour              partagée  trajet depuis le berceau le plus proche    45 u, depuis le deuxième    50 u
+    Carrefour              partagée  trajet depuis le berceau le plus proche    88 u, depuis le deuxième    99 u
+    Veine                  partagée  trajet depuis le berceau le plus proche    24 u, depuis le deuxième    30 u
+    Veine                  partagée  trajet depuis le berceau le plus proche    69 u, depuis le deuxième    72 u
+    Vestiges               loin      trajet depuis le berceau le plus proche   112 u, depuis le deuxième   335 u
+    Reste de supernova     loin      trajet depuis le berceau le plus proche   123 u, depuis le deuxième   379 u
+    Amas globulaire        loin      trajet depuis le berceau le plus proche   127 u, depuis le deuxième   380 u
+    Pouponnière stellaire  loin      trajet depuis le berceau le plus proche   138 u, depuis le deuxième   397 u
+
+Connectivité (lien vortex si la distance ≤ portée de la plus grande des deux étoiles) :
+  liens : 143574 ; réseau principal : 98.3% des systèmes
+  mondes natals dans le réseau principal : 50 / 50
+  systèmes isolés, inaccessibles : 464 en 261 îlots, dont 302 dans la galaxie (les autres dans le halo)
+  têtes de pont : 8 placées, 0 abandonnées faute de deux vraies régions à relier
+  réparations : 2 (îlot de 44 systèmes à 6.3 u) (îlot de 27 systèmes à 12.6 u)
+  couloirs indépendants (carrés de 20 u) ouest↔est : 8, nord↔sud : 17
+  mode chasse au trésor, du bord ouest aux vestiges : 8 couloirs
+  détour entre berceaux (chemin par vortex / ligne droite) : min 1.03 / médiane 1.06 / max 1.13
+
+Identifiants lisibles (y.x-orbite) comparés aux identifiants actuels :
+  0300.0634-3   au lieu de   100000300600003403
+  0284.0659-3   au lieu de   100000200608405903
+  0283.0688-3   au lieu de   100000200608308803

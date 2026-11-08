@@ -1,0 +1,58 @@
+Génération « 20j-08 » : 20 joueurs, toile de 660 × 940 unités, galaxie de 0.29 million d'unités² (agrandie de 48% pour loger les berceaux)
+Durées : génération 4.4 s, contrôles 0.3 s
+
+Systèmes : 11807 (densité moyenne dans la galaxie 0.040 / u²)
+
+Zones :
+  Berceau                    2 zone(s)    2288 systèmes   15.5% de la galaxie
+  Marche                    20 zone(s)    5476 systèmes   42.1% de la galaxie
+  Plaine stellaire           7 zone(s)    1817 systèmes   17.4% de la galaxie
+  Faille                     1 zone(s)       8 systèmes    5.2% de la galaxie
+  Abîme                      1 zone(s)      43 systèmes    3.3% de la galaxie
+  Route des géantes          1 zone(s)      10 systèmes    0.8% de la galaxie
+  Tête de pont               4 zone(s)      43 systèmes    0.5% de la galaxie
+  Nébuleuse sombre           2 zone(s)     302 systèmes    4.4% de la galaxie
+  Champ de débris            3 zone(s)     983 systèmes    7.6% de la galaxie
+  Pouponnière stellaire      1 zone(s)     493 systèmes    2.8% de la galaxie
+  Halo                       1 zone(s)     278 systèmes  
+  Vestiges                   1 zone(s)      66 systèmes    0.8% de la galaxie
+
+Étoiles : 6.9% de grandes étoiles (A 2.03%, B 1.26%, Géante 1.98%, O 0.61%, Wolf-Rayet 0.19%, Supergéante 0.80%)
+
+Équité, autour de chacun des 20 mondes natals (2 berceaux) :
+  systèmes à 25 u                min 78 / médiane 98 / max 110
+  grandes étoiles de 0 à 16 u    min 2 / médiane 2 / max 2
+  habitable_medium de 3 à 12 u   min 1 / médiane 1 / max 1
+  habitable_poor de 3 à 12 u     min 2 / médiane 2 / max 2
+  habitable_good de 3 à 12 u     min 1 / médiane 1 / max 1
+  monde natal le plus proche     min 19.4 / médiane 27.9 / max 28.3
+  angle libre (°)                min 182 / médiane 186 / max 359
+  score                          min 12.6 / médiane 13.3 / max 13.7
+  écart du score : le meilleur a 1.09 fois le score du plus faible
+  distance des berceaux au halo : 45 u au plus près
+  zones précieuses : 3 partagées entre deux berceaux, 1 rendues ordinaires car plus près d'un seul (Amas dense)
+    Pouponnière stellaire  trajet depuis le berceau le plus proche    95 u, depuis le deuxième    97 u
+    Veine                  trajet depuis le berceau le plus proche    66 u, depuis le deuxième   110 u
+    Oasis                  trajet depuis le berceau le plus proche    85 u, depuis le deuxième   100 u
+
+Expansion : valeur des systèmes plus proches (en trajet) de chaque monde natal que des autres, entière jusqu'à 60 u, nulle au-delà de 160 u
+  par monde natal : min 29 / médiane 36 / max 76, le plus riche a 2.66 fois le plus pauvre (dernier décile / premier : 1.43)
+  par berceau : min 382 / médiane 394 / max 394, écart 1.03
+  équilibrage des zones : écart estimé 5.52 → 5.07, 2 déclassement(s), 2 échange(s)
+  puis retouche des systèmes ordinaires : écart 5.43 → 2.66, 159 systèmes changés en monde habitable ou l'inverse
+  cœur de la galaxie : 4% de sa surface
+
+Connectivité (lien vortex si la distance ≤ portée de la plus grande des deux étoiles) :
+  liens : 65160 ; réseau principal : 96.9% des systèmes
+  mondes natals dans le réseau principal : 20 / 20
+  systèmes isolés, inaccessibles : 368 en 206 îlots, dont 227 dans la galaxie (les autres dans le halo)
+  têtes de pont : 4 placées, 0 abandonnées faute de deux vraies régions à relier
+  réparations : 1 (îlot de 159 systèmes à 18.9 u)
+  couloirs indépendants (carrés de 20 u) ouest↔est : 5, nord↔sud : 7
+  mode chasse au trésor, du bord ouest aux vestiges : 7 couloirs
+  détour entre berceaux (chemin par vortex / ligne droite) : min 1.04 / médiane 1.04 / max 1.04
+
+Identifiants lisibles (y.x-orbite) comparés aux identifiants actuels :
+  0729.0270-3   au lieu de   100000700202907003
+  0742.0295-3   au lieu de   100000700204209503
+  0752.0321-3   au lieu de   100000700305202103

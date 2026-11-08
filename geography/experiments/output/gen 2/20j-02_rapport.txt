@@ -1,0 +1,60 @@
+Génération « 20j-02 » : 20 joueurs, toile de 1000 × 1000 unités, galaxie de 0.34 million d'unités² (agrandie de 71% pour loger les berceaux)
+Durées : génération 0.7 s, contrôles 0.5 s
+
+Systèmes : 13613 (densité moyenne dans la galaxie 0.040 / u²)
+
+Zones :
+  Berceau                    2 zone(s)    2273 systèmes   13.4% de la galaxie
+  Marche                     1 zone(s)     270 systèmes    3.1% de la galaxie
+  Plaine stellaire           8 zone(s)    3318 systèmes   29.1% de la galaxie
+  Oasis                      1 zone(s)     297 systèmes    1.9% de la galaxie
+  Faille                     2 zone(s)      10 systèmes    7.7% de la galaxie
+  Tête de pont               5 zone(s)      46 systèmes    0.5% de la galaxie
+  Carrefour                  1 zone(s)     145 systèmes    0.9% de la galaxie
+  Nébuleuse sombre           1 zone(s)     518 systèmes    3.2% de la galaxie
+  Champ de débris            1 zone(s)     953 systèmes    5.7% de la galaxie
+  Amas globulaire            1 zone(s)     951 systèmes    1.8% de la galaxie
+  Champ gazier               3 zone(s)    1096 systèmes    6.2% de la galaxie
+  Zone d'anomalies           1 zone(s)     155 systèmes    1.6% de la galaxie
+  Cœur noir                  1 zone(s)     361 systèmes    2.7% de la galaxie
+  Reste de supernova         1 zone(s)     160 systèmes    1.3% de la galaxie
+  Terres sauvages            6 zone(s)    1970 systèmes   20.5% de la galaxie
+  Halo                       1 zone(s)    1030 systèmes  
+  Vestiges                   1 zone(s)      60 systèmes    0.6% de la galaxie
+
+Étoiles : 6.1% de grandes étoiles (A 2.08%, B 1.01%, Géante 1.53%, O 0.49%, Wolf-Rayet 0.24%, Supergéante 0.77%, Trou noir 0.01%)
+
+Équité, autour de chacun des 20 mondes natals (2 berceaux) :
+  systèmes à 25 u                min 86 / médiane 100 / max 122
+  grandes étoiles de 0 à 16 u    min 2 / médiane 2 / max 2
+  habitable_medium de 3 à 12 u   min 1 / médiane 1 / max 1
+  habitable_poor de 3 à 12 u     min 2 / médiane 2 / max 2
+  habitable_good de 3 à 12 u     min 1 / médiane 1 / max 1
+  monde natal le plus proche     min 28.2 / médiane 30.5 / max 31.1
+  angle libre (°)                min 195 / médiane 213 / max 249
+  score                          min 12.9 / médiane 13.3 / max 14.1
+  écart du score : le meilleur a 1.09 fois le score du plus faible
+  distance des berceaux au halo : 115 u au plus près
+  zones précieuses : 5 loin de tout berceau, 2 partagées entre deux berceaux, 2 rendues ordinaires car trop près d'un seul (Veine) (Amas globulaire)
+    Oasis                  partagée  trajet depuis le berceau le plus proche    47 u, depuis le deuxième    57 u
+    Carrefour              partagée  trajet depuis le berceau le plus proche    47 u, depuis le deuxième    82 u
+    Cœur noir              loin      trajet depuis le berceau le plus proche   114 u, depuis le deuxième   248 u
+    Vestiges               loin      trajet depuis le berceau le plus proche   160 u, depuis le deuxième   206 u
+    Amas globulaire        loin      trajet depuis le berceau le plus proche   120 u, depuis le deuxième   310 u
+    Zone d'anomalies       loin      trajet depuis le berceau le plus proche   128 u, depuis le deuxième   321 u
+    Reste de supernova     loin      trajet depuis le berceau le plus proche   137 u, depuis le deuxième   345 u
+
+Connectivité (lien vortex si la distance ≤ portée de la plus grande des deux étoiles) :
+  liens : 76801 ; réseau principal : 94.1% des systèmes
+  mondes natals dans le réseau principal : 20 / 20
+  systèmes isolés, inaccessibles : 799 en 456 îlots, dont 259 dans la galaxie (les autres dans le halo)
+  têtes de pont : 5 placées, 1 abandonnées faute de deux vraies régions à relier
+  réparations : 5 (îlot de 60 systèmes à 7.1 u) (îlot de 60 systèmes à 12.0 u) (îlot de 37 systèmes à 7.8 u) (îlot de 25 systèmes à 7.3 u) (îlot de 50 systèmes à 6.1 u)
+  couloirs indépendants (carrés de 20 u) ouest↔est : 11, nord↔sud : 11
+  mode chasse au trésor, du bord ouest aux vestiges : 11 couloirs
+  détour entre berceaux (chemin par vortex / ligne droite) : min 1.32 / médiane 1.32 / max 1.32
+
+Identifiants lisibles (y.x-orbite) comparés aux identifiants actuels :
+  0561.0463-3   au lieu de   100000500406106303
+  0548.0492-3   au lieu de   100000500404809203
+  0548.0523-3   au lieu de   100000500504802303

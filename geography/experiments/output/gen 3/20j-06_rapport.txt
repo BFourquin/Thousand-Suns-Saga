@@ -1,0 +1,59 @@
+Génération « 20j-06 » : 20 joueurs, toile de 1140 × 1575 unités, galaxie de 0.42 million d'unités² (agrandie de 108% pour loger les berceaux)
+Durées : génération 1.8 s, contrôles 0.4 s
+
+Systèmes : 16676 (densité moyenne dans la galaxie 0.040 / u²)
+
+Zones :
+  Berceau                    2 zone(s)    2286 systèmes   11.0% de la galaxie
+  Plaine stellaire          14 zone(s)    6551 systèmes   45.5% de la galaxie
+  Oasis                      1 zone(s)     185 systèmes    1.1% de la galaxie
+  Faille                     2 zone(s)      10 systèmes    5.4% de la galaxie
+  Tête de pont               5 zone(s)      57 systèmes    0.4% de la galaxie
+  Carrefour                  1 zone(s)     308 systèmes    1.6% de la galaxie
+  Nébuleuse sombre           2 zone(s)     956 systèmes    4.7% de la galaxie
+  Champ de débris            1 zone(s)     493 systèmes    1.9% de la galaxie
+  Amas globulaire            2 zone(s)    1681 systèmes    2.7% de la galaxie
+  Champ gazier               5 zone(s)    1455 systèmes    8.0% de la galaxie
+  Zone d'anomalies           2 zone(s)     345 systèmes    3.7% de la galaxie
+  Cœur noir                  1 zone(s)     378 systèmes    1.9% de la galaxie
+  Terres sauvages            3 zone(s)    1381 systèmes   11.9% de la galaxie
+  Halo                       1 zone(s)     578 systèmes  
+  Vestiges                   1 zone(s)      12 systèmes    0.2% de la galaxie
+
+Étoiles : 6.1% de grandes étoiles (A 2.03%, B 1.08%, Géante 1.72%, O 0.50%, Wolf-Rayet 0.15%, Supergéante 0.65%, Trou noir 0.01%)
+
+Équité, autour de chacun des 20 mondes natals (2 berceaux) :
+  systèmes à 25 u                min 80 / médiane 98 / max 112
+  grandes étoiles de 0 à 16 u    min 2 / médiane 2 / max 2
+  habitable_medium de 3 à 12 u   min 1 / médiane 1 / max 1
+  habitable_poor de 3 à 12 u     min 2 / médiane 2 / max 2
+  habitable_good de 3 à 12 u     min 1 / médiane 1 / max 1
+  monde natal le plus proche     min 28.2 / médiane 30.1 / max 31.3
+  angle libre (°)                min 193 / médiane 215 / max 254
+  score                          min 12.7 / médiane 13.3 / max 13.7
+  écart du score : le meilleur a 1.08 fois le score du plus faible
+  distance des berceaux au halo : 65 u au plus près
+  zones précieuses : 8 loin de tout berceau, 0 partagées entre deux berceaux, 2 rendues ordinaires car trop près d'un seul (Veine) (Zone d'anomalies)
+    Oasis                  loin      trajet depuis le berceau le plus proche   177 u, depuis le deuxième   217 u
+    Carrefour              loin      trajet depuis le berceau le plus proche   223 u, depuis le deuxième   255 u
+    Cœur noir              loin      trajet depuis le berceau le plus proche   400 u, depuis le deuxième  1078 u
+    Vestiges               loin      trajet depuis le berceau le plus proche   575 u, depuis le deuxième  1253 u
+    Zone d'anomalies       loin      trajet depuis le berceau le plus proche   235 u, depuis le deuxième   912 u
+    Amas globulaire        loin      trajet depuis le berceau le plus proche   128 u, depuis le deuxième   805 u
+    Zone d'anomalies       loin      trajet depuis le berceau le plus proche   165 u, depuis le deuxième   339 u
+    Amas globulaire        loin      trajet depuis le berceau le plus proche   158 u, depuis le deuxième   342 u
+
+Connectivité (lien vortex si la distance ≤ portée de la plus grande des deux étoiles) :
+  liens : 96847 ; réseau principal : 96.3% des systèmes
+  mondes natals dans le réseau principal : 20 / 20
+  systèmes isolés, inaccessibles : 612 en 312 îlots, dont 423 dans la galaxie (les autres dans le halo)
+  têtes de pont : 5 placées, 0 abandonnées faute de deux vraies régions à relier
+  réparations : 3 (îlot de 25 systèmes à 6.1 u) (îlot de 39 systèmes à 6.4 u) (îlot de 37 systèmes à 7.1 u)
+  couloirs indépendants (carrés de 20 u) ouest↔est : 3, nord↔sud : 3
+  mode chasse au trésor, du bord ouest aux vestiges : 3 couloirs
+  détour entre berceaux (chemin par vortex / ligne droite) : min 1.06 / médiane 1.06 / max 1.06
+
+Identifiants lisibles (y.x-orbite) comparés aux identifiants actuels :
+  1313.0256-3   au lieu de   100001300201305603
+  1295.0232-3   au lieu de   100001200209503203
+  1265.0222-3   au lieu de   100001200206502203

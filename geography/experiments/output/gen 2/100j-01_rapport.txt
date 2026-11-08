@@ -1,0 +1,75 @@
+Génération « 100j-01 » : 100 joueurs, toile de 1850 × 1850 unités, galaxie de 1.24 million d'unités² (agrandie de 22% pour loger les berceaux)
+Durées : génération 3.0 s, contrôles 2.3 s
+
+Systèmes : 50238 (densité moyenne dans la galaxie 0.040 / u²)
+
+Zones :
+  Berceau                   10 zone(s)   10221 systèmes   18.3% de la galaxie
+  Marche                    14 zone(s)    9944 systèmes   22.1% de la galaxie
+  Plaine stellaire          23 zone(s)    9033 systèmes   22.9% de la galaxie
+  Oasis                      6 zone(s)    1100 systèmes    2.1% de la galaxie
+  Faille                     6 zone(s)      43 systèmes    7.1% de la galaxie
+  Tête de pont              20 zone(s)     188 systèmes    0.6% de la galaxie
+  Carrefour                  4 zone(s)     902 systèmes    1.6% de la galaxie
+  Nébuleuse sombre           1 zone(s)     251 systèmes    0.4% de la galaxie
+  Champ de débris            6 zone(s)    2352 systèmes    4.7% de la galaxie
+  Amas globulaire            4 zone(s)    4730 systèmes    2.6% de la galaxie
+  Pouponnière stellaire      2 zone(s)     709 systèmes    1.1% de la galaxie
+  Champ gazier               8 zone(s)    4531 systèmes   10.0% de la galaxie
+  Veine                      4 zone(s)     552 systèmes    1.2% de la galaxie
+  Reste de supernova         1 zone(s)      51 systèmes    0.2% de la galaxie
+  Terres sauvages            5 zone(s)    1840 systèmes    4.7% de la galaxie
+  Halo                       1 zone(s)    3718 systèmes  
+  Vestiges                   1 zone(s)      73 systèmes    0.3% de la galaxie
+
+Étoiles : 6.6% de grandes étoiles (A 2.19%, B 1.10%, Géante 1.94%, O 0.49%, Wolf-Rayet 0.17%, Supergéante 0.70%)
+
+Équité, autour de chacun des 100 mondes natals (10 berceaux) :
+  systèmes à 25 u                min 70 / médiane 86 / max 110
+  grandes étoiles de 0 à 16 u    min 2 / médiane 2 / max 2
+  habitable_medium de 3 à 12 u   min 1 / médiane 1 / max 1
+  habitable_poor de 3 à 12 u     min 2 / médiane 2 / max 2
+  habitable_good de 3 à 12 u     min 1 / médiane 1 / max 1
+  monde natal le plus proche     min 27.8 / médiane 29 / max 31.4
+  angle libre (°)                min 189 / médiane 215 / max 250
+  score                          min 12.3 / médiane 12.9 / max 13.7
+  écart du score : le meilleur a 1.11 fois le score du plus faible
+  distance des berceaux au halo : 105 u au plus près
+  zones précieuses : 8 loin de tout berceau, 14 partagées entre deux berceaux, 3 rendues ordinaires car trop près d'un seul (Pouponnière stellaire) (Reste de supernova) (Pouponnière stellaire)
+    Oasis                  partagée  trajet depuis le berceau le plus proche    44 u, depuis le deuxième    50 u
+    Oasis                  partagée  trajet depuis le berceau le plus proche    40 u, depuis le deuxième    59 u
+    Oasis                  partagée  trajet depuis le berceau le plus proche    42 u, depuis le deuxième    49 u
+    Oasis                  partagée  trajet depuis le berceau le plus proche    27 u, depuis le deuxième    27 u
+    Oasis                  loin      trajet depuis le berceau le plus proche   112 u, depuis le deuxième   116 u
+    Oasis                  partagée  trajet depuis le berceau le plus proche    74 u, depuis le deuxième    78 u
+    Carrefour              partagée  trajet depuis le berceau le plus proche    75 u, depuis le deuxième    77 u
+    Carrefour              partagée  trajet depuis le berceau le plus proche    44 u, depuis le deuxième    55 u
+    Carrefour              loin      trajet depuis le berceau le plus proche   121 u, depuis le deuxième   158 u
+    Carrefour              partagée  trajet depuis le berceau le plus proche    52 u, depuis le deuxième    55 u
+    Veine                  partagée  trajet depuis le berceau le plus proche    24 u, depuis le deuxième    50 u
+    Veine                  partagée  trajet depuis le berceau le plus proche    58 u, depuis le deuxième    60 u
+    Veine                  partagée  trajet depuis le berceau le plus proche    92 u, depuis le deuxième    92 u
+    Veine                  partagée  trajet depuis le berceau le plus proche    87 u, depuis le deuxième    90 u
+    Vestiges               loin      trajet depuis le berceau le plus proche   251 u, depuis le deuxième   288 u
+    Amas globulaire        loin      trajet depuis le berceau le plus proche   125 u, depuis le deuxième   144 u
+    Pouponnière stellaire  loin      trajet depuis le berceau le plus proche   118 u, depuis le deuxième   305 u
+    Amas globulaire        partagée  trajet depuis le berceau le plus proche    84 u, depuis le deuxième   122 u
+    Pouponnière stellaire  loin      trajet depuis le berceau le plus proche   142 u, depuis le deuxième   152 u
+    Amas globulaire        loin      trajet depuis le berceau le plus proche   114 u, depuis le deuxième   273 u
+    Amas globulaire        partagée  trajet depuis le berceau le plus proche     5 u, depuis le deuxième    14 u
+    Reste de supernova     loin      trajet depuis le berceau le plus proche   178 u, depuis le deuxième   222 u
+
+Connectivité (lien vortex si la distance ≤ portée de la plus grande des deux étoiles) :
+  liens : 280761 ; réseau principal : 94.1% des systèmes
+  mondes natals dans le réseau principal : 100 / 100
+  systèmes isolés, inaccessibles : 2952 en 1580 îlots, dont 691 dans la galaxie (les autres dans le halo)
+  têtes de pont : 20 placées, 2 abandonnées faute de deux vraies régions à relier
+  réparations : 7 (îlot de 47 systèmes à 7.6 u) (îlot de 25 systèmes à 26.2 u) (îlot de 172 systèmes à 6.1 u) (îlot de 34 systèmes à 74.2 u) (îlot de 365 systèmes à 26.6 u) (îlot de 38 systèmes à 34.5 u) (îlot de 28 systèmes à 23.0 u)
+  couloirs indépendants (carrés de 20 u) ouest↔est : 16, nord↔sud : 21
+  mode chasse au trésor, du bord ouest aux vestiges : 2 couloirs
+  détour entre berceaux (chemin par vortex / ligne droite) : min 1.03 / médiane 1.09 / max 1.25
+
+Identifiants lisibles (y.x-orbite) comparés aux identifiants actuels :
+  1313.1016-3   au lieu de   100001301001301603
+  1286.1005-3   au lieu de   100001201008600503
+  1256.1009-3   au lieu de   100001201005600903

@@ -1,0 +1,81 @@
+Génération « 100j-02 » : 100 joueurs, toile de 1555 × 1390 unités, galaxie de 1.22 million d'unités² (agrandie de 22% pour loger les berceaux)
+Durées : génération 13.7 s, contrôles 3.5 s
+
+Systèmes : 48844 (densité moyenne dans la galaxie 0.040 / u²)
+
+Zones :
+  Berceau                   10 zone(s)   11169 systèmes   18.9% de la galaxie
+  Marche                    92 zone(s)   22224 systèmes   46.6% de la galaxie
+  Plaine stellaire          32 zone(s)    5256 systèmes   13.2% de la galaxie
+  Oasis                      6 zone(s)    1490 systèmes    2.7% de la galaxie
+  Faille                     6 zone(s)      46 systèmes    7.4% de la galaxie
+  Abîme                      1 zone(s)      38 systèmes    1.0% de la galaxie
+  Tête de pont              23 zone(s)     251 systèmes    0.7% de la galaxie
+  Carrefour                  2 zone(s)     548 systèmes    1.0% de la galaxie
+  Nébuleuse sombre           4 zone(s)    1868 systèmes    3.6% de la galaxie
+  Champ de débris            3 zone(s)     711 systèmes    1.4% de la galaxie
+  Champ gazier               1 zone(s)     223 systèmes    0.7% de la galaxie
+  Veine                      1 zone(s)      87 systèmes    0.2% de la galaxie
+  Cœur noir                  1 zone(s)     337 systèmes    0.6% de la galaxie
+  Terres sauvages            1 zone(s)      93 systèmes    0.2% de la galaxie
+  Amas dense                 2 zone(s)    3903 systèmes    1.6% de la galaxie
+  Halo                       1 zone(s)     551 systèmes  
+  Vestiges                   1 zone(s)      49 systèmes    0.2% de la galaxie
+
+Étoiles : 6.7% de grandes étoiles (A 2.12%, B 1.20%, Géante 1.86%, O 0.50%, Wolf-Rayet 0.14%, Supergéante 0.85%, Trou noir 0.00%)
+
+Équité, autour de chacun des 100 mondes natals (10 berceaux) :
+  systèmes à 25 u                min 74 / médiane 95 / max 123
+  grandes étoiles de 0 à 16 u    min 2 / médiane 2 / max 2
+  habitable_medium de 3 à 12 u   min 1 / médiane 1 / max 1
+  habitable_poor de 3 à 12 u     min 2 / médiane 2 / max 2
+  habitable_good de 3 à 12 u     min 1 / médiane 1 / max 1
+  monde natal le plus proche     min 23.8 / médiane 26.2 / max 28
+  angle libre (°)                min 180 / médiane 184 / max 360
+  score                          min 12.5 / médiane 13.2 / max 14.1
+  écart du score : le meilleur a 1.13 fois le score du plus faible
+  distance des berceaux au halo : 45 u au plus près
+  zones précieuses : 21 partagées entre deux berceaux, 1 rendues ordinaires car plus près d'un seul (Veine)
+    Amas dense             trajet depuis le berceau le plus proche    98 u, depuis le deuxième   111 u
+    Carrefour              trajet depuis le berceau le plus proche   119 u, depuis le deuxième   139 u
+    Pouponnière stellaire  trajet depuis le berceau le plus proche    87 u, depuis le deuxième    95 u
+    Amas globulaire        trajet depuis le berceau le plus proche   113 u, depuis le deuxième   169 u
+    Oasis                  trajet depuis le berceau le plus proche    91 u, depuis le deuxième   135 u
+    Amas dense             trajet depuis le berceau le plus proche    70 u, depuis le deuxième    89 u
+    Oasis                  trajet depuis le berceau le plus proche    59 u, depuis le deuxième    59 u
+    Oasis                  trajet depuis le berceau le plus proche   115 u, depuis le deuxième   115 u
+    Oasis                  trajet depuis le berceau le plus proche    52 u, depuis le deuxième    52 u
+    Oasis                  trajet depuis le berceau le plus proche    70 u, depuis le deuxième    70 u
+    Oasis                  trajet depuis le berceau le plus proche    34 u, depuis le deuxième    35 u
+    Oasis                  trajet depuis le berceau le plus proche   102 u, depuis le deuxième   113 u
+    Carrefour              trajet depuis le berceau le plus proche    45 u, depuis le deuxième    47 u
+    Carrefour              trajet depuis le berceau le plus proche    25 u, depuis le deuxième    59 u
+    Carrefour              trajet depuis le berceau le plus proche    69 u, depuis le deuxième    70 u
+    Carrefour              trajet depuis le berceau le plus proche    34 u, depuis le deuxième    47 u
+    Veine                  trajet depuis le berceau le plus proche    40 u, depuis le deuxième    64 u
+    Veine                  trajet depuis le berceau le plus proche    99 u, depuis le deuxième   145 u
+    Veine                  trajet depuis le berceau le plus proche    65 u, depuis le deuxième    73 u
+    Veine                  trajet depuis le berceau le plus proche    25 u, depuis le deuxième    27 u
+    Cœur noir              trajet depuis le berceau le plus proche    90 u, depuis le deuxième   141 u
+
+Expansion : valeur des systèmes plus proches (en trajet) de chaque monde natal que des autres, entière jusqu'à 60 u, nulle au-delà de 160 u
+  par monde natal : min 32 / médiane 36 / max 73, le plus riche a 2.28 fois le plus pauvre (dernier décile / premier : 1.59)
+  par berceau : min 353 / médiane 391 / max 446, écart 1.26
+  équilibrage des zones : écart estimé 6.29 → 5.49, 6 échange(s), 9 déclassement(s)
+  puis retouche des systèmes ordinaires : écart 6.23 → 2.28, 675 systèmes changés en monde habitable ou l'inverse
+  cœur de la galaxie : 10% de sa surface
+
+Connectivité (lien vortex si la distance ≤ portée de la plus grande des deux étoiles) :
+  liens : 363652 ; réseau principal : 98.1% des systèmes
+  mondes natals dans le réseau principal : 100 / 100
+  systèmes isolés, inaccessibles : 941 en 528 îlots, dont 693 dans la galaxie (les autres dans le halo)
+  têtes de pont : 23 placées, 0 abandonnées faute de deux vraies régions à relier
+  réparations : 3 (îlot de 88 systèmes à 6.1 u) (îlot de 38 systèmes à 7.8 u) (îlot de 31 systèmes à 7.8 u)
+  couloirs indépendants (carrés de 20 u) ouest↔est : 13, nord↔sud : 17
+  mode chasse au trésor, du bord ouest aux vestiges : 15 couloirs
+  détour entre berceaux (chemin par vortex / ligne droite) : min 1.03 / médiane 1.12 / max 1.54
+
+Identifiants lisibles (y.x-orbite) comparés aux identifiants actuels :
+  0247.0838-3   au lieu de   100000200804703803
+  0268.0823-3   au lieu de   100000200806802303
+  0290.0809-3   au lieu de   100000200809000903
