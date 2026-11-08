@@ -42,7 +42,7 @@
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
     <a href="/user_account/" class="brand-link">
-      <img src="{% static "images/logo/TSS-logo-white.png" %}" class="brand-image" alt="">
+      {% include "includes/logo.svg" with class="brand-image" %}
       <span class="brand-text font-weight-light">Thousand Suns Saga</span>
     </a>
 
@@ -155,7 +155,7 @@
 
         </ul>
 
-        <img class="menu_bottom_logo" src="{% static "images/logo/TSS-logo-transparent.png" %}" alt="">
+        {% include "includes/logo.svg" with class="menu_bottom_logo" %}
 
       </nav>
       <!-- /.sidebar-menu -->

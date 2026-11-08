@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="tss-logo {{ class }}" viewBox="-378 -10 756 650" fill="currentColor" aria-hidden="true">
+  <!-- Included inline in the pages (Django include, with a "class" variable), so the CSS of the page and its theme
+       colours it: an <img>, or a <use> of the static server (another origin), could not.
+       Every slanted edge is at 60° (dx = dy / √3). Centred on x = 0, the right S is the mirror of the left one.
+       In each S, the inner edge of the top piece and the outer edge of the bottom piece lie on the same line, through (-229, 390). -->
+  <polygon points="-269.49,0 269.49,0 333,110 55,110 55,630 -55,630 -55,110 -333,110"/>
+  <polygon points="-212.44,150 -90.44,150 -229,390 -351,390"/>
+  <polygon points="-229,390 -107,390 -245.56,630 -367.56,630"/>
+  <g transform="scale(-1,1)">
+    <polygon points="-212.44,150 -90.44,150 -229,390 -351,390"/>
+    <polygon points="-229,390 -107,390 -245.56,630 -367.56,630"/>
+  </g>
+</svg>
