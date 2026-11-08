@@ -2,7 +2,8 @@
 
 body[data-theme="synthwave"] {
     --tss-bg: #12062b;
-    --tss-bg-dim: linear-gradient(180deg, rgba(14, 4, 34, 0.90) 55%, rgba(120, 20, 120, 0.72));
+    --tss-body-dim: color-mix(in srgb, var(--tss-bg) 45%, transparent);
+    --tss-bg-dim: linear-gradient(180deg, rgba(14, 4, 34, 0.78) 55%, rgba(120, 20, 120, 0.60));
     --tss-surface: #1c0b3f;
     --tss-surface-2: #2a1158;
     --tss-border: #6b2a9e;

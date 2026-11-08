@@ -1,0 +1,57 @@
+/* THEME "Saga Stellaire" : formes et couleurs d'Atlas stellaire, police de Console de commandement */
+
+body[data-theme="atlas_console"] {
+    --tss-bg: #152136;
+    --tss-bg-dim: rgba(14, 24, 42, 0.50);
+    --tss-surface: #1b253a;
+    --tss-surface-2: #263960;
+    --tss-border: #5b4f31;
+    --tss-text: #ece6d4;
+    --tss-text-muted: #a8a28f;
+    --tss-accent: #c9a55c;
+    --tss-accent-text: #e0bd72;
+    --tss-accent-contrast: #1a1405;
+    --tss-sidebar-bg: #121c30;
+    --tss-sidebar-active: rgba(201, 165, 92, 0.12);
+    --tss-radius: 3px;
+    --tss-glow: 0 0 8px rgba(201, 165, 92, 0.30);
+    --tss-title-transform: uppercase;
+    --tss-title-spacing: 0.06em;
+    --tss-button-bg: #35599a;  /* a blue lighter than the surfaces */
+    --tss-brand-size: 0.8rem;
+    --tss-brand-spacing: 0;
+    --tss-font-body: 'Inter', 'Segoe UI', sans-serif;
+    --tss-font-title: 'Rajdhani', 'Inter', sans-serif;
+}
+
+/* Double fine rule, like an atlas plate */
+body[data-theme="atlas_console"] .card {
+    box-shadow: inset 0 0 0 4px var(--tss-surface), inset 0 0 0 5px rgba(201, 165, 92, 0.35);
+}
+body[data-theme="atlas_console"] .card-header { border-bottom: 1px double var(--tss-border); }
+body[data-theme="atlas_console"] .card-title,
+body[data-theme="atlas_console"] .content-header h1 { font-weight: 600; }
+body[data-theme="atlas_console"] .content-header h1,
+body[data-theme="atlas_console"] .content-header h2 {
+    color: var(--tss-accent-text);
+    border-bottom: 1px solid var(--tss-border);
+    padding-bottom: 0.3rem;
+    display: inline-block;
+}
+body[data-theme="atlas_console"] .table thead th { color: var(--tss-accent-text); font-weight: 600; }
+
+/* Buttons : lighter blue with a gold outline, uppercase like the command console */
+body[data-theme="atlas_console"] .btn-primary {
+    background-color: var(--tss-button-bg);
+    border-color: var(--tss-accent);
+    color: var(--tss-text);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+}
+body[data-theme="atlas_console"] .btn-primary:hover,
+body[data-theme="atlas_console"] .btn-primary:focus {
+    background-color: #4268b0;
+    border-color: var(--tss-accent-text);
+    color: var(--tss-text);
+}

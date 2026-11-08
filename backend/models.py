@@ -105,6 +105,6 @@ class UserExtended(models.Model):
     banned_reason = models.TextField(null=True, blank=True)
     language = models.CharField(max_length=2, default='en')
     dark_mode = models.BooleanField(default=True)
-    theme = models.CharField(max_length=20, default='classic')
+    theme = models.CharField(max_length=20, default='atlas_console')
     playing_on_server = models.ForeignKey(Server, null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
     playing_on_commandant = models.BigIntegerField(null=True, blank=True)  # In the schema of playing_on_server

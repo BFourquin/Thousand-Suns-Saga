@@ -2,7 +2,7 @@
 
 body[data-theme="eclipse"] {
     --tss-bg: #000000;
-    --tss-bg-dim: radial-gradient(circle at 50% 50%, transparent 20%, rgba(0, 0, 0, 0.75) 70%), rgba(0, 0, 0, 0.78);
+    --tss-bg-dim: radial-gradient(circle at 50% 50%, transparent 20%, rgba(0, 0, 0, 0.63) 70%), rgba(0, 0, 0, 0.66);
     --tss-surface: #0d0d0d;
     --tss-surface-2: #181818;
     --tss-border: #333333;

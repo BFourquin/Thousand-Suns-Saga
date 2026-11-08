@@ -2,7 +2,8 @@
 
 body[data-theme="imperial"] {
     --tss-bg: #16060a;
-    --tss-bg-dim: rgba(20, 5, 9, 0.84);
+    --tss-body-dim: color-mix(in srgb, var(--tss-bg) 45%, transparent);
+    --tss-bg-dim: rgba(20, 5, 9, 0.72);
     --tss-surface: #240b12;
     --tss-surface-2: #33101a;
     --tss-border: #6b4a1e;

@@ -29,29 +29,38 @@
     margin-bottom: 7.5px;
 }
 
-.menu_bottom_logo {
-  width: 92%;
-  height: auto;
-  bottom: 8px;
-  position: absolute;
-  z-index: -1;
+/* The logo sits at the bottom of the menu, 8px from the edge, in the height the links leave free. It shrinks to fit
+   but is hidden once it would be under 70% of its full size.
+   shortcut: full size 198px = 92% of the 250px sidebar (756x650 logo), 70% = 139px; update if the sidebar width changes. */
+.sidebar:has(> nav > .menu_bottom) { display: flex; flex-direction: column; }
+.sidebar > nav:has(> .menu_bottom) { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
+.sidebar > nav > .nav-sidebar { flex: none; }
+.menu_bottom {
+  flex: 1 1 0;
+  min-height: 0;
+  padding-bottom: 8px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  container-type: size;
+  pointer-events: none;
 }
+.menu_bottom_logo {
+  height: min(100%, 198px);
+  width: auto;
+  max-width: 92%;
+  aspect-ratio: 756 / 650;
+}
+@container (max-height: 138px) { .menu_bottom_logo { display: none; } }
 
 /* The logo: white with a gold border whatever the theme, except the one filling the bottom of the menu:
    only an outline barely lighter than the menu */
-.tss-logo { overflow: visible; height: auto; fill: #fff; stroke: #ffc000; stroke-width: 10; }
+.tss-logo { overflow: visible; fill: #fff; stroke: #ffc000; stroke-width: 10; }
 .tss-logo.brand-image { height: 33px; stroke-width: 16; }
 .tss-logo.menu_bottom_logo {
   fill: none;
   stroke: color-mix(in srgb, var(--tss-sidebar-bg, #343a40) 90%, #fff);
   stroke-width: 8;
-}
-
-
-@media screen and (max-height: 600px) {
-    .menu_bottom_logo {
-        display: none;
-    }
 }
 
 
@@ -166,7 +175,7 @@
 /* Theme picker (themes page) */
 .theme-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
 .theme-picker .theme-card {
-    display: block; width: 100%; padding: 0.6rem; color: inherit; font: inherit; text-align: left; cursor: pointer;
+    display: flex; flex-direction: column; justify-content: flex-start; width: 100%; padding: 0.6rem; color: inherit; font: inherit; text-align: left; cursor: pointer;
     background: none; border: 2px solid rgba(128, 128, 128, 0.4); border-radius: 6px;
     transition: border-color 0.15s, transform 0.15s;
     scroll-margin-top: 5rem;  /* After choosing, the page comes back on this card : not under the navbar */

@@ -2,6 +2,7 @@
 
 body[data-theme="polar"] {
     --tss-bg: #e9eff5;
+    --tss-body-shade: transparent;
     --tss-bg-dim: rgba(233, 239, 245, 0.95);
     --tss-surface: #ffffff;
     --tss-surface-2: #eef3f8;

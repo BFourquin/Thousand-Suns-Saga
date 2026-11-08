@@ -39,6 +39,27 @@
     {% if theme and theme != 'classic' %}
     <link rel="stylesheet" href="{% static "css/themes/theme_base.css" %}" >
     <link rel="stylesheet" href="{% static 'css/themes/theme_'|add:theme|add:'.css' %}" >
+    <script>
+      // Fills the width left by the logo with the title of the game, whatever the font of the theme.
+      // The size found is kept, so the next page starts with it instead of showing the title small for a moment
+      const brandKey = 'brandFit-{{ theme }}';
+      try { const saved = localStorage.getItem(brandKey); if (saved) document.documentElement.style.setProperty('--tss-brand-fit', saved + 'px'); } catch (e) {}
+      function fitBrand() {
+        const text = document.querySelector('.main-sidebar .brand-text');
+        if (!text || document.body.dataset.theme === 'sfw') return;
+        const avail = text.parentElement.getBoundingClientRect().right - text.getBoundingClientRect().left - 12;
+        if (avail <= 0) return;
+        text.style.maxWidth = 'none';
+        text.style.fontSize = '20px';
+        const size = Math.max(10, Math.min(28, 20 * avail / text.scrollWidth));
+        text.style.fontSize = '';
+        document.documentElement.style.setProperty('--tss-brand-fit', size + 'px');
+        try { localStorage.setItem(brandKey, size); } catch (e) {}
+      }
+      document.addEventListener('DOMContentLoaded', fitBrand);
+      window.addEventListener('resize', fitBrand);
+      document.fonts && document.fonts.ready.then(fitBrand);
+    </script>
     {% endif %}
 
 

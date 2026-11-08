@@ -2,7 +2,8 @@
 
 body[data-theme="phosphor"] {
     --tss-bg: #030a05;
-    --tss-bg-dim: rgba(2, 8, 4, 0.94);
+    --tss-body-dim: color-mix(in srgb, var(--tss-bg) 45%, transparent);
+    --tss-bg-dim: rgba(2, 8, 4, 0.82);
     --tss-surface: #07140b;
     --tss-surface-2: #0c2012;
     --tss-border: #1f5a30;

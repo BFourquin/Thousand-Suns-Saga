@@ -2,7 +2,7 @@
 
 body[data-theme="console"] {
     --tss-bg: #070b14;
-    --tss-bg-dim: rgba(4, 8, 16, 0.80);
+    --tss-bg-dim: rgba(4, 8, 16, 0.68);
     --tss-surface: #0f1a2b;
     --tss-surface-2: #16263d;
     --tss-border: #1f3a5c;
@@ -37,4 +37,4 @@ body[data-theme="console"] .card-title { font-weight: 600; font-size: 1.15rem; }
 body[data-theme="console"] .content-header h1,
 body[data-theme="console"] .content-header h2 { color: var(--tss-accent); text-shadow: 0 0 12px rgba(45, 226, 230, 0.45); }
 body[data-theme="console"] .btn-primary { text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
-body[data-theme="console"] .badge-warning, body[data-theme="console"] .text-warning { color: var(--tss-warn) !important; }
+body[data-theme="console"] .text-warning { color: var(--tss-warn) !important; }

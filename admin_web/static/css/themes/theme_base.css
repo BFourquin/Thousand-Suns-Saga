@@ -9,7 +9,9 @@
 /* Defaults, overridden by body[data-theme="<id>"] in each theme file */
 :root {
     --tss-bg: #454d55;
-    --tss-bg-dim: rgba(0, 0, 0, 0.55);          /* dimming layer over the starfield picture */
+    --tss-bg-dim: rgba(0, 0, 0, 0.55);          /* dimming layer over the starfield picture, in the content area */
+    --tss-body-dim: transparent;                /* tint of the picture around the content, for themes far from its colors */
+    --tss-body-shade: rgba(0, 0, 0, 0.25);      /* the starfield picture is very bright : darkened around the content, except for light themes */
     --tss-content-bg: transparent;
     --tss-surface: #343a40;
     --tss-surface-2: #3d444b;
@@ -46,16 +48,16 @@ body[data-theme]:where(:not([data-theme="classic"])) {
     font-family: var(--tss-font-body);
 }
 
-/* Dim the starfield so panels and text read better */
+/* Tint of the starfield picture, only for themes whose colors are far from it */
 body[data-theme]:where(:not([data-theme="classic"]))::before {
     content: "";
     position: fixed;
     inset: 0;
-    background: var(--tss-bg-dim);
+    background: linear-gradient(var(--tss-body-dim), var(--tss-body-dim)), linear-gradient(var(--tss-body-shade), var(--tss-body-shade));
     pointer-events: none;
     z-index: 0;
 }
-body[data-theme]:where(:not([data-theme="classic"])) .wrapper { position: relative; z-index: 1; }
+body[data-theme]:where(:not([data-theme="classic"])) .wrapper { position: relative; } /* no z-index : it would trap the modals under the body-level backdrop */
 
 body[data-theme]:where(:not([data-theme="classic"])) h1,
 body[data-theme]:where(:not([data-theme="classic"])) h2,
@@ -99,6 +101,17 @@ body[data-theme]:where(:not([data-theme="classic"])) .hover { color: var(--tss-a
 body[data-theme]:where(:not([data-theme="classic"])) .content-wrapper {
     background: var(--tss-content-bg);
     color: var(--tss-text);
+    position: relative;
+    isolation: isolate;
+}
+/* The dimming layer of the theme, over the picture and under the content */
+body[data-theme]:where(:not([data-theme="classic"])) .content-wrapper::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--tss-bg-dim);
+    pointer-events: none;
+    z-index: -1;
 }
 body[data-theme]:where(:not([data-theme="classic"])) .content-wrapper .content-header { color: var(--tss-text); }
 
@@ -293,6 +306,13 @@ body[data-theme]:where(:not([data-theme="classic"])) h1.text-center {
 body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar .brand-link {
     overflow: hidden;
     white-space: nowrap;
+    /* Same height as the navbar whatever the size of the title and of the logo */
+    box-sizing: border-box;
+    height: calc(3.5rem + 1px);
+    padding-top: 0;
+    padding-bottom: 0;
+    display: flex;
+    align-items: center;
 }
 body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar .brand-link .brand-text {
     display: inline-block;
@@ -301,6 +321,7 @@ body[data-theme]:where(:not([data-theme="classic"])) .main-sidebar .brand-link .
     text-overflow: ellipsis;
     vertical-align: middle;
     color: var(--tss-sidebar-text, inherit);
-    font-size: var(--tss-brand-size, 1.05rem);
+    line-height: 1;
+    font-size: var(--tss-brand-fit, var(--tss-brand-size, 1.05rem));  /* --tss-brand-fit : measured by the script of head.html */
     letter-spacing: var(--tss-brand-spacing, normal);
 }

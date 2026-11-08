@@ -2,7 +2,7 @@
 
 body[data-theme="atlas"] {
     --tss-bg: #0e1624;
-    --tss-bg-dim: rgba(8, 13, 24, 0.72);
+    --tss-bg-dim: rgba(8, 13, 24, 0.60);
     --tss-surface: #16223a;
     --tss-surface-2: #1d2c4a;
     --tss-border: #5b4f31;

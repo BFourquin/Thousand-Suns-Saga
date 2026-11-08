@@ -2,7 +2,8 @@
 
 body[data-theme="solar"] {
     --tss-bg: #140805;
-    --tss-bg-dim: radial-gradient(circle at 100% 0, rgba(255, 91, 31, 0.28), transparent 50%), rgba(18, 7, 3, 0.80);
+    --tss-body-dim: color-mix(in srgb, var(--tss-bg) 45%, transparent);
+    --tss-bg-dim: radial-gradient(circle at 100% 0, rgba(255, 91, 31, 0.28), transparent 50%), rgba(18, 7, 3, 0.68);
     --tss-surface: #22100a;
     --tss-surface-2: #321710;
     --tss-border: #6e2f16;

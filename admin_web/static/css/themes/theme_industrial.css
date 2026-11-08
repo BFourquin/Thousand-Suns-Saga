@@ -2,7 +2,7 @@
 
 body[data-theme="industrial"] {
     --tss-bg: #16181d;
-    --tss-bg-dim: rgba(10, 11, 14, 0.82);
+    --tss-bg-dim: rgba(10, 11, 14, 0.70);
     --tss-surface: #20242b;
     --tss-surface-2: #2a2f38;
     --tss-border: #424853;

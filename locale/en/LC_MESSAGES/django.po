@@ -3222,3 +3222,19 @@ msgstr "Read-only mode: this game is over for this commandant. You can look at e
 
 #~ msgid "Thousand Suns Saga"
 #~ msgstr "Thousand Suns Saga"
+
+#: .\data\themes.py:12
+msgid "Saga Stellaire"
+msgstr "Stellar Saga"
+
+#: .\data\themes.py:12
+msgid "Ivoire et or, police du HUD"
+msgstr "Ivory and gold, HUD font"
+
+#: .\data\themes.py:13
+msgid "Première Saga"
+msgstr "First Saga"
+
+#: .\data\themes.py:13
+msgid "Interface de la pré-Alpha"
+msgstr "Pre-Alpha interface"

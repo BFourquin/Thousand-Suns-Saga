@@ -2,7 +2,8 @@
 
 body[data-theme="retro"] {
     --tss-bg: #120c06;
-    --tss-bg-dim: rgba(16, 10, 4, 0.88);
+    --tss-body-dim: color-mix(in srgb, var(--tss-bg) 45%, transparent);
+    --tss-bg-dim: rgba(16, 10, 4, 0.76);
     --tss-surface: #1e1509;
     --tss-surface-2: #2b1f0e;
     --tss-border: #5e4418;

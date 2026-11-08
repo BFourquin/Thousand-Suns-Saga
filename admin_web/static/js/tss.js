@@ -12,6 +12,9 @@ $(function () {
         if (!$(e.target).closest('a, button, input, label').length) { window.location.href = $(this).data('href'); }
     });
 
+    // Modals live under <body> : inside a card or the wrapper, their stacking context puts them under Bootstrap's backdrop
+    $('.modal').appendTo('body');
+
     // Filters take the whole screen of a phone : they start folded. <div class="card" data-collapse-on-mobile>
     if (window.innerWidth < 992) {
         $('[data-collapse-on-mobile]').addClass('collapsed-card').find('[data-card-widget="collapse"] i').toggleClass('fa-minus fa-plus');

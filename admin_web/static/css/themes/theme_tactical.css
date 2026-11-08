@@ -2,7 +2,8 @@
 
 body[data-theme="tactical"] {
     --tss-bg: #15170f;
-    --tss-bg-dim: rgba(16, 18, 10, 0.88);
+    --tss-body-dim: color-mix(in srgb, var(--tss-bg) 45%, transparent);
+    --tss-bg-dim: rgba(16, 18, 10, 0.76);
     --tss-surface: #20231a;
     --tss-surface-2: #2b2f22;
     --tss-border: #4f5539;

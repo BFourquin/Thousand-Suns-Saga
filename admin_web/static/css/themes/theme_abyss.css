@@ -2,7 +2,8 @@
 
 body[data-theme="abyss"] {
     --tss-bg: #021418;
-    --tss-bg-dim: radial-gradient(ellipse at 50% 120%, rgba(25, 230, 184, 0.20), transparent 60%), rgba(1, 16, 20, 0.82);
+    --tss-body-dim: color-mix(in srgb, var(--tss-bg) 45%, transparent);
+    --tss-bg-dim: radial-gradient(ellipse at 50% 120%, rgba(25, 230, 184, 0.20), transparent 60%), rgba(1, 16, 20, 0.70);
     --tss-surface: #06252b;
     --tss-surface-2: #0a333b;
     --tss-border: #14555f;

@@ -1,0 +1,35 @@
+/* THEME "Safe For Work" : tout blanc, sans illustration ni logo, pour ne pas ressembler a un jeu */
+
+body[data-theme="sfw"] {
+    --tss-bg: #ffffff;
+    --tss-bg-dim: #ffffff;
+    --tss-body-shade: transparent;
+    --tss-surface: #ffffff;
+    --tss-surface-2: #f3f3f3;
+    --tss-border: #d8d8d8;
+    --tss-text: #222222;
+    --tss-text-muted: #666666;
+    --tss-accent: #444444;
+    --tss-accent-text: #222222;
+    --tss-accent-contrast: #ffffff;
+    --tss-warn: #8a6100;
+    --tss-danger: #b3261e;
+    --tss-success: #1b6e3c;
+    --tss-sidebar-bg: #ffffff;
+    --tss-sidebar-active: #eeeeee;
+    --tss-radius: 2px;
+    --tss-font-body: Arial, Helvetica, sans-serif;
+    --tss-font-title: Arial, Helvetica, sans-serif;
+}
+
+/* No picture anywhere : background, logos, portraits, flags, planets, illustrated panels */
+body[data-theme="sfw"],
+body[data-theme="sfw"] * { background-image: none !important; }
+body[data-theme="sfw"] img,
+body[data-theme="sfw"] .tss-logo,
+body[data-theme="sfw"] .menu_bottom,
+body[data-theme="sfw"] .brand-image { display: none !important; }
+/* Neutral name in place of the title of the game */
+body[data-theme="sfw"] .brand-text { font-size: 0 !important; }
+body[data-theme="sfw"] .brand-text::after { content: "Documents"; font-size: 1.1rem; letter-spacing: normal; }
+body[data-theme="sfw"] .card { box-shadow: none; }

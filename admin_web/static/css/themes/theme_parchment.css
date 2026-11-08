@@ -2,6 +2,7 @@
 
 body[data-theme="parchment"] {
     --tss-bg: #efe6d0;
+    --tss-body-shade: transparent;
     --tss-bg-dim: rgba(239, 230, 208, 0.96);
     --tss-surface: #f8f1df;
     --tss-surface-2: #eee2c6;
