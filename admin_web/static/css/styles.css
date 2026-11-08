@@ -37,12 +37,13 @@
   z-index: -1;
 }
 
-/* The logo: a gold outline, except the one at the bottom of the menu, barely lighter than the menu */
-.tss-logo { overflow: visible; height: auto; fill: none; stroke: #ffc000; stroke-width: 10; }
+/* The logo: white with a gold border whatever the theme, except the one filling the bottom of the menu:
+   only an outline barely lighter than the menu */
+.tss-logo { overflow: visible; height: auto; fill: #fff; stroke: #ffc000; stroke-width: 10; }
 .tss-logo.brand-image { height: 33px; stroke-width: 16; }
 .tss-logo.menu_bottom_logo {
-  fill: color-mix(in srgb, var(--tss-sidebar-bg, #343a40) 95%, #fff);
-  stroke: color-mix(in srgb, var(--tss-sidebar-bg, #343a40) 85%, #fff);
+  fill: none;
+  stroke: color-mix(in srgb, var(--tss-sidebar-bg, #343a40) 90%, #fff);
   stroke-width: 8;
 }
 
