@@ -8,6 +8,9 @@ secrets/
 # Excel cache files
 ~$*.xlsx
 
+# Pictures of the map generation experiments, generated again by their script
+geography/experiments/output/
+
 # ######################################################################################################################
 # DEFAULT PYTHON PROJECT GITIGNORE
 
