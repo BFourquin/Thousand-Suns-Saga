@@ -295,6 +295,31 @@ def stats(values):
     return f'min {values[0]:g} / médiane {values[len(values) // 2]:g} / max {values[-1]:g}'
 
 
+def links(ys, xs, cls):
+    # The vortex : two systems are linked when the bigger of their two stars reaches the other one.
+    # ys, xs, cls : numpy arrays of int, cls the index of the star in CLASSES. Returns the pairs of indexes, shape (n, 2).
+    size = int(RANGE.max()) + 1
+    reach = RANGE[cls]
+    key = (ys // size) * 100_000 + xs // size
+    order = np.argsort(key, kind='stable')
+    keys, starts = np.unique(key[order], return_index=True)
+    ends = list(starts[1:]) + [len(order)]
+    buckets = {int(k): order[s:e] for k, s, e in zip(keys, starts, ends)}
+    edges = [np.zeros((0, 2), np.int64)]
+    for k, a in buckets.items():
+        for offset in (0, 1, 100_000 - 1, 100_000, 100_000 + 1):
+            b = buckets.get(k + offset)
+            if b is None:
+                continue
+            d2 = (ys[a, None] - ys[None, b]) ** 2 + (xs[a, None] - xs[None, b]) ** 2
+            linked = d2 <= np.maximum(reach[a, None], reach[None, b]) ** 2
+            if offset == 0:
+                linked = np.triu(linked, 1)
+            i, j = np.nonzero(linked)
+            edges.append(np.stack([a[i], b[j]], 1))
+    return np.concatenate(edges)
+
+
 class Crowded(Exception):
     # The cradles don't fit : the galaxy is drawn again, a bit larger
     pass
@@ -1225,27 +1250,7 @@ class Sector:
     # CONNECTIVITY
 
     def link(self):
-        # Two systems are linked when the bigger of their two stars reaches the other one
-        size = int(RANGE.max()) + 1
-        reach = RANGE[self.cls]
-        key = (self.ys // size) * 100_000 + self.xs // size
-        order = np.argsort(key, kind='stable')
-        keys, starts = np.unique(key[order], return_index=True)
-        ends = list(starts[1:]) + [len(order)]
-        buckets = {int(k): order[s:e] for k, s, e in zip(keys, starts, ends)}
-        edges = []
-        for k, a in buckets.items():
-            for offset in (0, 1, 100_000 - 1, 100_000, 100_000 + 1):
-                b = buckets.get(k + offset)
-                if b is None:
-                    continue
-                d2 = (self.ys[a, None] - self.ys[None, b]) ** 2 + (self.xs[a, None] - self.xs[None, b]) ** 2
-                linked = d2 <= np.maximum(reach[a, None], reach[None, b]) ** 2
-                if offset == 0:
-                    linked = np.triu(linked, 1)
-                i, j = np.nonzero(linked)
-                edges.append(np.stack([a[i], b[j]], 1))
-        self.edges = np.concatenate(edges)
+        self.edges = links(self.ys, self.xs, self.cls)
 
         parent = list(range(self.n))
 

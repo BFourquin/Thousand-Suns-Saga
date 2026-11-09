@@ -1,0 +1,45 @@
+{% load i18n %}
+
+<!-- THE PLACES OF THE MAPS : the last ones looked at and the favourites of the commandant (views_game.places_of) -->
+<div class="map-places d-flex flex-wrap align-items-center mb-2">
+
+  <div class="dropdown mr-1 mb-1">
+    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <i class="fas fa-clock-rotate-left"></i> {% trans "Dernières consultées" %}
+    </button>
+    <div class="dropdown-menu">
+      {% for place in recent_places %}
+        <a class="dropdown-item" href="{{ place.url }}"><i class="fas {% if place.kind == 'zone' %}fa-map{% else %}fa-sun{% endif %} fa-fw"></i> {{ place.name }}</a>
+      {% empty %}
+        <span class="dropdown-item-text text-muted">{% trans "Aucun lieu consulté" %}</span>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="dropdown mr-1 mb-1">
+    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <i class="fas fa-star"></i> {% trans "Favoris" %}
+    </button>
+    <div class="dropdown-menu">
+      {% for place in favourite_places %}
+        <a class="dropdown-item" href="{{ place.url }}"><i class="fas {% if place.kind == 'zone' %}fa-map{% else %}fa-sun{% endif %} fa-fw"></i> {{ place.name }}</a>
+      {% empty %}
+        <span class="dropdown-item-text text-muted">{% trans "Aucun favori" %}</span>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if current_place %}
+    <form method="post" action="/geography_favourite/" class="mb-1">
+      {% csrf_token %}
+      <input type="hidden" name="kind" value="{{ current_place.kind }}">
+      <input type="hidden" name="id" value="{{ current_place.id }}">
+      {% if is_favourite %}
+        <button type="submit" class="btn btn-default btn-sm" aria-pressed="true"><i class="fas fa-star text-warning"></i> {% trans "Retirer des favoris" %}</button>
+      {% else %}
+        <button type="submit" class="btn btn-default btn-sm" aria-pressed="false"><i class="far fa-star"></i> {% trans "Ajouter aux favoris" %}</button>
+      {% endif %}
+    </form>
+  {% endif %}
+
+</div>

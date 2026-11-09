@@ -1,6 +1,8 @@
+import gzip
 import inspect
 import json
 import random
+from collections import Counter
 from datetime import datetime, timedelta, timezone as dt_timezone
 from importlib import import_module
 from unittest.mock import MagicMock, patch
@@ -26,7 +28,7 @@ from backend.models import SERVER_HOURS, CommandantAccount, ScheduledRun, Server
 from backend.templatetags.tss_dates import rp_date
 from backend.templatetags.tss_text import MAX_DEPTH, bbcode
 from database.schemas import schema_of, server_schema
-from game.models import Building, BuildingType, Colony, Commandant, Cycle, ConversationMessage, Coordinate, District, DistrictType, Entente, EntenteMember, EntenteRole, Modifier, Post, Report, Resource, Sector, StartingValues, System, Technology
+from game.models import Building, BuildingType, Colony, Commandant, Cycle, ConversationMessage, Coordinate, District, DistrictType, Entente, EntenteMember, EntenteRole, Modifier, Post, Report, Resource, Sector, StartingValues, System, Technology, Zone
 from backend.utils import commandant_owns_colony
 from data import conversations, ententes, forums, locations, quadrants
 from data import server_details
@@ -43,7 +45,7 @@ from data.errors import GameError
 from data.modifiers import add_modifier
 from data.schedule import blocking_run, last_due, run_due_steps, unblock
 from data.user import get_user_by_name
-from geography import map_generator as geography_map
+from geography import galaxy, map_generator as geography_map
 from geography.name_generator import ROMAN
 from geography.map_generator import excel_importer
 from data.report import change_report_status, delete_report, get_commandant_reports, get_report, mark_all_reports_as_read, update_nb_unread_reports
@@ -253,11 +255,14 @@ class SystemMapTests(SimpleTestCase):
     star = {'id': '100', 'type': 'star', 'subtype': 'G', 'name': 'Delea'}
     planet = {'id': '101', 'type': 'telluric', 'subtype': 'native', 'name': 'Danus'}
 
-    def view(self, url):
+    def view(self, url, native_system='home'):
         request = RequestFactory().get(url)
         request.user = player()
-        self.commandant = {'id': 1, 'colonies': [], 'native_system': 'home'}
-        return inspect.unwrap(views_game.geography_system)(request, 'S', self.commandant)
+        self.commandant = {'id': 1, 'colonies': [], 'native_system': native_system, 'recent_places': [], 'favourite_places': []}
+        with patch('data.commandant.remember_place') as remember:  # Its own tests : MapPlacesTests
+            response = inspect.unwrap(views_game.geography_system)(request, 'S', self.commandant)
+        remember.assert_called_once()
+        return response
 
     def test_unknown_system_falls_back_on_the_native_one(self, systems, get_coordinates, _colonies, _owners):
         get_coordinates.return_value = [dict(self.star)]
@@ -273,10 +278,7 @@ class SystemMapTests(SimpleTestCase):
 
     def test_a_system_is_found_by_its_readable_place(self, systems, get_coordinates, _colonies, _owners):
         get_coordinates.return_value = [dict(self.star)]
-        self.commandant_home = '1001000000050050'
-        request = RequestFactory().get('/geography_system/?system_id=f4-55.12-3')  # A body : its system
-        request.user = player()
-        inspect.unwrap(views_game.geography_system)(request, 'S', {'id': 1, 'colonies': [], 'native_system': self.commandant_home})
+        self.view('/geography_system/?system_id=f4-55.12-3', native_system='1001000000050050')  # A body : its system
         systems.get_system_by_seed.assert_called_once_with('S', '1001003005012055')
 
     def test_colonies_land_on_their_coordinate(self, systems, get_coordinates, colonies, owners):
@@ -1560,25 +1562,9 @@ class ModifiersPageTests(EconomyTestCase):
 
 class QuadrantRulesTests(SimpleTestCase):
 
-    def test_a_quadrant_is_found_by_its_id_or_by_a_seed(self):
-        self.assertEqual(quadrants.quadrant_id('1001000000:11'), '1001000000:11')
-        self.assertEqual(quadrants.quadrant_id('1001000000055050'), '1001000000:11')
-        self.assertEqual(quadrants.quadrant_id('100100000005505001'), '1001000000:11')
-        for wrong in ('', 'x', '1001000000', '1001000000:2', '1001000000:22', '1001000000150050', "1' OR 1=1"):
-            self.assertIsNone(quadrants.quadrant_id(wrong), wrong)
-
-    def test_a_sector_is_found_by_its_seed_a_quadrant_or_a_lower_seed(self):
-        for text in ('1001000000', '1001000000:11', '1001000000055050', '100100000005505001'):
-            self.assertEqual(quadrants.sector_id_of(text), '1001000000')
-        for wrong in ('', 'x', '100100000', '10010000001', '1001000000:1', "1' OR 1=1"):
-            self.assertIsNone(quadrants.sector_id_of(wrong), wrong)
-
-    def test_neighbours_cross_the_borders_of_the_sectors(self):
-        self.assertEqual(quadrants.neighbour_quadrant('1001000000:00', 0, 1), '1001000000:01')
-        self.assertEqual(quadrants.neighbour_quadrant('1001000000:01', 0, 1), '1001000001:00')
-        self.assertEqual(quadrants.neighbour_quadrant('1001000000:11', 1, 0), '1001001000:01')
-        self.assertIsNone(quadrants.neighbour_quadrant('1001000000:00', -1, 0))
-        self.assertIsNone(quadrants.neighbour_quadrant('1001000000:00', 0, -1))
+    def test_a_system_is_placed_on_the_whole_map_by_its_seed(self):
+        self.assertEqual(quadrants.position('1001002003055050'), (255, 350))
+        self.assertEqual(quadrants.position('100100000000000001'), (0, 0))
 
     def test_deposits_are_stable_and_follow_the_body(self):
         seed = '100100000005505001'
@@ -1595,26 +1581,26 @@ class QuadrantRulesTests(SimpleTestCase):
         self.assertGreater(total('resources_rich'), total('standard'))
         self.assertEqual(total('gas_rich'), total('standard'))
 
-    def test_vortex_networks_are_trees_and_continue_on_both_sides_of_a_border(self):
-        rng = random.Random(1)
-        sectors = {sector: [(rng.randint(0, 99), rng.randint(0, 99)) for _ in range(800)] for sector in ('1001000000', '1001000001', '1001001000')}
-        vortex = quadrants.vortex_of_quadrant('1001000000:11', sectors)
+    def test_the_centre_of_a_zone_is_inside_it_even_for_a_ring(self):
+        ring = [[0, 0, 5], [4, 0, 5]] + [[row, column, 1] for row in (1, 2, 3) for column in (0, 4)]  # Its barycentre is the hole
+        y, x = geography_map.centre_of(ring)
+        cell = (y // galaxy.CELL, x // galaxy.CELL)
+        self.assertTrue(any(row == cell[0] and start <= cell[1] < start + length for row, start, length in ring), cell)
+        self.assertEqual(geography_map.centre_of([[2, 3, 1]]), (2 * galaxy.CELL + galaxy.CELL // 2, 3 * galaxy.CELL + galaxy.CELL // 2))
 
-        self.assertEqual(vortex, quadrants.vortex_of_quadrant('1001000000:11', sectors))
-        self.assertGreater(len(vortex['nodes']), 10)
-        for network in set(vortex['nodes'].values()):
-            nodes = [node for node, of_network in vortex['nodes'].items() if of_network == network]
-            links = [link for link in vortex['links'] if link['network'] == network]
-            self.assertEqual(len(links), len(nodes) - 1)
-
-        self.assertEqual({exit_['direction'] for exit_ in vortex['exits']}, {'north', 'south', 'west', 'east'})
-        for exit_ in vortex['exits']:
-            back = quadrants.vortex_of_quadrant(exit_['quadrant'], sectors)['exits']
-            self.assertIn((exit_['to'], exit_['from'], '1001000000:11', exit_['network']),
-                          [(other['from'], other['to'], other['quadrant'], other['network']) for other in back])
+    def test_the_vortex_follows_the_rule_of_the_generator(self):
+        # (seed, y, x, star) : the bigger of two stars has to reach the other one
+        def vortex(*systems):
+            return quadrants._vortex([(seed, y, x, star, '', 'standard', 1) for seed, y, x, star in systems])
+        reach = galaxy.STARS['M'][1]
+        self.assertEqual(vortex(('a', 0, 0, 'M'), ('b', 0, reach, 'M')), [0, 1])
+        self.assertEqual(vortex(('a', 0, 0, 'M'), ('b', 0, reach + 1, 'M')), [])
+        self.assertEqual(vortex(('a', 0, 0, 'M'), ('b', 0, reach + 1, 'supergiant')), [0, 1])
+        self.assertEqual(vortex(), [])
 
 
 class QuadrantMapFixture(EconomyTestCase):
+    # One sector of 100 x 100 cut into two zones : Berceau 1 west of x = 55, Marche 1 east of it
 
     def setUp(self):
         cache.clear()
@@ -1626,9 +1612,14 @@ class QuadrantMapFixture(EconomyTestCase):
             self.commandant.native_sector = '1001000000'
             self.commandant.save()
             self.rival = Commandant.objects.create(user=self.user, commandant_name='Rival', civilisation_name='Rivals', creation_date=timezone.now())
-            Sector.objects.create(seed='1001000000', pos_y=0, pos_x=0, sector_type='native', systems_coordinates=[[55, 50], [60, 70], [10, 10]])
-            for seed, kind in (('1001000000055050', 'native'), ('1001000000060070', 'standard'), ('1001000000010010', 'standard')):
-                System.objects.create(seed=seed, system_type=kind, sector_id=seed[:10], pos_y=seed[10:13], pos_x=seed[13:16])
+            Sector.objects.create(seed='1001000000', pos_y=0, pos_x=0, sector_type='berceau', systems_coordinates=[[55, 50], [60, 70], [10, 10]])
+            Zone.objects.create(region=1, kind='berceau', name='Berceau 1', y=50, x=27, nb_systems=2, neighbours=[2],
+                                shape=[[row, 0, 11] for row in range(20)])
+            Zone.objects.create(region=2, kind='marche', name='Marche 1', y=50, x=77, nb_systems=1, neighbours=[1],
+                                shape=[[row, 11, 9] for row in range(20)])
+            for seed, kind, region in (('1001000000055050', 'native', 1), ('1001000000060070', 'standard', 2), ('1001000000010010', 'standard', 1)):
+                System.objects.create(seed=seed, system_type=kind, sector_id=seed[:10], pos_y=seed[10:13], pos_x=seed[13:16], region=region,
+                                      system_coordinates={seed + '00': 'supergiant', seed + '01': 'asteroid_belt standard'})
                 Coordinate.objects.create(seed=seed + '00', type='star', subtype='supergiant', sector_id=seed[:10], system_id=seed, sys_y=int(seed[10:13]),
                                           sys_x=int(seed[13:16]), sys_coordinate=0, name='Star' + seed[-3:])
                 Coordinate.objects.create(seed=seed + '01', type='asteroid_belt', subtype='standard', sector_id=seed[:10], system_id=seed, sys_y=int(seed[10:13]),
@@ -1640,6 +1631,10 @@ class QuadrantMapFixture(EconomyTestCase):
             Resource.objects.create(internal_name='common_metal', data={'internal_name': 'common_metal', 'name_fr': 'Métaux', 'name_en': 'Metals'})
             Resource.objects.create(internal_name='tungsten', data={'internal_name': 'tungsten', 'name_fr': 'Tungstène', 'name_en': 'Tungsten'})
 
+    def commandant_now(self):
+        with server_schema('S'):
+            return Commandant.objects.get(id=self.commandant.id)
+
 
 class QuadrantMapTests(QuadrantMapFixture):
 
@@ -1648,32 +1643,49 @@ class QuadrantMapTests(QuadrantMapFixture):
         self.assertEqual(response.status_code, 200)
         return response
 
-    def test_only_the_systems_of_the_quadrant_are_on_the_map(self):
-        quadrant = self.map_of(quadrant='1001000000:11').context['quadrant_map']
-        self.assertEqual({system['id'] for system in quadrant['systems']}, {'1001000000055050', '1001000000060070'})
-        self.assertEqual(quadrant['origin'], {'y': 50, 'x': 50})
-
-    def test_the_native_quadrant_is_the_default_and_a_wrong_one_is_reported(self):
+    def test_the_native_zone_is_the_default_and_a_wrong_one_is_reported(self):
         response = self.map_of()
-        self.assertEqual(response.context['quadrant_map']['id'], '1001000000:11')
-        self.assertFalse(response.context['quadrant_not_found'])
-        for params in ({'quadrant': 'nope'}, {'quadrant': '1001999999:00'}, {'system_id': '12'}):
+        self.assertEqual(response.context['zone_map']['id'], 1)
+        self.assertFalse(response.context['zone_not_found'])
+        for params in ({'zone': 'nope'}, {'zone': '99'}, {'system_id': '12'}, {'zone': "1' OR 1=1"}):
             response = self.map_of(**params)
-            self.assertEqual(response.context['quadrant_map']['id'], '1001000000:11')
-            self.assertTrue(response.context['quadrant_not_found'])
+            self.assertEqual(response.context['zone_map']['id'], 1)
+            self.assertTrue(response.context['zone_not_found'])
 
-    def test_a_system_opens_its_quadrant(self):
-        self.assertEqual(self.map_of(system_id='1001000000010010').context['quadrant_map']['id'], '1001000000:00')
+    def test_a_zone_is_found_by_its_number_or_by_any_place_inside_it(self):
+        for params in ({'zone': '2'}, {'system_id': '1001000000060070'}, {'system_id': '100100000006007001'}, {'system_id': 'A1-70.60'}):
+            self.assertEqual(self.map_of(**params).context['zone_map']['id'], 2, params)
+
+    def test_the_systems_of_the_zone_and_dimmed_those_around_it(self):
+        zone = self.map_of(zone='1').context['zone_map']
+        systems = zone['systems']
+        self.assertEqual(systems['name'], ['Star010', 'Star050', 'Star070'])  # Star070 is in Marche 1, 15 units from the border
+        self.assertEqual(systems['zone'], [1, 1, 2])
+        self.assertEqual((systems['y'], systems['x']), ([10, 55, 60], [10, 50, 70]))
+        self.assertEqual(systems['types'][systems['type'][1]]['key'], 'native')
+        self.assertEqual([shown['id'] for shown in zone['zones']], [1, 2])
+        self.assertEqual(zone['title'], 'Quadrant Berceau 1')
+
+    def test_an_arrow_leads_to_each_zone_around_from_their_shared_border(self):
+        exits = self.map_of(zone='1').context['zone_map']['exits']
+        self.assertEqual([(exit_['zone'], exit_['name']) for exit_ in exits], [(2, 'Marche 1')])
+        self.assertEqual(exits[0]['x'], 52)  # The last column of cells of Berceau 1
+        self.assertEqual((round(exits[0]['dy']), round(exits[0]['dx'])), (0, 1))  # Toward the east
+        self.assertContains(self.map_of(zone='1'), 'href="/geography_quadrant/?zone=2"')
+        self.assertEqual(self.map_of(zone='2').context['zone_map']['exits'][0]['dx'], -1)
+
+    def test_the_vortex_links_the_systems_the_bigger_star_reaches(self):
+        # 20.6 units between Star050 and Star070, the reach of a supergiant is 28 ; Star010 is too far from both
+        self.assertEqual(self.map_of(zone='1').context['zone_map']['vortex'], [1, 2])
 
     def test_what_is_known_of_the_others_stays_public(self):
-        response = self.map_of(quadrant='1001000000:11')
-        quadrant = response.context['quadrant_map']
-        rival = next(empire for empire in quadrant['empires'] if empire['id'] == self.rival.id)
+        zone = self.map_of(zone='2').context['zone_map']
+        rival = next(empire for empire in zone['empires'] if empire['id'] == self.rival.id)
         self.assertEqual(rival['civilisation'], 'Rivals')
         self.assertEqual(set(rival), {'id', 'commandant', 'civilisation', 'is_mine', 'ententes'})
-        colony = next(system for system in quadrant['systems'] if system['id'] == '1001000000060070')['colonies'][0]
+        colony = zone['colonies'][zone['systems']['name'].index('Star070')][0]
         self.assertEqual((colony['name'], colony['is_mine'], colony['id']), ('Outpost', False, None))  # No link to the page of a colony of another player
-        self.assertEqual([entente['name'] for entente in quadrant['ententes']], ['Pact'])
+        self.assertEqual([entente['name'] for entente in zone['ententes']], ['Pact'])
 
     def test_an_application_isnt_a_membership(self):
         memberships = ententes.memberships_of_commandants('S', [self.commandant.id, self.rival.id])
@@ -1681,84 +1693,91 @@ class QuadrantMapTests(QuadrantMapFixture):
         self.assertEqual(memberships[self.rival.id][0]['name'], 'Pact')
 
     def test_my_colony_links_to_its_page(self):
-        quadrant = self.map_of(quadrant='1001000000:11').context['quadrant_map']
-        colony = next(system for system in quadrant['systems'] if system['id'] == '1001000000055050')
-        self.assertEqual(colony['colonies'][0]['id'], self.colony.id)
+        zone = self.map_of(zone='1').context['zone_map']
+        self.assertEqual(zone['colonies'][zone['systems']['name'].index('Star050')][0]['id'], self.colony.id)
 
     def test_only_the_resources_of_the_server_are_offered(self):
-        known = {resource['id'] for resource in self.map_of(quadrant='1001000000:11').context['quadrant_map']['resources']}
-        self.assertLessEqual(known, {'common_metal', 'tungsten'})
+        known = {resource['id'] for resource in self.map_of(zone='1').context['zone_map']['resources']}
+        with server_schema('S'):
+            of_server = set(Resource.objects.values_list('internal_name', flat=True))
+        self.assertEqual(known, of_server & {resource for chances in quadrants.DEPOSIT_CHANCES.values() for resource in chances})
+        self.assertIn('tungsten', known)
+
+    def test_a_server_without_zones_says_its_map_has_to_be_generated_again(self):
+        with server_schema('S'):
+            Zone.objects.all().delete()
+        self.assertIsNone(self.map_of().context['zone_map'])
+        self.assertIsNone(self.client.get('/geography_sector/').context['sector_map'])
 
     def test_a_player_name_cant_break_out_of_the_page(self):
         with server_schema('S'):
             Commandant.objects.filter(id=self.rival.id).update(civilisation_name='</script><script>alert(1)</script>')
-        self.assertNotContains(self.map_of(quadrant='1001000000:11'), '<script>alert(1)')
+        self.assertNotContains(self.map_of(zone='2'), '<script>alert(1)')
 
 
 class SectorMapTests(QuadrantMapFixture):
 
-    def sector_of(self, **params):
-        response = self.client.get('/geography_sector/', params)
+    def sector_of(self):
+        response = self.client.get('/geography_sector/')
         self.assertEqual(response.status_code, 200)
         return response
 
-    def deposits(self, resource, sector='1001000000'):
-        response = self.client.get('/api_sector_deposits/', {'sector': sector, 'resource': resource})
+    def whole_map(self, **headers):
+        response = self.client.get('/api_sector_map/', {'v': 1}, **headers)
+        self.assertEqual(response.status_code, 200)
+        return response
+
+    def deposits(self, resource, zone='1'):
+        response = self.client.get('/api_zone_deposits/', {'zone': zone, 'resource': resource})
         self.assertEqual(response.status_code, 200)
         return response.json()
 
-    def test_all_the_systems_of_the_sector_are_on_the_map_in_aligned_columns(self):
+    def test_the_page_holds_the_colonies_and_the_native_zone(self):
         sector = self.sector_of().context['sector_map']
-        systems = sector['systems']
-        self.assertEqual(systems['name'], ['Star010', 'Star050', 'Star070'])
-        self.assertEqual((systems['y'], systems['x']), ([10, 55, 60], [10, 50, 70]))
-        self.assertEqual(sector['types'][systems['type'][1]]['key'], 'native')
-        self.assertEqual(sector['stars'][systems['star'][0]]['key'], 'supergiant')
-
-    def test_a_system_or_a_quadrant_opens_its_sector_and_a_wrong_one_is_reported(self):
-        self.assertFalse(self.sector_of(system_id='1001000000010010').context['sector_not_found'])
-        self.assertFalse(self.sector_of(sector='1001000000:11').context['sector_not_found'])
-        for params in ({'sector': 'nope'}, {'sector': '1001999999'}):
-            response = self.sector_of(**params)
-            self.assertTrue(response.context['sector_not_found'])
-            self.assertEqual(response.context['sector_map']['id'], '1001000000')
-
-    def test_the_colonies_stay_as_public_as_on_a_quadrant(self):
-        sector = self.sector_of().context['sector_map']
-        mine, other = sector['colonies'][1][0], sector['colonies'][2][0]
+        self.assertEqual((sector['native_zone'], sector['server_seed'], sector['mode']), (1, '1001', 'sector'))
+        mine, other = sector['colonies']['1001000000055050'][0], sector['colonies']['1001000000060070'][0]
         self.assertEqual((mine['id'], mine['is_mine']), (self.colony.id, True))
-        self.assertEqual((other['name'], other['id'], other['is_mine']), ('Outpost', None, False))
+        self.assertEqual((other['name'], other['id'], other['is_mine']), ('Outpost', None, False))  # As public as on a quadrant
         self.assertEqual([entente['name'] for entente in sector['ententes']], ['Pact'])
 
-    def test_each_vortex_refers_to_a_system_of_the_map(self):
-        with server_schema('S'):
-            Sector.objects.filter(seed='1001000000').update(systems_coordinates=[[10, 10], [55, 50], [60, 70]])
-        sector = self.sector_of().context['sector_map']
-        for ranks in list(sector['vortex']['nodes'].values()) + list(sector['vortex']['links'].values()):
-            self.assertTrue(all(0 <= rank < 3 for rank in ranks))
+    def test_the_whole_map_comes_apart_in_columns_compressed_and_kept_by_the_browser(self):
+        response = self.whole_map(HTTP_ACCEPT_ENCODING='gzip')
+        self.assertEqual(response['Content-Encoding'], 'gzip')
+        self.assertIn('private', response['Cache-Control'])
+        whole = json.loads(gzip.decompress(response.content))
+        self.assertEqual((whole['height'], whole['width'], whole['cell']), (100, 100, 5))
+        self.assertEqual([zone['id'] for zone in whole['zones']], [1, 2])
+        systems = whole['systems']
+        self.assertEqual(systems['name'], ['Star010', 'Star050', 'Star070'])
+        self.assertEqual((systems['y'], systems['x'], systems['zone']), ([10, 55, 60], [10, 50, 70], [1, 1, 2]))
+        self.assertEqual(systems['types'][systems['type'][1]]['key'], 'native')
+        self.assertEqual(systems['stars'][systems['star'][0]]['key'], 'supergiant')
 
-    def test_the_vortex_of_two_quadrants_of_a_sector_are_linked_once(self):
-        rng = random.Random(2)
-        positions = sorted({(rng.randint(0, 99), rng.randint(0, 99)) for _ in range(800)})
-        with server_schema('S'):
-            Sector.objects.filter(seed='1001000000').update(systems_coordinates=positions)
-            ranks = {f'1001000000{y:03}{x:03}': rank for rank, (y, x) in enumerate(positions)}
-            vortex = quadrants._vortex_of_sector('1001000000', {}, ranks)
-        nodes = sum(len(of_network) for of_network in vortex['nodes'].values())
-        self.assertEqual(nodes, sum(round(len([1 for y, x in positions if y // 50 == qy and x // 50 == qx]) * quadrants.VORTEX_SHARE)
-                                    for qy in range(2) for qx in range(2)))
-        self.assertEqual(vortex['exits'], [])  # No neighbouring sector
-        for network, links in vortex['links'].items():
-            pairs = [frozenset(links[i:i + 2]) for i in range(0, len(links), 2)]
-            self.assertEqual(len(pairs), len(set(pairs)), network)
-            # A tree in each quadrant, and at most a link across each of the 4 borders inside the sector
-            self.assertGreaterEqual(len(pairs), len(vortex['nodes'][network]) - 4)
+    def test_the_apis_of_the_maps_need_a_session_and_a_get(self):
+        for url in ('/api_sector_map/', '/api_zone_deposits/', '/api_system_bodies/'):
+            self.assertEqual(self.client.post(url).status_code, 405, url)
+        self.client.logout()
+        for url in ('/api_sector_map/', '/api_zone_deposits/', '/api_system_bodies/'):
+            self.assertEqual(self.client.get(url).status_code, 401, url)
 
-    def test_the_deposits_are_only_sent_when_asked_for_and_add_up_the_bodies(self):
-        self.assertNotIn('deposits', self.sector_of().context['sector_map']['systems'])
+    def test_the_number_of_queries_doesnt_depend_on_the_number_of_systems(self):
+        def queries():
+            with server_schema('S'), CaptureQueriesContext(connection) as context:
+                quadrants._sector_systems()
+            return len(context)
+
+        before = queries()
+        with server_schema('S'):
+            for x in range(20, 40):
+                seed = f'1001000000020{x:03}'
+                System.objects.create(seed=seed, system_type='standard', sector_id=seed[:10], pos_y=seed[10:13], pos_x=seed[13:16], region=1)
+                Coordinate.objects.create(seed=seed + '00', type='star', subtype='G', sector_id=seed[:10], system_id=seed, sys_y=20, sys_x=x, sys_coordinate=0, name='N')
+        self.assertEqual(queries(), before)
+
+    def test_the_deposits_of_a_zone_add_up_the_bodies_of_its_own_systems(self):
         expected = {}
-        for rank, seed in enumerate(('1001000000010010', '1001000000055050', '1001000000060070')):
-            for resource, richness in quadrants.deposits_of_body(seed + '01', 'asteroid_belt', 'standard').items():
+        for rank, (seed, system_type) in enumerate((('1001000000010010', 'standard'), ('1001000000055050', 'native'))):  # Not Star070 : only around
+            for resource, richness in quadrants.deposits_of_body(seed + '01', 'asteroid_belt', system_type).items():
                 expected.setdefault(resource, {})[rank] = richness
         self.assertTrue(expected)
         for resource, values in expected.items():
@@ -1766,41 +1785,89 @@ class SectorMapTests(QuadrantMapFixture):
             self.assertEqual(dict(zip(deposits['indexes'], deposits['values'])), values)
 
     def test_the_rare_deposits_add_up_all_the_rare_resources(self):
-        seeds = ('1001000000010010', '1001000000055050', '1001000000060070')
-        total = sum(richness for seed in seeds for resource, richness in quadrants.deposits_of_body(seed + '01', 'asteroid_belt', 'standard').items()
+        total = sum(richness for seed, system_type in (('1001000000010010', 'standard'), ('1001000000055050', 'native'))
+                    for resource, richness in quadrants.deposits_of_body(seed + '01', 'asteroid_belt', system_type).items()
                     if resource in quadrants.RARE_RESOURCES)
         self.assertEqual(sum(self.deposits('__rare')['values']), total)
 
     def test_a_wrong_request_for_deposits_gives_nothing(self):
         empty = {'indexes': [], 'values': []}
         self.assertEqual(self.deposits('nothing'), empty)
-        self.assertEqual(self.deposits('common_metal', sector='1001999999'), empty)
-        self.assertEqual(self.deposits('common_metal', sector="1' OR 1=1"), empty)
+        for zone in ('99', 'x', "1' OR 1=1", '1234567'):
+            self.assertEqual(self.deposits('common_metal', zone=zone), empty, zone)
 
-    def test_the_deposits_need_a_session_and_a_get(self):
-        self.assertEqual(self.client.post('/api_sector_deposits/').status_code, 405)
-        self.client.logout()
-        self.assertEqual(self.client.get('/api_sector_deposits/').status_code, 401)
-
-    def test_the_number_of_queries_doesnt_depend_on_the_number_of_systems(self):
-        def queries():
-            cache.clear()
-            with CaptureQueriesContext(connection) as context:
-                quadrants.sector_map('S', '1001000000', self.commandant.id, 'fr')
-            return len(context)
-
-        before = queries()
-        with server_schema('S'):
-            for x in range(20, 40):
-                seed = f'1001000000020{x:03}'
-                System.objects.create(seed=seed, system_type='standard', sector_id=seed[:10], pos_y=seed[10:13], pos_x=seed[13:16])
-                Coordinate.objects.create(seed=seed + '00', type='star', subtype='G', sector_id=seed[:10], system_id=seed, sys_y=20, sys_x=x, sys_coordinate=0, name='N')
-        self.assertEqual(queries(), before)
+    def test_the_bodies_of_a_system_and_their_deposits(self):
+        bodies = self.client.get('/api_system_bodies/', {'system': '1001000000055050'}).json()['bodies']
+        self.assertEqual([(body['orbit'], body['name']) for body in bodies], [(0, 'Star050'), (1, 'Belt050')])
+        self.assertEqual(bodies[1]['deposits'], quadrants.deposits_of_body('100100000005505001', 'asteroid_belt', 'native'))
+        for wrong in ('1001000000099099', 'x', "1' OR 1=1"):
+            self.assertEqual(self.client.get('/api_system_bodies/', {'system': wrong}).json()['bodies'], [], wrong)
 
     def test_a_player_name_cant_break_out_of_the_page(self):
         with server_schema('S'):
             Commandant.objects.filter(id=self.rival.id).update(civilisation_name='</script><script>alert(1)</script>')
         self.assertNotContains(self.sector_of(), '<script>alert(1)')
+
+
+class MapPlacesTests(QuadrantMapFixture):
+
+    def favourite(self, kind, place_id, **extra):
+        return self.client.post('/geography_favourite/', {'kind': kind, 'id': place_id, **extra})
+
+    def test_the_last_places_looked_at_come_first_and_only_once(self):
+        self.client.get('/geography_quadrant/', {'zone': '1'})
+        self.client.get('/geography_system/', {'system_id': '1001000000060070'})
+        self.client.get('/geography_quadrant/', {'zone': '2'})
+        self.client.get('/geography_quadrant/', {'zone': '1'})
+        self.assertEqual(self.commandant_now().recent_places, [
+            {'kind': 'zone', 'id': '1', 'name': 'Berceau 1'}, {'kind': 'zone', 'id': '2', 'name': 'Marche 1'},
+            {'kind': 'system', 'id': '1001000000060070', 'name': 'Star070'}])
+
+    def test_only_the_ten_last_places_are_kept(self):
+        with server_schema('S'):
+            Commandant.objects.filter(id=self.commandant.id).update(
+                recent_places=[{'kind': 'system', 'id': f'10010000000000{number:02}', 'name': str(number)} for number in range(10)])
+        self.client.get('/geography_quadrant/', {'zone': '2'})
+        places = self.commandant_now().recent_places
+        self.assertEqual(len(places), 10)
+        self.assertEqual((places[0]['name'], places[-1]['name']), ('Marche 1', '8'))
+
+    def test_the_page_lists_the_places_without_the_one_on_screen(self):
+        self.client.get('/geography_quadrant/', {'zone': '2'})
+        response = self.client.get('/geography_quadrant/', {'zone': '1'})
+        self.assertEqual([(place['name'], place['url']) for place in response.context['recent_places']], [('Marche 1', '/geography_quadrant/?zone=2')])
+        self.assertEqual(response.context['current_place'], {'kind': 'zone', 'id': '1', 'name': 'Berceau 1'})
+        self.assertContains(response, 'href="/geography_quadrant/?zone=2"')
+
+    def test_a_favourite_is_added_then_removed_with_the_name_of_the_map(self):
+        response = self.favourite('zone', '2', name='<b>Mine</b>')
+        self.assertRedirects(response, '/geography_quadrant/?zone=2', fetch_redirect_response=False)
+        self.assertEqual(self.commandant_now().favourite_places, [{'kind': 'zone', 'id': '2', 'name': 'Marche 1'}])
+        self.assertTrue(self.client.get('/geography_quadrant/', {'zone': '2'}).context['is_favourite'])
+        self.favourite('system', '1001000000055050')
+        self.assertEqual([place['name'] for place in self.commandant_now().favourite_places], ['Marche 1', 'Star050'])
+        self.favourite('zone', '2')
+        self.assertEqual([place['name'] for place in self.commandant_now().favourite_places], ['Star050'])
+
+    def test_a_place_that_doesnt_exist_isnt_kept(self):
+        for kind, place_id in (('zone', '99'), ('zone', 'x'), ('system', '1001000000099099'), ('sector', '1001000000'), ('zone', "1' OR 1=1")):
+            self.assertEqual(self.favourite(kind, place_id).status_code, 302)
+        self.assertEqual(self.commandant_now().favourite_places, [])
+
+    def test_a_full_list_of_favourites_refuses_a_new_one_but_can_still_lose_one(self):
+        full = [{'kind': 'system', 'id': f'10010000000000{number:02}', 'name': str(number)} for number in range(50)]
+        with server_schema('S'):
+            Commandant.objects.filter(id=self.commandant.id).update(favourite_places=full)
+        self.favourite('zone', '2')
+        self.assertEqual(len(self.commandant_now().favourite_places), 50)
+        with server_schema('S'):
+            Coordinate.objects.create(seed='100100000000000000', type='star', subtype='M', sector_id='1001000000', system_id='1001000000000000',
+                                      sys_y=0, sys_x=0, sys_coordinate=0, name='0')
+        self.favourite('system', '1001000000000000')
+        self.assertEqual(len(self.commandant_now().favourite_places), 49)
+
+    def test_favourites_need_a_post(self):
+        self.assertEqual(self.client.get('/geography_favourite/').status_code, 405)
 
 
 class EconomyPagesTests(EconomyTestCase):
@@ -3355,6 +3422,24 @@ class MapGenerationTests(TestCase):
             self.assertFalse(Coordinate.objects.exclude(seed__regex=r'^1001\d{14}$').exists())
             self.assertFalse(System.objects.filter(zone=None).exists())
             self.assertFalse(System.objects.filter(region=None).exists())
+
+    def test_the_zones_are_written_with_their_shape_their_neighbours_and_a_name(self):
+        with server_schema('S'):
+            zones = {zone.region: zone for zone in Zone.objects.all()}
+            self.assertEqual(set(System.objects.values_list('region', flat=True)) - set(zones), set())  # Each system in a zone of the map
+            for region, nb_systems in Counter(System.objects.values_list('region', flat=True)).items():
+                self.assertEqual(zones[region].nb_systems, nb_systems)
+            self.assertEqual(len({zone.name for zone in zones.values()}), len(zones))
+            cells = set()
+            for zone in zones.values():
+                self.assertTrue(zone.shape)
+                self.assertEqual(zone.name.split(' ')[0], galaxy.ZONES[zone.kind]['label'].split(' ')[0])
+                for neighbour in zone.neighbours:
+                    self.assertIn(zone.region, zones[neighbour].neighbours)
+                for row, start, length in zone.shape:
+                    covered = {(row, column) for column in range(start, start + length)}
+                    self.assertFalse(cells & covered)  # A cell belongs to a single zone
+                    cells |= covered
 
     def test_every_system_has_its_own_name_and_its_bodies_its_name_and_orbit(self):
         with server_schema('S'):

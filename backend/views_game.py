@@ -1,6 +1,8 @@
 from django.http import JsonResponse
 from django.template.response import TemplateResponse
-from django.views.decorators.http import require_GET
+from django.views.decorators.cache import cache_control
+from django.views.decorators.gzip import gzip_page
+from django.views.decorators.http import require_GET, require_POST
 from django.shortcuts import redirect, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -308,11 +310,28 @@ def geography_system(request, server, commandant):
         located_on['colonies'].append(colony)
         located_on['has_my_colony'] = located_on.get('has_my_colony') or colony['is_mine']
 
+    current = {'kind': 'system', 'id': system['id'], 'name': system_coordinates[0]['name']}
+    data.commandant.remember_place(server, commandant['id'], current)
+
     return TemplateResponse(request, 'game/geography_system.html',
                             {'server': server, 'system': system,
                              'system_coordinates': system_coordinates,
                              'star': system_coordinates[0],
-                             'system_not_found': system_not_found})
+                             'system_not_found': system_not_found, **places_of(commandant, current)})
+
+
+PLACE_PAGES = {'zone': '/geography_quadrant/?zone=', 'system': '/geography_system/?system_id='}
+
+
+def places_of(commandant, current=None):
+    # The lists of places of the maps : the last ones looked at, without the one on screen, and the favourites
+    def with_url(places):
+        return [place | {'url': PLACE_PAGES[place['kind']] + place['id']} for place in places]
+    def same(place):
+        return current is not None and (place['kind'], place['id']) == (current['kind'], current['id'])
+    return {'recent_places': with_url([place for place in commandant['recent_places'] if not same(place)]),
+            'favourite_places': with_url(commandant['favourite_places']), 'current_place': current,
+            'is_favourite': any(same(place) for place in commandant['favourite_places'])}
 
 
 @login_required(login_url='/player_login/')
@@ -320,22 +339,30 @@ def geography_system(request, server, commandant):
 @log_player_action
 @commandant_required
 def geography_quadrant(request, server, commandant):
+    # A quadrant is a natural zone of the map, the native one of the commandant if none is asked for
 
     params = request_params(request)
     language = get_request_user(request)['language']
+    server_seed = commandant['native_system'][:4]
 
-    # TODO check if commandant has vision on the quadrant, same as geography_system
+    # TODO check if commandant has vision on the zone, same as geography_system
 
-    requested = params.get('quadrant') or params.get('system_id') or ''
-    quadrant = quadrants.quadrant_id(seed_of(requested, commandant['native_system']) or requested.strip())
-    quadrant_map = quadrants.quadrant_map(server, quadrant, commandant['id'], language) if quadrant else None
+    requested = params.get('zone') or params.get('system_id') or ''
+    region = quadrants.region_of(server, requested, server_seed) if requested else None
+    zone_map = quadrants.zone_map(server, region, commandant['id'], language, server_seed) if region is not None else None
 
-    quadrant_not_found = bool(requested) and quadrant_map is None
-    if quadrant_map is None:
-        quadrant_map = quadrants.quadrant_map(server, quadrants.quadrant_id(commandant['native_system']), commandant['id'], language)
+    zone_not_found = bool(requested) and zone_map is None
+    if zone_map is None:
+        native = quadrants.region_of(server, commandant['native_system'], server_seed)
+        zone_map = quadrants.zone_map(server, native, commandant['id'], language, server_seed) if native is not None else None
+
+    current = None
+    if zone_map:
+        current = {'kind': 'zone', 'id': str(zone_map['id']), 'name': zone_map['zone']['name']}
+        data.commandant.remember_place(server, commandant['id'], current)
 
     return TemplateResponse(request, 'game/geography_quadrant.html',
-                            {'server': server, 'quadrant_map': quadrant_map, 'quadrant_not_found': quadrant_not_found})
+                            {'server': server, 'zone_map': zone_map, 'zone_not_found': zone_not_found, **places_of(commandant, current)})
 
 
 @login_required(login_url='/player_login/')
@@ -343,32 +370,57 @@ def geography_quadrant(request, server, commandant):
 @log_player_action
 @commandant_required
 def geography_sector(request, server, commandant):
-
-    params = request_params(request)
-    language = get_request_user(request)['language']
+    # The whole map. The page only holds what changes : the map itself comes from api_sector_map.
 
     # TODO check if commandant has vision on the sector, same as geography_system
 
-    requested = params.get('sector') or params.get('system_id') or ''
-    sector_id = quadrants.sector_id_of(seed_of(requested, commandant['native_system']) or requested.strip())
-    sector_map = quadrants.sector_map(server, sector_id, commandant['id'], language) if sector_id else None
-
-    sector_not_found = bool(requested) and sector_map is None
-    if sector_map is None:
-        sector_map = quadrants.sector_map(server, commandant['native_sector'], commandant['id'], language)
-
+    language = get_request_user(request)['language']
+    server_seed = commandant['native_system'][:4]
+    native = quadrants.region_of(server, commandant['native_system'], server_seed)
+    sector_map = quadrants.sector_map(server, commandant['id'], native, server_seed, language)
     return TemplateResponse(request, 'game/geography_sector.html',
-                            {'server': server, 'sector_map': sector_map, 'sector_not_found': sector_not_found})
+                            {'server': server, 'sector_map': sector_map, **places_of(commandant)})
 
 
 @require_GET
 @api_login_required
 @commandant_required
-def api_sector_deposits(request, server, commandant):
-    # Asked by the map of a sector once a search is about this resource
-    sector_id = quadrants.sector_id_of(request.GET.get('sector', '').strip())
-    deposits = quadrants.sector_deposits(server, sector_id, request.GET.get('resource')) if sector_id else {'indexes': [], 'values': []}
+@cache_control(private=True, max_age=quadrants.CACHE_SECONDS)  # The URL holds the version of the map : a new one isn't hidden
+@gzip_page  # A hundred thousand systems : about a third once compressed. No secret in it, unlike a page with a form.
+def api_sector_map(request, server, commandant):
+    return JsonResponse(quadrants.sector_systems(server), json_dumps_params={'separators': (',', ':')})
+
+
+@require_GET
+@api_login_required
+@commandant_required
+def api_zone_deposits(request, server, commandant):
+    # Asked by the map of a quadrant once a search is about this resource
+    region = request.GET.get('zone', '').strip()
+    deposits = quadrants.zone_deposits(server, int(region), request.GET.get('resource'), commandant['native_system'][:4])         if region.isdigit() and len(region) <= 6 else {'indexes': [], 'values': []}
     return JsonResponse(deposits, json_dumps_params={'separators': (',', ':')})
+
+
+@require_GET
+@api_login_required
+@commandant_required
+def api_system_bodies(request, server, commandant):
+    # The bodies of the system selected on a map, with their deposits
+    seed = request.GET.get('system', '').strip()
+    return JsonResponse({'bodies': quadrants.system_bodies(server, seed) if seed.isdigit() and len(seed) == 16 else []})
+
+
+@require_POST
+@login_required(login_url='/player_login/')
+@log_player_action
+@commandant_required
+def geography_favourite(request, server, commandant):
+    # Adds the place to the favourites of the commandant, or removes it. Its name comes from the map, not from the form.
+    place = quadrants.place(server, request.POST.get('kind'), request.POST.get('id'))
+    if place is None:
+        return redirect('/geography_quadrant/')
+    data.commandant.toggle_favourite_place(server, commandant['id'], place)
+    return redirect(PLACE_PAGES[place['kind']] + place['id'])
 
 
 ########################################################################################################################

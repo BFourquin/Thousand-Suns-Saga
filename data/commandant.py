@@ -158,3 +158,38 @@ def delete_commandant(server, commandant_id):
     CommandantAccount.objects.filter(server=server, commandant_id=commandant_id).delete()
     UserExtended.objects.filter(playing_on_server=server, playing_on_commandant=commandant_id).update(
         playing_on_server=None, playing_on_commandant=None)
+
+
+########################################################################################################################
+# THE PLACES OF THE MAPS : the last ones a commandant looked at and his favourites, see game.models.Commandant
+
+RECENT_PLACES = 10
+FAVOURITE_PLACES = 50  # shortcut: beyond, a new favourite is refused instead of being paginated ; raise it if players ask
+
+
+def _same_place(one, other):
+    return (one['kind'], one['id']) == (other['kind'], other['id'])
+
+
+@on_server
+@transaction.atomic
+def remember_place(server, commandant_id, place):
+    # The latest first, each place once
+    commandant = Commandant.objects.select_for_update().only('recent_places').get(id=commandant_id)
+    commandant.recent_places = [place, *(known for known in commandant.recent_places if not _same_place(known, place))][:RECENT_PLACES]
+    commandant.save(update_fields=['recent_places'])
+
+
+@on_server
+@transaction.atomic
+def toggle_favourite_place(server, commandant_id, place):
+    # Added at the end, or removed if it already is a favourite. False if the list is full.
+    commandant = Commandant.objects.select_for_update().only('favourite_places').get(id=commandant_id)
+    kept = [known for known in commandant.favourite_places if not _same_place(known, place)]
+    if len(kept) == len(commandant.favourite_places):
+        if len(kept) >= FAVOURITE_PLACES:
+            return False
+        kept.append(place)
+    commandant.favourite_places = kept
+    commandant.save(update_fields=['favourite_places'])
+    return True

@@ -11,20 +11,23 @@
   </div>
   <ul class="qmap-legend" id="qmap-legend"></ul>
 
-  <h2 class="qmap-section"><i class="fas fa-circle-nodes"></i> {% trans "Réseaux de vortex" %}</h2>
-  <ul class="qmap-networks" id="qmap-networks"></ul>
+  {% if zone_mode %}
+  <h2 class="qmap-section"><i class="fas fa-circle-nodes"></i> {% trans "Vortex" %}</h2>
+  <label class="qmap-check"><input id="qmap-vortex" type="checkbox" checked> {% trans "Liens de vortex" %} <span class="qmap-count" id="qmap-vortex-count"></span></label>
+  {% endif %}
 
   <h2 class="qmap-section"><i class="fas fa-magnifying-glass"></i> {% trans "Rechercher" %}</h2>
   <div class="qmap-presets" id="qmap-presets">
     <button type="button" data-preset="largest"><i class="fas fa-sun"></i> {% trans "Plus grandes étoiles" %}</button>
     <button type="button" data-preset="colonized"><i class="fas fa-city"></i> {% trans "Colonisés" %}</button>
     <button type="button" data-preset="habitable"><i class="fas fa-seedling"></i> {% trans "Habitables" %}</button>
+    {% if zone_mode %}
     <button type="button" data-preset="rare"><i class="fas fa-gem"></i> {% trans "Ressources rares" %}</button>
     <button type="button" data-preset="concentration"><i class="fas fa-mountain"></i> {% trans "Forte concentration" %}</button>
-    <button type="button" data-preset="vortex"><i class="fas fa-circle-nodes"></i> {% trans "Nœuds de vortex" %}</button>
+    {% endif %}
   </div>
 
-  <label for="qmap-text">{% trans "Nom, code ou civilisation" %}</label>
+  <label for="qmap-text">{% trans "Nom, lieu ou civilisation" %}</label>
   <input id="qmap-text" type="search" class="form-control form-control-sm" autocomplete="off">
 
   <span class="qmap-label">{% trans "Classe d'étoile, de la plus grande à la plus petite" %}</span>
@@ -45,6 +48,7 @@
     <option value="__habitable">{% trans "Tous les habitables" %}</option>
   </select>
 
+  {% if zone_mode %}
   <label for="qmap-resource">{% trans "Ressource" %}</label>
   <select id="qmap-resource" class="form-control form-control-sm">
     <option value="">{% trans "Toutes les ressources" %}</option>
@@ -58,7 +62,7 @@
     <input id="qmap-min" type="range" min="0" max="100" value="0" class="custom-range">
   </div>
 
-  <label class="qmap-check"><input id="qmap-vortex-only" type="checkbox"> {% trans "Seulement les nœuds de vortex" %}</label>
+  {% endif %}
 
   <button type="button" class="btn btn-default btn-sm btn-block" id="qmap-reset" hidden><i class="fas fa-eraser"></i> {% trans "Effacer la recherche" %}</button>
 

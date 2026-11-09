@@ -8,8 +8,10 @@ A sector of the tables is a square of SECTOR_SIZE units of the galaxy ; the natu
 
 from collections import Counter, defaultdict
 
+import numpy as np
+
 from database.schemas import on_server
-from game.models import Coordinate, Sector, StartingValues, System
+from game.models import Coordinate, Sector, StartingValues, System, Zone
 from data import map_generator
 from geography import galaxy, name_generator
 
@@ -169,15 +171,53 @@ def save_galaxy(server, drawn, server_seed, composition, batch=5000):
         for seed, inside in sectors.items()], batch_size=batch)
     System.objects.bulk_create(systems, batch_size=batch)
     Coordinate.objects.bulk_create(bodies, batch_size=batch)
+    Zone.objects.bulk_create(zones_of(drawn, Counter(system.region for system in systems)), batch_size=batch)
     starting = StartingValues.objects.first()
     if starting:
         starting.available_native_planets = natives
         starting.save(update_fields=['available_native_planets'])
 
 
+def centre_of(runs):
+    # (y, x) in units : the cell of the zone the closest to its barycentre, inside it even for a ring around a cradle
+    cells = sum(length for *_, length in runs)
+    cy = sum(row * length for row, _, length in runs) / cells
+    cx = sum((start + (length - 1) / 2) * length for _, start, length in runs) / cells
+    row, col = min(((row, min(max(round(cx), start), start + length - 1)) for row, start, length in runs),
+                   key=lambda cell: (cell[0] - cy) ** 2 + (cell[1] - cx) ** 2)
+    return row * galaxy.CELL + galaxy.CELL // 2, col * galaxy.CELL + galaxy.CELL // 2
+
+
+def zones_of(drawn, systems):
+    # The zones as the pages draw them : their cells of galaxy.CELL units, the zones they touch, a name and a centre
+    owner = drawn.owner_u[galaxy.CELL // 2::galaxy.CELL, galaxy.CELL // 2::galaxy.CELL]  # The middle of each cell
+    kinds = drawn.zone_kinds()
+    shapes, neighbours = defaultdict(list), defaultdict(set)
+    for a, b in ((owner[:, :-1], owner[:, 1:]), (owner[:-1], owner[1:])):
+        touching = a != b
+        for one, other in set(zip(a[touching].tolist(), b[touching].tolist())):
+            neighbours[one].add(other)
+            neighbours[other].add(one)
+    for row, line in enumerate(owner):
+        starts = np.flatnonzero(np.diff(line, prepend=-1))
+        for start, end in zip(starts.tolist(), starts[1:].tolist() + [len(line)]):
+            shapes[int(line[start])].append([row, start, end - start])
+
+    centres = {region: centre_of(runs) for region, runs in shapes.items()}
+    # Numbered by kind from the north-west : Berceau 1, Berceau 2... and no number for the only one of its kind
+    by_kind = defaultdict(list)
+    for region in sorted(shapes, key=lambda region: centres[region]):
+        by_kind[str(kinds[region])].append(region)
+    names = {region: galaxy.ZONES[kind]['label'] + (f' {number}' if len(regions) > 1 else '')
+             for kind, regions in by_kind.items() for number, region in enumerate(regions, 1)}
+    return [Zone(region=region, kind=str(kinds[region]), name=names[region], y=centres[region][0], x=centres[region][1],
+                 nb_systems=systems[region], neighbours=sorted(int(n) for n in neighbours[region]), shape=runs)
+            for region, runs in shapes.items()]
+
+
 @on_server
 def remove_past_generation(server):
-    for model in (Sector, System, Coordinate):
+    for model in (Sector, System, Coordinate, Zone):
         model.objects.all().delete()
 
     # These planets don't exist anymore

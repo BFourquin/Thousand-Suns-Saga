@@ -1,4 +1,4 @@
-/* Map of a quadrant (js/quadrant_map.js) : search panel and SVG scene. Dark in every theme, like the orbital view. */
+/* Maps of the sector and of a quadrant (js/galaxy_map.js) : search panel and canvas scene. Dark in every theme, like the orbital view. */
 
 .qmap {
     --q-accent: var(--tss-accent-text, #5aa9ff);
@@ -62,11 +62,11 @@
 .qmap-segmented button { padding: 0.3rem 0; color: var(--q-muted); font-size: 0.85rem; background: none; border: 0; border-radius: var(--tss-radius, 4px); }
 .qmap-segmented button[aria-pressed="true"] { color: #06101c; font-weight: 600; background: var(--q-accent); }
 
-.qmap-legend, .qmap-networks, .qmap-results { margin: 0.4rem 0 0; padding: 0; list-style: none; }
+.qmap-legend, .qmap-results { margin: 0.4rem 0 0; padding: 0; list-style: none; }
 .qmap-legend { max-height: 13rem; overflow-y: auto; }
 .qmap-results { min-height: 6rem; }
 
-.qmap-legend-item, .qmap-result, .qmap-panel .qmap-network {
+.qmap-legend-item, .qmap-result {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -80,9 +80,8 @@
     border-radius: var(--tss-radius, 4px);
     cursor: pointer;
 }
-.qmap-legend-item:hover, .qmap-result:hover, .qmap-network:hover { background: rgba(255, 255, 255, 0.07); }
+.qmap-legend-item:hover, .qmap-result:hover { background: rgba(255, 255, 255, 0.07); }
 .qmap-legend-item[aria-pressed="true"] { background: rgba(90, 169, 255, 0.22); box-shadow: inset 0 0 0 1px var(--q-accent); }
-.qmap-network input { margin: 0; }
 .qmap-result .fas { flex: none; color: var(--q-muted); font-size: 0.75rem; }
 .qmap-result .fas:first-of-type { margin-left: auto; }
 .qmap-result .fas ~ .qmap-count { margin-left: 0.25rem; }
@@ -127,54 +126,34 @@
 .qmap-scene.is-dragging { cursor: grabbing; }
 .qmap-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
-.qmap-grid line { stroke: rgba(255, 255, 255, 0.07); stroke-width: 1; vector-effect: non-scaling-stroke; }
-.qmap-grid text { fill: rgba(255, 255, 255, 0.34); font-size: 10px; }
-.qmap-territories circle { mix-blend-mode: screen; pointer-events: none; }
-
-.qmap-vortex line { stroke-width: 1.4; stroke-opacity: 0.55; vector-effect: non-scaling-stroke; pointer-events: none; transition: stroke-opacity 0.12s; }
-.qmap-vortex line.is-exit { stroke-dasharray: 5 4; }
-.qmap-vortex.is-receding line { stroke-opacity: 0.16; }
-.qmap-vortex line.is-highlighted { stroke-width: 2.6; stroke-opacity: 1; }
-.qmap-vortex line.is-faded { stroke-opacity: 0.12; }
-
-.qmap-sys { cursor: pointer; transition: opacity 0.15s; }
-.qmap-hit { fill: transparent; }
-.qmap-star { pointer-events: none; }
-.qmap-ring { fill: none; stroke-width: 1.6; pointer-events: none; }
-.qmap-node { fill: none; stroke-width: 1.1; stroke-dasharray: 2 2; pointer-events: none; }
-.qmap-mark { display: none; fill: none; stroke: #fff; stroke-width: 1.2; pointer-events: none; }
-.qmap-name { fill: #dfe7f2; font-size: 11px; paint-order: stroke; stroke: rgba(3, 6, 13, 0.85); stroke-width: 3px; pointer-events: none; }
-
-.qmap-sys.is-neutral { opacity: 0.55; }
-.qmap-sys.is-dim { opacity: 0.13; }
-.qmap-sys.is-match .qmap-mark { display: block; stroke: var(--q-accent); stroke-opacity: 0.8; }
-.qmap-sys.is-in-network .qmap-node { stroke-width: 2; stroke-dasharray: none; }
-.qmap-sys.is-hover .qmap-mark, .qmap-sys:hover .qmap-mark { display: block; stroke: #fff; stroke-opacity: 0.7; }
-.qmap-sys.is-selected { opacity: 1; }
-.qmap-sys.is-selected .qmap-mark { display: block; stroke: #fff; stroke-opacity: 1; stroke-width: 2; }
-
 .qmap-hint { position: absolute; right: 0.6rem; bottom: 0.45rem; margin: 0; color: var(--q-muted); font-size: 0.76rem; pointer-events: none; text-shadow: 0 1px 3px #000; }
 
 .qmap-up { position: absolute; top: 0.6rem; left: 0.6rem; color: var(--q-text) !important; background: var(--q-glass); border: 1px solid var(--q-line); }
 .qmap-up:hover { border-color: var(--q-accent); }
 
-.qmap-go {
+/* The way to each zone around a quadrant : placed by galaxy_map.js on their shared border, kept inside the view */
+.qmap-exit {
     position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 1.9rem;
-    height: 1.9rem;
+    gap: 0.3rem;
+    max-width: 11rem;
+    margin: -0.95rem 0 0 -0.95rem;
+    padding-right: 0.55rem;
     color: var(--q-text) !important;
+    font-size: 0.78rem;
+    white-space: nowrap;
     background: var(--q-glass);
     border: 1px solid var(--q-line);
-    border-radius: 50%;
+    border-radius: 999px;
+    opacity: 0.85;
 }
-.qmap-go:hover { border-color: var(--q-accent); }
-.qmap-go-north { top: 0.4rem; left: 50%; margin-left: -0.95rem; }
-.qmap-go-south { bottom: 0.4rem; left: 50%; margin-left: -0.95rem; }
-.qmap-go-west { top: 50%; left: 0.4rem; margin-top: -0.95rem; }
-.qmap-go-east { top: 50%; right: 0.4rem; margin-top: -0.95rem; }
+.qmap-exit .fas { display: flex; align-items: center; justify-content: center; flex: none; width: 1.8rem; height: 1.8rem; color: var(--q-accent); }
+.qmap-exit span { overflow: hidden; text-overflow: ellipsis; }
+.qmap-exit:hover, .qmap-exit:focus-visible { z-index: 2; opacity: 1; border-color: var(--q-accent); outline: none; }
 
 .qmap-controls { position: absolute; bottom: 0.6rem; left: 0.6rem; display: flex; gap: 0.2rem; }
 .qmap-controls .btn { width: 2rem; color: var(--q-text); background: var(--q-glass); border: 1px solid var(--q-line); }
@@ -244,8 +223,4 @@
     .qmap-panel { height: auto; max-height: none; }
     .qmap-hint { display: none; }
     .qmap-detail { top: auto; right: 0.5rem; left: 0.5rem; width: auto; max-width: none; height: 55%; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .qmap-sys, .qmap-vortex line { transition: none; }
 }

@@ -41,6 +41,9 @@ class Commandant(GameModel):
     time_last_activity = models.DateTimeField(null=True, blank=True)
     time_cycle_finished = models.DateTimeField(null=True, blank=True)
     tutorial_step = models.CharField(max_length=50, null=True, blank=True)
+    # The places of the maps, {'kind': 'zone' or 'system', 'id', 'name'} : the last ones looked at, the latest first, and the favourites
+    recent_places = models.JSONField(default=list)
+    favourite_places = models.JSONField(default=list)
 
     class Meta:
         constraints = [models.UniqueConstraint(Lower('civilisation_name'), name='civilisation_name_unique')]
@@ -337,6 +340,18 @@ class System(GeographyModel):
     pos_x = models.CharField(max_length=3)
     zone = models.CharField(max_length=30, null=True, blank=True)  # The natural zone of the map generator : geography.galaxy.ZONES
     region = models.IntegerField(null=True, blank=True, db_index=True)  # Which zone : the same number for the systems of one zone
+
+
+class Zone(GameModel):
+    # A natural zone of the map, the quadrant of the pages : its systems have its number on System.region
+    region = models.IntegerField(unique=True)
+    kind = models.CharField(max_length=30)  # geography.galaxy.ZONES
+    name = models.CharField(max_length=60)
+    y = models.IntegerField()  # Its centre, in units of the map
+    x = models.IntegerField()
+    nb_systems = models.IntegerField()
+    neighbours = models.JSONField(default=list)  # The regions it touches
+    shape = models.JSONField(default=list)  # Its cells of geography.galaxy.CELL units, row by row : [row, first column, length]
 
 
 class Coordinate(GeographyModel):

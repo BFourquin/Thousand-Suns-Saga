@@ -1,42 +1,55 @@
-
 {% load i18n %}
 {% load static %}
 
-{% include "includes/head.html" with title=quadrant_map.title page_css="css/quadrant_map.css" %}
+{% trans "Carte du quadrant" as default_title %}
+{% include "includes/head.html" with title=zone_map.title|default:default_title page_css="css/quadrant_map.css" %}
 
-{% include "includes/menu_game.html" with page_title=quadrant_map.title %}  <!-- include body start -->
+{% include "includes/menu_game.html" with page_title=zone_map.title|default:default_title %}  <!-- include body start -->
 
   <div class="content-wrapper">
     <section class="content qmap-page">
 
-      {% if quadrant_not_found %}
+      {% if zone_not_found %}
         <div class="alert alert-warning">
           <i class="icon fas fa-triangle-exclamation"></i>
-          {% trans "Aucun quadrant à ces coordonnées. Retour à votre quadrant d'origine." %}
+          {% trans "Aucun quadrant à cet endroit. Retour à votre quadrant d'origine." %}
         </div>
       {% endif %}
 
+      {% include "includes/map_places.html" %}
+
+      {% if zone_map %}
       <div class="qmap" id="qmap">
 
-        {% include "includes/map_panel.html" %}
+        {% include "includes/map_panel.html" with zone_mode=True %}
 
+        <!-- THE MAP : one natural zone, the systems around it dimmed. The list of results gives access to them with the keyboard. -->
+        <div class="qmap-scene" id="qmap-scene" tabindex="0" role="application" aria-label="{{ zone_map.title }}">
+          <canvas class="qmap-svg" id="qmap-canvas" aria-hidden="true"></canvas>
 
-        <!-- THE MAP -->
-        <div class="qmap-scene" id="qmap-scene" tabindex="0" role="application" aria-label="{{ quadrant_map.title }}">
-          <svg class="qmap-svg" id="qmap-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+          <a class="btn btn-sm qmap-up" href="/geography_sector/"><i class="fas fa-border-all"></i> {% trans "Carte du secteur" %}</a>
 
-          <a class="btn btn-sm qmap-up" href="/geography_sector/?sector={{ quadrant_map.id|slice:":10" }}"><i class="fas fa-border-all"></i> {% trans "Carte du secteur" %}</a>
+          <!-- Placed by galaxy_map.js on the border shared with each zone around -->
+          <nav aria-label="{% trans 'Quadrants voisins' %}">
+            {% for exit in zone_map.exits %}
+              <a class="qmap-exit" href="/geography_quadrant/?zone={{ exit.zone }}" data-y="{{ exit.y }}" data-x="{{ exit.x }}" data-dy="{{ exit.dy }}" data-dx="{{ exit.dx }}"
+                 title="{% trans 'Vers' %} {{ exit.name }} ({{ exit.kind_name }})"><i class="fas fa-arrow-right" aria-hidden="true"></i><span>{{ exit.name }}</span></a>
+            {% endfor %}
+          </nav>
 
-          {% include "includes/map_overlays.html" with neighbours=quadrant_map.neighbours page="/geography_quadrant/" param="quadrant" %}
+          {% include "includes/map_overlays.html" %}
         </div>
       </div>
 
+      {{ zone_map|json_script:"qmap-data" }}
+      <script src="{% static 'js/map_common.js' %}" defer></script>
+      <script src="{% static 'js/galaxy_map.js' %}" defer></script>
+      {% else %}
+        <div class="alert alert-info">{% trans "La carte de ce serveur n'a pas encore de quadrants : elle doit être générée à nouveau." %}</div>
+      {% endif %}
+
     </section>
   </div>
-
-  {{ quadrant_map|json_script:"qmap-data" }}
-  <script src="{% static 'js/map_common.js' %}" defer></script>
-  <script src="{% static 'js/quadrant_map.js' %}" defer></script>
 
 </div><!-- ./wrapper -->
 
