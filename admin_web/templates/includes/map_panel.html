@@ -13,7 +13,8 @@
 
   {% if zone_mode %}
   <h2 class="qmap-section"><i class="fas fa-circle-nodes"></i> {% trans "Vortex" %}</h2>
-  <label class="qmap-check"><input id="qmap-vortex" type="checkbox" checked> {% trans "Liens de vortex" %} <span class="qmap-count" id="qmap-vortex-count"></span></label>
+  <label class="qmap-check"><input id="qmap-vortex" type="checkbox"> {% trans "Afficher tous les liens" %} <span class="qmap-count" id="qmap-vortex-count"></span></label>
+  <p class="qmap-empty">{% trans "Ceux d'un système s'affichent en le survolant ou en le sélectionnant." %}</p>
   {% endif %}
 
   <h2 class="qmap-section"><i class="fas fa-magnifying-glass"></i> {% trans "Rechercher" %}</h2>

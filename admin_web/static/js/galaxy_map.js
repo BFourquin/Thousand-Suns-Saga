@@ -148,7 +148,7 @@
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // STATE
 
-        var state = {mode: 'star', focus: {}, allLabels: false, territories: true, vortex: true, text: '', stars: {}, colony: '', type: '', resource: '', min: 0};
+        var state = {mode: 'star', focus: {}, allLabels: false, territories: true, vortex: false, text: '', stars: {}, colony: '', type: '', resource: '', min: 0};
         var preset = null, selected = null, selectedZone = -1, hovered = -1, hoveredZone = -1;
 
         var matched = new Uint8Array(count), filtering = false, matchCount = ownCount;
@@ -179,7 +179,7 @@
             });
         });
         var zoneColors = zones.map(function (zone) { return rgbOf(zone.color); });
-        var accentRgb = rgbOf(accent), white = [255, 255, 255];
+        var accentRgb = rgbOf(accent);
         var zonesImage = document.createElement('canvas');
         zonesImage.width = zonesImage.height = side;
         var zonesContext = zonesImage.getContext('2d');
@@ -190,31 +190,75 @@
             return row < 0 || col < 0 || row >= side || col >= side ? -1 : owner[row * side + col];
         }
 
+        // The tint of each zone : soft, its borders are the lines below
         function renderZones() {
             var pixels = zonesPixels.data;
             var heat = isSector && filtering && zoneMax > 0;
             for (var k = 0; k < owner.length; k++) {
                 var z = owner[k], p = k * 4;
                 if (z < 0) { pixels[p + 3] = 0; continue; }
-                var col = k % side;
-                var border = col === 0 || col === side - 1 || k < side || k >= owner.length - side ||
-                             owner[k - 1] !== z || owner[k + 1] !== z || owner[k - side] !== z || owner[k + side] !== z;
                 var rgb = zoneColors[z], alpha;
                 if (heat) {  // Where the search finds something : a map too wide to see each system
                     rgb = accentRgb;
-                    alpha = zoneMatches[z] ? 0.08 + 0.42 * zoneMatches[z] / zoneMax : 0.015;
-                    if (border) { alpha = Math.max(alpha, 0.22); rgb = zoneColors[z]; }
+                    alpha = zoneMatches[z] ? 0.06 + 0.4 * zoneMatches[z] / zoneMax : 0.015;
                 } else {
-                    alpha = border ? 0.42 : (isSector || z === ownZone ? 0.09 : 0.035);
+                    alpha = isSector || z === ownZone ? 0.1 : 0.04;
                 }
-                if (z === hoveredZone || z === selectedZone) {
-                    alpha += border ? 0.45 : 0.08;
-                    if (border) { rgb = white; }
-                }
-                if (border && z === nativeZone) { rgb = accentRgb; alpha = 0.95; }
+                if (z === hoveredZone || z === selectedZone) { alpha += 0.08; }
                 pixels[p] = rgb[0]; pixels[p + 1] = rgb[1]; pixels[p + 2] = rgb[2]; pixels[p + 3] = Math.min(alpha, 1) * 255;
             }
             zonesContext.putImageData(zonesPixels, 0, 0);
+        }
+
+        // The borders as thin lines through the middle of the cells, by marching squares : diagonals instead of the
+        // stairs of the cells. Each segment keeps the two zones it parts, to stand out with one of them.
+        var borders = [], borderZones = [];
+        (function traceBorders() {
+            function add(x1, y1, x2, y2, one, other) {
+                borders.push(x1, y1, x2, y2);
+                borderZones.push(one, other);
+            }
+            for (var row = 0; row < side - 1; row++) {
+                for (var col = 0; col < side - 1; col++) {
+                    var k = row * side + col;
+                    var a = owner[k], b = owner[k + 1], c = owner[k + side + 1], d = owner[k + side];
+                    if (a === b && b === c && c === d) { continue; }
+                    var x = (col0 + col + 0.5) * cell, y = (row0 + row + 0.5) * cell, h = cell / 2;
+                    var crossed = [];  // The middles of the sides of the square between two different zones
+                    if (a !== b) { crossed.push([x + h, y, a, b]); }
+                    if (b !== c) { crossed.push([x + cell, y + h, b, c]); }
+                    if (d !== c) { crossed.push([x + h, y + cell, d, c]); }
+                    if (a !== d) { crossed.push([x, y + h, a, d]); }
+                    if (crossed.length === 2) {
+                        add(crossed[0][0], crossed[0][1], crossed[1][0], crossed[1][1], crossed[0][2], crossed[0][3]);
+                    } else {  // Three zones or more meet here : each border reaches the centre of the square
+                        crossed.forEach(function (point) { add(point[0], point[1], x + h, y + h, point[2], point[3]); });
+                    }
+                }
+            }
+            borders = Float32Array.from(borders);
+            borderZones = Int16Array.from(borderZones);
+        })();
+
+        function paintBorders(zoom, ox, oy) {
+            function stroke(test, color, width) {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = width;
+                ctx.beginPath();
+                for (var s = 0, z = 0; s < borders.length; s += 4, z += 2) {
+                    if (!test(borderZones[z], borderZones[z + 1])) { continue; }
+                    ctx.moveTo(borders[s] * zoom + ox, borders[s + 1] * zoom + oy);
+                    ctx.lineTo(borders[s + 2] * zoom + ox, borders[s + 3] * zoom + oy);
+                }
+                ctx.stroke();
+            }
+            ctx.lineJoin = ctx.lineCap = 'round';
+            stroke(function () { return true; }, 'rgba(233, 238, 245, 0.16)', 1);
+            if (ownZone >= 0) { stroke(function (one, other) { return one === ownZone || other === ownZone; }, 'rgba(233, 238, 245, 0.45)', 1.2); }
+            if (nativeZone >= 0) { stroke(function (one, other) { return one === nativeZone || other === nativeZone; }, accent, 1.5); }
+            [hoveredZone, selectedZone].forEach(function (marked) {
+                if (marked >= 0) { stroke(function (one, other) { return one === marked || other === marked; }, '#ffffff', 1.5); }
+            });
         }
 
 
@@ -319,12 +363,11 @@
             ctx.globalAlpha = 1;
             ctx.setLineDash([]);
 
-            ctx.imageSmoothingEnabled = cell * zoom < 4;  // Close, the cells of the zones keep their edges
             ctx.drawImage(zonesImage, (col0 * cell) * zoom + ox, (row0 * cell) * zoom + oy, side * cell * zoom, side * cell * zoom);
-            ctx.imageSmoothingEnabled = true;
+            paintBorders(zoom, ox, oy);
 
             if (state.territories && state.mode !== 'star') { paintTerritories(zoom, ox, oy); }
-            if (state.vortex && links.length) { paintVortex(zoom, ox, oy); }
+            if (links.length) { paintVortex(zoom, ox, oy); }
 
             if (isSector && zoom < STAMP_BELOW_ZOOM) {
                 ctx.drawImage(stampImage, minX * zoom + ox, minY * zoom + oy, stampSide / stampScale * zoom, stampSide / stampScale * zoom);
@@ -381,17 +424,20 @@
             ctx.globalAlpha = 1;
         }
 
+        // Every link only when asked for : thousands of them hide the map. Those of the system under the pointer or selected, always.
         function paintVortex(zoom, ox, oy) {
             var marked = selected !== null ? selected : hovered;
             ctx.strokeStyle = C.NETWORK_COLORS.alpha;
             ctx.lineWidth = 1;
-            ctx.globalAlpha = marked >= 0 ? 0.06 : (filtering ? 0.06 : (zoom < 2.5 ? 0.09 : 0.2));  // Thousands of links : a mist from afar
-            ctx.beginPath();
-            for (var j = 0; j < links.length; j += 2) {
-                ctx.moveTo(xs[links[j]] * zoom + ox, ys[links[j]] * zoom + oy);
-                ctx.lineTo(xs[links[j + 1]] * zoom + ox, ys[links[j + 1]] * zoom + oy);
+            if (state.vortex) {
+                ctx.globalAlpha = marked >= 0 || filtering ? 0.08 : (zoom < 2.5 ? 0.14 : 0.28);
+                ctx.beginPath();
+                for (var j = 0; j < links.length; j += 2) {
+                    ctx.moveTo(xs[links[j]] * zoom + ox, ys[links[j]] * zoom + oy);
+                    ctx.lineTo(xs[links[j + 1]] * zoom + ox, ys[links[j + 1]] * zoom + oy);
+                }
+                ctx.stroke();
             }
-            ctx.stroke();
             if (marked >= 0 && degree[marked]) {  // The ways out of the system under the pointer or selected
                 ctx.globalAlpha = 1;
                 ctx.lineWidth = 2;
