@@ -79,15 +79,16 @@ def compositions(excel_path):
     return {row['solar_type']: row for row in excel_importer(excel_path, 'MG_systems')}
 
 
-def map_options(excel_path):
+def map_options(excel_path, players=None):
     # The players, the type of game and the rows of the sheet MapGenerator the generator reads : seed, max_players and,
-    # left empty, the values of the type of game : area_per_player, homes_per_cradle, vestiges
+    # left empty, the values of the type of game : area_per_player, homes_per_cradle, vestiges.
+    # players : instead of the row max_players, for a test server whose Excel is shared with others.
     params = excel_importer(excel_path, 'MapGenerator')[0]
     gameplay = excel_importer(excel_path, 'Config')[0].get('gameplay_type') or 'saga'
     seed = int(params['seed'])
     if not 1000 <= seed <= 9999:
         raise ValueError(f'MapGenerator : the seed is the 4 digits of the server in every seed of the map, not {seed}')
-    players = params.get('max_players')
+    players = players or params.get('max_players')
     if not players:
         players = DEFAULT_PLAYERS.get(gameplay, 100)
         print(f'WARNING :: MapGenerator has no row max_players : a map for {players} players')
@@ -96,9 +97,9 @@ def map_options(excel_path):
     return seed, int(players), options
 
 
-def generate_map(server, excel_path):
+def generate_map(server, excel_path, players=None):
     # Draws the map of the server and writes it. Returns the galaxy, for its report.
-    seed, players, options = map_options(excel_path)
+    seed, players, options = map_options(excel_path, players)
     if galaxy.SECRET == galaxy.DEV_SECRET:
         print('WARNING :: secrets/map.ini is missing : anyone can draw this map again from its seed. Fine for a test server only.')
     drawn = galaxy.generate(str(seed), players, type_stars=type_stars(excel_path), **options)

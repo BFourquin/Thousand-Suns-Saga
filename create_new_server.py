@@ -31,8 +31,14 @@ The game server will be displayed on the public site
 """
 
 
-server_name = 'Alpha_Boardgame'
-excel_server_params = 'TSS_boardgame.xlsx'
+server_name = 'TSS_Pre_Alpha'
+excel_server_params = 'TSS_a_trier.xlsx'
+
+# The sheets of the Excel, in their order : a requisite comes before what needs it, the added resources after the others
+tech_sheets = ('Techs_retro', 'Techs_new')
+resource_sheets = ('Resources', 'Resources_new')
+buildings_sheet = 'Buildings_new'
+max_players = 200  # None : the row max_players of the sheet MapGenerator
 
 version = 0.1
 
@@ -42,8 +48,8 @@ timezone = 'Europe/Paris'
 exclusive = False  # True for a serious server asking a lot of time : a player can only be on one exclusive server
 
 
-admin_only_visibility = False
-server_status = 'open'
+admin_only_visibility = True
+server_status = 'test'
 
 
 
@@ -73,21 +79,23 @@ server_details.set_server_config(server_name, map_generator.excel_importer(excel
 
 
 # TECHNOLOGIES
-load_technologies(server_name,
-                  excel_tech_path=excel_server_params,
-                  sheet_tech_name='Techs',
-                  delete_actual_techs=True)
+for i, sheet in enumerate(tech_sheets):
+    load_technologies(server_name,
+                      excel_tech_path=excel_server_params,
+                      sheet_tech_name=sheet,
+                      delete_actual_techs=i == 0)
 
 # RESOURCES
-load_resources(server_name,
-               excel_tech_path=excel_server_params,
-               sheet_resources_name='Resources',
-               delete_actual_resources=True)
+for i, sheet in enumerate(resource_sheets):
+    load_resources(server_name,
+                   excel_tech_path=excel_server_params,
+                   sheet_resources_name=sheet,
+                   delete_actual_resources=i == 0)
 
 # BUILDINGS
 load_buildings(server_name,
                excel_tech_path=excel_server_params,
-               sheet_resources_name='Buildings',
+               sheet_resources_name=buildings_sheet,
                delete_actual_buildings=True)
 
 # NEW PLAYERS STARTING VALUES
@@ -100,7 +108,7 @@ map_generator.remove_past_generation(server_name)
 map_generator.load_map_generator_parameters(server_name, excel_server_params)
 
 with transaction.atomic(), server_schema(server_name):  # A single commit instead of one per row : much faster, and no half generated map
-    drawn = map_generator.generate_map(server_name, excel_server_params)
+    drawn = map_generator.generate_map(server_name, excel_server_params, max_players)
 print(galaxy.report(drawn))  # The pictures of a map : the page admin_map_trial, with the same seed
 
 # STATISTICS

@@ -18,7 +18,8 @@ def load_resources(server_name, excel_tech_path, sheet_resources_name, delete_ac
 
         # INDIVIDUAL RESOURCES DECLARATION
 
-        for row in xldb.ws(ws=sheet_resources_name).rows:
+        rows = xldb.ws(ws=sheet_resources_name).rows  # An iterator : what follows END_OF_FILE is read below
+        for row in rows:
 
             if row[0] and not row[0][0] == '#':
 
@@ -40,7 +41,22 @@ def load_resources(server_name, excel_tech_path, sheet_resources_name, delete_ac
                 Resource.objects.create(internal_name=resources['internal_name'], data=resources)
 
 
+        # The sub-categories a sheet of added resources (Resources_new) declares after its END_OF_FILE
+        model = None
+        for row in rows:
+            if str(row[0]).startswith('> SUB CATEGORY'):
+                model = ResourceSubcategory
+            elif model and row[0] and row[0][0] != '#':
+                if row[0] == 'internal_name':
+                    titles = row
+                    continue
+                sub_category = {title: value if value != '' else None for title, value in zip(titles, row) if title != ''}
+                model.objects.create(internal_name=sub_category['internal_name'], data=sub_category)
+
         # CATEGORY AND SUB-CATEGORY DECLARATION
+
+        if sheet_resources_name + '_categories' not in xldb.ws_names:  # A sheet of added resources has none of its own
+            return
 
         model = ResourceCategory
 
