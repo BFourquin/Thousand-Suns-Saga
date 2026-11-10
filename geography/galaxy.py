@@ -472,6 +472,51 @@ class Sector:
         self.grow()
         self.keep_precious_fair()
         self.balance()
+        self.even_marches()
+
+    def even_marches(self, share=0.4, most=1.8):
+        # The marches around a cradle are small zones of comparable sizes, whatever the balance and the prizes made ordinary
+        # left of them : a big one is cut into pieces of the usual size, a crumb joins the marche it shares the longest
+        # border with. Marche into marche, the cells keep their kind : the equity of the homes doesn't change.
+        sizes = np.bincount(self.owner.ravel(), minlength=len(self.zones))
+        marches = [zid for zid, zone in enumerate(self.zones) if zone['kind'] == 'marche' and sizes[zid]]
+        if not marches:
+            return
+        usual = np.median(sizes[marches])
+        for zid in marches:
+            if sizes[zid] > most * usual:
+                self.cut_zone(zid, round(sizes[zid] / usual))
+
+        sizes = np.bincount(self.owner.ravel(), minlength=len(self.zones))
+        marches = [zid for zid, zone in enumerate(self.zones) if zone['kind'] == 'marche' and sizes[zid]]
+        for zid in sorted(marches, key=lambda zid: sizes[zid]):
+            if not 0 < sizes[zid] < share * usual:
+                continue
+            mask = self.owner == zid
+            neighbours = [z for z in self.owner[dilate(mask) & ~mask].tolist() if z != zid]
+            around = [z for z in neighbours if self.zones[z]['kind'] == 'marche']
+            if not around and sizes[zid] < 12:  # A crumb among drawn shapes : any of them but a rift, which keeps its exact band
+                around = [z for z in neighbours if self.zones[z]['kind'] not in ('faille', 'route')]
+            if around:
+                target = Counter(around).most_common(1)[0][0]
+                self.owner[mask] = target
+                sizes[target], sizes[zid] = sizes[target] + sizes[zid], 0
+
+    def cut_zone(self, zid, pieces):
+        # Into pieces of about the same size : k-means on its cells, from centres spread by the farthest point first
+        rows, cols = np.nonzero(self.owner == zid)
+        ys, xs = self.cy[rows], self.cx[cols]
+        centres, d = [0], np.hypot(ys - ys[0], xs - xs[0])
+        for _ in range(pieces - 1):
+            centres.append(int(d.argmax()))
+            d = np.minimum(d, np.hypot(ys - ys[centres[-1]], xs - xs[centres[-1]]))
+        cy, cx = ys[centres], xs[centres]
+        for _ in range(8):
+            piece = np.argmin((ys[None] - cy[:, None]) ** 2 + (xs[None] - cx[:, None]) ** 2, axis=0)
+            cy = np.array([ys[piece == p].mean() if (piece == p).any() else cy[p] for p in range(pieces)])
+            cx = np.array([xs[piece == p].mean() if (piece == p).any() else cx[p] for p in range(pieces)])
+        for p in range(1, pieces):
+            self.owner[rows[piece == p], cols[piece == p]] = self.add_zone(self.zones[zid]['kind'], cy[p], cx[p])
 
     def find_centre(self):
         # The heart of the galaxy, grown from its deepest point through the deepest cells : no cradle there, prizes for all
@@ -903,21 +948,6 @@ class Sector:
                     nearest = np.minimum(nearest, self.dist(self.cy[i], self.cx[j]))
             self.expand(new, cost, cap_noise)
         self.merge_small_zones()
-        self.merge_marches()
-
-    def merge_marches(self):
-        # The marches of a cradle make one borderland around it, not a quilt of small zones
-        first = {}
-        for zid, zone in enumerate(self.zones):
-            cells = self.owner == zid
-            if zone['kind'] != 'marche' or not cells.any():
-                continue
-            nearest = self.s1[cells]
-            cradle = int(np.bincount(nearest[nearest >= 0]).argmax()) if (nearest >= 0).any() else -1
-            if cradle in first:
-                self.owner[cells] = first[cradle]
-            else:
-                first[cradle] = zid
 
     def expand(self, zone_ids, cost, cap_noise):
         owner = self.owner.tolist()
