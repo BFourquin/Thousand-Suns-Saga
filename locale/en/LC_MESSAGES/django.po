@@ -3054,14 +3054,14 @@ msgstr "Exclusive"
 msgid "Libre"
 msgstr "Free"
 
-msgid "Un seul commandant par serveur."
-msgstr "One commandant per server."
+msgid "Le multicompte (avoir deux comptes sur le même serveur) est strictement interdit."
+msgstr "Multi-accounting (having two accounts on the same server) is strictly forbidden."
 
-msgid "Exclusif : serveur sérieux qui demande beaucoup de temps, vous ne pouvez jouer que sur un seul serveur exclusif à la fois."
-msgstr "Exclusive: a serious server asking a lot of time, you can only play on one exclusive server at a time."
+msgid "Serveurs « exclusifs » : interdiction de jouer à deux serveurs exclusifs à la fois (partie sérieuse et longue, trop pour participer correctement à deux en même temps)."
+msgstr "“Exclusive” servers: you may not play on two exclusive servers at the same time (a serious and long game, too much to take part properly in two at once)."
 
-msgid "Libre : se joue en plus de vos autres serveurs."
-msgstr "Free: played on top of your other servers."
+msgid "Serveurs « libres » : vous pouvez jouer à autant de serveurs libres que vous souhaitez, même à côté d'un serveur exclusif."
+msgstr "“Free” servers: you can play on as many free servers as you like, even alongside an exclusive server."
 
 msgid "Vous avez déjà un commandant sur ce serveur"
 msgstr "You already have a commandant on this server"

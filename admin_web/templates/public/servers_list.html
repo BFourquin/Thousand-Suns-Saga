@@ -140,13 +140,13 @@
                  {% endfor %}
               </tbody>
           </table>
-          <p class="text-muted mt-3 mb-0">
-            {% trans "Un seul commandant par serveur." %}
-            {% trans "Exclusif : serveur sérieux qui demande beaucoup de temps, vous ne pouvez jouer que sur un seul serveur exclusif à la fois." %}
-            {% trans "Libre : se joue en plus de vos autres serveurs." %}
-          </p>
         </div>
         <!-- /.card-body -->
+        <div class="card-footer text-muted">
+          <p>{% trans "Le multicompte (avoir deux comptes sur le même serveur) est strictement interdit." %}</p>
+          <p class="mb-1">{% trans "Serveurs « exclusifs » : interdiction de jouer à deux serveurs exclusifs à la fois (partie sérieuse et longue, trop pour participer correctement à deux en même temps)." %}</p>
+          <p class="mb-0">{% trans "Serveurs « libres » : vous pouvez jouer à autant de serveurs libres que vous souhaitez, même à côté d'un serveur exclusif." %}</p>
+        </div>
       </div>
       <!-- /.card -->
 
