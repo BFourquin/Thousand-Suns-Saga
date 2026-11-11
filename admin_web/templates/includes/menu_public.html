@@ -27,6 +27,11 @@
 
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
+      {% if user.is_superuser %}
+      <li class="nav-item">
+        <a href="/admin_main_dashboard/" class="nav-link">{% trans "Admin" %}</a>
+      </li>
+      {% endif %}
       <li class="nav-item">
         {% if user.is_authenticated %}
           <a href="/user_account/" class="nav-link" title="{% trans 'Mon compte' %}" aria-label="{% trans 'Mon compte' %}"><i class="fas fa-user"></i></a>
