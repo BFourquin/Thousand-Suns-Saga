@@ -4,7 +4,7 @@
 {% load static %}
 
 
-{% include "includes/head.html" with title=colony.name %}
+{% include "includes/head.html" with title=colony.name page_css="css/buildings.css" %}
 
 {% include "includes/menu_game.html" with page_title=colony.name %}  <!-- include body start -->
 
@@ -185,10 +185,10 @@
                             {{ building.name }}
                         </div>
 
-                        <!-- Building illustration -->
-                        <div class="building-image-container">
-                            <img src="{% static '' %}{{ building.building_type_data.illustration }}" class="building-img" alt="" loading="lazy">
-                        </div>
+                        <!-- Building illustration : opens its modal -->
+                        <a href="#modal-building-{{ building.id }}" data-toggle="modal" class="building-image-container" title="{{ building.type.tooltip|default:building.name }}">
+                            <img src="{% static '' %}{{ building.building_type_data.illustration }}" class="building-img" alt="{{ building.name }}" loading="lazy">
+                        </a>
 
                         <!-- Activation and productivity bars -->
                         <div class="building-metrics">
@@ -211,10 +211,10 @@
 
                         <!-- Actions panels -->
                         <div class="building-actions">
-                            <a href="/colony/?colony_id={{ colony.id }}&building_upgrade={{ building.id }}" title="{% trans 'Améliorer' %}" aria-label="{% trans 'Améliorer' %}"><i class="fas fa-up-long"></i></a>
-                            <a href="/colony/?colony_id={{ colony.id }}&building_modify={{ building.id }}" title="{% trans 'Modifier' %}" aria-label="{% trans 'Modifier' %}"><i class="fas fa-screwdriver-wrench"></i></a>
-                            <a href="/colony/?colony_id={{ colony.id }}&building_activate={{ building.id }}" title="{% trans 'Activation' %}" aria-label="{% trans 'Activation' %}"><i class="fas fa-power-off"></i></a>
-                            <a href="#modal-delete-building-{{ building.id }}" data-toggle="modal" title="{% trans 'Détruire' %}" aria-label="{% trans 'Détruire' %}"><i class="fas fa-trash-can"></i></a>
+                            <a href="#modal-building-{{ building.id }}" data-toggle="modal" data-section="#building-{{ building.id }}-upgrade" title="{% trans 'Améliorer' %}" aria-label="{% trans 'Améliorer' %}"><i class="fas fa-up-long"></i></a>
+                            <a href="#modal-building-{{ building.id }}" data-toggle="modal" title="{% trans 'Détails et activation' %}" aria-label="{% trans 'Détails et activation' %}"><i class="fas fa-power-off"></i></a>
+                            <a href="#modal-building-{{ building.id }}" data-toggle="modal" data-section="#building-{{ building.id }}-relocate" title="{% trans 'Délocaliser' %}" aria-label="{% trans 'Délocaliser' %}"><i class="fas fa-arrows-turn-to-dots"></i></a>
+                            <a href="#modal-building-{{ building.id }}" data-toggle="modal" data-section="#building-{{ building.id }}-destroy" title="{% trans 'Détruire' %}" aria-label="{% trans 'Détruire' %}"><i class="fas fa-trash-can"></i></a>
                         </div>
 
                     </div>
@@ -283,6 +283,9 @@
                   {% if district.buildings_slots_free > 0 %}
                     {% include "includes/colony/modal_build_building.html" with server_name=server district=district colony_id=colony.id %}
                   {% endif %}
+                  {% for building in district.buildings %}
+                    {% include "includes/colony/modal_building.html" with district=district colony_id=colony.id %}
+                  {% endfor %}
                 {% endfor%}
 
                 <!-- New district construction modal -->
@@ -302,6 +305,8 @@
   <!-- /.content-wrapper -->
 
 </div><!-- ./wrapper -->
+
+<script src="{% static 'js/buildings.js' %}" defer></script>
 
 </body>
 </html>

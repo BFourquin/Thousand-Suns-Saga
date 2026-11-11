@@ -1,0 +1,101 @@
+{% load i18n %}
+<!-- A building of the colony : its details, its activation, and the orders to upgrade, move or destroy it -->
+<div class="modal fade" id="modal-building-{{ building.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title"><i class="fas {{ building.type.icon|default:'fa-building' }}"></i> {{ building.name }}</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="{% trans 'Fermer' %}">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <dl class="row building-details">
+            <dt class="col-sm-4">{% trans "District" %}</dt><dd class="col-sm-8">{{ district.name }}</dd>
+            {% if building.type %}
+            <dt class="col-sm-4">{% trans "Niveau technologique" %}</dt><dd class="col-sm-8">{{ building.type.levels }}</dd>
+            {% if building.type.produces %}
+            <dt class="col-sm-4">{% trans "Production" %}</dt>
+            <dd class="col-sm-8">{% for resource in building.type.produces.values %}{{ resource.quantity }} {{ resource.unit_notation|default:'' }} {{ resource.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</dd>
+            {% endif %}
+            {% if building.type.upkeep %}
+            <dt class="col-sm-4">{% trans "Entretien" %}</dt>
+            <dd class="col-sm-8">{% for resource in building.type.upkeep.values %}{{ resource.quantity }} {{ resource.unit_notation|default:'' }} {{ resource.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</dd>
+            {% endif %}
+            {% endif %}
+            <dt class="col-sm-4">{% trans "Dernier cycle" %}</dt>
+            <dd class="col-sm-8">{% blocktrans with production=building.last_cycle_production|floatformat productivity=building.last_cycle_productivity_percent|floatformat:0 %}{{ production }} produits, productivité {{ productivity }} %{% endblocktrans %}</dd>
+          </dl>
+
+          <form method="POST" data-api-url="api_building_set_activation_percent">
+            {% csrf_token %}
+            <input type="hidden" name="colony_id" value="{{ colony_id }}">
+            <input type="hidden" name="building_id" value="{{ building.id }}">
+            <label for="building-{{ building.id }}-activation">{% trans "Taux d'activation" %}</label>
+            <input id="building-{{ building.id }}-activation" class="js-range-slider" type="text" name="activation_percent" value="" data-from="{{ building.activation_percent }}">
+            <button type="submit" class="btn btn-sm btn-default">{% trans "Appliquer" %}</button>
+          </form>
+
+          <div class="building-orders">
+            <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#building-{{ building.id }}-upgrade" aria-expanded="false">
+              <i class="fas fa-up-long"></i> {% trans "Améliorer" %}</button>
+            <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#building-{{ building.id }}-relocate" aria-expanded="false">
+              <i class="fas fa-arrows-turn-to-dots"></i> {% trans "Délocaliser" %}</button>
+            <button type="button" class="btn btn-outline-danger" data-toggle="collapse" data-target="#building-{{ building.id }}-destroy" aria-expanded="false">
+              <i class="fas fa-trash-can"></i> {% trans "Détruire" %}</button>
+          </div>
+
+          <div id="building-{{ building.id }}-orders">
+
+            <div class="collapse" id="building-{{ building.id }}-upgrade" data-parent="#building-{{ building.id }}-orders">
+              {% if building.upgrade_tree %}
+              <form method="POST" data-api-url="api_upgrade_building">
+                {% csrf_token %}
+                <input type="hidden" name="colony_id" value="{{ colony_id }}">
+                <input type="hidden" name="building_id" value="{{ building.id }}">
+                <p class="btree-legend"><span class="btree-current-mark"></span> {% trans "Le bâtiment actuel. Les niveaux s'élèvent de bas en haut." %}</p>
+                {% include "includes/colony/building_tree.html" with tree=building.upgrade_tree %}
+                <button type="submit" class="btn btn-primary">{% trans "Améliorer" %}</button>
+              </form>
+              {% else %}
+              <p>{% trans "Ce district n'accepte plus ce bâtiment : aucune amélioration possible." %}</p>
+              {% endif %}
+            </div>
+
+            <div class="collapse" id="building-{{ building.id }}-relocate" data-parent="#building-{{ building.id }}-orders">
+              {% if building.relocation_targets %}
+              <form method="POST" data-api-url="api_relocate_building">
+                {% csrf_token %}
+                <input type="hidden" name="colony_id" value="{{ colony_id }}">
+                <input type="hidden" name="building_id" value="{{ building.id }}">
+                <label for="building-{{ building.id }}-district">{% trans "Vers le district" %}</label>
+                <select id="building-{{ building.id }}-district" name="district_id" class="form-control mb-2">
+                  {% for target in building.relocation_targets %}
+                  <option value="{{ target.id }}">{{ target.colony_name }} — {{ target.name }} ({{ target.free }} {% trans "place(s) libre(s)" %})</option>
+                  {% endfor %}
+                </select>
+                <p>{% trans "Coût" %} :
+                  {% for resource in building.relocation_cost.values %}{{ resource.quantity }} {{ resource.unit_notation|default:'' }} {{ resource.name }}{% if not forloop.last %}, {% endif %}{% empty %}{% trans "aucun" %}{% endfor %}</p>
+                <button type="submit" class="btn btn-primary">{% trans "Délocaliser" %}</button>
+              </form>
+              {% else %}
+              <p>{% trans "Aucun autre district de vos colonies n'a de place libre pour ce type de bâtiment." %}</p>
+              {% endif %}
+            </div>
+
+            <div class="collapse" id="building-{{ building.id }}-destroy" data-parent="#building-{{ building.id }}-orders">
+              <form method="POST" data-api-url="api_destroy_building">
+                {% csrf_token %}
+                <input type="hidden" name="colony_id" value="{{ colony_id }}">
+                <input type="hidden" name="building_id" value="{{ building.id }}">
+                <p>{% trans "Le bâtiment sera détruit et 75 % de son coût de construction recyclés." %}</p>
+                <button type="submit" class="btn btn-danger">{% trans "Confirmer la destruction" %}</button>
+              </form>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+</div>

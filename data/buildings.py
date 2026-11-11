@@ -1,9 +1,16 @@
+import math
 
 from django.db import transaction
+from django.db.models import Count
 
-from game.models import Building, BuildingType, District, to_id
+from game.models import Building, BuildingType, District, DistrictType, to_id
 from database.schemas import on_server
 from data import colonies, buildings_types, districts
+from data.names import localized_name
+
+
+# Moving a building to another district costs this part of its construction
+RELOCATION_COST_RATIO = 0.5
 
 
 @on_server
@@ -58,30 +65,68 @@ def construct_building(server, district_id, building_type):
     return True
 
 
-@on_server
-def delete_building(server, building_id, refund_ratio=0.75):
+def _count_free_slots(district):
+    district.buildings_slots_free = district.buildings_slots_total - district.buildings.count()
+    district.save(update_fields=['buildings_slots_free'])
 
-    building = get_building(server, building_id)
+
+@on_server
+@transaction.atomic
+def destroy_building(server, commandant_id, building_id, refund_ratio=0.75):
+    from data.resources import add_resources  # Placed here to prevent circular import
+
+    # Locked until deleted : spamming the request can't refund the same building twice
+    building = Building.objects.select_for_update().filter(id=to_id(building_id)).first()
     if not building:
         return False
 
+    district, building_type = building.home_district, building.building_type
+    building.delete()
+    _count_free_slots(district)
 
-    # TODO check if destruction is valid
+    build_cost = (buildings_types.get_building_type(server, building_type) or {}).get('build_cost') or {}
+    add_resources(server, commandant_id, {resource: int(quantity * refund_ratio) for resource, quantity in build_cost.items()})
+    return True
 
-    Building.objects.filter(id=building_id).delete()
+
+@on_server
+def upgrade_building(server, building_id, building_type):
+    properties = buildings_types.get_building_type(server, building_type)
+    Building.objects.filter(id=to_id(building_id)).update(building_type=building_type, name_fr=properties.get('name_fr'),
+                                                        name_en=properties.get('name_en'))
 
 
-    # RESOURCES REFUNDING (done after to prevent multiple refunding by spamming faster than DB deletion)
-    resources_refund = {}
+@on_server
+@transaction.atomic
+def relocate_building(server, building_id, district_id):
+    # Return False if the district has no free slot for it
 
-    # Building cost refund
-    building_type = buildings_types.get_building_type(server, building['building_type'])
-    for resource, quantity in building_type['build_cost']:
-        if resource in resources_refund:
-            resources_refund[resource] += quantity * refund_ratio
-        else:
-            resources_refund[resource] = quantity * refund_ratio
-            # TODO refund on destruction
+    # Locked until the end of the transaction : two simultaneous moves can't take the same slot
+    target = District.objects.select_for_update().get(id=to_id(district_id))
+    if target.buildings_slots_total - target.buildings.count() < 1:
+        return False
+
+    building = Building.objects.select_for_update().get(id=to_id(building_id))
+    origin = building.home_district
+    building.home_district = target
+    building.save(update_fields=['home_district'])
+    _count_free_slots(origin)
+    _count_free_slots(target)
+    return True
+
+
+def relocation_cost(building_type):
+    return {resource: math.ceil(quantity * RELOCATION_COST_RATIO) for resource, quantity in (building_type.get('build_cost') or {}).items()}
+
+
+@on_server
+def districts_with_free_slots(server, colonies_ids, language):
+    # Where a building can be moved : the districts of these colonies with a free slot
+    names = {district_type.internal_name: localized_name(district_type.as_dict(), language) for district_type in DistrictType.objects.all()}
+    districts = District.objects.filter(colony_id__in=colonies_ids).select_related('colony').annotate(built=Count('buildings')).order_by('colony_id', 'id')
+    return [{'id': district.id, 'category': district.category, 'colony': district.colony_id, 'colony_name': district.colony.name,
+             'name': names.get(district.district_type, district.district_type), 'free': district.buildings_slots_total - district.built}
+            for district in districts if district.buildings_slots_total > district.built]
 
 
 @on_server

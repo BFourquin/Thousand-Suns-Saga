@@ -1,102 +1,45 @@
-/* Tree of the buildings (js/buildings.js). Dark in every theme, like the tree of the technologies. */
+/* Trees of buildings in the modals of the colony page (js/buildings.js) : icons only, the details on hover */
 
-.btree-productions { display: flex; flex-wrap: wrap; gap: 0.25rem; margin: 0.25rem 0 0.5rem; }
-
-.btree-options { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1rem; margin-bottom: 0.5rem; }
-.btree-options label { display: flex; align-items: center; gap: 0.35rem; margin: 0; font-weight: normal; }
-.btree-path { flex-basis: 100%; margin: 0; font-size: 1.05rem; }
-.btree-path .fa-angle-right { margin: 0 0.35rem; opacity: 0.6; }
-.btree-level-select { width: auto; }
-.btree-legend { font-size: 0.85rem; opacity: 0.8; }
-.btree-empty { padding: 2rem; text-align: center; }
-
-.btree {
-    --btree-accent: var(--tss-accent-text, #5aa9ff);
-    --btree-muted: #9aa7b8;
-    --btree-line: rgba(255, 255, 255, 0.14);
-    overflow-x: auto;
-    margin-bottom: 1rem;
-    border-radius: 0.5rem;
-    background: #0b101a;
-    color: #e9eef5;
-}
-.btree-grid { position: relative; display: grid; width: max-content; min-width: 100%; padding-bottom: 0.5rem; }
+.btree { overflow-x: auto; padding: 0.5rem 0; }
+.btree-grid { position: relative; display: grid; justify-content: center; gap: 1.5rem 1rem; width: max-content; min-width: 100%; padding: 0.25rem; }
 
 .btree-links { position: absolute; top: 0; left: 0; pointer-events: none; }
-.btree-links path { fill: none; stroke: var(--btree-muted); stroke-width: 1.5; opacity: 0.5; }
-.btree-links path.btree-link-current { stroke: var(--btree-accent); opacity: 1; }
-
-.btree-hide-past .btree-past, .btree-hide-future .btree-future { display: none; }
-
-
-/* ---------------------------------------------------------------------------------------------------------------- */
-/* Levels in columns, productions in bands */
-
-.btree-level {
-    grid-row: 1;
-    padding: 0.5rem 0.4rem 0.25rem;
-    border-bottom: 1px solid var(--btree-line);
-    color: var(--btree-accent);
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-align: center;
-    white-space: nowrap;
-}
-.btree-level.btree-past, .btree-level.btree-future { color: var(--btree-muted); font-size: 0.7rem; font-weight: normal; }
-
-.btree-band { grid-column: 1 / -1; border-bottom: 1px solid var(--btree-line); }
-.btree-band-even { background: rgba(255, 255, 255, 0.03); }
-
-.btree-band-name {
-    position: sticky;
-    left: 0;
-    z-index: 2;
-    grid-column: 1;
-    display: flex;
-    align-items: center;
-    max-width: 10rem;
-    margin: 0;
-    padding: 0.5rem 0.75rem;
-    background: #161e2c;
-    font-size: 0.85rem;
-    font-weight: 600;
-}
-.btree-band-name a { color: var(--btree-accent); }
-
-
-/* ---------------------------------------------------------------------------------------------------------------- */
-/* Buildings : the obsolete and the future ones small */
+.btree-links path { fill: none; stroke: currentColor; stroke-width: 1.5; opacity: 0.4; }
 
 .btree-node {
     position: relative;
     z-index: 1;
     display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-    width: 9.5rem;
-    margin: 0.4rem 0.9rem;
-    padding: 0.4rem 0.5rem;
-    border: 2px solid var(--btree-accent);
-    border-radius: 0.5rem;
-    background: #161e2c;
-    color: inherit;
-    font-size: 0.8rem;
-    line-height: 1.2;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    margin: 0;
+    border: 2px solid rgba(150, 150, 150, 0.6);
+    border-radius: 0.4rem;
+    background: rgba(127, 127, 127, 0.15);
+    font-size: 1.3rem;
+    font-weight: normal;
+    cursor: help;
 }
-.btree-node:hover, .btree-node:focus-visible { background: #222c3e; color: inherit; }
-.btree-node:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-.btree-node-name { font-weight: 600; overflow-wrap: anywhere; }
-.btree-node small { color: var(--btree-muted); }
+.btree-level { position: absolute; right: 3px; bottom: 1px; font-size: 0.6rem; line-height: 1; opacity: 0.8; }
+.btree-lock { position: absolute; top: 3px; right: 3px; font-size: 0.55rem; }
 
-.btree-node.btree-past, .btree-node.btree-future {
-    width: 6rem;
-    margin: 0.25rem 0.6rem;
-    padding: 0.2rem 0.35rem;
-    border-width: 1px;
-    font-size: 0.65rem;
-}
-.btree-node.btree-past { border-color: var(--btree-line); opacity: 0.7; }
-.btree-node.btree-future { border-color: var(--btree-muted); border-style: dashed; }
-.btree-past .btree-node-tech, .btree-future .btree-node-tech { display: none; }
+.btree-selectable { border-color: var(--tss-accent-text, #5aa9ff); cursor: pointer; }
+.btree-selectable:hover { background: rgba(127, 127, 127, 0.3); }
+.btree-node:focus-within { box-shadow: 0 0 0 2px var(--tss-accent-text, #5aa9ff); }
+.btree-node:has(input:checked) { background: var(--tss-accent-text, #5aa9ff); border-color: var(--tss-accent-text, #5aa9ff); color: #fff; }
+.btree-locked, .btree-obsolete { border-style: dashed; opacity: 0.5; }
 
-.btree-node.btree-focus { box-shadow: 0 0 0 3px #ffb020; }
+/* The building of the modal, where it stands in its lineage */
+.btree-node.btree-current { border-color: #ffb020; box-shadow: 0 0 0 3px #ffb020; opacity: 1; }
+
+.btree-choice { min-height: 1.5em; margin: 0.5rem 0; font-size: 0.9rem; white-space: pre-line; }
+.btree-legend { font-size: 0.85rem; opacity: 0.8; }
+.btree-legend .btree-current-mark { display: inline-block; width: 0.9rem; height: 0.9rem; border: 2px solid #ffb020; border-radius: 0.2rem; vertical-align: middle; }
+
+.btree-steps { flex-wrap: wrap; gap: 0.25rem; margin-bottom: 0.5rem; }
+
+.building-orders { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0 0.5rem; }
+.building-details { margin-bottom: 0.5rem; }
+.building-details dt { font-weight: 600; }

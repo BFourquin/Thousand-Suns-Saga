@@ -1,83 +1,57 @@
-
 {% load i18n %}
-{% load static %}
-
+<!-- Construction in a district : a category, then one of its productions, then a building of its tree -->
 <div class="modal fade" id="modal-build-building-{{ district.id }}" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">{% trans "Construire un nouveau bâtiment"%}</h4>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <h4 class="modal-title">{% trans "Construire un nouveau bâtiment"%} — {{ district.name }}</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="{% trans 'Fermer' %}">
             <span aria-hidden="true">×</span>
           </button>
         </div>
 
-        <div class="modal-body table-responsive">
-          <table class="table u-width-100pct-table-layout-auto">
+        <div class="modal-body">
+          {% for category in district.construction_trees %}
+            {% if forloop.first %}<ul class="nav nav-pills btree-steps" role="tablist">{% endif %}
+              <li class="nav-item">
+                <a class="nav-link" data-toggle="pill" role="tab" href="#build-{{ district.id }}-{{ forloop.counter }}">
+                  <i class="fas {{ category.icon }}"></i> {{ category.name }}</a>
+              </li>
+            {% if forloop.last %}</ul>{% endif %}
+          {% empty %}
+            <p>{% trans "Aucun bâtiment ne peut être construit dans ce district." %}</p>
+          {% endfor %}
 
-            <thead>
-                  <tr>
-                    <th colspan="2">{% trans "Bâtiment"%}</th>
-                    <th>{% trans "Production"%}</th>
-                    <th>{% trans "Coût"%}</th>
-                    <th>{% trans "Maintenance"%}</th>
-                    <th>{% trans "Ordre"%}</th>
-                  </tr>
-              </thead>
-
-              <tbody>
-                {% for building in district.buildable_buildings %}
-
-                    <tr class="u-white-space-nowrap">
-
-                      <td class="mailbox-date u-width-0">
-                        <img class="large_img_without_td_padding" src="{% static ""%}{{building.illustration}}" alt="" loading="lazy"></td>
-
-                      <td class="mailbox-subject u-font-size-20px-text-align-center-vertical-align-middle">
-                        <b class="u-font-size-20px">{{building.name}}</b>
-                      </td>
-
-                      {% for resources in building.resources_columns %}
-                      <td class="u-vertical-align-middle-padding-top-0-padding-bottom-0px">
-                        {% for resource in resources.values %}
-                          <span class="u-line-height-2rem" title="{{resource.name}} &#013; {% trans "Stock"%} : {{resource.commandant_storage}} ">
-                            <img class="img_without_td_padding u-max-width-2rem" src="{% static ""%}{{resource.illustration}}" alt="">
-                            {{resource.quantity}} {{resource.unit_notation}}
-                          </span>
-                          {% if not forloop.last %}<br>{% endif%}
-                        {% endfor %}
-                      </td>
-                      {% endfor %}
-
-                      <td class="u-vertical-align-middle">
-
-                        <form method="POST" data-api-url="api_build_building">
-                          {% csrf_token %}
-                          <input type="hidden" name="server" value="{{server_name}}" />
-                          <input type="hidden" name="colony_id" value="{{colony_id}}" />
-                          <input type="hidden" name="district_id" value="{{district.id}}" />
-                          <input type="hidden" name="building_type" value="{{ building.internal_name }}">
-                          {% if building.enough_stockpiles %}
-                            <button type="submit" class="btn btn-primary">{% trans "Construire"%}</button>
-                          {% else %}
-                            <button type="submit" class="btn btn-danger" disabled>{% trans "Construire"%}</button>
-                          {% endif %}
-                        </form>
-                      </td>
-
-                    </tr>
-
+          <div class="tab-content">
+            {% for category in district.construction_trees %}
+            {% with category_id=forloop.counter %}
+            <div class="tab-pane fade" id="build-{{ district.id }}-{{ category_id }}" role="tabpanel">
+              <ul class="nav nav-pills nav-sm btree-steps" role="tablist">
+                {% for production in category.productions %}
+                <li class="nav-item">
+                  <a class="nav-link py-1" data-toggle="pill" role="tab" href="#build-{{ district.id }}-{{ category_id }}-{{ forloop.counter }}">{{ production.name }}</a>
+                </li>
                 {% endfor %}
-              </tbody>
-          </table>
+              </ul>
 
-        </div>
-
-        <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-primary" data-dismiss="modal">{% trans "Annuler"%}</button>
+              <div class="tab-content">
+                {% for production in category.productions %}
+                <div class="tab-pane fade" id="build-{{ district.id }}-{{ category_id }}-{{ forloop.counter }}" role="tabpanel">
+                  <form method="POST" data-api-url="api_build_building">
+                    {% csrf_token %}
+                    <input type="hidden" name="colony_id" value="{{ colony_id }}">
+                    <input type="hidden" name="district_id" value="{{ district.id }}">
+                    {% include "includes/colony/building_tree.html" with tree=production.tree %}
+                    <button type="submit" class="btn btn-primary">{% trans "Construire" %}</button>
+                  </form>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endwith %}
+            {% endfor %}
+          </div>
         </div>
       </div>
-      <!-- /.modal-content -->
     </div>
-    <!-- /.modal-dialog -->
 </div>

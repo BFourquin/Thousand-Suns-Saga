@@ -49,6 +49,10 @@ urlpatterns = [
     path('api_build_building/', views_api_buildings.api_build_building),
     path('api_delete_district/', views_api_buildings.api_delete_district),
     path('api_district_set_activation_percent/', views_api_buildings.api_district_set_activation_percent),
+    path('api_building_set_activation_percent/', views_api_buildings.api_building_set_activation_percent),
+    path('api_upgrade_building/', views_api_buildings.api_upgrade_building),
+    path('api_destroy_building/', views_api_buildings.api_destroy_building),
+    path('api_relocate_building/', views_api_buildings.api_relocate_building),
 
 
 
@@ -84,7 +88,6 @@ urlpatterns = [
     path('resources/', views_game.resources, name='resources'),
     path('modifiers/', views_game.modifiers, name='modifiers'),
     path('technologies/', views_game.technologies, name='technologies'),
-    path('buildings/', views_game.buildings, name='buildings'),
 
     path('colonies/', views_game_colonies.colonies, name='colonies'),
     path('colony/', views_game_colonies.colony, name='colony'),

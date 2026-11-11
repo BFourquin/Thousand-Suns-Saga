@@ -1,61 +1,51 @@
-// Tree of the buildings (page /buildings/) : draws the upgrade links, hides the obsolete and the future levels.
-// The nodes are placed in the grid by the template.
+// Trees of buildings of the colony page (includes/colony/building_tree.html) : the links drawn once a tree is visible,
+// the chosen building described under its tree, the actions of a building card opening their part of its modal.
 
 (function () {
     'use strict';
 
-    var tree = document.getElementById('btree');
-    if (!tree) { return; }
-    var grid = document.getElementById('btree-grid');
-    var links = document.getElementById('btree-links');
-    var nodes = tree.querySelectorAll('.btree-node');
     var SVG_NS = 'http://www.w3.org/2000/svg';
 
-    function drawLink(parent, child) {
-        // A hidden node has no offsetParent
-        if (!parent || !parent.offsetParent || !child.offsetParent) { return; }
-        var origin = grid.getBoundingClientRect();
-        var from = parent.getBoundingClientRect();
-        var to = child.getBoundingClientRect();
-        var x1 = from.right - origin.left, y1 = from.top + from.height / 2 - origin.top;
-        var x2 = to.left - origin.left, y2 = to.top + to.height / 2 - origin.top;
-        var middle = (x1 + x2) / 2;
-
-        var path = document.createElementNS(SVG_NS, 'path');
-        path.setAttribute('d', 'M' + x1 + ' ' + y1 + ' C' + middle + ' ' + y1 + ' ' + middle + ' ' + y2 + ' ' + x2 + ' ' + y2);
-        if (child.classList.contains('btree-current')) { path.classList.add('btree-link-current'); }
-        links.appendChild(path);
-    }
-
-    function drawLinks() {
+    function draw(tree) {
+        var grid = tree.querySelector('.btree-grid');
+        var links = tree.querySelector('.btree-links');
         links.replaceChildren();
+        if (!grid.offsetParent) { return; }  // Hidden in a modal, a tab or a collapse : drawn when shown
         links.setAttribute('width', grid.scrollWidth);
         links.setAttribute('height', grid.scrollHeight);
-        nodes.forEach(function (node) {
+
+        var origin = grid.getBoundingClientRect();
+        grid.querySelectorAll('[data-parents]').forEach(function (node) {
             node.dataset.parents.split(',').filter(Boolean).forEach(function (name) {
-                drawLink(document.getElementById('btree-node-' + name), node);
+                var parent = grid.querySelector('[data-name="' + CSS.escape(name) + '"]');
+                if (!parent) { return; }
+                // From the top of the lower level to the bottom of the upgrade
+                var from = parent.getBoundingClientRect(), to = node.getBoundingClientRect();
+                var x1 = from.left + from.width / 2 - origin.left, y1 = from.top - origin.top;
+                var x2 = to.left + to.width / 2 - origin.left, y2 = to.bottom - origin.top;
+                var middle = (y1 + y2) / 2;
+                var path = document.createElementNS(SVG_NS, 'path');
+                path.setAttribute('d', 'M' + x1 + ' ' + y1 + ' C' + x1 + ' ' + middle + ' ' + x2 + ' ' + middle + ' ' + x2 + ' ' + y2);
+                links.appendChild(path);
             });
         });
     }
 
-    ['btree-hide-past', 'btree-hide-future'].forEach(function (option) {
-        var checkbox = document.getElementById(option);
+    function drawVisible() {
+        document.querySelectorAll('[data-btree]').forEach(draw);
+    }
 
-        // The choice follows the player from one category to another. Without storage, the defaults of the page stay.
-        try {
-            var saved = localStorage.getItem(option);
-            if (saved !== null) { checkbox.checked = saved === 'true'; }
-        } catch (e) {}
-        tree.classList.toggle(option, checkbox.checked);
+    $(document).on('shown.bs.modal shown.bs.tab shown.bs.collapse', drawVisible);
+    window.addEventListener('resize', drawVisible);
 
-        checkbox.addEventListener('change', function () {
-            tree.classList.toggle(option, checkbox.checked);
-            try { localStorage.setItem(option, checkbox.checked); } catch (e) {}
-            drawLinks();
-        });
+    $(document).on('change', '[data-btree] input', function () {
+        $(this).closest('form').find('[data-btree-choice]').text($(this).closest('label').attr('title'));
     });
 
-    window.addEventListener('resize', drawLinks);
-    document.fonts.ready.then(drawLinks);
-    drawLinks();
+    // <a data-toggle="modal" data-section="#id of a collapse"> : the modal opens on that part
+    $(document).on('show.bs.modal', '.modal', function (e) {
+        var section = e.relatedTarget && $(e.relatedTarget).data('section');
+        $(this).find('.collapse.show').not(section).collapse('hide');
+        if (section) { $(section).collapse('show'); }
+    });
 })();

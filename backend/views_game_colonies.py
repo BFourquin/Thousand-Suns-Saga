@@ -8,8 +8,8 @@ from backend.utils import request_params, get_language, commandant_owns_colony
 from data.colonies import get_colonies_controlled_by_commandant, get_colony
 from data.districts import get_district
 from data.districts_types import get_district_type, get_all_buildable_districts_types
-from data.buildings import get_district_buildings
-from data.buildings_types import get_all_buildable_buildings_types, is_buildable
+from data.buildings import districts_with_free_slots, get_district_buildings, relocation_cost
+from data.buildings_types import buildings_catalogue, construction_trees, upgrade_tree
 from data.names import localized_name
 
 
@@ -50,8 +50,12 @@ def colony(request, server, commandant):
 
     colony_dict = get_colony(server, params['colony_id'], add_coo_image=True)
 
-    buildable_districts = get_all_buildable_districts_types(server, commandant, get_language(request))
-    buildable_buildings = get_all_buildable_buildings_types(server, commandant, get_language(request))
+    language = get_language(request)
+    buildable_districts = get_all_buildable_districts_types(server, commandant, language)
+    catalogue = buildings_catalogue(server, commandant, language)
+    types = {building_type['internal_name']: building_type for building_type in catalogue}
+    free_districts = districts_with_free_slots(server, commandant['colonies'], language)
+    trees = {}  # By category of district
 
     districts = []
     for district_id in colony_dict['districts']:
@@ -61,10 +65,18 @@ def colony(request, server, commandant):
         district['name'] = localized_name(district, get_language(request))
         district['buildings'] = get_district_buildings(server, district_id, append_building_type=True)
         for building in district['buildings']:
-            building['name'] = localized_name(building, get_language(request))
+            building['name'] = localized_name(building, language)
+            building['type'] = types.get(building['building_type'])
+            building['upgrade_tree'] = upgrade_tree(catalogue, building['building_type'], district['category'])
+            building['relocation_targets'] = [target for target in free_districts if str(target['id']) != district['id']
+                                              and (building['building_type_data'] or {}).get(target['category'])]
+            cost = relocation_cost(building['type'] or {})
+            building['relocation_cost'] = {resource: dict(info, quantity=cost[resource]) for resource, info in (building['type'] or {}).get('costs', {}).items()}
         district['buildings_slots_free'] = district['buildings_slots_total'] - len(district['buildings'])
         district['free_districts_slots'] = district['districts_slots'] - len(colony_dict['districts']) + 1
-        district['buildable_buildings'] = [building for building in buildable_buildings if is_buildable(building, district['category'])]
+        if district['category'] not in trees:
+            trees[district['category']] = construction_trees(catalogue, district['category'])
+        district['construction_trees'] = trees[district['category']]
 
         districts.append(district)
 

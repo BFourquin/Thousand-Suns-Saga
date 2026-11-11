@@ -1,16 +1,19 @@
+from functools import wraps
+
 from django.db import transaction
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 
-from backend.utils import request_params, get_active_server_and_commandant_from_request, commandant_owns_colony
+from backend.utils import request_params, get_active_server_and_commandant_from_request, commandant_owns_colony, get_language
 from backend.api_ui_interactions import api_pop_up, api_pop_up_and_redirect, api_login_required, api_orders_open
 from backend.decorators import log_player_action
 from data.resources import check_enough_resources_dict, pay_resources
 from data.districts import create_district, delete_district, get_district
 from data.districts_types import get_district_type, is_buildable_district
-from data.buildings import construct_building, get_district_buildings, set_activation_percent_building
-from data.buildings_types import get_building_type, is_buildable
+from data.buildings import construct_building, destroy_building, get_building, get_district_buildings, relocate_building, \
+    relocation_cost, set_activation_percent_building, upgrade_building
+from data.buildings_types import buildings_catalogue, get_building_type, is_buildable, upgrade_tree
 from game.models import to_id
 
 
@@ -183,3 +186,87 @@ def api_delete_district(request):
     # TODO if recycling, long order instead of instantaneous
     delete_district(server, commandant['id'], params['district_id'])
     return api_pop_up_and_redirect({"title": _("Destruction en cours du district"), "level": "success"}, status=200, redirect='/colony/?colony_id='+str(params['colony_id']))
+
+
+########################################################################################################################
+# ORDERS ON A BUILDING : from its modal on the colony page
+
+
+def building_order(view):
+    # The building building_id must stand in the colony colony_id of the active commandant
+    @require_POST
+    @api_login_required
+    @log_player_action
+    @api_orders_open
+    @wraps(view)
+    def wrapper(request):
+        params = request_params(request)
+        server, commandant = get_active_server_and_commandant_from_request(request)
+
+        if not server or not commandant:
+            return no_active_commandant()
+        if not commandant_owns_colony(commandant, params.get('colony_id')):
+            return invalid_colony()
+
+        building = get_building(server, params.get('building_id'))
+        district = get_district(server, building['home_district']) if building else None
+        if not district or district['colony'] != to_id(params['colony_id']):
+            return api_pop_up({"title": _("Cible de l'action invalide"), "level": "danger"}, status=400)
+        return view(request, params, server, commandant, building, district)
+    return wrapper
+
+
+def back_to_colony(title, params):
+    return api_pop_up_and_redirect({"title": title, "level": "success"}, status=200, redirect='/colony/?colony_id=' + str(params['colony_id']))
+
+
+@building_order
+def api_building_set_activation_percent(request, params, server, commandant, building, district):
+    activation_percent = to_id(params.get('activation_percent'))
+    if activation_percent is None or activation_percent > 100:
+        return api_pop_up({"title": _("Paramètre invalide"), "level": "danger"}, status=400)
+
+    set_activation_percent_building(server, building['id'], activation_percent)
+    return back_to_colony(_("Application du taux d'activation"), params)
+
+
+@building_order
+def api_upgrade_building(request, params, server, commandant, building, district):
+    # Exactly what the tree of its modal offers
+    tree = upgrade_tree(buildings_catalogue(server, commandant, get_language(request)), building['building_type'], district['category'])
+    target = next((node for node in (tree or {}).get('buildings', ())
+                   if node['internal_name'] == params.get('building_type') and node['selectable']), None)
+    if not target:
+        return api_pop_up({"title": _("Amélioration impossible"), "level": "danger"}, status=400)
+
+    with transaction.atomic():
+        if not pay_resources(server, commandant['id'], target.get('build_cost') or {}):
+            return api_pop_up({"title": _("Ressources manquantes pour la construction"), "level": "danger"}, status=400)
+        upgrade_building(server, building['id'], target['internal_name'])
+
+    return back_to_colony(_("Bâtiment amélioré"), params)
+
+
+@building_order
+def api_destroy_building(request, params, server, commandant, building, district):
+    destroy_building(server, commandant['id'], building['id'])
+    return back_to_colony(_("Bâtiment détruit"), params)
+
+
+@building_order
+def api_relocate_building(request, params, server, commandant, building, district):
+    target = get_district(server, params.get('district_id'))
+    building_type = get_building_type(server, building['building_type'])
+
+    if not target or target['id'] == district['id'] or not commandant_owns_colony(commandant, target['colony']) \
+            or not building_type or not building_type.get(target['category']):
+        return api_pop_up({"title": _("Ce district ne peut pas accueillir ce bâtiment"), "level": "danger"}, status=400)
+
+    with transaction.atomic():  # No free slot : the payment is cancelled with the rest
+        if not pay_resources(server, commandant['id'], relocation_cost(building_type)):
+            return api_pop_up({"title": _("Ressources manquantes pour la délocalisation"), "level": "danger"}, status=400)
+        if not relocate_building(server, building['id'], target['id']):
+            transaction.set_rollback(True)
+            return api_pop_up({"title": _("Ce district n'a plus de place libre"), "level": "danger"}, status=400)
+
+    return back_to_colony(_("Bâtiment délocalisé"), params)

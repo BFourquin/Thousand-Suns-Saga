@@ -52,7 +52,8 @@ from data.report import change_report_status, delete_report, get_commandant_repo
 from data.resources import add_resources, pay_resources
 
 API_LOGGED_URLS = ['/api_create_commandant/', '/api_build_district/', '/api_build_building/', '/api_delete_district/',
-                   '/api_district_set_activation_percent/', '/api_start_research/']
+                   '/api_district_set_activation_percent/', '/api_start_research/', '/api_building_set_activation_percent/',
+                   '/api_upgrade_building/', '/api_destroy_building/', '/api_relocate_building/']
 
 
 def player():
@@ -1901,8 +1902,11 @@ class EconomyPagesTests(EconomyTestCase):
     def test_colony_page_offers_what_is_buildable_in_each_district(self):
         response = self.client.get('/colony/', {'colony_id': self.colony.id})
         self.assertContains(response, f'id="modal-build-building-{self.central.id}"')
-        self.assertContains(response, 'value="well"')
-        self.assertNotContains(response, 'value="too_new"')
+        trees = next(district for district in response.context['districts'] if district['id'] == str(self.central.id))['construction_trees']
+        nodes = {node['internal_name']: node for category in trees for production in category['productions'] for node in production['tree']['buildings']}
+        self.assertTrue(nodes['well']['selectable'])
+        self.assertFalse(nodes['too_new']['selectable'])  # Shown locked, above what it comes from
+        self.assertNotIn('too_old', nodes)  # Obsolete
 
     def test_resources_page_shows_the_forecast(self):
         self.build(self.central, 'well')
@@ -1913,53 +1917,98 @@ class EconomyPagesTests(EconomyTestCase):
 
 
 
-class BuildingsTreeTests(EconomyTestCase):
+class BuildingsOrdersTests(EconomyTestCase):
+    # Steel : forge (1) -> mill (5) -> plant (12, out of reach). In the central district only, the smelter elsewhere.
 
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         with server_schema('S'):
-            for name, data in (('copper', {'tech_available': 2, 'tech_hidden': 4}), ('iron', {'tech_available': 3, 'tech_hidden': 6}),
-                               ('mechanized', {'tech_available': 6}), ('asteroid', {'tech_available': 9}),
-                               ('gold', {'tech_available': 2, 'production': 'gold'}), ('deep', {'tech_available': 10}),
-                               ('automated', {'tech_available': 11}), ('core', {'tech_available': 13, 'upgrade_from': 'mechanized'})):
+            for name, data in (('forge', {'tech_available': 1, 'build_cost': {'steel': 3}, 'farming_district': True}),
+                               ('mill', {'tech_available': 5, 'build_cost': {'steel': 4}}),
+                               ('plant', {'tech_available': 12}),
+                               ('smelter', {'tech_available': 6, 'central_district': False, 'farming_district': True})):
                 BuildingType.objects.create(internal_name=name, data={'internal_name': name, 'name_fr': name, 'category': 'raw_materials',
-                                                                      'production': 'common_metal'} | data)
+                                                                      'production': 'steel', 'central_district': True, 'build_cost': {},
+                                                                      'maintenance': {}} | data)
+            cls.forge = Building.objects.create(building_type='forge', name_fr='forge', home_district=cls.central)
+            District.objects.filter(id=cls.central.id).update(buildings_slots_total=2)
+            cls.fields = District.objects.create(colony=cls.colony, district_type='farming', category='farming_district', buildings_slots_total=1)
 
     def setUp(self):
         self.client.force_login(self.user)
         CommandantAccount.objects.create(server_id='S', commandant_id=self.commandant.id, user=self.user, commandant_name='Paullus')
         UserExtended.objects.update_or_create(user=self.user, defaults={'playing_on_server_id': 'S', 'playing_on_commandant': self.commandant.id})
 
-    def tree(self, **params):
-        response = self.client.get('/buildings/', {'category': 'raw_materials'} | params)
-        self.assertEqual(response.status_code, 200)
-        return response.context, {building['internal_name']: building for band in response.context['bands'] for building in band['buildings']}
+    def order(self, url, **data):
+        return self.client.post(url, {'colony_id': self.colony.id, 'building_id': self.forge.id} | data)
+
+    def reload(self):
+        with server_schema('S'):
+            return Building.objects.filter(id=self.forge.id).first()
 
     def test_each_building_comes_from_the_one_it_replaces(self):
-        context, buildings = self.tree()
-        self.assertEqual([band['name'] for band in context['bands']], ['common_metal', 'gold'])
-        self.assertEqual({name: building['parents'] for name, building in buildings.items()},
-                         {'copper': [], 'iron': ['copper'], 'mechanized': ['iron'], 'asteroid': ['mechanized'], 'gold': [],
-                          'deep': ['asteroid'], 'automated': ['deep'], 'core': ['mechanized']})  # core : the column upgrade_from
-        self.assertEqual(buildings['asteroid']['row'], buildings['mechanized']['row'])  # A chain on one row, a branch below
-        self.assertGreater(buildings['core']['row'], buildings['mechanized']['row'])
+        response = self.client.get('/colony/', {'colony_id': self.colony.id})
+        central = next(district for district in response.context['districts'] if district['id'] == str(self.central.id))
+        category = next(category for category in central['construction_trees'] if category['key'] == 'raw_materials')
+        tree = {node['internal_name']: node for node in category['productions'][0]['tree']['buildings']}
+        self.assertEqual({name: node['parents'] for name, node in tree.items()}, {'forge': [], 'mill': ['forge'], 'plant': ['mill']})
+        self.assertEqual((tree['forge']['grid_column'], tree['mill']['grid_column']), (1, 1))  # One chain, upright
+        self.assertGreater(tree['forge']['grid_row'], tree['mill']['grid_row'])  # The lowest level at the bottom
+        self.assertEqual({name: node['selectable'] for name, node in tree.items()}, {'forge': True, 'mill': True, 'plant': False})
 
-    def test_obsolete_buildings_and_future_levels_by_the_chosen_level(self):
-        context, buildings = self.tree()  # Level 10 by default
-        self.assertEqual({name: building['status'] for name, building in buildings.items() if name != 'gold'},
-                         {'copper': 'past', 'iron': 'past', 'mechanized': 'current', 'asteroid': 'current', 'deep': 'current',
-                          'automated': 'future', 'core': 'future'})
-        self.assertEqual([(column['level'], column['status']) for column in context['levels']],
-                         [(2, 'current'), (3, 'past'), (6, 'current'), (9, 'current'), (10, 'current'), (11, 'future'), (13, 'future')])
-        self.assertEqual(self.tree(level='3')[1]['iron']['status'], 'current')
-        self.assertEqual(self.tree(level='x')[0]['level'], 10)
+    def test_the_upgrade_tree_frames_the_building_and_offers_what_it_can_become(self):
+        response = self.client.get('/colony/', {'colony_id': self.colony.id})
+        building = next(building for district in response.context['districts'] for building in district['buildings']
+                        if building['id'] == self.forge.id)
+        nodes = {node['internal_name']: node for node in building['upgrade_tree']['buildings']}
+        self.assertEqual({name for name, node in nodes.items() if node['current']}, {'forge'})
+        self.assertEqual({name for name, node in nodes.items() if node['selectable']}, {'mill'})  # plant : level 12
+        self.assertEqual([target['id'] for target in building['relocation_targets']], [self.fields.id])
+        self.assertContains(response, f'id="modal-building-{self.forge.id}"')
+        self.assertContains(response, 'btree-current')
 
-    def test_a_building_shows_its_lineage_only(self):
-        context, buildings = self.tree(building='deep')
-        self.assertEqual(context['selected_production'], 'common_metal')
-        self.assertEqual(set(buildings), {'copper', 'iron', 'mechanized', 'asteroid', 'deep', 'automated'})
-        self.assertContains(self.client.get('/buildings/', {'category': 'raw_materials', 'building': 'deep'}), 'btree-focus', count=1)
+    def test_upgrade(self):
+        for target in ('plant', 'smelter', 'forge', 'well'):  # Out of reach, not in its lineage, itself, another production
+            self.assertEqual(self.order('/api_upgrade_building/', building_type=target).status_code, 400, target)
+        self.assertEqual(self.order('/api_upgrade_building/', building_type='mill').status_code, 200)
+        self.assertEqual((self.reload().building_type, self.reload().name_fr), ('mill', 'mill'))
+        self.assertEqual(self.resources()['steel'], 6)
+
+    def test_destroy_refunds_and_frees_the_slot(self):
+        self.assertEqual(self.order('/api_destroy_building/').status_code, 200)
+        self.assertIsNone(self.reload())
+        self.assertEqual(self.resources()['steel'], 12)  # 10 + 75 % of 3
+        with server_schema('S'):
+            self.assertEqual(District.objects.get(id=self.central.id).buildings_slots_free, 2)
+
+    def test_relocate(self):
+        with server_schema('S'):
+            other = Commandant.objects.create(user=self.user, commandant_name='Other', civilisation_name='Other', creation_date=timezone.now())
+            far = Colony.objects.create(name='Far', owner=other, controller=other, coordinate='1', colony_type='start')
+            foreign = District.objects.create(colony=far, district_type='farming', category='farming_district', buildings_slots_total=1)
+        for district in (foreign, self.central, self.farming):  # Not his, its own, no free slot
+            self.assertEqual(self.order('/api_relocate_building/', district_id=district.id).status_code, 400, district.category)
+        self.assertEqual(self.resources()['steel'], 10)
+
+        self.assertEqual(self.order('/api_relocate_building/', district_id=self.fields.id).status_code, 200)
+        self.assertEqual(self.reload().home_district_id, self.fields.id)
+        self.assertEqual(self.resources()['steel'], 8)  # Half of 3, rounded up
+        with server_schema('S'):
+            self.assertEqual(District.objects.get(id=self.fields.id).buildings_slots_free, 0)
+
+    def test_activation(self):
+        self.assertEqual(self.order('/api_building_set_activation_percent/', activation_percent='40').status_code, 200)
+        self.assertEqual(self.reload().activation_percent, 40)
+        for value in ('140', '-5', 'x'):
+            self.assertEqual(self.order('/api_building_set_activation_percent/', activation_percent=value).status_code, 400, value)
+
+    def test_a_building_of_another_colony_is_refused(self):
+        with server_schema('S'):
+            colony = Colony.objects.create(name='Mine', owner=self.commandant, controller=self.commandant, coordinate='2', colony_type='start')
+        response = self.client.post('/api_destroy_building/', {'colony_id': colony.id, 'building_id': self.forge.id})
+        self.assertEqual(response.status_code, 400)  # Not in commandant['colonies'] either
+        self.assertIsNotNone(self.reload())
 
 
 class AuditFixesTests(EconomyTestCase):
