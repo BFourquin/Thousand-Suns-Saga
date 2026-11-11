@@ -72,11 +72,10 @@
                 <label for="building-{{ building.id }}-district">{% trans "Vers le district" %}</label>
                 <select id="building-{{ building.id }}-district" name="district_id" class="form-control mb-2">
                   {% for target in building.relocation_targets %}
-                  <option value="{{ target.id }}">{{ target.colony_name }} — {{ target.name }} ({{ target.free }} {% trans "place(s) libre(s)" %})</option>
+                  <option value="{{ target.id }}">{{ target.colony_name }} — {{ target.name }} ({{ target.free }} {% trans "place(s) libre(s)" %}) — {% trans "coût" %} : {{ target.cost|default:_("aucun") }}</option>
                   {% endfor %}
                 </select>
-                <p>{% trans "Coût" %} :
-                  {% for resource in building.relocation_cost.values %}{{ resource.quantity }} {{ resource.unit_notation|default:'' }} {{ resource.name }}{% if not forloop.last %}, {% endif %}{% empty %}{% trans "aucun" %}{% endfor %}</p>
+                <p class="btree-legend">{% trans "La délocalisation coûte 50 % du coût de construction sur la même planète, 80 % vers une autre planète." %}</p>
                 <button type="submit" class="btn btn-primary">{% trans "Délocaliser" %}</button>
               </form>
               {% else %}

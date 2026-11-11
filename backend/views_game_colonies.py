@@ -9,7 +9,7 @@ from data.colonies import get_colonies_controlled_by_commandant, get_colony
 from data.districts import get_district
 from data.districts_types import get_district_type, get_all_buildable_districts_types
 from data.buildings import districts_with_free_slots, get_district_buildings, relocation_cost
-from data.buildings_types import buildings_catalogue, construction_trees, upgrade_tree
+from data.buildings_types import buildings_catalogue, construction_trees, resources_text, upgrade_tree
 from data.names import localized_name
 
 
@@ -57,6 +57,10 @@ def colony(request, server, commandant):
     free_districts = districts_with_free_slots(server, commandant['colonies'], language)
     trees = {}  # By category of district
 
+    def relocation_text(building_type, other_planet):
+        cost = relocation_cost(building_type, other_planet)
+        return resources_text({resource: dict(info, quantity=cost[resource]) for resource, info in building_type.get('costs', {}).items()})
+
     districts = []
     for district_id in colony_dict['districts']:
         district = get_district(server, district_id)  # Specific district info
@@ -68,10 +72,9 @@ def colony(request, server, commandant):
             building['name'] = localized_name(building, language)
             building['type'] = types.get(building['building_type'])
             building['upgrade_tree'] = upgrade_tree(catalogue, building['building_type'], district['category'])
-            building['relocation_targets'] = [target for target in free_districts if str(target['id']) != district['id']
+            building['relocation_targets'] = [dict(target, cost=relocation_text(building['type'] or {}, target['planet'] != colony_dict['coordinate']))
+                                              for target in free_districts if str(target['id']) != district['id']
                                               and (building['building_type_data'] or {}).get(target['category'])]
-            cost = relocation_cost(building['type'] or {})
-            building['relocation_cost'] = {resource: dict(info, quantity=cost[resource]) for resource, info in (building['type'] or {}).get('costs', {}).items()}
         district['buildings_slots_free'] = district['buildings_slots_total'] - len(district['buildings'])
         district['free_districts_slots'] = district['districts_slots'] - len(colony_dict['districts']) + 1
         if district['category'] not in trees:

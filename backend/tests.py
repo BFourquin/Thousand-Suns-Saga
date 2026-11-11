@@ -1903,7 +1903,7 @@ class EconomyPagesTests(EconomyTestCase):
         response = self.client.get('/colony/', {'colony_id': self.colony.id})
         self.assertContains(response, f'id="modal-build-building-{self.central.id}"')
         trees = next(district for district in response.context['districts'] if district['id'] == str(self.central.id))['construction_trees']
-        nodes = {node['internal_name']: node for category in trees for production in category['productions'] for node in production['tree']['buildings']}
+        nodes = {node['internal_name']: node for category in trees for section in category['tree']['sections'] for node in section['buildings']}
         self.assertTrue(nodes['well']['selectable'])
         self.assertFalse(nodes['too_new']['selectable'])  # Shown locked, above what it comes from
         self.assertNotIn('too_old', nodes)  # Obsolete
@@ -1951,17 +1951,37 @@ class BuildingsOrdersTests(EconomyTestCase):
         response = self.client.get('/colony/', {'colony_id': self.colony.id})
         central = next(district for district in response.context['districts'] if district['id'] == str(self.central.id))
         category = next(category for category in central['construction_trees'] if category['key'] == 'raw_materials')
-        tree = {node['internal_name']: node for node in category['productions'][0]['tree']['buildings']}
+        steel = category['tree']['sections'][0]
+        tree = {node['internal_name']: node for node in steel['buildings']}
         self.assertEqual({name: node['parents'] for name, node in tree.items()}, {'forge': [], 'mill': ['forge'], 'plant': ['mill']})
         self.assertEqual((tree['forge']['grid_column'], tree['mill']['grid_column']), (1, 1))  # One chain, upright
         self.assertGreater(tree['forge']['grid_row'], tree['mill']['grid_row'])  # The lowest level at the bottom
         self.assertEqual({name: node['selectable'] for name, node in tree.items()}, {'forge': True, 'mill': True, 'plant': False})
 
+    def test_one_tree_per_category_a_section_per_production_and_several_parents(self):
+        with server_schema('S'):
+            for name, data in (('pit', {'tech_available': 1, 'upgrade_from': None}), ('shaft', {'tech_available': 2, 'upgrade_from': 'pit'}),
+                               ('vein', {'tech_available': 2, 'upgrade_from': 'pit'}),
+                               ('deep_pit', {'tech_available': 3, 'upgrade_from': 'shaft, vein, forge'})):  # forge : another production
+                BuildingType.objects.create(internal_name=name, data={'internal_name': name, 'name_fr': name, 'category': 'raw_materials',
+                                                                      'production': 'coal', 'central_district': True, 'build_cost': {},
+                                                                      'maintenance': {}} | data)
+        response = self.client.get('/colony/', {'colony_id': self.colony.id})
+        central = next(district for district in response.context['districts'] if district['id'] == str(self.central.id))
+        tree = next(category for category in central['construction_trees'] if category['key'] == 'raw_materials')['tree']
+        self.assertEqual([(section['name'], section['grid_column'], section['columns']) for section in tree['sections']],
+                         [('steel', 1, 1), ('coal', 2, 2)])
+        nodes = {node['internal_name']: node for section in tree['sections'] for node in section['buildings']}
+        self.assertEqual(nodes['deep_pit']['parents'], ['shaft', 'vein'])
+        self.assertEqual(nodes['forge']['grid_row'], nodes['pit']['grid_row'])  # The levels are shared by the sections
+        self.assertEqual(sorted(nodes[name]['grid_column'] for name in ('shaft', 'vein')), [2, 3])
+        self.assertContains(response, 'data-parents="shaft,vein"')
+
     def test_the_upgrade_tree_frames_the_building_and_offers_what_it_can_become(self):
         response = self.client.get('/colony/', {'colony_id': self.colony.id})
         building = next(building for district in response.context['districts'] for building in district['buildings']
                         if building['id'] == self.forge.id)
-        nodes = {node['internal_name']: node for node in building['upgrade_tree']['buildings']}
+        nodes = {node['internal_name']: node for node in building['upgrade_tree']['sections'][0]['buildings']}
         self.assertEqual({name for name, node in nodes.items() if node['current']}, {'forge'})
         self.assertEqual({name for name, node in nodes.items() if node['selectable']}, {'mill'})  # plant : level 12
         self.assertEqual([target['id'] for target in building['relocation_targets']], [self.fields.id])
@@ -1993,9 +2013,20 @@ class BuildingsOrdersTests(EconomyTestCase):
 
         self.assertEqual(self.order('/api_relocate_building/', district_id=self.fields.id).status_code, 200)
         self.assertEqual(self.reload().home_district_id, self.fields.id)
-        self.assertEqual(self.resources()['steel'], 8)  # Half of 3, rounded up
+        self.assertEqual(self.resources()['steel'], 8)  # Half of 3 on the same planet, rounded up
         with server_schema('S'):
             self.assertEqual(District.objects.get(id=self.fields.id).buildings_slots_free, 0)
+
+    def test_relocate_to_another_planet(self):
+        with server_schema('S'):
+            colony = Colony.objects.create(name='Moon', owner=self.commandant, controller=self.commandant, coordinate='100100000005505002', colony_type='start')
+            moon = District.objects.create(colony=colony, district_type='farming', category='farming_district', buildings_slots_total=1)
+        response = self.client.get('/colony/', {'colony_id': self.colony.id})
+        building = next(building for district in response.context['districts'] for building in district['buildings'] if building['id'] == self.forge.id)
+        self.assertEqual({target['id']: target['cost'] for target in building['relocation_targets']}, {self.fields.id: '2 Mt steel', moon.id: '3 Mt steel'})
+
+        self.assertEqual(self.order('/api_relocate_building/', district_id=moon.id).status_code, 200)
+        self.assertEqual(self.resources()['steel'], 7)  # 80 % of 3, rounded up
 
     def test_activation(self):
         self.assertEqual(self.order('/api_building_set_activation_percent/', activation_percent='40').status_code, 200)

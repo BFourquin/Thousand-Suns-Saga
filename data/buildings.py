@@ -9,8 +9,9 @@ from data import colonies, buildings_types, districts
 from data.names import localized_name
 
 
-# Moving a building to another district costs this part of its construction
+# Moving a building to another district costs this part of its construction, more to another planet
 RELOCATION_COST_RATIO = 0.5
+RELOCATION_TO_ANOTHER_PLANET_COST_RATIO = 0.8
 
 
 @on_server
@@ -115,8 +116,9 @@ def relocate_building(server, building_id, district_id):
     return True
 
 
-def relocation_cost(building_type):
-    return {resource: math.ceil(quantity * RELOCATION_COST_RATIO) for resource, quantity in (building_type.get('build_cost') or {}).items()}
+def relocation_cost(building_type, other_planet):
+    ratio = RELOCATION_TO_ANOTHER_PLANET_COST_RATIO if other_planet else RELOCATION_COST_RATIO
+    return {resource: math.ceil(quantity * ratio) for resource, quantity in (building_type.get('build_cost') or {}).items()}
 
 
 @on_server
@@ -125,6 +127,7 @@ def districts_with_free_slots(server, colonies_ids, language):
     names = {district_type.internal_name: localized_name(district_type.as_dict(), language) for district_type in DistrictType.objects.all()}
     districts = District.objects.filter(colony_id__in=colonies_ids).select_related('colony').annotate(built=Count('buildings')).order_by('colony_id', 'id')
     return [{'id': district.id, 'category': district.category, 'colony': district.colony_id, 'colony_name': district.colony.name,
+             'planet': district.colony.coordinate,
              'name': names.get(district.district_type, district.district_type), 'free': district.buildings_slots_total - district.built}
             for district in districts if district.buildings_slots_total > district.built]
 

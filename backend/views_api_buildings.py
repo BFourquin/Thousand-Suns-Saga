@@ -9,6 +9,7 @@ from backend.utils import request_params, get_active_server_and_commandant_from_
 from backend.api_ui_interactions import api_pop_up, api_pop_up_and_redirect, api_login_required, api_orders_open
 from backend.decorators import log_player_action
 from data.resources import check_enough_resources_dict, pay_resources
+from data.colonies import get_colony
 from data.districts import create_district, delete_district, get_district
 from data.districts_types import get_district_type, is_buildable_district
 from data.buildings import construct_building, destroy_building, get_building, get_district_buildings, relocate_building, \
@@ -234,7 +235,7 @@ def api_building_set_activation_percent(request, params, server, commandant, bui
 def api_upgrade_building(request, params, server, commandant, building, district):
     # Exactly what the tree of its modal offers
     tree = upgrade_tree(buildings_catalogue(server, commandant, get_language(request)), building['building_type'], district['category'])
-    target = next((node for node in (tree or {}).get('buildings', ())
+    target = next((node for section in (tree or {}).get('sections', ()) for node in section['buildings']
                    if node['internal_name'] == params.get('building_type') and node['selectable']), None)
     if not target:
         return api_pop_up({"title": _("Amélioration impossible"), "level": "danger"}, status=400)
@@ -263,7 +264,8 @@ def api_relocate_building(request, params, server, commandant, building, distric
         return api_pop_up({"title": _("Ce district ne peut pas accueillir ce bâtiment"), "level": "danger"}, status=400)
 
     with transaction.atomic():  # No free slot : the payment is cancelled with the rest
-        if not pay_resources(server, commandant['id'], relocation_cost(building_type)):
+        other_planet = get_colony(server, target['colony'])['coordinate'] != get_colony(server, district['colony'])['coordinate']
+        if not pay_resources(server, commandant['id'], relocation_cost(building_type, other_planet)):
             return api_pop_up({"title": _("Ressources manquantes pour la délocalisation"), "level": "danger"}, status=400)
         if not relocate_building(server, building['id'], target['id']):
             transaction.set_rollback(True)

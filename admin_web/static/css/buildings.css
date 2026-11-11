@@ -1,7 +1,24 @@
 /* Trees of buildings in the modals of the colony page (js/buildings.js) : icons only, the details on hover */
 
 .btree { overflow-x: auto; padding: 0.5rem 0; }
-.btree-grid { position: relative; display: grid; justify-content: center; gap: 1.5rem 1rem; width: max-content; min-width: 100%; padding: 0.25rem; }
+.btree-grid { position: relative; display: grid; justify-content: center; width: max-content; min-width: 100%; }
+
+/* A section per production, as in Total War : a tinted band, its name at the bottom, a line between two sections */
+.btree-section { border-left: 1px solid rgba(150, 150, 150, 0.35); background: rgba(127, 127, 127, 0.06); }
+.btree-section:first-of-type { border-left: 0; }
+.btree-section-even { background: rgba(127, 127, 127, 0.14); }
+.btree-section-name {
+    z-index: 1;
+    width: min-content;  /* Widens its section to its longest word at most */
+    min-width: 100%;
+    padding: 0.25rem 0.35rem 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1.15;
+    text-align: center;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
 
 .btree-links { position: absolute; top: 0; left: 0; pointer-events: none; }
 .btree-links path { fill: none; stroke: currentColor; stroke-width: 1.5; opacity: 0.4; }
@@ -14,7 +31,7 @@
     justify-content: center;
     width: 3rem;
     height: 3rem;
-    margin: 0;
+    margin: 0.75rem 0.6rem;
     border: 2px solid rgba(150, 150, 150, 0.6);
     border-radius: 0.4rem;
     background: rgba(127, 127, 127, 0.15);

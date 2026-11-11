@@ -70,6 +70,11 @@ def get_all_buildings_types(server, language=None):
     return buildings
 
 
+def resources_text(infos):
+    # infos : from add_infos_to_resources_dict
+    return ', '.join(' '.join(filter(None, (str(info['quantity']), info['unit_notation'], info['name']))) for info in infos.values())
+
+
 @on_server
 def buildings_catalogue(server, commandant, language):
     # Every building type with what the trees of the colony page show of it, read once for the page
@@ -79,9 +84,6 @@ def buildings_catalogue(server, commandant, language):
     technologies = {tech.internal_name: localized_name(tech.as_dict(), language) for tech in Technology.objects.all()}
     catalogue = [building.as_dict() for building in BuildingType.objects.order_by('id')]
     last = max((building.get('tech_available') or 0 for building in catalogue), default=0)
-
-    def text(infos):
-        return ', '.join(' '.join(filter(None, (str(info['quantity']), info['unit_notation'], info['name']))) for info in infos.values())
 
     for order, building in enumerate(catalogue):
         unlocked_by = building.get('unlocked_by_technology')
@@ -104,9 +106,9 @@ def buildings_catalogue(server, commandant, language):
         building['tooltip'] = '\n'.join(filter(None, (
             building['name'],
             _("Niveau %s") % building['levels'],
-            building['produces'] and _("Produit : %s") % text(building['produces']),
-            building['costs'] and _("Coût : %s") % text(building['costs']),
-            building['upkeep'] and _("Entretien : %s") % text(building['upkeep']),
+            building['produces'] and _("Produit : %s") % resources_text(building['produces']),
+            building['costs'] and _("Coût : %s") % resources_text(building['costs']),
+            building['upkeep'] and _("Entretien : %s") % resources_text(building['upkeep']),
             building['technology'] and _("Débloqué par : %s") % building['technology'],
             {'obsolete': _("Obsolète"), 'locked': _("Niveau technologique insuffisant")}.get(building['status']),
             building['status'] == 'available' and not building['enough_stockpiles'] and _("Stock insuffisant"),
@@ -119,15 +121,18 @@ def buildings_catalogue(server, commandant, language):
 
 
 def _link_upgrades(group):
-    # group : the buildings of one production, in the order of the Excel
-    # shortcut: the Excel has no column for the upgrades, a building comes from the one it replaces : the latest of its
-    # production still buildable when it appears, the nearest row of the Excel on a tie. A column upgrade_from in the
-    # sheet Buildings_new (internal names separated by commas) overrides this guess, building by building.
+    # group : the buildings of one production, in the order of the Excel. The column upgrade_from names the parents of a
+    # building, separated by commas, always of its production. Without that column (the sheets before it), a building
+    # comes from the one it replaces : the latest of its production still buildable when it appears, the nearest row of
+    # the Excel on a tie.
+    names = {building['internal_name'] for building in group}
     for building in group:
-        explicit = [name.strip() for name in (building.get('upgrade_from') or '').split(',') if name.strip()]
-        before = [other for other in group if other['level'] < building['level'] <= other['obsolete']]
-        best = max(before, key=lambda other: (other['level'], -abs(other['order'] - building['order'])), default=None)
-        building['parents'] = explicit or ([best['internal_name']] if best else [])
+        if 'upgrade_from' in building:
+            building['parents'] = [name.strip() for name in (building['upgrade_from'] or '').split(',') if name.strip() in names]
+        else:
+            before = [other for other in group if other['level'] < building['level'] <= other['obsolete']]
+            best = max(before, key=lambda other: (other['level'], -abs(other['order'] - building['order'])), default=None)
+            building['parents'] = [best['internal_name']] if best else []
 
 
 def _place_lanes(group):
@@ -179,43 +184,54 @@ def _groups(catalogue, district_category):
     return groups
 
 
-def _tree(group, current=None, targets=()):
-    # Upright, as in Total War : the levels from the bottom up, the variants side by side. Selectable : what can be built,
-    # or with a current building, what it can become.
-    group = [dict(building) for building in group if building['status'] != 'obsolete' or building['internal_name'] == current]
-    lanes = _place_lanes(group)
-    levels = sorted({building['level'] for building in group}, reverse=True)
-    for building in group:
-        building |= {
-            'grid_row': levels.index(building['level']) + 1,
-            'grid_column': building['lane'] + 1,
-            'current': building['internal_name'] == current,
-            # A central building is never built, only upgraded
-            'selectable': building['status'] == 'available' and building['enough_stockpiles'] and (
-                building['internal_name'] in targets if current else building.get('category') != 'central_building'),
-        }
-    return {'buildings': group, 'columns': lanes}
+def _production_name(production, group):
+    return next(iter(group[0]['produces'].values()), {}).get('name') or (_("Sans production") if production == NO_PRODUCTION else production)
+
+
+def _tree(sections, current=None, targets=()):
+    # Upright, as in Total War : the levels from the bottom up, shared by the sections side by side (one per production),
+    # the variants of a section side by side. Selectable : what can be built, or with a current building, what it can
+    # become. None when nothing is left to show.
+    shown, column = [], 1
+    for name, group in sections:
+        group = [dict(building) for building in group if building['status'] != 'obsolete' or building['internal_name'] == current]
+        if group:
+            lanes = _place_lanes(group)
+            for building in group:
+                building['grid_column'] = column + building['lane']
+            shown.append({'name': name, 'buildings': group, 'grid_column': column, 'columns': lanes})
+            column += lanes
+    if not shown:
+        return None
+
+    levels = sorted({building['level'] for section in shown for building in section['buildings']}, reverse=True)
+    for section in shown:
+        for building in section['buildings']:
+            building |= {
+                'grid_row': levels.index(building['level']) + 1,
+                'current': building['internal_name'] == current,
+                # A central building is never built, only upgraded
+                'selectable': building['status'] == 'available' and building['enough_stockpiles'] and (
+                    building['internal_name'] in targets if current else building.get('category') != 'central_building'),
+            }
+    return {'sections': shown, 'columns': column - 1, 'rows': len(levels)}
 
 
 def construction_trees(catalogue, district_category):
-    # For a construction in a district : the categories, then their productions, then the tree of each production
+    # For a construction in a district : the categories, then the tree of each, a section per production
     trees = []
     for category, productions in _groups(catalogue, district_category).items():
-        shown = []
-        for production, group in productions.items():
-            tree = _tree(group)
-            if tree['buildings']:
-                name = next(iter(group[0]['produces'].values()), {}).get('name') or (_("Sans production") if production == NO_PRODUCTION else production)
-                shown.append({'key': production, 'name': name, 'tree': tree})
-        if shown:
-            trees.append({'key': category, 'productions': shown} | CATEGORIES.get(category, {'name': category or _("Autres"), 'icon': 'fa-building'}))
+        tree = _tree([(_production_name(production, group), group) for production, group in productions.items()])
+        if tree:
+            trees.append({'key': category, 'tree': tree} | CATEGORIES.get(category, {'name': category or _("Autres"), 'icon': 'fa-building'}))
     return trees
 
 
 def upgrade_tree(catalogue, building_type, district_category):
     # The lineage of a building, where it stands framed. None when its district doesn't take it anymore.
-    group = next((group for productions in _groups(catalogue, district_category).values() for group in productions.values()
-                  if any(building['internal_name'] == building_type for building in group)), None)
+    production, group = next(((production, group) for productions in _groups(catalogue, district_category).values()
+                              for production, group in productions.items()
+                              if any(building['internal_name'] == building_type for building in group)), (None, None))
     if not group:
         return None
     up, down = defaultdict(list), defaultdict(list)
@@ -225,4 +241,5 @@ def upgrade_tree(catalogue, building_type, district_category):
             down[parent].append(building['internal_name'])
     descendants = _reach(building_type, down)
     lineage = {building_type} | _reach(building_type, up) | descendants
-    return _tree([building for building in group if building['internal_name'] in lineage], building_type, descendants)
+    return _tree([(_production_name(production, group), [building for building in group if building['internal_name'] in lineage])],
+                 building_type, descendants)

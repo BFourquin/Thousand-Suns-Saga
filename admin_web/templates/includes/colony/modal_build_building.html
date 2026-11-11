@@ -1,7 +1,7 @@
 {% load i18n %}
-<!-- Construction in a district : a category, then one of its productions, then a building of its tree -->
+<!-- Construction in a district : a category, then a building of its tree, where each production has its section -->
 <div class="modal fade" id="modal-build-building-{{ district.id }}" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title">{% trans "Construire un nouveau bâtiment"%} — {{ district.name }}</h4>
@@ -24,31 +24,15 @@
 
           <div class="tab-content">
             {% for category in district.construction_trees %}
-            {% with category_id=forloop.counter %}
-            <div class="tab-pane fade" id="build-{{ district.id }}-{{ category_id }}" role="tabpanel">
-              <ul class="nav nav-pills nav-sm btree-steps" role="tablist">
-                {% for production in category.productions %}
-                <li class="nav-item">
-                  <a class="nav-link py-1" data-toggle="pill" role="tab" href="#build-{{ district.id }}-{{ category_id }}-{{ forloop.counter }}">{{ production.name }}</a>
-                </li>
-                {% endfor %}
-              </ul>
-
-              <div class="tab-content">
-                {% for production in category.productions %}
-                <div class="tab-pane fade" id="build-{{ district.id }}-{{ category_id }}-{{ forloop.counter }}" role="tabpanel">
-                  <form method="POST" data-api-url="api_build_building">
-                    {% csrf_token %}
-                    <input type="hidden" name="colony_id" value="{{ colony_id }}">
-                    <input type="hidden" name="district_id" value="{{ district.id }}">
-                    {% include "includes/colony/building_tree.html" with tree=production.tree %}
-                    <button type="submit" class="btn btn-primary">{% trans "Construire" %}</button>
-                  </form>
-                </div>
-                {% endfor %}
-              </div>
+            <div class="tab-pane fade" id="build-{{ district.id }}-{{ forloop.counter }}" role="tabpanel">
+              <form method="POST" data-api-url="api_build_building">
+                {% csrf_token %}
+                <input type="hidden" name="colony_id" value="{{ colony_id }}">
+                <input type="hidden" name="district_id" value="{{ district.id }}">
+                {% include "includes/colony/building_tree.html" with tree=category.tree %}
+                <button type="submit" class="btn btn-primary">{% trans "Construire" %}</button>
+              </form>
             </div>
-            {% endwith %}
             {% endfor %}
           </div>
         </div>

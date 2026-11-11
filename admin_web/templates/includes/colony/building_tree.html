@@ -1,18 +1,24 @@
 {% load i18n %}
-<!-- Tree of buildings (data.buildings_types._tree), inside a form : the selectable ones are radios named building_type -->
+<!-- Tree of buildings (data.buildings_types._tree), inside a form : the selectable ones are radios named building_type.
+     A section per production, its name at the bottom, the levels shared by all the sections. -->
 <div class="btree" data-btree>
   <div class="btree-grid" style="grid-template-columns: repeat({{ tree.columns }}, auto)">
     <svg class="btree-links" aria-hidden="true"></svg>
-    {% for building in tree.buildings %}
-    <label class="btree-node btree-{{ building.status }}{% if building.current %} btree-current{% endif %}{% if building.selectable %} btree-selectable{% endif %}"
-           data-name="{{ building.internal_name }}" data-parents="{{ building.parents|join:',' }}"
-           style="grid-column: {{ building.grid_column }}; grid-row: {{ building.grid_row }}" title="{{ building.tooltip }}">
-        <input type="radio" name="building_type" value="{{ building.internal_name }}" class="sr-only"
-               aria-label="{{ building.name }}, {% trans 'niveau' %} {{ building.levels }}" {% if not building.selectable %}disabled{% endif %}>
-        <i class="fas {{ building.icon }}" aria-hidden="true"></i>
-        <span class="btree-level">{{ building.level }}</span>
-        {% if building.status == 'locked' %}<i class="fas fa-lock btree-lock" aria-hidden="true"></i>{% endif %}
-    </label>
+    {% for section in tree.sections %}
+    <div class="btree-section{% if forloop.counter|divisibleby:2 %} btree-section-even{% endif %}"
+         style="grid-column: {{ section.grid_column }} / span {{ section.columns }}; grid-row: 1 / span {{ tree.rows|add:1 }}"></div>
+    <span class="btree-section-name" style="grid-column: {{ section.grid_column }} / span {{ section.columns }}; grid-row: {{ tree.rows|add:1 }}">{{ section.name }}</span>
+      {% for building in section.buildings %}
+      <label class="btree-node btree-{{ building.status }}{% if building.current %} btree-current{% endif %}{% if building.selectable %} btree-selectable{% endif %}"
+             data-name="{{ building.internal_name }}" data-parents="{{ building.parents|join:',' }}"
+             style="grid-column: {{ building.grid_column }}; grid-row: {{ building.grid_row }}" title="{{ building.tooltip }}">
+          <input type="radio" name="building_type" value="{{ building.internal_name }}" class="sr-only"
+                 aria-label="{{ building.name }}, {% trans 'niveau' %} {{ building.levels }}" {% if not building.selectable %}disabled{% endif %}>
+          <i class="fas {{ building.icon }}" aria-hidden="true"></i>
+          <span class="btree-level">{{ building.level }}</span>
+          {% if building.status == 'locked' %}<i class="fas fa-lock btree-lock" aria-hidden="true"></i>{% endif %}
+      </label>
+      {% endfor %}
     {% endfor %}
   </div>
 </div>
