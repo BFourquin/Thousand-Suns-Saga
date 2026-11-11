@@ -109,6 +109,7 @@ map_generator.load_map_generator_parameters(server_name, excel_server_params)
 
 with transaction.atomic(), server_schema(server_name):  # A single commit instead of one per row : much faster, and no half generated map
     drawn = map_generator.generate_map(server_name, excel_server_params, max_players)
+map_generator.save_blank_map(server_name, drawn)
 print(galaxy.report(drawn))  # The pictures of a map : the page admin_map_trial, with the same seed
 
 # STATISTICS

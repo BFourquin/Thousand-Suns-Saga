@@ -7,8 +7,10 @@ A sector of the tables is a square of SECTOR_SIZE units of the galaxy ; the natu
 """
 
 from collections import Counter, defaultdict
+from pathlib import Path
 
 import numpy as np
+from django.conf import settings
 
 from database.schemas import on_server
 from game.models import Coordinate, Sector, StartingValues, System, Zone
@@ -107,6 +109,15 @@ def generate_map(server, excel_path, players=None):
     drawn = galaxy.generate(str(seed), players, type_stars=type_stars(excel_path), **options)
     save_galaxy(server, drawn, seed, compositions(excel_path))
     return drawn
+
+
+def save_blank_map(server, drawn, folder=None):
+    # The blank map (systems only) of the server, for the page of the servers list. Never the one with the sectors or the
+    # zones : it would tell the players where the homes are. Returns the path written.
+    folder = Path(folder or settings.BASE_DIR / 'admin_web' / 'static' / 'images' / 'server_specific') / server / 'map'
+    folder.mkdir(parents=True, exist_ok=True)
+    galaxy.render(drawn)[0].save(folder / 'map.png')
+    return folder / 'map.png'
 
 
 def bodies_of(r, star, system_type, composition):

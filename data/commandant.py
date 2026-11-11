@@ -17,18 +17,28 @@ from actions import colonize
 from backend import utils
 
 
-def check_account_rules(server, user_id):
-    # One commandant per server, and one exclusive server at a time. Dead commandants and finished servers don't count.
-
-    # Locked until the end of the transaction : two simultaneous creations on two servers can't both pass
-    User.objects.select_for_update().get(id=user_id)
+def account_rules_error(server, user_id):
+    # Why this player can't join this server (long message, short label), None if he can. Not banned, one commandant per server, and one exclusive
+    # server at a time. Dead commandants and finished servers don't count.
+    extended = UserExtended.objects.filter(user_id=user_id).first()
+    if extended and (extended.status == 'banned' or extended.banned_until and extended.banned_until > timezone.now()):
+        return _("Votre compte est banni"), _("Banni")
 
     accounts = CommandantAccount.objects.filter(user_id=user_id, status='active')
     if accounts.filter(server=server).exists():
-        raise GameError(_("Vous avez déjà un commandant sur ce serveur"))
+        return _("Vous avez déjà un commandant sur ce serveur"), _("Déjà inscrit")
     if Server.objects.get(pk=server).exclusive and \
             accounts.filter(server__exclusive=True).exclude(server__status__in=FINISHED_SERVER_STATUSES).exists():
-        raise GameError(_("Ce serveur est exclusif et vous jouez déjà sur un autre serveur exclusif"))
+        return _("Ce serveur est exclusif et vous jouez déjà sur un autre serveur exclusif"), _("Autre exclusif en cours")
+
+
+def check_account_rules(server, user_id):
+    # Locked until the end of the transaction : two simultaneous creations on two servers can't both pass
+    User.objects.select_for_update().get(id=user_id)
+
+    error = account_rules_error(server, user_id)
+    if error:
+        raise GameError(error[0])
 
 
 def pick_home(available):

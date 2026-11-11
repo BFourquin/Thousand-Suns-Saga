@@ -3,6 +3,7 @@ import inspect
 import json
 import random
 from collections import Counter
+import tempfile
 from datetime import datetime, timedelta, timezone as dt_timezone
 from importlib import import_module
 from unittest.mock import MagicMock, patch
@@ -2514,6 +2515,12 @@ class CreateCommandantTests(TestCase):
         create_commandant('Other', 'player', 'Varro', 'Royaume')
         self.assertEqual(CommandantAccount.objects.count(), 2)
 
+    def test_a_banned_player_can_not_join(self):
+        UserExtended.objects.update_or_create(user=User.objects.get(username='player'),
+                                              defaults={'banned_until': timezone.now() + timedelta(days=1)})
+        with self.assertRaises(GameError):
+            create_commandant('S', 'player', 'Paullus', 'Empire')
+
     def test_commandants_of_a_sector_share_their_native_entente(self):
         create_commandant('S', 'player', 'Paullus', 'Empire')
         User.objects.create_user('player2', 'p2@example.com', 'x')
@@ -3386,6 +3393,7 @@ class AnticheatAdminTests(AnticheatTestCase):
         self.assertContains(response, '&lt;b&gt;Message&lt;/b&gt;')
         self.assertContains(response, 'En retard')
         self.assertContains(response, '4 h (Europe/Paris)')
+        self.assertEqual(response.context['nb_open_alerts'], 1)
 
         alert = Alert.objects.get()
         self.client.post('/admin_cheat_alerts/', {'alert_id': alert.id, 'action': 'close'})
@@ -3552,6 +3560,11 @@ class MapGenerationTests(TestCase):
             self.assertFalse(Coordinate.objects.exclude(seed__regex=r'^1001\d{14}$').exists())
             self.assertFalse(System.objects.filter(zone=None).exists())
             self.assertFalse(System.objects.filter(region=None).exists())
+
+    def test_only_the_blank_map_is_saved_for_the_servers_list(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = geography_map.save_blank_map('S', self.drawn, folder)
+            self.assertEqual(sorted(p.name for p in path.parent.iterdir()), ['map.png'])
 
     def test_the_zones_are_written_with_their_shape_their_neighbours_and_a_name(self):
         with server_schema('S'):

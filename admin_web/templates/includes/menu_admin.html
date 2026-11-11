@@ -116,7 +116,9 @@
           <li class="nav-item">
             <a href="/admin_cheat_alerts/" class="nav-link">
               <i class="fas fa-user-ninja nav-icon"></i>
-              <p>Anti-triche</p>
+              <p>Anti-triche
+                {% if nb_open_alerts %}<span class="badge badge-danger right">{{nb_open_alerts}}</span>{% endif %}
+              </p>
             </a>
           </li>
 
@@ -124,13 +126,6 @@
             <a class="nav-link disabled" aria-disabled="true">
               <i class="fas fa-bug nav-icon"></i>
               <p>Logs</p>
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link disabled" aria-disabled="true">
-              <i class="fas fa-shield-virus nav-icon"></i>
-              <p>Anti-Cheat</p>
             </a>
           </li>
 

@@ -1,0 +1,106 @@
+{% load static %}
+{% load i18n %}
+<div class="card-body table-responsive p-0">
+  <table class="table table-striped projects">
+      <thead>
+          <tr>
+              <th>{% trans "Nom du serveur"%}</th>
+              <th class="d-none d-sm-table-cell">{% trans "Langue"%}</th>
+              <th class="d-none d-md-table-cell">{% trans "Roleplay"%}</th>
+              <th>{% trans "Joueurs"%}</th>
+              <th class="d-none d-md-table-cell">{% trans "Cycles"%}</th>
+              <th class="d-none d-md-table-cell">{% trans "Date d'ouverture"%}</th>
+              <th class="d-none d-md-table-cell">{% trans "Type de serveur"%}</th>
+              <th class="d-none d-sm-table-cell">{% trans "Carte"%}</th>
+              <th>{% trans "Inscription"%}</th>
+          </tr>
+      </thead>
+      <tbody>
+         {% for server in servers %}
+          <tr>
+              <!-- Nom du serveur -->
+              <td><span class="u-font-size-1-3em">{{server.server_name}}</span></td>
+
+              <!-- Language -->
+              <td class="d-none d-sm-table-cell">
+                  <span>
+                      {% if server.language == 'fr' %}
+                        <img src="{% static "images/flags/fr.svg"%}" class="u-width-30px-margin-right-5px" alt="">
+                        {% trans "Français"%}
+                      {% endif %}
+
+                      {% if server.language == 'en' %}
+                        <img src="{% static "images/flags/en.svg"%}" class="u-width-30px-margin-right-5px" alt="">
+                        {% trans "Anglais"%}
+                      {% endif %}
+
+                      {% if server.language == 'international' %}
+                        <img src="{% static "images/flags/international.svg"%}" class="u-width-30px-margin-right-5px" alt="">
+                        {% trans "International"%}
+                      {% endif %}
+                  </span>
+              </td>
+
+              <!-- Roleplay -->
+              <td class="d-none d-md-table-cell">{{server.roleplay}}</td>
+
+              <!-- Joueurs -->
+              <td>
+                  <small>
+                      {% trans "Actifs :" %} {{server.active_commandants|length}}
+                      <br/>
+                      {% trans "Morts :" %} {{server.dead_commandants|length}}
+                  </small>
+              </td>
+
+              <!-- Cycles -->
+              <td class="d-none d-md-table-cell">{{server.cycles.cycle_nb}}</td>
+
+              <!-- Dates -->
+              <td class="d-none d-md-table-cell">
+                  {{server.opening_date|date:'d/m/Y H:i'}}
+                  ( {{server.open_since_days}}
+                  {% if server.open_since_days < 2 %}{% trans "jour"%}{% endif %}
+                  {% if server.open_since_days >= 2 %}{% trans "jours"%}{% endif %} )
+              </td>
+
+              <!-- Exclusif -->
+              <td class="d-none d-md-table-cell">
+                  {% if server.exclusive %}{% trans "Exclusif"%}{% else %}{% trans "Libre"%}{% endif %}
+              </td>
+
+              <!-- Carte -->
+              <td class="d-none d-sm-table-cell py-0 align-middle">
+                  {% if server.map_image %}
+                    <a href="#modal-map-{{server.server_name|slugify}}" data-toggle="modal" title="{% trans 'Agrandir' %}">
+                      <img src="{% static server.map_image %}" alt="{% trans 'Carte' %} {{server.server_name}}" class="rounded" style="height: 70px; width: 70px; object-fit: cover; display: block;">
+                    </a>
+                    <div class="modal fade" id="modal-map-{{server.server_name|slugify}}" tabindex="-1" role="dialog" aria-hidden="true">
+                      <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title">{{server.server_name}}</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="{% trans 'Fermer' %}"><span aria-hidden="true">&times;</span></button>
+                          </div>
+                          <div class="modal-body p-0"><img src="{% static server.map_image %}" alt="" class="img-fluid d-block mx-auto"></div>
+                        </div>
+                      </div>
+                    </div>
+                  {% endif %}
+              </td>
+
+              <!-- Rejoindre -->
+              <td>
+                  {% if server.status == 'close' %}
+                    {% trans "Fermé"%}
+                  {% elif server.join_blocker %}
+                    <small>{{server.join_blocker}}</small>
+                  {% else %}
+                    <a href="/create_commandant/?server_name={{server.server_name}}" class="btn btn-block btn-primary">{% trans "Rejoindre"%}</a>
+                  {% endif %}
+              </td>
+          </tr>
+         {% endfor %}
+      </tbody>
+  </table>
+</div>

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.utils import timezone
@@ -8,6 +9,7 @@ from backend.login import throttled_authenticate
 from data import forums
 from data import server_details
 from data import cycles
+from data.commandant import account_rules_error
 
 
 
@@ -30,11 +32,20 @@ def servers_list(request):
     for i in range(len(servers)):
         servers[i]['cycles'] = cycles.get_current_cycle(servers[i]['server_name'])
         servers[i]['open_since_days'] = (timezone.now() - servers[i]['opening_date']).days
+        image = f"images/server_specific/{servers[i]['server_name']}/map/map.png"
+        servers[i]['map_image'] = image if (settings.BASE_DIR / 'admin_web' / 'static' / image).exists() else None
+        # Why the player can't join, shown instead of the button
+        blocker = request.user.is_authenticated and servers[i]['status'] in ('open', 'test') and \
+            account_rules_error(servers[i]['server_name'], request.user.id)
+        servers[i]['join_blocker'] = blocker[1] if blocker else None
 
+    servers = [s for s in servers if request.user.is_staff or not s['admin_only_visibility']]
     servers = sorted(servers, key=lambda d: d['opening_date'], reverse=True)
+    game_servers = [s for s in servers if s['status'] in ('open', 'close')]
+    # Test servers are shown only when one can be joined (by the superusers only)
+    test_servers = [s for s in servers if s['status'] == 'test'] if request.user.is_superuser else []
 
-
-    return render(request, 'public/servers_list.html', {'servers_details': servers})
+    return render(request, 'public/servers_list.html', {'game_servers': game_servers, 'test_servers': test_servers})
 
 
 

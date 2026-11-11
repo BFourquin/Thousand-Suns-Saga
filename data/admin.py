@@ -77,5 +77,9 @@ def get_alerts(max_closed=50):
     return {'open': list(alerts.filter(is_open=True)), 'closed': list(alerts.filter(is_open=False)[:max_closed])}
 
 
+def count_open_alerts():
+    return Alert.objects.filter(is_open=True).count()
+
+
 def set_alert_open(alert_id, is_open, username):
     Alert.objects.filter(pk=alert_id).update(is_open=is_open, handled_by='' if is_open else username)

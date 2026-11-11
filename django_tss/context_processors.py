@@ -1,5 +1,6 @@
 
 from data import server_details
+from data.admin import count_open_alerts
 from data.conversations import count_unread_conversations
 from data.ententes import count_pending_answers
 from data.forums import count_all_open_flags, get_forum_badges
@@ -51,4 +52,5 @@ def commandant_and_server(request):
             'forum_badges': forum_badges,
             'nb_communication': nb_unread_conversations + sum(forum_badges.values()),
             'nb_entente_answers': nb_entente_answers,
-            'nb_open_flags': count_all_open_flags() if request.user.is_superuser else 0}
+            'nb_open_flags': count_all_open_flags() if request.user.is_superuser else 0,
+            'nb_open_alerts': count_open_alerts() if request.user.is_superuser else 0}
