@@ -1912,6 +1912,56 @@ class EconomyPagesTests(EconomyTestCase):
         self.assertContains(response, '200 %')
 
 
+
+class BuildingsTreeTests(EconomyTestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        with server_schema('S'):
+            for name, data in (('copper', {'tech_available': 2, 'tech_hidden': 4}), ('iron', {'tech_available': 3, 'tech_hidden': 6}),
+                               ('mechanized', {'tech_available': 6}), ('asteroid', {'tech_available': 9}),
+                               ('gold', {'tech_available': 2, 'production': 'gold'}), ('deep', {'tech_available': 10}),
+                               ('automated', {'tech_available': 11}), ('core', {'tech_available': 13, 'upgrade_from': 'mechanized'})):
+                BuildingType.objects.create(internal_name=name, data={'internal_name': name, 'name_fr': name, 'category': 'raw_materials',
+                                                                      'production': 'common_metal'} | data)
+
+    def setUp(self):
+        self.client.force_login(self.user)
+        CommandantAccount.objects.create(server_id='S', commandant_id=self.commandant.id, user=self.user, commandant_name='Paullus')
+        UserExtended.objects.update_or_create(user=self.user, defaults={'playing_on_server_id': 'S', 'playing_on_commandant': self.commandant.id})
+
+    def tree(self, **params):
+        response = self.client.get('/buildings/', {'category': 'raw_materials'} | params)
+        self.assertEqual(response.status_code, 200)
+        return response.context, {building['internal_name']: building for band in response.context['bands'] for building in band['buildings']}
+
+    def test_each_building_comes_from_the_one_it_replaces(self):
+        context, buildings = self.tree()
+        self.assertEqual([band['name'] for band in context['bands']], ['common_metal', 'gold'])
+        self.assertEqual({name: building['parents'] for name, building in buildings.items()},
+                         {'copper': [], 'iron': ['copper'], 'mechanized': ['iron'], 'asteroid': ['mechanized'], 'gold': [],
+                          'deep': ['asteroid'], 'automated': ['deep'], 'core': ['mechanized']})  # core : the column upgrade_from
+        self.assertEqual(buildings['asteroid']['row'], buildings['mechanized']['row'])  # A chain on one row, a branch below
+        self.assertGreater(buildings['core']['row'], buildings['mechanized']['row'])
+
+    def test_obsolete_buildings_and_future_levels_by_the_chosen_level(self):
+        context, buildings = self.tree()  # Level 10 by default
+        self.assertEqual({name: building['status'] for name, building in buildings.items() if name != 'gold'},
+                         {'copper': 'past', 'iron': 'past', 'mechanized': 'current', 'asteroid': 'current', 'deep': 'current',
+                          'automated': 'future', 'core': 'future'})
+        self.assertEqual([(column['level'], column['status']) for column in context['levels']],
+                         [(2, 'current'), (3, 'past'), (6, 'current'), (9, 'current'), (10, 'current'), (11, 'future'), (13, 'future')])
+        self.assertEqual(self.tree(level='3')[1]['iron']['status'], 'current')
+        self.assertEqual(self.tree(level='x')[0]['level'], 10)
+
+    def test_a_building_shows_its_lineage_only(self):
+        context, buildings = self.tree(building='deep')
+        self.assertEqual(context['selected_production'], 'common_metal')
+        self.assertEqual(set(buildings), {'copper', 'iron', 'mechanized', 'asteroid', 'deep', 'automated'})
+        self.assertContains(self.client.get('/buildings/', {'category': 'raw_materials', 'building': 'deep'}), 'btree-focus', count=1)
+
+
 class AuditFixesTests(EconomyTestCase):
 
     def setUp(self):

@@ -25,6 +25,7 @@ from data.commandant import get_commandants
 from data.economy import cycle_balance
 from data.modifiers import CATEGORIES, SCOPES, modifiers_of_commandant
 from data.research import research_tree
+from data.buildings_types import TREE_DEFAULT_LEVEL, buildings_tree
 from data.resources import get_all_resources_parameters, get_resources_categories
 from data.names import localized_name
 
@@ -510,3 +511,15 @@ def technologies(request, server, commandant):
     tree = research_tree(server, commandant, get_request_user(request)['language'], request_params(request).get('category'))
     return TemplateResponse(request, 'game/technologies.html', {'server': server} | tree)
 
+
+@login_required(login_url='/player_login/')
+@add_cycle_info
+@log_player_action
+@commandant_required
+def buildings(request, server, commandant):
+    params = request_params(request)
+    level = params.get('level')
+    level = int(level) if str(level).isdigit() else TREE_DEFAULT_LEVEL
+    tree = buildings_tree(server, get_request_user(request)['language'], level,
+                          params.get('category'), params.get('production'), params.get('building'))
+    return TemplateResponse(request, 'game/buildings.html', {'server': server} | tree)
